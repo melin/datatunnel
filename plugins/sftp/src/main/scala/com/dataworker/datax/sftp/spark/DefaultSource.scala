@@ -62,7 +62,7 @@ class DefaultSource extends RelationProvider with SchemaRelationProvider with Cr
       "false"
     }
 
-    val instanceCode = sqlContext.sparkContext.getConf.get("com.dataworker.datax.sftp.spark.dataworker.job.code")
+    val instanceCode = sqlContext.sparkContext.getConf.get("spark.datawork.job.code")
     val hdfsTemp = "/user/datawork/temp/sftp/" + instanceCode;
     mkdir(sqlContext, hdfsTemp)
 
@@ -109,7 +109,7 @@ class DefaultSource extends RelationProvider with SchemaRelationProvider with Cr
       sys.error("fileType " + fileType + " not supported. Supported file types are " + supportedFileTypes)
     }
 
-    val instanceCode = sqlContext.sparkContext.getConf.get("com.dataworker.datax.sftp.spark.dataworker.job.code")
+    val instanceCode = sqlContext.sparkContext.getConf.get("spark.datawork.job.code")
     val hdfsTemp = "/user/datawork/temp/sftp/" + instanceCode;
     mkdir(sqlContext, hdfsTemp)
 
