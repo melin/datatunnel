@@ -6,7 +6,7 @@ datax reader("ftp") options(host="10.10.9.11", port=22, username="sftpuser", pas
     writer("hive") options(tableName="tdl_ftp_demo")
 ```
 
-```java
+```scala
 case class DataxExprCommand(ctx: DataxExprContext) extends RunnableCommand {
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
@@ -19,6 +19,9 @@ case class DataxExprCommand(ctx: DataxExprContext) extends RunnableCommand {
     val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataxWriter])
     val reader = readLoader.getExtension(sourceType)
     val writer = writeLoader.getExtension(distType)
+
+    reader.validateOptions(readOpts)
+    reader.validateOptions(readOpts)
 
     val df = reader.read(sparkSession, readOpts)
     writer.write(sparkSession, df, writeOpts)
