@@ -13,7 +13,7 @@ import java.util.Map;
 public class HbaseWriter implements DataxWriter {
 
     @Override
-    public void validateParameter(Map<String, String> options) {
+    public void validateOptions(Map<String, String> options) {
 
     }
 

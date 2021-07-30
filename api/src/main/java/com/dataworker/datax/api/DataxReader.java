@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface DataxReader {
 
-    void validateParameter(Map<String, String> options);
+    void validateOptions(Map<String, String> options);
 
     Dataset<Row> read(SparkSession sparkSession, Map<String, String> options);
 }

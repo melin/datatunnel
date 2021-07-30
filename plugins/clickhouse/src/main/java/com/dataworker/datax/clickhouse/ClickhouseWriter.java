@@ -13,7 +13,7 @@ import java.util.Map;
 public class ClickhouseWriter implements DataxWriter {
 
     @Override
-    public void validateParameter(Map<String, String> options) {
+    public void validateOptions(Map<String, String> options) {
 
     }
 

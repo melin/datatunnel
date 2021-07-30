@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface DataxWriter {
 
-    void validateParameter(Map<String, String> options);
+    void validateOptions(Map<String, String> options);
 
     void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options);
 }

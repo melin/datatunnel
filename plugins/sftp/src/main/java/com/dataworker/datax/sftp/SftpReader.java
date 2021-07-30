@@ -14,7 +14,7 @@ import java.util.Map;
 public class SftpReader implements DataxReader {
 
     @Override
-    public void validateParameter(Map<String, String> options) {
+    public void validateOptions(Map<String, String> options) {
     }
 
     @Override
