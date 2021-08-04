@@ -23,7 +23,7 @@ public class HiveWriter implements DataxWriter {
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) {
         try {
             String tdlName = "tdl_datax_" + new Date().getTime();
-            dataset.createGlobalTempView(tdlName);
+            dataset.createTempView(tdlName);
             String tableName = options.get("tableName");
 
             String sql = "create table " + tableName + " as select * from " + tdlName;
