@@ -31,5 +31,9 @@ case class DataxExprCommand(ctx: DataxExprContext) extends RunnableCommand {
 }
 ```
 
+### 发布打包
+```
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true
+```
 
 
