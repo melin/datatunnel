@@ -9,11 +9,9 @@
 
     <dependencySets>
         <dependencySet>
-            <includes>
-                <include>com.dataworker.datax:*:jar</include>
-            </includes>
             <excludes>
                 <exclude>com.dataworker.datax:datax-assembly:jar</exclude>
+                <exclude>commons-io:commons-io:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
