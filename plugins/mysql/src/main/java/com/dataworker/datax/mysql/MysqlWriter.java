@@ -5,6 +5,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ public class MysqlWriter implements DataxWriter {
     }
 
     @Override
-    public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) {
+    public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
 
     }
 }

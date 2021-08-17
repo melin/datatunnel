@@ -5,6 +5,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -15,5 +16,5 @@ public interface DataxWriter {
 
     void validateOptions(Map<String, String> options);
 
-    void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options);
+    void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException;
 }

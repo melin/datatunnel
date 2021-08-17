@@ -6,7 +6,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import java.util.Date;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -20,9 +20,9 @@ public class HiveWriter implements DataxWriter {
     }
 
     @Override
-    public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) {
+    public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
         try {
-            String tdlName = "tdl_datax_" + new Date().getTime();
+            String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
             String tableName = options.get("tableName");
 

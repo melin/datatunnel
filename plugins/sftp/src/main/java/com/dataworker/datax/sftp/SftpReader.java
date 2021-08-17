@@ -6,6 +6,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ public class SftpReader implements DataxReader {
     }
 
     @Override
-    public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) {
+    public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
         DataFrameReader dfReader = sparkSession.read().format("com.dataworker.datax.sftp.spark");
         String path = options.remove("path");
         dfReader.options(options);
