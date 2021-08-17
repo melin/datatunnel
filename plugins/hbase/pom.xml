@@ -15,6 +15,8 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+
+        <hbase.version>1.2.0-cdh5.15.0</hbase.version>
     </properties>
 
     <dependencies>
@@ -22,6 +24,12 @@
             <artifactId>datax-common</artifactId>
             <groupId>com.dataworker.datax</groupId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
         </dependency>
     </dependencies>
 </project>
