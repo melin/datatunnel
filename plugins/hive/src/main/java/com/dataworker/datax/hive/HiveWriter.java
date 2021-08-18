@@ -1,7 +1,7 @@
 package com.dataworker.datax.hive;
 
 import com.dataworker.datax.api.DataxWriter;
-import com.dataworker.datax.common.exception.DataXException;
+import com.dataworker.datax.api.DataXException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;

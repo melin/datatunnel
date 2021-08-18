@@ -1,7 +1,7 @@
 package com.dataworker.datax.hdfs;
 
 import com.dataworker.datax.api.DataxReader;
-import com.dataworker.datax.common.exception.DataXException;
+import com.dataworker.datax.api.DataXException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;

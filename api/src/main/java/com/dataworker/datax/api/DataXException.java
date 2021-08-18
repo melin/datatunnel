@@ -1,4 +1,4 @@
-package com.dataworker.datax.common.exception;
+package com.dataworker.datax.api;
 
 /**
  * @author melin 2021/7/29 4:32 下午
