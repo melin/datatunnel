@@ -55,7 +55,7 @@ public class SftpWriter implements DataxWriter {
         try {
             FileSystem fileSystem = FileSystem.get(sparkSession.sparkContext().hadoopConfiguration());
             String remotePath = options.get("path");
-            String overwrite = options.get("overwrite");
+            String overwrite = options.getOrDefault("overwrite", "false");
             boolean result = SftpUtils.checkFileExists(channelSftp, remotePath);
             if (!result) {
                 SftpUtils.mkdir(channelSftp, remotePath);
