@@ -21,6 +21,8 @@ case class DataxExprCommand(ctx: DataxExprContext) extends RunnableCommand {
     val readOpts = CommonUtils.convertOptions(ctx.readOpts)
     val writeOpts = CommonUtils.convertOptions(ctx.writeOpts)
 
+    writeOpts.put("__sourceType__", sourceType)
+
     val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataxReader])
     val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataxWriter])
     val reader = readLoader.getExtension(sourceType)
