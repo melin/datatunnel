@@ -38,11 +38,6 @@ public class SftpWriter implements DataxWriter {
             throw new DataXException("username 不能为空");
         }
 
-        String password = options.get("password");
-        if (StringUtils.isBlank(password)) {
-            throw new DataXException("password 不能为空");
-        }
-
         String host = options.get("host");
         if (StringUtils.isBlank(host)) {
             throw new DataXException("host 不能为空");
@@ -51,7 +46,7 @@ public class SftpWriter implements DataxWriter {
 
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
-        ChannelSftp channelSftp = SftpUtils.setupJsch(options);
+        ChannelSftp channelSftp = SftpUtils.setupJsch(sparkSession, options);
         try {
             FileSystem fileSystem = FileSystem.get(sparkSession.sparkContext().hadoopConfiguration());
             String remotePath = options.get("path");
