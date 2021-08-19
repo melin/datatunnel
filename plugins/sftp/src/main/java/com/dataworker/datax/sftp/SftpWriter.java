@@ -28,6 +28,11 @@ public class SftpWriter implements DataxWriter {
 
     @Override
     public void validateOptions(Map<String, String> options) {
+        String sourceType = options.get("__sourceType__");
+        if (!"hdfs".equals(sourceType)) {
+            throw new DataXException("只支持从hdfs读取文件写入sftp");
+        }
+
         String remotePath = options.get("path");
         if (StringUtils.isBlank(remotePath)) {
             throw new DataXException("path 不能为空");
