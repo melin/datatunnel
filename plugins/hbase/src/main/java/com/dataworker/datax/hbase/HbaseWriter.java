@@ -130,7 +130,7 @@ public class HbaseWriter implements DataxWriter {
         LogUtils.info(sparkSession,"hfile路径:" + stagingDir);
 
         //hfile生成成功后的路径
-        String stagingDirSucc = stagingDir + ".succ";
+        String stagingDirSucc = buildStagingDirSucc(stagingDir);
         Path stagingDirPath = new Path(stagingDir);
         Path stagingDirSuccPath = new Path(stagingDirSucc);
 
@@ -245,30 +245,29 @@ public class HbaseWriter implements DataxWriter {
                 int maxMaps = Integer.valueOf(options.get(DISTCP_MAXMAPS));
                 int mapBandwidth = Integer.valueOf(options.get(DISTCP_MAPBANDWIDTH));
 
-                String destStagingDirSucc = null;
-                String distTmpDir = options.get(DISTCP_HFILE_DIR);
-                if(StringUtils.isBlank(distTmpDir)){
-                    destStagingDirSucc = stagingDirSucc;
+                String distHfileDir = options.get(DISTCP_HFILE_DIR);
+
+                String distTmpDir = null;
+                if(StringUtils.isBlank(distHfileDir)){
+                    distTmpDir = tmpDir;
                 }else{
-                    destStagingDirSucc = HbaseBulkLoadTool.buildStagingDir(buildTmpDir(distTmpDir,jobInstanceCode));
+                    distTmpDir = buildTmpDir(distHfileDir,jobInstanceCode);
                 }
-                String destcpStagingDirSucc = destConfig.get("fs.defaultFS") + destStagingDirSucc;
+                String distStagingDir = HbaseBulkLoadTool.buildStagingDir(distTmpDir);
 
                 DistCpUtil.distcp(destConfig,
                         Arrays.asList(fileSystem.getFileStatus(stagingDirSuccPath).getPath()),
-                        new Path(destcpStagingDirSucc),
+                        new Path(destConfig.get("fs.defaultFS") + distStagingDir),
                         maxMaps,
                         mapBandwidth
                         );
 
                 //distcp成功后创建distcp.succ文件
                 FileSystem destFileSystem = FileSystem.get(destConfig);
-                destFileSystem.create(new Path(destStagingDirSucc,"distcp.succ"));
+                destFileSystem.create(new Path(distStagingDir,"distcp.succ"));
                 logger.info("jobInstanceCode={} distcp成功",jobInstanceCode);
                 LogUtils.info(sparkSession,"jobInstanceCod=" + jobInstanceCode + "distcp成功");
-
-                //todo 这里路径有个bug
-                HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig),table,buildTmpDir(distTmpDir,jobInstanceCode));
+                HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig),table,distTmpDir);
 
                 //删除原集群数据
                 fileSystem.delete(stagingDirSuccPath,true);
@@ -323,6 +322,10 @@ public class HbaseWriter implements DataxWriter {
         return sb.toString();
     }
 
+
+    private String buildStagingDirSucc(String stagingDir){
+        return stagingDir + "_succ";
+    }
 
     /**
      * 统计hfile信息

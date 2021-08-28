@@ -35,7 +35,7 @@ public class HbaseWriterTest {
 //        get 'bulkLoadTest1','1',{COLUMN=>'f1',VERSIONS=>5}
 
         String table = "bulkLoadTest2";
-        String stagingDir="20210828006";
+        String stagingDir="20210828008";
         String distCpstagingDir="dist/" + stagingDir;
 
         String princ = "admin/admin@DZTECH.COM";
