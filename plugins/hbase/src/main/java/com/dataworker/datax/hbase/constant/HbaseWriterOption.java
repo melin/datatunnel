@@ -55,6 +55,12 @@ public class HbaseWriterOption {
     public static final String COMPACTION_EXCLUDE = "compactionExclude";
 
     /**
+     * distcp 目录
+     */
+    public static final String DISTCP_HFILE_DIR = "distcp.hfileDir";
+
+
+    /**
      * distcp最大map数量
      */
     public static final String DISTCP_MAXMAPS = "distcp.maxMaps";

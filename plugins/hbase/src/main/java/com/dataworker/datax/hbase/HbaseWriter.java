@@ -244,19 +244,31 @@ public class HbaseWriter implements DataxWriter {
                 Configuration destConfig = initAndKerberos(sparkSession,"dest");
                 int maxMaps = Integer.valueOf(options.get(DISTCP_MAXMAPS));
                 int mapBandwidth = Integer.valueOf(options.get(DISTCP_MAPBANDWIDTH));
-                String deststagingDirSucc = destConfig.get("fs.defaultFS") + stagingDirSucc;
+
+                String destStagingDirSucc = null;
+                String distTmpDir = options.get(DISTCP_HFILE_DIR);
+                if(StringUtils.isBlank(distTmpDir)){
+                    destStagingDirSucc = stagingDirSucc;
+                }else{
+                    destStagingDirSucc = HbaseBulkLoadTool.buildStagingDir(buildTmpDir(distTmpDir,jobInstanceCode));
+                }
+                String destcpStagingDirSucc = destConfig.get("fs.defaultFS") + destStagingDirSucc;
+
                 DistCpUtil.distcp(destConfig,
                         Arrays.asList(fileSystem.getFileStatus(stagingDirSuccPath).getPath()),
-                        new Path(deststagingDirSucc),
+                        new Path(destcpStagingDirSucc),
                         maxMaps,
                         mapBandwidth
                         );
 
                 //distcp成功后创建distcp.succ文件
                 FileSystem destFileSystem = FileSystem.get(destConfig);
-                destFileSystem.create(new Path(stagingDirSucc,"distcp.succ"));
+                destFileSystem.create(new Path(destStagingDirSucc,"distcp.succ"));
                 logger.info("jobInstanceCode={} distcp成功",jobInstanceCode);
                 LogUtils.info(sparkSession,"jobInstanceCod=" + jobInstanceCode + "distcp成功");
+
+                //todo 这里路径有个bug
+                HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig),table,buildTmpDir(distTmpDir,jobInstanceCode));
 
                 //删除原集群数据
                 fileSystem.delete(stagingDirSuccPath,true);
