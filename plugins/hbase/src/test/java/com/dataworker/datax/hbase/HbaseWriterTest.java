@@ -3,7 +3,6 @@ package com.dataworker.datax.hbase;
 import com.dataworker.datax.hbase.constant.MappingMode;
 import com.dataworker.datax.hbase.constant.WriteMode;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -16,7 +15,6 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +23,8 @@ import java.util.Map;
 /****************************************
  * @@CREATE : 2021-08-28 3:40 下午
  * @@AUTH : NOT A CAT【NOTACAT@CAT.ORZ】
- * @@DESCRIPTION : 
+ * @@DESCRIPTION :
  * @@VERSION :
- *
  *****************************************/
 public class HbaseWriterTest {
     public static void main(String[] args) throws Exception{
@@ -35,8 +32,8 @@ public class HbaseWriterTest {
 //        get 'bulkLoadTest1','1',{COLUMN=>'f1',VERSIONS=>5}
 
         String table = "bulkLoadTest2";
-        String stagingDir="20210828008";
-        String distCpstagingDir="dist/" + stagingDir;
+        String stagingDir = "20210828008";
+        String distCpstagingDir = "dist/" + stagingDir;
 
         String princ = "admin/admin@DZTECH.COM";
         String keytabPath = Thread.currentThread().getContextClassLoader().getResource("source/kerberos-admin.keytab").getPath();
@@ -46,7 +43,7 @@ public class HbaseWriterTest {
 
         Configuration config = new Configuration(false);
 
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource( "source/core-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source/core-site.xml"));
         config.addResource(Thread.currentThread().getContextClassLoader().getResource("source/hbase-site.xml"));
         config.addResource(Thread.currentThread().getContextClassLoader().getResource("source/hdfs-site.xml"));
         config.addResource(Thread.currentThread().getContextClassLoader().getResource("source/yarn-site.xml"));
@@ -54,23 +51,19 @@ public class HbaseWriterTest {
         UserGroupInformation.setConfiguration(config);
         UserGroupInformation.loginUserFromKeytab(princ, keytabPath);
 
-
-
-        Map<String,String> map = new HashMap<>();
-        map.put("table",table);
+        Map<String, String> map = new HashMap<>();
+        map.put("table", table);
         map.put("writeMode", WriteMode.bulkLoad.name());
         map.put("mappingMode", MappingMode.one2one.name());
-        map.put("hfileDir",stagingDir);
-        map.put("hfileTime",String.valueOf(System.currentTimeMillis()));
-        map.put("hfileMaxSize",null);
-        map.put("doBulkLoad","true");
-        map.put("mergeQualifier","merge1");
-        map.put("compactionExclude",null);
-        map.put("distcp.maxMaps",String.valueOf(2));
-        map.put("distcp.mapBandwidth",String.valueOf(100));
-        map.put("distcp.hfileDir",distCpstagingDir);
-
-
+        map.put("hfileDir", stagingDir);
+        map.put("hfileTime", String.valueOf(System.currentTimeMillis()));
+        map.put("hfileMaxSize", null);
+        map.put("doBulkLoad", "true");
+        map.put("mergeQualifier", "merge1");
+        map.put("compactionExclude", null);
+        map.put("distcp.maxMaps", String.valueOf(2));
+        map.put("distcp.mapBandwidth", String.valueOf(100));
+        map.put("distcp.hfileDir", distCpstagingDir);
 
         SparkSession sparkSession = SparkSession.builder()
                 .master("local")
@@ -88,14 +81,14 @@ public class HbaseWriterTest {
             private static final long serialVersionUID = -4332903997027358601L;
             @Override
             public Row call(String line) throws Exception {
-                String[] strArr= line.split(",");
+                String[] strArr = line.split(",");
                 String name = strArr[0];
                 Integer height = Integer.valueOf(strArr[1]);
                 Integer weight = null;
-                if(strArr.length == 3){
+                if (strArr.length == 3){
                     weight = Integer.valueOf(strArr[2]);
                 }
-                return RowFactory.create(name,height,weight);
+                return RowFactory.create(name, height, weight);
             }
         });
 
@@ -105,20 +98,13 @@ public class HbaseWriterTest {
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty())});
         Dataset<Row> wordDF = sparkSession.createDataFrame(rows, schema);
 
-
-
-
         HbaseWriter hbaseWriter = new HbaseWriter();
 
+        sparkSession.sparkContext().conf().set("spark.datawork.job.code", "testcode");
 
-        sparkSession.sparkContext().conf().set("spark.datawork.job.code","testcode");
-
-        hbaseWriter.write(sparkSession,wordDF,map);
-
+        hbaseWriter.write(sparkSession, wordDF, map);
 
         System.out.println("finish");
-
-
 
     }
 }

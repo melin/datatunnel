@@ -10,12 +10,10 @@ import java.util.List;
 /****************************************
  * @@CREATE : 2021-08-28 2:04 下午
  * @@AUTH : NOT A CAT【NOTACAT@CAT.ORZ】
- * @@DESCRIPTION : 
+ * @@DESCRIPTION :
  * @@VERSION :
- *
  *****************************************/
 public class DistCpUtil {
-
 
     public static void distcp(Configuration config,
                               List<Path> sourcePaths, Path targetPath,
@@ -27,8 +25,4 @@ public class DistCpUtil {
         DistCp distcp = new DistCp(config, options);
         distcp.execute();
     }
-
-
-
-
 }

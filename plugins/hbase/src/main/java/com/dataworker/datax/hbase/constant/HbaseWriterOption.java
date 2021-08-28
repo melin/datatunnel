@@ -5,34 +5,33 @@ package com.dataworker.datax.hbase.constant;
  * @@AUTH : NOT A CAT【NOTACAT@CAT.ORZ】
  * @@DESCRIPTION : habse bulkload参数配置
  * @@VERSION :
- *
  *****************************************/
 public class HbaseWriterOption {
 
     /**
      * hbase表名
      */
-    public static final String TABLE ="table";
+    public static final String TABLE = "table";
 
     /**
      * bulkLoad的模式
      */
-    public static final String WRITE_MODE ="writeMode";
+    public static final String WRITE_MODE = "writeMode";
 
     /**
      * 字段映射模式
      */
-    public static final String MAPPING_MODE ="mappingMode";
+    public static final String MAPPING_MODE = "mappingMode";
 
     /**
      * 生成的hfile的路径
      */
-    public static final String HFILE_DIR ="hfileDir";
+    public static final String HFILE_DIR = "hfileDir";
 
     /**
      * 生成hfile的时间
      */
-    public static final String HFILE_TIME ="hfileTime";
+    public static final String HFILE_TIME = "hfileTime";
 
     /**
      * 生成hfile的最大大小
@@ -42,7 +41,7 @@ public class HbaseWriterOption {
     /**
      * 生成hfile后是否bulkLoad
      */
-    public static final String DO_BULKLOAD ="doBulkLoad";
+    public static final String DO_BULKLOAD = "doBulkLoad";
 
     /**
      * mappingMode模式下,合并字段的列名
@@ -59,7 +58,6 @@ public class HbaseWriterOption {
      */
     public static final String DISTCP_HFILE_DIR = "distcp.hfileDir";
 
-
     /**
      * distcp最大map数量
      */
@@ -69,8 +67,4 @@ public class HbaseWriterOption {
      * distcp每个map最大带宽
      */
     public static final String DISTCP_MAPBANDWIDTH = "distcp.mapBandwidth";
-
-
-
-
 }

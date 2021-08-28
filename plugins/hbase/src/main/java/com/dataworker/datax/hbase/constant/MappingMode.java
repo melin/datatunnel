@@ -5,7 +5,6 @@ package com.dataworker.datax.hbase.constant;
  * @@AUTH : NOT A CAT【NOTACAT@CAT.ORZ】
  * @@DESCRIPTION : 字段映射模式
  * @@VERSION :
- *
  *****************************************/
 public enum MappingMode {
     /**
