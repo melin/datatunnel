@@ -47,6 +47,22 @@
                     <groupId>io.netty</groupId>
                     <artifactId>netty-all</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-auth</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-annotations</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -77,12 +93,13 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
-                    <artifactId>hadoop-core</artifactId>
+                    <artifactId>hadoop-hdfs</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-common</artifactId>
                 </exclusion>
+
             </exclusions>
         </dependency>
     </dependencies>
@@ -93,6 +110,9 @@
             <properties>
                 <profiles.active>dev</profiles.active>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
 
         <profile>
@@ -100,9 +120,6 @@
             <properties>
                 <profiles.active>prod</profiles.active>
             </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
     </profiles>
 
@@ -110,24 +127,18 @@
         <resources>
             <resource>
                 <directory>src/main/resources/</directory>
-                <!--打包时先排除掉三个文件夹-->
                 <excludes>
                     <exclude>dev/*</exclude>
                     <exclude>prod/*</exclude>
                 </excludes>
                 <includes>
-                    <!--如果有其他定义通用文件，需要包含进来-->
-                    <!--<include>messages/*</include>-->
+                    <include>logback.xml</include>
                 </includes>
             </resource>
             <resource>
-                <!--这里是关键！ 根据不同的环境，把对应文件夹里的配置文件打包-->
                 <directory>src/main/resources/${profiles.active}</directory>
             </resource>
         </resources>
     </build>
-
-
-
 
 </project>
