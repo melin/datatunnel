@@ -128,12 +128,9 @@
             <resource>
                 <directory>src/main/resources/</directory>
                 <excludes>
-                    <exclude>dev/*</exclude>
-                    <exclude>prod/*</exclude>
+                    <exclude>dev/**</exclude>
+                    <exclude>prod/**</exclude>
                 </excludes>
-                <includes>
-                    <include>logback.xml</include>
-                </includes>
             </resource>
             <resource>
                 <directory>src/main/resources/${profiles.active}</directory>
