@@ -44,7 +44,7 @@ public class HbaseWriterOption {
     public static final String DO_BULKLOAD = "doBulkLoad";
 
     /**
-     * mappingMode模式下,合并字段的列名
+     * arrayZstd模式下,合并字段的列名
      */
     public static final String MERGE_QUALIFIER = "mergeQualifier";
 
