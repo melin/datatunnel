@@ -253,7 +253,7 @@ public class HbaseWriter implements DataxWriter {
                 }
                 String distStagingDir = HbaseBulkLoadTool.buildStagingDir(distTmpDir);
 
-                DistCpUtil.distcp(destConfig,
+                DistCpUtil.distcp(config,
                         Arrays.asList(fileSystem.getFileStatus(stagingDirSuccPath).getPath()),
                         new Path(destConfig.get("fs.defaultFS") + distStagingDir),
                         maxMaps,
