@@ -27,7 +27,6 @@
             <groupId>com.dataworker.spark.jobserver</groupId>
             <artifactId>spark-jobserver-api</artifactId>
             <version>3.1.0-SNAPSHOT</version>
-            <scope>${libScope}</scope>
         </dependency>
     </dependencies>
 
