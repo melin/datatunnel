@@ -1,1 +1,1 @@
-hive=com.dataworker.datax.hive.HiveWriter
+hive=com.dataworker.datax.hive.HiveReader
