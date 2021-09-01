@@ -12,6 +12,7 @@
         <module>api</module>
         <module>common</module>
         <module>assembly</module>
+        <module>plugins/log</module>
         <module>plugins/clickhouse</module>
         <module>plugins/sftp</module>
         <module>plugins/hdfs</module>
@@ -80,30 +81,35 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>1.2.3</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <version>1.7.32</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>1.7.32</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
             <version>1.7.32</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>

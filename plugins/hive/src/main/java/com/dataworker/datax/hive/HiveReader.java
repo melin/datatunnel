@@ -1,6 +1,8 @@
 package com.dataworker.datax.hive;
 
+import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxReader;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -15,7 +17,15 @@ public class HiveReader implements DataxReader {
 
     @Override
     public void validateOptions(Map<String, String> options) {
+        String tableName = options.get("tableName");
+        if (StringUtils.isBlank(tableName)) {
+            throw new DataXException("tableName 不能为空");
+        }
 
+        String columns = options.get("columns");
+        if (StringUtils.isBlank(columns)) {
+            throw new DataXException("columns 不能为空");
+        }
     }
 
     @Override
