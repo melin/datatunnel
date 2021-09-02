@@ -11,7 +11,12 @@
         <dependencySet>
             <excludes>
                 <exclude>com.dataworker.datax:datax-assembly:jar</exclude>
-                <exclude>commons-io:commons-io:jar</exclude>
+                <exclude>*:commons-*:jar</exclude>
+                <exclude>com.google.protobuf:protobuf-java:jar</exclude>
+                <exclude>org.apache.zookeeper:zookeeper:jar</exclude>
+                <exclude>org.apache.hadoop:hadoop-annotations:jar</exclude>
+                <exclude>org.apache.hadoop:hadoop-auth:jar</exclude>
+                <exclude>com.dataworker.spark.jobserver:spark-jobserver-api</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
