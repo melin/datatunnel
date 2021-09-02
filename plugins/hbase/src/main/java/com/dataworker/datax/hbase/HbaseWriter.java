@@ -18,22 +18,26 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.spark.HbaseTableMeta;
 import org.apache.hadoop.hbase.spark.JavaHBaseContext;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.dataworker.datax.hbase.constant.HbaseWriterOption.*;
 
@@ -67,11 +71,15 @@ public class HbaseWriter implements DataxWriter {
         }
 
         if (Objects.isNull(EnumUtils.getEnum(WriteMode.class, options.get(WRITE_MODE)))){
-            throw new DataXException("writeMode参数错误,支持bulkLoad或thinBulkLoad");
+//            现只提供bulkLoad模式
+//            throw new DataXException("writeMode参数错误,支持bulkLoad或thinBulkLoad");
+            options.put(WRITE_MODE, WriteMode.bulkLoad.name());
         }
 
         if (Objects.isNull(EnumUtils.getEnum(MappingMode.class, options.get(MAPPING_MODE)))){
-            throw new DataXException("mappingMode参数错误,支持one2one或arrayZstd");
+//            现只提供one2one模式
+//            throw new DataXException("mappingMode参数错误,支持one2one或arrayZstd");
+            options.put(MAPPING_MODE, MappingMode.one2one.name());
         }
 
         if (Objects.isNull(BooleanUtils.toBooleanObject(options.get(DO_BULKLOAD)))){
@@ -108,23 +116,19 @@ public class HbaseWriter implements DataxWriter {
             throw new DataXException("实例编号为空");
         }
 
-        Configuration config = null;
-        //初始化和认证
-        try {
-            config = initAndKerberos(sparkSession, "source");
-        } catch (Exception e) {
-            logger.error("初始化集群配置和认证失败", e);
-            LogUtils.error(sparkSession, "初始化集群配置和认证失败");
-            throw new DataXException("初始化集群配置和认证失败", e);
+        if (0 == dataset.count()){
+            throw new DataXException("dataset为空");
         }
 
-        logger.info("jobInstanceCode={} source 认证成功", jobInstanceCode);
-
+        LogUtils.info(sparkSession, "hadoopConfiguration:" + sparkSession.sparkContext().hadoopConfiguration());
+        Configuration config = HBaseConfiguration.create(sparkSession.sparkContext().hadoopConfiguration());
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hbase-site.xml"));
+        LogUtils.info(sparkSession, "config:" + config);
         //hfile路径
         String hfileDir = options.get(HFILE_DIR);
         String tmpDir = buildTmpDir(hfileDir, jobInstanceCode);
         String stagingDir = HbaseBulkLoadTool.buildStagingDir(tmpDir);
-        logger.debug("hfile路径:{}", stagingDir);
+        logger.info("jobInstanceCode={},hfile路径:{}", jobInstanceCode, stagingDir);
         LogUtils.info(sparkSession, "hfile路径:" + stagingDir);
 
         //hfile生成成功后的路径
@@ -146,8 +150,8 @@ public class HbaseWriter implements DataxWriter {
                 LogUtils.warn(sparkSession, "目录" + stagingDirSucc + "已存在,清空目录");
             }
         } catch (Exception e) {
-            logger.error("jobInstanceCode={}清空目录异常", jobInstanceCode, e);
-            LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + "清空目录异常");
+            logger.error("jobInstanceCode={} 清空目录异常", jobInstanceCode, e);
+            LogUtils.error(sparkSession, "清空目录异常");
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + "清空目录异常", e);
         }
 
@@ -162,17 +166,19 @@ public class HbaseWriter implements DataxWriter {
         HbaseTableMeta hbaseTableMeta = null;
         try {
             hbaseTableMeta = HbaseBulkLoadTool.buildHbaseTableMeta(connection, table, tmpDir);
+            logger.info("jobInstanceCode={}, hbaseTableMeta={}", jobInstanceCode, hbaseTableMeta);
+            LogUtils.info(sparkSession, "hbaseTableMeta=" + hbaseTableMeta);
         } catch (Exception e) {
-            logger.error("jobInstanceCode={}创建hbaseTableMeta失败", jobInstanceCode, e);
-            LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + "创建hbaseTableMeta失败" + e.getMessage());
-            throw new DataXException("jobInstanceCode=" + jobInstanceCode + "创建hbaseTableMeta失败", e);
+            logger.error("jobInstanceCode={} 创建hbaseTableMeta失败", jobInstanceCode, e);
+            LogUtils.error(sparkSession, " 创建hbaseTableMeta失败" + e.getMessage());
+            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 创建hbaseTableMeta失败", e);
         } finally {
             if (!connection.isClosed()){
                 connection.close();
             }
         }
         int regionSize = hbaseTableMeta.getStartKeys().length;
-        logger.info("table={} regionSize={}", table, regionSize);
+        logger.info("jobInstanceCode={} table={} regionSize={}", jobInstanceCode, table, regionSize);
         LogUtils.info(sparkSession, "table=" + table + " regionSize=" + regionSize);
 
         JavaSparkContext jsc = new JavaSparkContext(sparkSession.sparkContext());
@@ -196,13 +202,16 @@ public class HbaseWriter implements DataxWriter {
                         Optional.ofNullable(options.get(HFILE_TIME)).map((time)->NumberUtils.toLong(time)).orElse(System.currentTimeMillis()),
                         options
                         );
-
+                logger.info("jobInstanceCode={},writeMode={},mappingMode={} hfile生成成功", jobInstanceCode, writeMode, mappingMode);
+                LogUtils.info(sparkSession, "writeMode=" + writeMode + " mappingMode=" + mappingMode + " hfile生成成功");
             } else {
                 ThinBulkLoadFunctional functional = null;
                 if (MappingMode.one2one.equals(mappingMode)){
+                    LogUtils.info(sparkSession, "dazhenBulkLoadThinRows one2one");
                     functional = new One2OneThinBulkLoadFunction(hbaseTableMeta.getColumnFamily());
                 } else {
                     functional = new ArrayZstdThinBulkLoadFunction(hbaseTableMeta.getColumnFamily(), Bytes.toBytes(options.getOrDefault(MERGE_QUALIFIER, DEFAULT_MERGE_QUALIFIER)));
+                    LogUtils.info(sparkSession, "dazhenBulkLoadThinRows arrayZstd");
                 }
                 HbaseBulkLoadTool.dazhenBulkLoadThinRows(javaHBaseContext,
                         dataset,
@@ -213,33 +222,41 @@ public class HbaseWriter implements DataxWriter {
                         Optional.ofNullable(options.get(HFILE_TIME)).map((time)->NumberUtils.toLong(time)).orElse(System.currentTimeMillis()),
                         options
                 );
+                logger.info("jobInstanceCode={},writeMode={},mappingMode={} hfile生成成功", jobInstanceCode, writeMode, mappingMode);
+                LogUtils.info(sparkSession, "writeMode=" + writeMode + " mappingMode=" + mappingMode + " hfile生成成功");
             }
         } catch (Exception e) {
             logger.error("jobInstanceCode={} hfile生成失败", jobInstanceCode, e);
             LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + " hfile生成失败");
             //清理目录
             fileSystem.delete(stagingDirPath, true);
+            LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + "清理目录" + stagingDirPath);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " hfile生成失败");
         }
-        logger.info("jobInstanceCode={} hfile生成成功", jobInstanceCode);
-        LogUtils.info(sparkSession, "jobInstanceCode=" + jobInstanceCode + " hfile生成成功");
 
-        //目录改成.succ后缀
-        fileSystem.rename(stagingDirPath, stagingDirSuccPath);
-        logger.debug("jobInstanceCode={} rename成功, path={},", jobInstanceCode, stagingDirSuccPath);
+        //目录改成_succ后缀
+        if (fileSystem.rename(stagingDirPath, stagingDirSuccPath)){
+            logger.info("jobInstanceCode={} 修改hfile目录名={}成功", jobInstanceCode, stagingDirSuccPath);
+            LogUtils.info(sparkSession, "修改hfile目录名=" + stagingDirSuccPath + "成功");
+        } else {
+            logger.error("jobInstanceCode={} 修改hfile目录名={}失败", jobInstanceCode, stagingDirSuccPath);
+            LogUtils.error(sparkSession, "修改hfile目录名=" + stagingDirSuccPath + "失败");
+            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 修改hfile目录名=" + stagingDirSuccPath + "失败");
+        }
 
         try {
             //统计
             statisticsHfileInfo(sparkSession, config, stagingDirSuccPath, jobInstanceCode);
         } catch (Exception e) {
-            logger.error("jobInstanceCode={} 统计hfile信息异常", jobInstanceCode, e);
-            LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + "统计hfile信息异常");
+            logger.warn("jobInstanceCode={} 统计hfile信息异常", jobInstanceCode, e);
+            LogUtils.warn(sparkSession, "jobInstanceCode=" + jobInstanceCode + " 统计hfile信息异常");
         }
 
         //是否进行bulkload
         if (BooleanUtils.toBooleanObject(options.get(DO_BULKLOAD))){
             try {
-                Configuration destConfig = initAndKerberos(sparkSession, "dest");
+                Configuration destConfig = HBaseConfiguration.create(sparkSession.sparkContext().hadoopConfiguration());
+                destConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hbase-site.xml"));
                 int maxMaps = Integer.valueOf(options.get(DISTCP_MAXMAPS));
                 int mapBandwidth = Integer.valueOf(options.get(DISTCP_MAPBANDWIDTH));
 
@@ -252,6 +269,8 @@ public class HbaseWriter implements DataxWriter {
                     distTmpDir = buildTmpDir(distHfileDir, jobInstanceCode);
                 }
                 String distStagingDir = HbaseBulkLoadTool.buildStagingDir(distTmpDir);
+                logger.info("jobInstanceCode={},distCp目录={}", jobInstanceCode, distStagingDir);
+                LogUtils.info(sparkSession, "distCp目录=" + distStagingDir);
 
                 DistCpUtil.distcp(config,
                         Arrays.asList(fileSystem.getFileStatus(stagingDirSuccPath).getPath()),
@@ -264,43 +283,20 @@ public class HbaseWriter implements DataxWriter {
                 FileSystem destFileSystem = FileSystem.get(destConfig);
                 destFileSystem.create(new Path(distStagingDir, "distcp.succ"));
                 logger.info("jobInstanceCode={} distcp成功", jobInstanceCode);
-                LogUtils.info(sparkSession, "jobInstanceCod=" + jobInstanceCode + "distcp成功");
+                LogUtils.info(sparkSession, "distcp成功");
                 HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig), table, distTmpDir);
 
                 //删除原集群数据
                 fileSystem.delete(stagingDirSuccPath, true);
             } catch (Exception e) {
                 logger.error("jobInstanceCode={} distcp失败", jobInstanceCode, e);
-                LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + "distcp失败");
-                throw new DataXException("jobInstanceCode=" + jobInstanceCode + "distcp失败");
+                LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + " distcp失败");
+                throw new DataXException("jobInstanceCode=" + jobInstanceCode + " distcp失败", e);
 
             }
         }
         logger.info("jobInstanceCode={} hbaseWriter成功", jobInstanceCode);
         LogUtils.info(sparkSession, "jobInstanceCod=" + jobInstanceCode + "hbaseWriter成功");
-    }
-
-    public static Configuration initAndKerberos(SparkSession sparkSession, String env) throws Exception{
-        //kerberos 认证
-        Properties properties = new Properties();
-        properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(env + "/config.properties"));
-        String princ = properties.getProperty("kerberos.princ");
-        String keytabPath = Thread.currentThread().getContextClassLoader().getResource(env + "/kerberos-admin.keytab").getPath();
-        String krb5Path = Thread.currentThread().getContextClassLoader().getResource(env + "/krb5.conf").getPath();
-        System.setProperty("java.security.krb5.conf", krb5Path);
-        System.setProperty("sun.security.krb5.debug", "false");
-
-        //集群参数
-        Configuration config = new Configuration(false);
-        config.addResource(sparkSession.sparkContext().hadoopConfiguration());
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource(env + "/core-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource(env + "/hbase-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource(env + "/hdfs-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource(env + "/yarn-site.xml"));
-        //Kerberos 认证
-        UserGroupInformation.setConfiguration(config);
-        UserGroupInformation.loginUserFromKeytab(princ, keytabPath);
-        return config;
     }
 
     private String buildTmpDir(String stagingDir, String jobInstanceCode){
@@ -344,6 +340,6 @@ public class HbaseWriter implements DataxWriter {
         }
         sb.append("hfile总大小:" + FileUtils.byteCountToDisplaySize(totalSize));
         logger.info("jobInstanceCode={}" + sb.toString(), jobInstanceCode);
-        LogUtils.info(sparkSession, "jobInstanceCode" + jobInstanceCode + sb.toString());
+        LogUtils.info(sparkSession, sb.toString());
     }
 }
