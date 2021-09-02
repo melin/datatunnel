@@ -39,12 +39,12 @@ public class HiveReader implements DataxReader {
     public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
         String tableName = options.get("tableName");
         String partitions = options.get("partition");
-        String columns = options.get("column");
+        String columns = options.get("columns");
         String condition = options.get("condition");
 
         boolean isPart = checkPartition(sparkSession, tableName, partitions);
         StringBuilder sqlBuilder = new StringBuilder("select ");
-        sqlBuilder.append(columns).append(" from ");
+        sqlBuilder.append(columns).append(" from ").append(tableName).append(" ");
 
         if (isPart) {
             sqlBuilder.append("where ");
