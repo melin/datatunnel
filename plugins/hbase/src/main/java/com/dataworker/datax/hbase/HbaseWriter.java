@@ -296,7 +296,7 @@ public class HbaseWriter implements DataxWriter {
             }
         }
         logger.info("jobInstanceCode={} hbaseWriter成功", jobInstanceCode);
-        LogUtils.info(sparkSession, "jobInstanceCod=" + jobInstanceCode + "hbaseWriter成功");
+        LogUtils.info(sparkSession, "jobInstanceCod=" + jobInstanceCode + " hbaseWriter成功");
     }
 
     private String buildTmpDir(String stagingDir, String jobInstanceCode){
