@@ -47,6 +47,11 @@
             <artifactId>datax-plugin-hdfs</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.dataworker.datax</groupId>
+            <artifactId>datax-plugin-log</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
