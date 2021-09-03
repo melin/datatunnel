@@ -227,11 +227,11 @@ public class HbaseWriter implements DataxWriter {
             }
         } catch (Exception e) {
             logger.error("jobInstanceCode={} hfile生成失败", jobInstanceCode, e);
-            LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + " hfile生成失败");
+            LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + " hfile生成失败," + e.getMessage());
             //清理目录
             fileSystem.delete(stagingDirPath, true);
             LogUtils.error(sparkSession, "jobInstanceCode=" + jobInstanceCode + "清理目录" + stagingDirPath);
-            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " hfile生成失败");
+            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " hfile生成失败", e);
         }
 
         //目录改成_succ后缀
