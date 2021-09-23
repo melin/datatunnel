@@ -46,7 +46,7 @@ import java.util.Optional;
 import static com.dataworker.datax.hbase.constant.HbaseWriterOption.*;
 
 /**
- * @author melin 2021/7/27 11:06 上午
+ * @author melin 2021/7/27 11:06 上午1
  */
 public class HbaseWriter implements DataxWriter {
 
