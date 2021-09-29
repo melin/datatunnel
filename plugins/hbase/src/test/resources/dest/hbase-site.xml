@@ -100,7 +100,7 @@
   </property>
   <property>
     <name>hbase.zookeeper.quorum</name>
-    <value>hadoop-test-nn1-9-11,hadoop-test-dn1-9-13,hadoop-test-nn2-9-12</value>
+    <value>hadoop3-test1-9-16,hadoop3-test1-9-18,hadoop3-test1-9-17</value>
   </property>
   <property>
     <name>hbase.zookeeper.property.clientPort</name>

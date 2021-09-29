@@ -71,6 +71,7 @@ public class HbaseWriterBulkLoadOne2One {
                 .master("local")
                 .appName("person")
                 .getOrCreate();
+//        sparkSession.sparkContext().hadoopConfiguration().addResource(config);
         JavaSparkContext jsc = new JavaSparkContext(sparkSession.sparkContext());
 
         List<String> list = new ArrayList<String>();
