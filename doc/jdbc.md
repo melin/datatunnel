@@ -12,7 +12,7 @@
 
 | 参数key           | 数据类型   | 是否必填  | 默认值    |描述                                  |
 | :-----           | :-----    | :-----   | :------  | :------                             |
-| datasourceId     | long      | √        |          | 数据源ID                             |
+| datasourceCode   | string    | √        |          | 数据源Code                           |
 | databaseName     | string    | √        |          | 数据库名                             |
 | tableName        | string    | √        |          | 目的表的表名称                        |
 | where            | string    |          |          | 筛选条件，reader插件根据指定的column、table、where条件拼接SQL，并根据这个SQL进行数据抽取。在实际业务场景中，往往会选择当天的数据进行同步，可以将where条件指定为gmt_create > time。注意：不可以将where条件指定为limit 10，limit不是SQL的合法where子句|
@@ -30,7 +30,7 @@
 
 | 参数key           | 数据类型   | 是否必填  | 默认值    |描述                                  |
 | :-----           | :-----    | :-----   | :------  | :------                             |
-| datasourceId     | long      | √        |          | 数据源ID                             |
+| datasourceCode   | string    | √        |          | 数据源Code                           |
 | databaseName     | string    | √        |          | 数据库名                             |
 | tableName        | string    | √        |          | 目的表的表名称                        |
 | columns          | string    | √        |          | 目的表需要写入数据的字段,字段之间用英文逗号分隔。例如: "column": "id,name,age"                  |
