@@ -1,4 +1,4 @@
-package com.dataworker.datax.mysql;
+package com.dataworker.datax.jdbc;
 
 import com.dataworker.datax.api.DataxWriter;
 import org.apache.spark.sql.Dataset;
@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class MysqlWriter implements DataxWriter {
+public class JdbcWriter implements DataxWriter {
 
     @Override
     public void validateOptions(Map<String, String> options) {

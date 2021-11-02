@@ -24,7 +24,7 @@ datax reader("hdfs") options(path="/user/datawork/export/20210812")
 | :-----        | :-----      | :------      | :------                      |
 | sftp          | √           | √            | [读写](sftp.html)      |
 | hdfs          | √           |              | [读](hdfs.html)        |
-| mysql         | √           | √            | [读写](mysql.html)        |
+| jdbc          | √           | √            | [读写](jdbc.html)        |
 | hive          | √           | √            | [读写](hive.html)        |
 | hbase         |             | √            | [写](hbase.html)         |
 | clickhouse    |             | √            | 开发中        |
