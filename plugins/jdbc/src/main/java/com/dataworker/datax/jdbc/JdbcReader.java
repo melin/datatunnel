@@ -1,5 +1,7 @@
 package com.dataworker.datax.jdbc;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataxReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -15,7 +17,8 @@ public class JdbcReader implements DataxReader {
 
     @Override
     public void validateOptions(Map<String, String> options) {
-
+        String conf = options.get("__dsConf__");
+        JSONObject confMap = JSON.parseObject(conf);
     }
 
     @Override
