@@ -23,5 +23,12 @@
             <groupId>com.dataworker.datax</groupId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.78</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
