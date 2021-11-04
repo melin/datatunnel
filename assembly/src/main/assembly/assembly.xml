@@ -12,6 +12,7 @@
             <excludes>
                 <exclude>com.dataworker.datax:datax-assembly:jar</exclude>
                 <exclude>*:commons-*:jar</exclude>
+                <exclude>com.alibaba:fastjson:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java:jar</exclude>
                 <exclude>org.apache.zookeeper:zookeeper:jar</exclude>
                 <exclude>org.apache.hadoop:hadoop-annotations:jar</exclude>
