@@ -16,8 +16,8 @@
 
 | 参数                    | 数据类型    | 是否必填|  默认值        |描述         |
 | :-----                 | :-----  | :------| :------         | :------      | 
-| datasourceCode                | String  | √      |                 |数据源编码  |
-| schema                | String  | √      |default                 |数据库schema名  |
+| datasourceCode   | string    | √        |          | 数据源Code                           |
+| databaseName     | string    | √        |          | 数据库名                             |
 | tableName                  | String  | √      |                 |目的表的表名称  |
 | column                | List |        | √            |目的表需要写入数据的字段,字段之间用英文逗号分隔。例如: "column": ["id","name","age"]。 |
 | numPartitions        | int  |         | 8                  |写入clickhouse的分区数 |
