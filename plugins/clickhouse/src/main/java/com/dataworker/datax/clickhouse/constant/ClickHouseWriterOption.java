@@ -2,9 +2,9 @@ package com.dataworker.datax.clickhouse.constant;
 
 public class ClickHouseWriterOption {
 
-    public static final String DATASOURCE_CODE = "code";
+    public static final String DATASOURCE_CODE = "datasourceCode";
 
-    public static final String SCHEMA = "schema";
+    public static final String DATABASE_NAME = "databaseName";
 
     public static final String TABLE_NAME = "tableName";
 

@@ -70,12 +70,12 @@ public class ClickhouseWriter implements DataxWriter {
         String tableName = options.get(TABLE_NAME);
         String datasourceConfig = options.get(DATASOURCE_CONFIG);
         Map datasourceMap = JSONObject.parseObject(datasourceConfig, Map.class);
-        dataset.write().mode(SaveMode.Append).jdbc(getCKJdbcUrl(options,datasourceMap), tableName, getCKJdbcProperties(options,datasourceMap));
+        dataset.write().mode(SaveMode.Append).jdbc(getCKJdbcUrl(options, datasourceMap), tableName, getCKJdbcProperties(options, datasourceMap));
     }
 
     private String getCKJdbcUrl(Map<String, String> options, Map datasourceMap){
-        String schema = options.getOrDefault(SCHEMA, (String) datasourceMap.get(SCHEMA));
-        return String.format("jdbc:clickhouse://%s:%s/%s", datasourceMap.get(HOST), datasourceMap.get(PORT), schema);
+        String databaseName = options.getOrDefault(DATABASE_NAME, (String) datasourceMap.get(DATABASE_NAME));
+        return String.format("jdbc:clickhouse://%s:%s/%s", datasourceMap.get(HOST), datasourceMap.get(PORT), databaseName);
     }
 
     private Properties getCKJdbcProperties(Map<String, String> options, Map datasourceMap){
