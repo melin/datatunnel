@@ -1,0 +1,31 @@
+### clickWriter
+
+#### 支持的数据类型
+| 类型       | 说明    | 
+| :-----    | :-----  | 
+| String    |   |
+| Integer   |   |
+| Long      |   |
+| Double    |   |
+| Short     |   |
+| Float     |   |
+| Date      | |
+| TimeStamp |最后以DateTime存入click |
+
+#### 参数说明
+
+| 参数                    | 数据类型    | 是否必填|  默认值        |描述         |
+| :-----                 | :-----  | :------| :------         | :------      | 
+| datasourceCode                | String  | √      |                 |数据源编码  |
+| schema                | String  | √      |default                 |数据库schema名  |
+| tableName                  | String  | √      |                 |目的表的表名称  |
+| column                | List |        | √            |目的表需要写入数据的字段,字段之间用英文逗号分隔。例如: "column": ["id","name","age"]。 |
+| numPartitions        | int  |         | 8                  |写入clickhouse的分区数 |
+
+ 
+ 
+ 
+
+
+
+ 
