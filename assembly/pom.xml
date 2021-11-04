@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>com.dataworker.datax</groupId>
-            <artifactId>datax-plugin-mysql</artifactId>
+            <artifactId>datax-plugin-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
