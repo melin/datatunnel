@@ -1,7 +1,7 @@
 ###JDBC 支持数据库类型
 
 1. DB2
-2. MariaDB
+2. MySQL
 3. MS Sql
 4. Oracle
 5. PostgreSQL
