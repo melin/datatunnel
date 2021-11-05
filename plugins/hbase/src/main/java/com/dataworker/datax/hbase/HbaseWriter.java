@@ -121,7 +121,7 @@ public class HbaseWriter implements DataxWriter {
             throw new DataXException("dataset为空");
         }
         logger.info("开始hbaseWriter");
-        LogUtils.info(sparkSession,"开始hbaseWriter");
+        LogUtils.info(sparkSession, "开始hbaseWriter");
         Configuration sourceConfig = new Configuration();
         sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/core-site.xml"));
         sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/yarn-site.xml"));
@@ -164,7 +164,7 @@ public class HbaseWriter implements DataxWriter {
 
         //生成hfile
         logger.info("开始生成hfile");
-        LogUtils.info(sparkSession,"开始生成hfile");
+        LogUtils.info(sparkSession, "开始生成hfile");
         WriteMode writeMode = EnumUtils.getEnum(WriteMode.class, options.get(WRITE_MODE));
         MappingMode mappingMode = EnumUtils.getEnum(MappingMode.class, options.get(MAPPING_MODE));
         String table = options.get(TABLE);
@@ -301,7 +301,7 @@ public class HbaseWriter implements DataxWriter {
 
                 String nameServices = sourceConfig.get("dfs.nameservices");
                 logger.info("nameServices={}", nameServices);
-                LogUtils.info(sparkSession,"nameServices=" + nameServices);
+                LogUtils.info(sparkSession, "nameServices=" + nameServices);
                 String[] nameServiceArray = nameServices.split(",");
 
                 Path sourcePath = new Path("hdfs://" + nameServiceArray[0] + stagingDirSuccPath);
