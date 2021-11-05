@@ -120,7 +120,7 @@ public class HbaseWriter implements DataxWriter {
         if (0 == dataset.count()){
             throw new DataXException("dataset为空");
         }
-        logger.info("开始hbaseWriter", jobInstanceCode);
+        logger.info("开始hbaseWriter");
         LogUtils.info(sparkSession,"开始hbaseWriter");
         Configuration sourceConfig = new Configuration();
         sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/core-site.xml"));
@@ -321,7 +321,7 @@ public class HbaseWriter implements DataxWriter {
                     }
                 });
 
-                logger.info("distcp成功,开始bulkload", jobInstanceCode);
+                logger.info("distcp成功,开始bulkload");
                 LogUtils.info(sparkSession, "distcp成功,开始bulkload");
                 String distTempDir = distTmpDir;
                 operateUser.doAs(new PrivilegedExceptionAction<Void>(){
@@ -335,13 +335,13 @@ public class HbaseWriter implements DataxWriter {
                 //删除原集群数据
                 fileSystem.delete(stagingDirSuccPath, true);
             } catch (Exception e) {
-                logger.error("distcp失败", jobInstanceCode, e);
+                logger.error("distcp失败", e);
                 LogUtils.error(sparkSession, "distcp失败");
                 throw new DataXException("jobInstanceCode=" + jobInstanceCode + " distcp失败", e);
 
             }
         }
-        logger.info("hbaseWriter成功", jobInstanceCode);
+        logger.info("hbaseWriter成功");
         LogUtils.info(sparkSession, "hbaseWriter成功");
     }
 
