@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datax-plugin-mysql</artifactId>
+    <artifactId>datax-plugin-jdbc</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

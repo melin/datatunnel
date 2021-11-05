@@ -18,7 +18,7 @@
         <module>plugins/hdfs</module>
         <module>plugins/hbase</module>
         <module>plugins/hive</module>
-        <module>plugins/mysql</module>
+        <module>plugins/jdbc</module>
     </modules>
 
     <properties>
