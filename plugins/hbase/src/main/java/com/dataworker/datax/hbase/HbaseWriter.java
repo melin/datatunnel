@@ -27,6 +27,8 @@ import org.apache.hadoop.hbase.spark.JavaHBaseContext;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hdfs.HAUtil;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.tools.DistCp;
+import org.apache.hadoop.tools.DistCpOptions;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -38,10 +40,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.PrivilegedExceptionAction;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.dataworker.datax.hbase.constant.HbaseWriterOption.*;
 
@@ -114,6 +113,83 @@ public class HbaseWriter implements DataxWriter {
 
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
+        Configuration testconfig1 = HBaseConfiguration.create(sparkSession.sparkContext().hadoopConfiguration());
+        testconfig1.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hdfs-site.xml"));
+        LogUtils.info(sparkSession, "0dfs.nameservices=" + testconfig1.get("dfs.nameservices"));
+        LogUtils.info(sparkSession, "0test1test1test1test1=" + testconfig1.get("test1"));
+        testconfig1.getFinalParameters().forEach((p)->{
+            LogUtils.info(sparkSession, "finalParam=" + p);
+            LogUtils.info(sparkSession, "finalValue=" + testconfig1.get(p));
+        });
+
+
+//        sparkSession.sparkContext().hadoopConfiguration().addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hdfs-site.xml"));
+//        sparkSession.sparkContext().hadoopConfiguration().addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/mapred-site.xml"));
+
+//        sparkSession.sparkContext()
+//                .textFile("hdfs://nameservice1/tmp/hfile/distcp/test2/a.txt",1).collect();
+//
+//        sparkSession.sparkContext()
+//                .textFile("hdfs://nameservice2/tmp/hfile/distcp/test2/a.txt",1).collect();
+
+//        sparkSession.sparkContext()
+//                .textFile("hdfs://10.10.9.11:8020/tmp/hfile/distcp/test2/a.txt",1).collect();
+//
+//        sparkSession.sparkContext().textFile("hdfs://10.10.9.16:8020/tmp/hfile/distcp/test2/a.txt",1).collect();
+
+
+//        String[] one = (java.lang.String[])sparkSession.sparkContext().textFile("hdfs://10.10.9.11:8020/tmp/hfile/distcp/test2/a.txt",1).collect();
+//        String[] two = (java.lang.String[])sparkSession.sparkContext().textFile("hdfs://10.10.9.16:8020/tmp/hfile/distcp/test2/a.txt",1).collect();
+//        String[] one = (java.lang.String[])sparkSession.sparkContext().textFile("hdfs://nameservice1/tmp/hfile/distcp/test2/a.txt",1).collect();
+//        String[] two = (java.lang.String[])sparkSession.sparkContext().textFile("hdfs://nameservice2/tmp/hfile/distcp/test2/a.txt",1).collect();
+//        StringBuilder sbone = new StringBuilder();
+//        if (null != one && one.length > 0){
+//            for (String str : one){
+//                sbone.append(str);
+//            }
+//        }else{
+//            sbone.append("empty");
+//        }
+//        StringBuilder sbtwo = new StringBuilder();
+//        if (null != one && one.length > 0){
+//            for (String str : two){
+//                sbtwo.append(str);
+//            }
+//
+//        }else {
+//            sbtwo.append("empty");
+//        }
+//
+//        LogUtils.info(sparkSession,"sbone=" + sbone.toString());
+//        LogUtils.info(sparkSession,"sbtwo=" + sbtwo.toString());
+
+//        try {
+//            List<Path> list = new ArrayList<>();
+//            list.add(new Path("hdfs://nameservice1/tmp/hfile/distcp/test2/a.txt"));
+//
+//            DistCpOptions distCpOptions = new DistCpOptions(list, new Path("hdfs://nameservice2/tmp/hfile/distcp/test5/a.txt"));
+//            distCpOptions.setMaxMaps(2);
+//            distCpOptions.setMapBandwidth(10);
+//            distCpOptions.setOverwrite(true);
+//            DistCp distcp = new DistCp(sparkSession.sparkContext().hadoopConfiguration(), distCpOptions);
+//            distcp.execute();
+//        } catch (Exception e) {
+//            logger.error("error",e);
+//            e.printStackTrace();
+//        }
+
+
+
+        LogUtils.info(sparkSession, "1dfs.nameservices=" + sparkSession.sparkContext().hadoopConfiguration().get("dfs.nameservices"));
+        LogUtils.info(sparkSession,"isSecurityEnabled:" + UserGroupInformation.isSecurityEnabled());
+        LogUtils.info(sparkSession,"getCurrentUser():" + UserGroupInformation.getCurrentUser());
+        LogUtils.info(sparkSession,"getCurrentUser().getAuthenticationMethod():" + UserGroupInformation.getCurrentUser().getAuthenticationMethod());
+        LogUtils.info(sparkSession,"getLoginUser():" + UserGroupInformation.getLoginUser());
+        LogUtils.info(sparkSession,"getCurrentUser().getAuthenticationMethod():" + UserGroupInformation.getLoginUser().getAuthenticationMethod());
+
+        LogUtils.info(sparkSession,"hadoopConfiguration=" + sparkSession.sparkContext().hadoopConfiguration() );
+        LogUtils.info(sparkSession,"UserGroupInformation.isSecurityEnabled:" + UserGroupInformation.isSecurityEnabled());
+        LogUtils.info(sparkSession, "0=" + sparkSession.sparkContext().hadoopConfiguration().get("ipc.client.fallback-to-simple-auth-allowed"));
         //实例编号
         String jobInstanceCode = sparkSession.sparkContext().getConf().get("spark.datawork.job.code");
         if (StringUtils.isBlank(jobInstanceCode)){
@@ -123,21 +199,25 @@ public class HbaseWriter implements DataxWriter {
         if (0 == dataset.count()){
             throw new DataXException("dataset为空");
         }
+
         LogUtils.info(sparkSession, "1=" + sparkSession.sparkContext().hadoopConfiguration().get("ipc.client.fallback-to-simple-auth-allowed"));
-        sparkSession.sparkContext().hadoopConfiguration().set("ipc.client.fallback-to-simple-auth-allowed", "true");
-        LogUtils.info(sparkSession, "2=" + sparkSession.sparkContext().hadoopConfiguration().get("ipc.client.fallback-to-simple-auth-allowed"));
         LogUtils.info(sparkSession, "currentUser=" + UserGroupInformation.getCurrentUser());
         LogUtils.info(sparkSession, "loginUser=" + UserGroupInformation.getLoginUser());
-        LogUtils.info(sparkSession, "hadoopConfiguration:" + sparkSession.sparkContext().hadoopConfiguration());
-        Configuration config = HBaseConfiguration.create(sparkSession.sparkContext().hadoopConfiguration());
+//        Configuration config = HBaseConfiguration.create(sparkSession.sparkContext().hadoopConfiguration());
+        Configuration config = new Configuration();
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/core-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/yarn-site.xml"));
         config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hbase-site.xml"));
         config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/mapred-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hdfs-site.xml"));
+        LogUtils.info(sparkSession, "2dfs.nameservices=" + config.get("dfs.nameservices"));
+        LogUtils.info(sparkSession, "test1test1test1test1=" + config.get("test1"));
         LogUtils.info(sparkSession, "3=" + config.get("ipc.client.fallback-to-simple-auth-allowed"));
         //https://blog.csdn.net/qq_26838315/article/details/111941281
-        //安全集群和非安全集群之间进行数据迁移时需要配置参数ipc.client.fallback-to-simple-auth-allowed为true
+        //安全集群和非安全集群之间进行数据迁移时需要配置参数ipc.client.fallback-to-simple-auth-allowed 为 true
         config.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
-        LogUtils.info(sparkSession, "config:" + config);
+        LogUtils.info(sparkSession, "4:" + config.get("ipc.client.fallback-to-simple-auth-allowed"));
         //hfile路径
         String hfileDir = options.get(HFILE_DIR);
         String tmpDir = buildTmpDir(hfileDir, jobInstanceCode);
@@ -153,7 +233,7 @@ public class HbaseWriter implements DataxWriter {
 
         //判断目录是否存在
         FileSystem fileSystem = FileSystem.get(config);
-        LogUtils.info(sparkSession, "4=" + fileSystem.getConf().get("ipc.client.fallback-to-simple-auth-allowed"));
+        LogUtils.info(sparkSession, "5=" + fileSystem.getConf().get("ipc.client.fallback-to-simple-auth-allowed"));
         try {
             if (fileSystem.exists(stagingDirPath)){
                 fileSystem.delete(stagingDirPath, true);
@@ -177,6 +257,7 @@ public class HbaseWriter implements DataxWriter {
         MappingMode mappingMode = EnumUtils.getEnum(MappingMode.class, options.get(MAPPING_MODE));
         String table = options.get(TABLE);
 
+//        HBaseConfiguration.create()
         Configuration destConfig = new Configuration(false);
         destConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/core-site.xml"));
         destConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hdfs-site.xml"));
@@ -291,41 +372,66 @@ public class HbaseWriter implements DataxWriter {
                 LogUtils.info(sparkSession, "distCp目录=" + distStagingDir);
                 //原集群active NN
                 InetSocketAddress sourceAddress = HAUtil.getAddressOfActive(fileSystem);
+                UserGroupInformation operateUser = UserGroupInformation.getCurrentUser();
                 if (StringUtils.isBlank(destConfig.get("hadoop.security.authentication")) || "simple".equals(destConfig.get("hadoop.security.authentication"))) {
-                    UserGroupInformation ugi = UserGroupInformation.createRemoteUser("admin");
-                    UserGroupInformation.setLoginUser(ugi);
-                    LogUtils.info(sparkSession, "simple authentication");
+                    operateUser = UserGroupInformation.createRemoteUser("admin");
+//                    todo
+//                    UserGroupInformation.setLoginUser(operateUser);
                 }
 
                 LogUtils.info(sparkSession, "currentUser=" + UserGroupInformation.getCurrentUser());
                 LogUtils.info(sparkSession, "loginUser=" + UserGroupInformation.getLoginUser());
+                LogUtils.info(sparkSession, "operateUser=" + operateUser);
+
+                LogUtils.info(sparkSession, "destConfig.fallback1:" + destConfig.get("ipc.client.fallback-to-simple-auth-allowed"));
+
+                destConfig.set("ipc.client.fallback-to-simple-auth-allowed", "true");
+                LogUtils.info(sparkSession, "destConfig.fallback2:" + destConfig.get("ipc.client.fallback-to-simple-auth-allowed"));
+
+
 
 //                FileSystem destFileSystem = FileSystem.get(destConfig);
-
-                FileSystem destFileSystem = UserGroupInformation.getLoginUser().doAs(new PrivilegedExceptionAction<FileSystem>(){
+                FileSystem destFileSystem = operateUser.doAs(new PrivilegedExceptionAction<FileSystem>(){
                     @Override
                     public FileSystem run() throws Exception {
                         return FileSystem.get(destConfig);
                     }
                 });
+
+                LogUtils.info(sparkSession, "destConfig:" + destConfig);
                 LogUtils.info(sparkSession, "destFileSystem:" + destFileSystem);
-                LogUtils.info(sparkSession, "fallback:" + config.get("ipc.client.fallback-to-simple-auth-allowed"));
+                LogUtils.info(sparkSession, "fallback:" + destFileSystem.getConf().get("ipc.client.fallback-to-simple-auth-allowed"));
+                LogUtils.info(sparkSession, "fs.hdfs.impl.disable.cache:" + destFileSystem.getConf().get("fs.hdfs.impl.disable.cache"));
+                LogUtils.info(sparkSession,"UserGroupInformation.isSecurityEnabled:" + UserGroupInformation.isSecurityEnabled());
 
                 //目标集群active NN
 //                InetSocketAddress destAddress = HAUtil.getAddressOfActive(destFileSystem);
-                InetSocketAddress destAddress = UserGroupInformation.getLoginUser().doAs(new PrivilegedExceptionAction<InetSocketAddress>(){
+                InetSocketAddress destAddress = operateUser.doAs(new PrivilegedExceptionAction<InetSocketAddress>(){
                     @Override
                     public InetSocketAddress run() throws Exception {
                         return HAUtil.getAddressOfActive(destFileSystem);
                     }
                 });
 
-                Path sourcePath = new Path("hdfs://" + sourceAddress.getAddress().getHostAddress() + ":" + sourceAddress.getPort() + stagingDirSuccPath);
-                Path destPath = new Path("hdfs://" + destAddress.getAddress().getHostAddress() + ":" + destAddress.getPort() + distStagingDir);
+//                Path sourcePath = new Path("hdfs://" + sourceAddress.getAddress().getHostAddress() + ":" + sourceAddress.getPort() + stagingDirSuccPath);
+//                Path destPath = new Path("hdfs://" + destAddress.getAddress().getHostAddress() + ":" + destAddress.getPort() + distStagingDir);
+
+                LogUtils.info(sparkSession, "3dfs.nameservices=" + config.get("dfs.nameservices"));
+
+                Path sourcePath = new Path("hdfs://" + config.get("dfs.nameservices").split(",")[0] + stagingDirSuccPath);
+                Path destPath = new Path("hdfs://" + config.get("dfs.nameservices").split(",")[1] + distStagingDir);
 
                 logger.info("sourcePath={},destPath={}", sourcePath, destPath);
-
                 LogUtils.info(sparkSession, "sourcePath=" + sourcePath + ",destPath=" + destPath);
+
+                LogUtils.info(sparkSession,"isSecurityEnabled:" + UserGroupInformation.isSecurityEnabled());
+                LogUtils.info(sparkSession,"getCurrentUser():" + UserGroupInformation.getCurrentUser());
+                LogUtils.info(sparkSession,"getCurrentUser().getAuthenticationMethod():" + UserGroupInformation.getCurrentUser().getAuthenticationMethod());
+                LogUtils.info(sparkSession,"getLoginUser():" + UserGroupInformation.getLoginUser());
+                LogUtils.info(sparkSession,"getCurrentUser().getAuthenticationMethod():" + UserGroupInformation.getLoginUser().getAuthenticationMethod());
+                LogUtils.info(sparkSession,"operateUser():" + operateUser);
+                LogUtils.info(sparkSession,"operateUser().getAuthenticationMethod:" + operateUser.getAuthenticationMethod());
+
 
                 DistCpUtil.distcp(config,
                         Arrays.asList(sourcePath),
@@ -335,11 +441,30 @@ public class HbaseWriter implements DataxWriter {
                         );
 
                 //distcp成功后创建distcp.succ文件
+//                destFileSystem.create(new Path(distStagingDir, "distcp.succ"));
+                operateUser.doAs(new PrivilegedExceptionAction<Void>(){
+                    @Override
+                    public Void run() throws Exception {
+                        destFileSystem.create(new Path(distStagingDir, "distcp.succ"));
+                        return null;
+                    }
+                });
 
-                destFileSystem.create(new Path(distStagingDir, "distcp.succ"));
                 logger.info("jobInstanceCode={} distcp成功", jobInstanceCode);
                 LogUtils.info(sparkSession, "distcp成功");
-                HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig), table, distTmpDir);
+                LogUtils.info(sparkSession,"distTmpDir=" + distTmpDir);
+
+                String distTempDir = distTmpDir;
+
+                operateUser.doAs(new PrivilegedExceptionAction<Void>(){
+                    @Override
+                    public Void run() throws Exception {
+                        HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig), table, distTempDir);
+                        return null;
+                    }
+                });
+
+//                HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig), table, distTmpDir);
 
                 //删除原集群数据
                 fileSystem.delete(stagingDirSuccPath, true);
