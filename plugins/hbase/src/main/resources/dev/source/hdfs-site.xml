@@ -174,8 +174,4 @@
     <name>dfs.datanode.kerberos.principal</name>
     <value>hdfs/_HOST@DZTECH.COM</value>
   </property>
-  <property>
-    <name>test1</name>
-    <value>dev</value>
-  </property>
 </configuration>
