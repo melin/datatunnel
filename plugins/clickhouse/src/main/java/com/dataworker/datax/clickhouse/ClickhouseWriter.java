@@ -74,7 +74,7 @@ public class ClickhouseWriter implements DataxWriter {
     }
 
     private String getCKJdbcUrl(Map<String, String> options, Map datasourceMap){
-        String databaseName = options.getOrDefault(DATABASE_NAME, (String) datasourceMap.get(DATABASE_NAME));
+        String databaseName = options.getOrDefault(DATABASE_NAME, (String) datasourceMap.get(SCHEMA));
         return String.format("jdbc:clickhouse://%s:%s/%s", datasourceMap.get(HOST), datasourceMap.get(PORT), databaseName);
     }
 

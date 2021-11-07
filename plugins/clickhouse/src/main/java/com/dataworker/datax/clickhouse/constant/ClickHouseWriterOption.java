@@ -16,6 +16,8 @@ public class ClickHouseWriterOption {
 
     public static final String DATASOURCE_CONFIG = "_dsConf_";
 
+    public static final String SCHEMA = "schema";
+
     public static final String HOST = "host";
 
     public static final String PORT = "port";
