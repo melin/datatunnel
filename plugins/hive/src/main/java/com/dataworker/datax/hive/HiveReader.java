@@ -103,9 +103,7 @@ public class HiveReader implements DataxReader {
             }
 
             return false;
-        } catch (NoSuchTableException e) {
-            throw new DataXException(e.message());
-        } catch (NoSuchDatabaseException e) {
+        } catch (NoSuchTableException | NoSuchDatabaseException e) {
             throw new DataXException(e.message());
         }
     }

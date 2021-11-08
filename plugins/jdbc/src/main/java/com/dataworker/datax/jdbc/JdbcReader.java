@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataxReader;
 import com.dataworker.datax.common.util.AESUtil;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -17,9 +18,19 @@ import java.util.Map;
  */
 public class JdbcReader implements DataxReader {
 
+    private static final String[] DATASOURCE_TYPES =
+            new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
+
     @Override
     public void validateOptions(Map<String, String> options) {
+        String dsType = options.get("__dsType__");
+        if (StringUtils.isBlank(dsType)) {
+            throw new IllegalArgumentException("数据类型不能为空");
+        }
 
+        if (ArrayUtils.contains(DATASOURCE_TYPES, dsType)) {
+            throw new IllegalArgumentException("不支持数据源类型: " + dsType);
+        }
     }
 
     @Override

@@ -24,9 +24,18 @@ public class HiveWriter implements DataxWriter {
         try {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
-            String tableName = options.get("tableName");
 
-            String sql = "create table " + tableName + " as select * from " + tdlName;
+            String tableName = options.get("tableName");
+            String partitions = options.get("partition");
+            String writeMode = options.get("writeMode");
+
+            String sql = "";
+            if ("append".equals(writeMode)) {
+                sql = "insert into table " + tableName + " as select * from " + tdlName;
+            } else {
+                sql = "insert overwrite table " + tableName + " as select * from " + tdlName;
+            }
+
             sparkSession.sql(sql);
         } catch (Exception e) {
             throw new DataXException(e.getMessage(), e);
