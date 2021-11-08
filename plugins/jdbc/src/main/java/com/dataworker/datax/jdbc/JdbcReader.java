@@ -2,10 +2,12 @@ package com.dataworker.datax.jdbc;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxReader;
 import com.dataworker.datax.common.util.AESUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -28,7 +30,7 @@ public class JdbcReader implements DataxReader {
             throw new IllegalArgumentException("数据类型不能为空");
         }
 
-        if (ArrayUtils.contains(DATASOURCE_TYPES, dsType)) {
+        if (!ArrayUtils.contains(DATASOURCE_TYPES, dsType)) {
             throw new IllegalArgumentException("不支持数据源类型: " + dsType);
         }
     }
@@ -41,45 +43,39 @@ public class JdbcReader implements DataxReader {
 
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
+        String columns = options.get("columns");
         String username = dsConfMap.getString("username");
         String password = dsConfMap.getString("password");
         password = AESUtil.decrypt(password);
 
-        String url = buildJdbcUrl(dsType, dsConfMap);
+        String url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
 
-        return sparkSession.read()
-            .format("jdbc")
-            .option("url", url)
-            .option("dbtable", databaseName + "." + tableName)
-            .option("user", username)
-            .option("password", password)
-            .load();
-    }
-
-    private String buildJdbcUrl(String dsType, JSONObject dsConfMap) {
-        String host = dsConfMap.getString("host");
-        int port = dsConfMap.getInteger("port");
-        String schema = dsConfMap.getString("schema");
-
-        String url = "";
-        if ("mysql".equals(dsType)) {
-            url = "jdbc:mysql://" + host + ":" + port;
-        } else if ("sqlserver".equals(dsType)) {
-            url = "jdbc:sqlserver://" + host + ":" + port;
-        } else if ("db2".equals(dsType)) {
-            url = "jdbc:db2://" + host + ":" + port;
-        } else if ("oracle".equals(dsType)) {
-            url = "jdbc:oracle://" + host + ":" + port;
-        } else if ("postgresql".equals(dsType)) {
-            url = "jdbc:postgresql://" + host + ":" + port;
-        } else {
-            throw new IllegalArgumentException("不支持数据源类型: " + dsType);
+        int fetchSize = 1000;
+        if (options.containsKey("fetchSize")) {
+            fetchSize = Integer.parseInt(options.get("fetchSize"));
+        }
+        int queryTimeout = 0;
+        if (options.containsKey("queryTimeout")) {
+            queryTimeout = Integer.parseInt(options.get("queryTimeout"));
         }
 
-        if (StringUtils.isNotBlank(schema)) {
-            url = url + "/" + schema;
-        }
+        Dataset<Row> result = sparkSession.read()
+                .format("jdbc")
+                .option("url", url)
+                .option("dbtable", databaseName + "." + tableName)
+                .option("fetchSize", fetchSize)
+                .option("queryTimeout", queryTimeout)
+                .option("user", username)
+                .option("password", password)
+                .load();
 
-        return url;
+        try {
+            String tdlName = "tdl_datax_" + System.currentTimeMillis();
+            result.createTempView(tdlName);
+            String sql = "select " + columns + " from " + tdlName;
+            return sparkSession.sql(sql);
+        } catch (AnalysisException e) {
+            throw new DataXException(e.message(), e);
+        }
     }
 }

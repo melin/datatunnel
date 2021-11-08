@@ -2,6 +2,7 @@ package com.dataworker.datax.hive;
 
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.api.DataXException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -25,15 +26,21 @@ public class HiveWriter implements DataxWriter {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
+            String databaseName = options.get("databaseName");
             String tableName = options.get("tableName");
             String partitions = options.get("partition");
             String writeMode = options.get("writeMode");
 
+            String table = tableName;
+            if (StringUtils.isNotBlank(databaseName)) {
+                table = databaseName + "." + tableName;
+            }
+
             String sql = "";
             if ("append".equals(writeMode)) {
-                sql = "insert into table " + tableName + " as select * from " + tdlName;
+                sql = "insert into table " + table + " select * from " + tdlName;
             } else {
-                sql = "insert overwrite table " + tableName + " as select * from " + tdlName;
+                sql = "insert overwrite table " + table + " select * from " + tdlName;
             }
 
             sparkSession.sql(sql);

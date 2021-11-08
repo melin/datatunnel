@@ -1,1 +1,1 @@
-mysql=com.dataworker.datax.jdbc.JdbcReader
+jdbc=com.dataworker.datax.jdbc.JdbcReader

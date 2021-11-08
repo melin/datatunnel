@@ -12,6 +12,7 @@ import org.apache.spark.sql.catalyst.analysis.NoSuchTableException;
 import org.apache.spark.sql.catalyst.catalog.CatalogTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Option;
 
 import java.io.IOException;
 import java.util.Map;
@@ -37,14 +38,20 @@ public class HiveReader implements DataxReader {
 
     @Override
     public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
+        String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
         String partition = options.get("partition");
         String columns = options.get("columns");
         String condition = options.get("condition");
 
-        boolean isPart = checkPartition(sparkSession, tableName, partition);
+        String table = tableName;
+        if (StringUtils.isNotBlank(databaseName)) {
+            table = databaseName + "." + tableName;
+        }
+
+        boolean isPart = checkPartition(sparkSession, databaseName, tableName, partition);
         StringBuilder sqlBuilder = new StringBuilder("select ");
-        sqlBuilder.append(columns).append(" from ").append(tableName).append(" ");
+        sqlBuilder.append(columns).append(" from ").append(table).append(" ");
 
         if (isPart) {
             sqlBuilder.append("where ");
@@ -73,11 +80,9 @@ public class HiveReader implements DataxReader {
      * @param tableName
      * @param partitions
      */
-    private boolean checkPartition(SparkSession sparkSession, String tableName, String partitions) {
-        String[] items = StringUtils.split(tableName, ".");
-
+    private boolean checkPartition(SparkSession sparkSession, String databaseName, String tableName, String partitions) {
         try {
-            if (items.length == 1) {
+            if (StringUtils.isBlank(databaseName)) {
                 TableIdentifier tableIdentifier = new TableIdentifier(tableName);
                 CatalogTable table = sparkSession.sessionState().catalog().getTableMetadata(tableIdentifier);
                 if (table.partitionColumnNames().size() > 0 && StringUtils.isBlank(partitions)) {
@@ -86,8 +91,7 @@ public class HiveReader implements DataxReader {
             } else {
                 String currentDb = sparkSession.sessionState().catalog().currentDb();
                 try {
-                    sparkSession.sessionState().catalog().setCurrentDatabase(items[0]);
-                    TableIdentifier tableIdentifier = new TableIdentifier(items[1]);
+                    TableIdentifier tableIdentifier = new TableIdentifier(tableName, Option.apply(databaseName));
                     CatalogTable table = sparkSession.sessionState().catalog().getTableMetadata(tableIdentifier);
                     if (table.partitionColumnNames().size() > 0 && StringUtils.isBlank(partitions)) {
                         throw new DataXException("分区表，partitions 不能为空");

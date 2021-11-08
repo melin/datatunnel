@@ -20,7 +20,7 @@
 | partitionColumn  | string    |          |          | 分区字段, 必须是数字、时间类型                 |
 | numPartitions    | int       |          |          | 最大分区数量，必须为整数，当为0或负整数时，实际的分区数为1   |
 | queryTimeout     | int       | √        | 0        | The number of seconds the driver will wait for a Statement object to execute to the given number of seconds. Zero means there is no limit. In the write path, this option depends on how JDBC drivers implement the API setQueryTimeout   |
-| fetchSize        | int       |          | 1024     | 一次性从数据库中读取多少条数据，MySQL默认一次将所有结果都读取到内存中，在数据量很大时可能会造成OOM，设置这个参数可以控制每次读取fetchSize条数据，而不是默认的把所有数据一次读取出来；开启fetchSize需要满足：数据库版本要高于5.0.2、连接参数useCursorFetch=true。 注意：此参数的值不可设置过大，否则会读取超时，导致任务失败。|
+| fetchSize        | int       |          | 1000     | 一次性从数据库中读取多少条数据，MySQL默认一次将所有结果都读取到内存中，在数据量很大时可能会造成OOM，设置这个参数可以控制每次读取fetchSize条数据，而不是默认的把所有数据一次读取出来；开启fetchSize需要满足：数据库版本要高于5.0.2、连接参数useCursorFetch=true。 注意：此参数的值不可设置过大，否则会读取超时，导致任务失败。|
 | pushDownPredicate| boolean   | √        | true     | 该选项用于开启或禁用jdbc数据源的谓词下推。默认是true。如果配置为false，那么所有的filter操作都会由spark来完成。当过滤操作用spark更快时，一般才会关闭下推功能。|
 
 
@@ -39,7 +39,7 @@
 | batchsize        | int       |          | 1000     | The JDBC batch size, which determines how many rows to insert per round trip. This can help performance on JDBC drivers. This option applies only to writing.|
 | preSql           | string    | √        |          | 写入数据到目的表前，会先执行这里的标准语句                  |
 | postSql          | string    | √        |          | 写入数据到目的表后，会执行这里的标准语句                  |
-| writeMode        | string    | √        | insert   | 控制写入数据到目标表采用 insert into 或者 replace into 或者 ON DUPLICATE KEY UPDATE 语句, 所有选项：insert/replace/update                |
+| writeMode        | string    | √        | insert   | 控制写入数据到目标表采用 insert 或者 replace 或者 ON DUPLICATE KEY UPDATE 语句, 所有选项：insert/replace/update                |
 
 ### 参考
 1. https://github.com/niutaofan/bazinga
