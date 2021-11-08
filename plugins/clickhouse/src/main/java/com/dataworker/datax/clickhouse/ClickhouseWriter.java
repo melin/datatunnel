@@ -30,12 +30,13 @@ public class ClickhouseWriter implements DataxWriter {
 
     @Override
     public void validateOptions(Map<String, String> options) {
-        logger.debug("ClickhouseWriter options = {}",  JSON.toJSONString(options));
+        logger.info("ClickhouseWriter options = {}",  JSON.toJSONString(options));
         String dataSourceCode = options.get(DATASOURCE_CODE);
         if (StringUtils.isBlank(dataSourceCode)){
             throw new DataXException("缺少code参数");
         } else {
             String config = options.get(DATASOURCE_CONFIG);
+            logger.info("ClickhouseWriter config = {}",  config);
             if (StringUtils.isBlank(config)){
                 throw new DataXException("数据源未配置");
             }
@@ -61,16 +62,12 @@ public class ClickhouseWriter implements DataxWriter {
         if (0 == dataset.count()){
             throw new DataXException("dataset为空");
         }
-
-//        LogUtils.info(sparkSession, "1=" + sparkSession.sparkContext().hadoopConfiguration().get("ipc.client.fallback-to-simple-auth-allowed"));
-//        sparkSession.sparkContext().hadoopConfiguration().set("ipc.client.fallback-to-simple-auth-allowed", "true");
-//        LogUtils.info(sparkSession, "2=" + sparkSession.sparkContext().hadoopConfiguration().get("ipc.client.fallback-to-simple-auth-allowed"));
-//        LogUtils.info(sparkSession, "hadoopConfiguration:" + sparkSession.sparkContext().hadoopConfiguration());
-
         String tableName = options.get(TABLE_NAME);
         String datasourceConfig = options.get(DATASOURCE_CONFIG);
         Map datasourceMap = JSONObject.parseObject(datasourceConfig, Map.class);
-        dataset.write().mode(SaveMode.Append).jdbc(getCKJdbcUrl(options, datasourceMap), tableName, getCKJdbcProperties(options, datasourceMap));
+        dataset.write()
+                .mode(SaveMode.Append)
+                .jdbc(getCKJdbcUrl(options, datasourceMap), tableName, getCKJdbcProperties(options, datasourceMap));
     }
 
     private String getCKJdbcUrl(Map<String, String> options, Map datasourceMap){
@@ -83,10 +80,10 @@ public class ClickhouseWriter implements DataxWriter {
         properties.put("driver", "cc.blynk.clickhouse.ClickHouseDriver");
         properties.put("user", datasourceMap.get(USERNAME));
         properties.put("password", datasourceMap.get(PASSWORD));
-        properties.put("batchsize", "200000");
+        properties.put("batchsize", options.getOrDefault(BATCH_SIZE,"200000"));
         properties.put("socket_timeout", "300000");
         properties.put("numPartitions", options.getOrDefault(NUM_PARTITIONS, "8"));
-        properties.put("rewriteBatchedStatements", true);
+        properties.put("rewriteBatchedStatements",options.getOrDefault(REWRITE_BATCHED_STATEMENTS, "true"));
         return properties;
     }
 }
