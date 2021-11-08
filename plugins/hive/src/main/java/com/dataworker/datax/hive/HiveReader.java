@@ -50,9 +50,8 @@ public class HiveReader implements DataxReader {
             sqlBuilder.append("where ");
             partitions = StringUtils.replace(partitions, "/", " and ");
             partitions = StringUtils.replace(partitions, ",", " or ");
+            sqlBuilder.append("(").append(partitions).append(") ");
         }
-
-        sqlBuilder.append("(").append(partitions).append(") ");
 
         if (StringUtils.isNoneBlank(condition)) {
             if (isPart) {
