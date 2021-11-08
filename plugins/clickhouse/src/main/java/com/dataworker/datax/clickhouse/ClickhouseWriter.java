@@ -80,10 +80,10 @@ public class ClickhouseWriter implements DataxWriter {
         properties.put("driver", "cc.blynk.clickhouse.ClickHouseDriver");
         properties.put("user", datasourceMap.get(USERNAME));
         properties.put("password", datasourceMap.get(PASSWORD));
-        properties.put("batchsize", options.getOrDefault(BATCH_SIZE,"200000"));
+        properties.put("batchsize", options.getOrDefault(BATCH_SIZE, "200000"));
         properties.put("socket_timeout", "300000");
         properties.put("numPartitions", options.getOrDefault(NUM_PARTITIONS, "8"));
-        properties.put("rewriteBatchedStatements",options.getOrDefault(REWRITE_BATCHED_STATEMENTS, "true"));
+        properties.put("rewriteBatchedStatements", options.getOrDefault(REWRITE_BATCHED_STATEMENTS, "true"));
         return properties;
     }
 }

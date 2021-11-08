@@ -1,3 +1,8 @@
+### 发布打包
+```
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true
+```
+
 ### 大数据交换引擎
 基于spark sql 扩展, 扩展语法
 ```sql
@@ -37,11 +42,6 @@ case class DataxExprCommand(ctx: DataxExprContext) extends RunnableCommand {
     Seq.empty[Row]
   }
 }
-```
-
-### 发布打包
-```
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 ```
 
 

@@ -12,9 +12,9 @@ public class ClickHouseWriterOption {
 
     public static final String NUM_PARTITIONS = "numPartitions";
 
-    public static final String REWRITE_BATCHED_STATEMENTS="rewriteBatchedStatements";
+    public static final String REWRITE_BATCHED_STATEMENTS = "rewriteBatchedStatements";
 
-    public static final String BATCH_SIZE="batchsize";
+    public static final String BATCH_SIZE = "batchsize";
 
     public static final String WRITE_MODE = "writeMode";
 
