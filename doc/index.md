@@ -27,7 +27,7 @@ datax reader("hdfs") options(path="/user/datawork/export/20210812")
 | jdbc          | √           | √            | [读写](jdbc.html)        |
 | hive          | √           | √            | [读写](hive.html)        |
 | hbase         |             | √            | [写](hbase.html)         |
-| clickhouse    |             | √            | 开发中        |
+| clickhouse    |             | √            | [写](clickhouse.html)    |
 | elasticsearch |             | √            | 开发中        |
 | log           |             | √            | [写](log.html)       |
 

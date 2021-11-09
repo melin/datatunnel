@@ -49,11 +49,11 @@ public class HiveReader implements DataxReader {
             table = databaseName + "." + tableName;
         }
 
-        boolean isPart = checkPartition(sparkSession, databaseName, tableName, partition);
+        boolean isPartitionTbl = checkPartition(sparkSession, databaseName, tableName, partition);
         StringBuilder sqlBuilder = new StringBuilder("select ");
         sqlBuilder.append(columns).append(" from ").append(table).append(" ");
 
-        if (isPart) {
+        if (isPartitionTbl) {
             sqlBuilder.append("where ");
             partition = StringUtils.replace(partition, "/", " and ");
             partition = StringUtils.replace(partition, ",", " or ");
@@ -61,7 +61,7 @@ public class HiveReader implements DataxReader {
         }
 
         if (StringUtils.isNoneBlank(condition)) {
-            if (isPart) {
+            if (isPartitionTbl) {
                 sqlBuilder.append("and ").append(condition);
             } else {
                 sqlBuilder.append("where ").append(condition);
@@ -76,25 +76,26 @@ public class HiveReader implements DataxReader {
 
     /**
      * 校验分区表必须指定分区, 如果是分区表返回 true
-     * @param sparkSession
-     * @param tableName
-     * @param partitions
      */
-    private boolean checkPartition(SparkSession sparkSession, String databaseName, String tableName, String partitions) {
+    private boolean checkPartition(SparkSession sparkSession, String databaseName, String tableName, String partition) {
         try {
             if (StringUtils.isBlank(databaseName)) {
                 TableIdentifier tableIdentifier = new TableIdentifier(tableName);
                 CatalogTable table = sparkSession.sessionState().catalog().getTableMetadata(tableIdentifier);
-                if (table.partitionColumnNames().size() > 0 && StringUtils.isBlank(partitions)) {
-                    throw new DataXException("分区表，partitions 不能为空");
+                if (table.partitionColumnNames().size() > 0 && StringUtils.isBlank(partition)) {
+                    throw new DataXException("分区表，partition 不能为空");
+                }
+
+                if (table.partitionColumnNames().size() > 0) {
+                    return true;
                 }
             } else {
                 String currentDb = sparkSession.sessionState().catalog().currentDb();
                 try {
                     TableIdentifier tableIdentifier = new TableIdentifier(tableName, Option.apply(databaseName));
                     CatalogTable table = sparkSession.sessionState().catalog().getTableMetadata(tableIdentifier);
-                    if (table.partitionColumnNames().size() > 0 && StringUtils.isBlank(partitions)) {
-                        throw new DataXException("分区表，partitions 不能为空");
+                    if (table.partitionColumnNames().size() > 0 && StringUtils.isBlank(partition)) {
+                        throw new DataXException("分区表，partition 不能为空");
                     }
 
                     if (table.partitionColumnNames().size() > 0) {
