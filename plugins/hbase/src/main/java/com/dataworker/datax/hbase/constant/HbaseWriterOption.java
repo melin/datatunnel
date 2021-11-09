@@ -66,10 +66,10 @@ public class HbaseWriterOption {
     /**
      * distcp最大map数量
      */
-    public static final String DISTCP_MAXMAPS = "distcp.maxMaps";
+    public static final String DISTCP_MAX_MAPS = "distcp.maxMaps";
 
     /**
      * distcp每个map最大带宽
      */
-    public static final String DISTCP_MAPBANDWIDTH = "distcp.mapBandwidth";
+    public static final String DISTCP_PER_MAP_BANDWIDTH = "distcp.perMapBandwidth";
 }

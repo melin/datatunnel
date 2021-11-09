@@ -65,7 +65,7 @@ public class HbaseWriter implements DataxWriter {
 
     private MappingMode mappingMode = MappingMode.stringConcat;
 
-    private long hfileMaxSize = HConstants.DEFAULT_MAX_FILE_SIZE * 5;
+    private long hfileMaxSize = HConstants.DEFAULT_MAX_FILE_SIZE;
 
     private long hfileTime = System.currentTimeMillis();
 
@@ -79,7 +79,7 @@ public class HbaseWriter implements DataxWriter {
 
     private int distcpMaxMaps = 5;
 
-    private int distcpMapBandWidth = 100;
+    private int distcpPerMapBandwidth = 100;
 
     private Date bizdate = new Date();
 
@@ -191,7 +191,7 @@ public class HbaseWriter implements DataxWriter {
             this.distcpHfileDir = this.hfileDir;
         }
 
-        String distcpMaxMaps = options.get(DISTCP_MAXMAPS);
+        String distcpMaxMaps = options.get(DISTCP_MAX_MAPS);
         if (!Objects.isNull(distcpMaxMaps)){
             try {
                 this.distcpMaxMaps = Integer.valueOf(distcpMaxMaps);
@@ -203,16 +203,16 @@ public class HbaseWriter implements DataxWriter {
             throw new DataXException("distcp.maxMaps参数配置错误");
         }
 
-        String distcpMapBandwidth = options.get(DISTCP_MAPBANDWIDTH);
-        if (!Objects.isNull(distcpMapBandwidth)){
+        String distcpPerMapBandwidth = options.get(DISTCP_PER_MAP_BANDWIDTH);
+        if (!Objects.isNull(distcpPerMapBandwidth)){
             try {
-                this.distcpMapBandWidth = Integer.valueOf(distcpMapBandwidth);
+                this.distcpPerMapBandwidth = Integer.valueOf(distcpPerMapBandwidth);
             } catch (Exception e) {
-                throw new DataXException("distcp.mapBandwidth参数配置错误");
+                throw new DataXException("distcp.perMapBandwidth参数配置错误");
             }
         }
-        if (this.distcpMapBandWidth <= 0){
-            throw new DataXException("distcp.mapBandwidth参数配置错误");
+        if (this.distcpPerMapBandwidth <= 0){
+            throw new DataXException("distcp.perMapBandwidth参数配置错误");
         }
     }
 
@@ -410,7 +410,7 @@ public class HbaseWriter implements DataxWriter {
             logger.info("sourcePath={},destPath={}", sourcePath, destPath);
             LogUtils.info(sparkSession, "sourcePath=" + sourcePath + ",destPath=" + destPath);
 
-            DistCpUtil.distcp(sourceConfig, Arrays.asList(sourcePath), destPath, distcpMaxMaps, distcpMapBandWidth);
+            DistCpUtil.distcp(sourceConfig, Arrays.asList(sourcePath), destPath, distcpMaxMaps, distcpPerMapBandwidth);
 
             //distcp成功后创建distcp.succ文件
             operateUser.doAs(new PrivilegedExceptionAction<Void>() {
@@ -544,13 +544,8 @@ public class HbaseWriter implements DataxWriter {
                 ", separator='" + separator + '\'' +
                 ", distcpHfileDir='" + distcpHfileDir + '\'' +
                 ", distcpMaxMaps=" + distcpMaxMaps +
-                ", distcpMapBandWidth=" + distcpMapBandWidth +
+                ", distcpPerMapBandwidth=" + distcpPerMapBandwidth +
                 ", bizdate=" + bizdate +
                 '}';
-    }
-
-    public static void main(String[] args) {
-        WriteMode writeMode = EnumUtils.getEnum(WriteMode.class, "a");
-        System.out.println(writeMode);
     }
 }
