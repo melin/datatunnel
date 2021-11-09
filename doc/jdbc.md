@@ -16,7 +16,7 @@
 | databaseName     | string    | √        |          | 数据库名                             |
 | tableName        | string    | √        |          | 目的表的表名称                        |
 | where            | string    |          |          | 筛选条件，reader插件根据指定的column、table、where条件拼接SQL，并根据这个SQL进行数据抽取。在实际业务场景中，往往会选择当天的数据进行同步，可以将where条件指定为gmt_create > time。注意：不可以将where条件指定为limit 10，limit不是SQL的合法where子句|
-| column           | List      |          | √        | 源表需要读取的字段, 字段之间用英文逗号分隔，例如: "column": ["id","name","age"]。如果读取全部字段，"column": ["*"] |
+| column           | array     |          | √        | 源表需要读取的字段, 字段之间用英文逗号分隔，例如: "column": ["id","name","age"]。如果读取全部字段，"column": ["*"] |
 | partitionColumn  | string    |          |          | 分区字段, 必须是数字、时间类型                 |
 | numPartitions    | int       |          |          | 最大分区数量，必须为整数，当为0或负整数时，实际的分区数为1   |
 | queryTimeout     | int       | √        | 0        | The number of seconds the driver will wait for a Statement object to execute to the given number of seconds. Zero means there is no limit. In the write path, this option depends on how JDBC drivers implement the API setQueryTimeout   |
@@ -33,13 +33,14 @@
 | datasourceCode   | string    | √        |          | 数据源Code                           |
 | databaseName     | string    | √        |          | 数据库名                             |
 | tableName        | string    | √        |          | 目的表的表名称                        |
-| column           | List      |          | √        | 目的表需要写入数据的字段, 字段之间用英文逗号分隔，例如: "column": ["id","name","age"]。如果读取全部字段，"column": ["*"] |
+| column           | array     |          | √        | 目的表需要写入数据的字段, 字段之间用英文逗号分隔，例如: "column": ["id","name","age"]。如果读取全部字段，"column": ["*"] |
 | numPartitions    | int       |          |          | 最大分区数量，必须为整数，当为0或负整数时，实际的分区数为1   |
 | queryTimeout     | int       | √        | 0        | The number of seconds the driver will wait for a Statement object to execute to the given number of seconds. Zero means there is no limit. In the write path, this option depends on how JDBC drivers implement the API setQueryTimeout   |
 | batchsize        | int       |          | 1000     | The JDBC batch size, which determines how many rows to insert per round trip. This can help performance on JDBC drivers. This option applies only to writing.|
 | preSql           | string    | √        |          | 写入数据到目的表前，会先执行这里的标准语句                  |
 | postSql          | string    | √        |          | 写入数据到目的表后，会执行这里的标准语句                  |
-| writeMode        | string    | √        | insert   | 控制写入数据到目标表采用 insert 或者 replace 或者 ON DUPLICATE KEY UPDATE 语句, 所有选项：insert/replace/update                |
+| writeMode        | string    |          | append   | 写入模式: append, overwrite|
+| truncate         | boolean   |          | false    | writeMode等于overwrite，truncate=true, 插入之前是否清空表                |
 
 ### 参考
 1. https://github.com/niutaofan/bazinga

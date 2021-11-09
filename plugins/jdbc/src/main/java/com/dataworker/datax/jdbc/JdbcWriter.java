@@ -70,6 +70,15 @@ public class JdbcWriter implements DataxWriter {
 
             String writeMode = options.get("writeMode");
             SaveMode mode = SaveMode.Append;
+            if ("overwrite".equals(writeMode)) {
+                mode = SaveMode.Overwrite;
+            }
+
+            String truncateStr = options.get("truncate");
+            boolean truncate = false;
+            if ("true".equals(truncateStr)) {
+                truncate = true;
+            }
 
             dataset.write()
                     .format("jdbc")
@@ -78,6 +87,7 @@ public class JdbcWriter implements DataxWriter {
                     .option("dbtable", table)
                     .option("batchsize", batchsize)
                     .option("queryTimeout", queryTimeout)
+                    .option("truncate", truncate)
                     .option("user", username)
                     .option("password", password)
                     .save();

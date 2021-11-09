@@ -17,7 +17,6 @@ public class HiveWriter implements DataxWriter {
 
     @Override
     public void validateOptions(Map<String, String> options) {
-
     }
 
     @Override
@@ -28,8 +27,13 @@ public class HiveWriter implements DataxWriter {
 
             String databaseName = options.get("databaseName");
             String tableName = options.get("tableName");
-            String partitions = options.get("partition");
+            String partition = options.get("partition");
             String writeMode = options.get("writeMode");
+
+            boolean isPartition = HiveUtils.checkPartition(sparkSession, databaseName, tableName);
+            if (isPartition && StringUtils.isBlank(partition)) {
+                throw new DataXException("写入表为分区表，请指定写入分区");
+            }
 
             String table = tableName;
             if (StringUtils.isNotBlank(databaseName)) {
@@ -38,9 +42,17 @@ public class HiveWriter implements DataxWriter {
 
             String sql = "";
             if ("append".equals(writeMode)) {
-                sql = "insert into table " + table + " select * from " + tdlName;
+                if (isPartition) {
+                    sql = "insert into table " + table + " partition(" + partition + ") select * from " + tdlName;
+                } else {
+                    sql = "insert into table " + table + " select * from " + tdlName;
+                }
             } else {
-                sql = "insert overwrite table " + table + " select * from " + tdlName;
+                if (isPartition) {
+                    sql = "insert overwrite table " + table + " partition(" + partition + ") select * from " + tdlName;
+                } else {
+                    sql = "insert overwrite table " + table + " select * from " + tdlName;
+                }
             }
 
             sparkSession.sql(sql);
