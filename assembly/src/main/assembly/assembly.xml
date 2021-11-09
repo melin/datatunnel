@@ -20,6 +20,8 @@
                 <exclude>com.dataworker.spark.jobserver:spark-jobserver-api</exclude>
                 <!-- hudi 中包含hadoop-server 不需要打包进去 -->
                 <exclude>org.apache.hbase:hbase-server:jar</exclude>
+                <exclude>com.sun.jersey:*:jar</exclude>
+                <exclude>com.sun.jersey.contribs:*:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
