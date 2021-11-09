@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxReader;
 import com.dataworker.datax.common.util.AESUtil;
+import com.dataworker.datax.common.util.CommonUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
@@ -33,6 +34,11 @@ public class JdbcReader implements DataxReader {
         if (!ArrayUtils.contains(DATASOURCE_TYPES, dsType)) {
             throw new IllegalArgumentException("不支持数据源类型: " + dsType);
         }
+
+        String column = options.get("column");
+        if (StringUtils.isBlank(column)) {
+            throw new DataXException("column 不能为空");
+        }
     }
 
     @Override
@@ -43,7 +49,8 @@ public class JdbcReader implements DataxReader {
 
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
-        String columns = options.get("columns");
+        String column = options.get("column");
+        String[] columns = CommonUtils.parseColumn(column);
         String username = dsConfMap.getString("username");
         String password = dsConfMap.getString("password");
         password = AESUtil.decrypt(password);
@@ -72,7 +79,7 @@ public class JdbcReader implements DataxReader {
         try {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             result.createTempView(tdlName);
-            String sql = "select " + columns + " from " + tdlName;
+            String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
             return sparkSession.sql(sql);
         } catch (AnalysisException e) {
             throw new DataXException(e.message(), e);

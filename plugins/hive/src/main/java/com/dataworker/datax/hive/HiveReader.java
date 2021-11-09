@@ -2,6 +2,7 @@ package com.dataworker.datax.hive;
 
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxReader;
+import com.dataworker.datax.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -30,9 +31,9 @@ public class HiveReader implements DataxReader {
             throw new DataXException("tableName 不能为空");
         }
 
-        String columns = options.get("columns");
-        if (StringUtils.isBlank(columns)) {
-            throw new DataXException("columns 不能为空");
+        String column = options.get("column");
+        if (StringUtils.isBlank(column)) {
+            throw new DataXException("column 不能为空");
         }
     }
 
@@ -41,7 +42,8 @@ public class HiveReader implements DataxReader {
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
         String partition = options.get("partition");
-        String columns = options.get("columns");
+        String column = options.get("column");
+        String[] columns = CommonUtils.parseColumn(column);
         String condition = options.get("condition");
 
         String table = tableName;
@@ -51,7 +53,7 @@ public class HiveReader implements DataxReader {
 
         boolean isPartitionTbl = checkPartition(sparkSession, databaseName, tableName, partition);
         StringBuilder sqlBuilder = new StringBuilder("select ");
-        sqlBuilder.append(columns).append(" from ").append(table).append(" ");
+        sqlBuilder.append(StringUtils.join(columns, ",")).append(" from ").append(table).append(" ");
 
         if (isPartitionTbl) {
             sqlBuilder.append("where ");
