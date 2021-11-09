@@ -8,12 +8,9 @@ import com.dataworker.datax.hbase.constant.WriteMode;
 import com.dataworker.datax.hbase.util.DistCpUtil;
 import com.dataworker.spark.jobserver.api.LogUtils;
 import com.dazhenyun.hbasesparkproto.HbaseBulkLoadTool;
-import com.dazhenyun.hbasesparkproto.function.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,7 +20,6 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.spark.HbaseTableMeta;
 import org.apache.hadoop.hbase.spark.JavaHBaseContext;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
@@ -34,11 +30,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.dataworker.datax.hbase.constant.HbaseWriterOption.*;
 
@@ -49,101 +46,259 @@ public class HbaseWriter implements DataxWriter {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseWriter.class);
 
-    /**
-     * mappingMode模式下,合并字段的默认列名
-     */
-    public static final String DEFAULT_MERGE_QUALIFIER = "merge";
+    private static final int STEP_FLAG = 0b1;
 
     /**
-     * 默认hfile的最大大小
+     * 二进制
+     * 第一位 1表示生成hfile
+     * 第二位 1表示distcp
+     * 第三位 1表示load hfile
+     * 101和000是不允许的
      */
-    public static final long DEFAULT_HFILE_MAX_SIZE = HConstants.DEFAULT_MAX_FILE_SIZE * 5;
+    private int runningMode = 0b111;
+
+    private String tableName;
+
+    private String hfileDir;
+
+    private WriteMode writeMode = WriteMode.bulkLoad;
+
+    private MappingMode mappingMode = MappingMode.stringConcat;
+
+    private long hfileMaxSize = HConstants.DEFAULT_MAX_FILE_SIZE * 5;
+
+    private long hfileTime = System.currentTimeMillis();
+
+    private boolean compactionExclude = false;
+
+    private String mergeQualifier = "merge";
+
+    private String separator = ",";
+
+    private String distcpHfileDir;
+
+    private int distcpMaxMaps = 5;
+
+    private int distcpMapBandWidth = 100;
+
+    private Date bizdate = new Date();
 
     @Override
     public void validateOptions(Map<String, String> options) {
         logger.debug("HbaseWriter options={}", JSON.toJSONString(options));
-
-        if (StringUtils.isBlank(options.get(TABLE))){
-            throw new DataXException("缺少table参数");
-        }
-
-        if (StringUtils.isBlank(options.get(HFILE_DIR))){
-            throw new DataXException("缺少hfileDir参数");
-        }
-
-        if (Objects.isNull(EnumUtils.getEnum(WriteMode.class, options.get(WRITE_MODE)))){
-//            现只提供bulkLoad模式
-//            throw new DataXException("writeMode参数错误,支持bulkLoad或thinBulkLoad");
-            options.put(WRITE_MODE, WriteMode.bulkLoad.name());
-        }
-
-        if (Objects.isNull(EnumUtils.getEnum(MappingMode.class, options.get(MAPPING_MODE)))){
-//            现只提供one2one模式
-//            throw new DataXException("mappingMode参数错误,支持one2one或arrayZstd");
-            options.put(MAPPING_MODE, MappingMode.one2one.name());
-        }
-
-        if (Objects.isNull(BooleanUtils.toBooleanObject(options.get(DO_BULKLOAD)))){
-            throw new DataXException("doBulkLoad参数错误,支持true或false");
-        }
-
-        if (!Objects.isNull(options.get(HFILE_MAX_SIZE))){
-            if (NumberUtils.toLong(options.get(HFILE_MAX_SIZE)) <= 0){
-                throw new DataXException("hfileMaxSize参数错误");
+        String runningMode = options.get(RUNNING_MODE);
+        if (!Objects.isNull(runningMode)){
+            try {
+                this.runningMode = Integer.parseInt(runningMode, 2);
+            } catch (Exception e) {
+                throw new DataXException("runningMode参数错误");
             }
         }
 
-        if (!Objects.isNull(options.get(HFILE_TIME))){
-            if (!NumberUtils.isCreatable(HFILE_TIME)){
+        if (this.runningMode > 0b111 || this.runningMode == 0b101 || this.runningMode == 0b000){
+            throw new DataXException("runningMode参数错误");
+        }
+        // 暂时只支持这两种模式
+        if (this.runningMode != 0b111 && this.runningMode != 0b110){
+            throw new DataXException("runningMode参数错误");
+        }
+
+        if (haveCreateHfileStep()){
+            validateCreateHfileOptions(options);
+        }
+
+        if (haveDistcpStep()){
+            validateDistcpOptions(options);
+        }
+
+        if (haveLoadStep()){
+            validateLoadOptions(options);
+        }
+        logger.info("init HbaseWriter={}", this);
+    }
+
+    public void validateCreateHfileOptions(Map<String, String> options){
+        String tableName = options.get(TABLE_NAME);
+        if (StringUtils.isBlank(tableName)){
+            throw new DataXException("缺少tableName参数");
+        }
+        this.tableName = tableName;
+
+        String hfileDir = options.get(HFILE_DIR);
+        if (StringUtils.isBlank(hfileDir)){
+            throw new DataXException("缺少hfileDir参数");
+        }
+        this.hfileDir = hfileDir;
+
+        WriteMode writeMode = EnumUtils.getEnum(WriteMode.class, options.get(WRITE_MODE));
+        if (!Objects.isNull(writeMode)){
+            this.writeMode = writeMode;
+        }
+
+        MappingMode mappingMode = EnumUtils.getEnum(MappingMode.class, options.get(MAPPING_MODE));
+        if (!Objects.isNull(mappingMode)){
+            this.mappingMode = mappingMode;
+        }
+        if (MappingMode.arrayZstd.equals(this.mappingMode) || MappingMode.stringConcat.equals(this.mappingMode)){
+            String mergeQualifier = options.get(MERGE_QUALIFIER);
+            if (StringUtils.isNotBlank(mergeQualifier)){
+                this.mergeQualifier = mergeQualifier;
+            }
+        }
+        if (MappingMode.stringConcat.equals(this.mappingMode)){
+            String separator = options.get(SEPARATOR);
+            if (StringUtils.isNotEmpty(separator)){
+                this.separator = separator;
+            }
+        }
+
+        String hfileMaxSize = options.get(HFILE_MAX_SIZE);
+        if (!Objects.isNull(hfileMaxSize)){
+            try {
+                this.hfileMaxSize = Long.valueOf(hfileMaxSize);
+            } catch (Exception e) {
+                throw new DataXException("hfileMaxSize参数错误");
+            }
+        }
+        if (this.hfileMaxSize <= 0){
+            throw new DataXException("hfileMaxSize参数错误");
+        }
+
+        String hfileTime = options.get(HFILE_TIME);
+        if (!Objects.isNull(hfileTime)){
+            try {
+                this.hfileTime = Long.valueOf(hfileTime);
+            } catch (Exception e) {
                 throw new DataXException("hfileTime参数错误");
             }
         }
 
-        if (BooleanUtils.toBooleanObject(options.get(DO_BULKLOAD))){
-            if (NumberUtils.toInt(options.get(DISTCP_MAXMAPS)) <= 0){
-                throw new DataXException("distcp.maxMaps参数未配置或配置错误");
-            }
-            if (NumberUtils.toInt(options.get(DISTCP_MAPBANDWIDTH)) <= 0){
-                throw new DataXException("distcp.mapBandwidth参数未配置或配置错误");
+        String compactionExclude = options.get(COMPACTION_EXCLUDE);
+        if (!Objects.isNull(compactionExclude)){
+            try {
+                this.compactionExclude = Boolean.valueOf(compactionExclude);
+            } catch (Exception e) {
+                throw new DataXException("compactionExclude参数错误,支持true或false");
             }
         }
     }
 
+    public void validateDistcpOptions(Map<String, String> options){
+        String distHfileDir = options.get(DISTCP_HFILE_DIR);
+        if (StringUtils.isNotBlank(distHfileDir)){
+            this.distcpHfileDir = distHfileDir;
+        } else {
+            this.distcpHfileDir = this.hfileDir;
+        }
+
+        String distcpMaxMaps = options.get(DISTCP_MAXMAPS);
+        if (!Objects.isNull(distcpMaxMaps)){
+            try {
+                this.distcpMaxMaps = Integer.valueOf(distcpMaxMaps);
+            } catch (Exception e) {
+                throw new DataXException("distcp.maxMaps参数配置错误");
+            }
+        }
+        if (this.distcpMaxMaps <= 0){
+            throw new DataXException("distcp.maxMaps参数配置错误");
+        }
+
+        String distcpMapBandwidth = options.get(DISTCP_MAPBANDWIDTH);
+        if (!Objects.isNull(distcpMapBandwidth)){
+            try {
+                this.distcpMapBandWidth = Integer.valueOf(distcpMapBandwidth);
+            } catch (Exception e) {
+                throw new DataXException("distcp.mapBandwidth参数配置错误");
+            }
+        }
+        if (this.distcpMapBandWidth <= 0){
+            throw new DataXException("distcp.mapBandwidth参数配置错误");
+        }
+    }
+
+    public void validateLoadOptions(Map<String, String> options){
+
+    }
+
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
-        //实例编号
+        // 实例编号
         String jobInstanceCode = sparkSession.sparkContext().getConf().get("spark.datawork.job.code");
         if (StringUtils.isBlank(jobInstanceCode)){
             throw new DataXException("实例编号为空");
         }
 
-        if (0 == dataset.count()){
+        long count = dataset.count();
+        logger.info("dataset count={}", count);
+        LogUtils.info(sparkSession, "dataset count=" + count);
+        if (0 == count){
             throw new DataXException("dataset为空");
         }
+
         logger.info("开始hbaseWriter");
         LogUtils.info(sparkSession, "开始hbaseWriter");
-        Configuration sourceConfig = new Configuration();
-        sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/core-site.xml"));
-        sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/yarn-site.xml"));
-        sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/mapred-site.xml"));
-        sourceConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hdfs-site.xml"));
-        //https://blog.csdn.net/qq_26838315/article/details/111941281
-        //安全集群和非安全集群之间进行数据迁移时需要配置参数ipc.client.fallback-to-simple-auth-allowed 为 true
-        sourceConfig.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
-        //hfile路径
-        String hfileDir = options.get(HFILE_DIR);
+        if (haveCreateHfileStep()){
+            createHfileStep(sparkSession, dataset, jobInstanceCode);
+        }
+
+        if (haveDistcpStep()){
+            distcpStep(sparkSession, jobInstanceCode);
+        }
+
+        if (haveLoadStep()){
+            loadStep(sparkSession, jobInstanceCode);
+        }
+
+        logger.info("hbaseWriter成功");
+        LogUtils.info(sparkSession, "hbaseWriter成功");
+    }
+
+    public boolean haveCreateHfileStep(){
+        return 1 == (this.runningMode >> 2 & STEP_FLAG);
+    }
+
+    public boolean haveDistcpStep(){
+        return 1 == (this.runningMode >> 1 & STEP_FLAG);
+    }
+
+    public boolean haveLoadStep(){
+        return 1 == (this.runningMode & STEP_FLAG);
+    }
+
+    public void createHfileStep(SparkSession sparkSession, Dataset<Row> dataset, String jobInstanceCode) throws IOException{
+        logger.info("开始createHfileStep");
+        LogUtils.info(sparkSession, "开始createHfileStep");
+        Configuration destConfig = getDestConfig();
+        Connection destConnection = ConnectionFactory.createConnection(destConfig);
+
         String tmpDir = buildTmpDir(hfileDir, jobInstanceCode);
-        String stagingDir = HbaseBulkLoadTool.buildStagingDir(tmpDir);
+        HbaseTableMeta hbaseTableMeta = null;
+        try {
+            hbaseTableMeta = HbaseBulkLoadTool.buildHbaseTableMeta(destConnection, tableName, tmpDir);
+            logger.info("hbaseTableMeta={}", hbaseTableMeta);
+            LogUtils.info(sparkSession, "hbaseTableMeta=" + hbaseTableMeta);
+        } catch (Exception e) {
+            logger.error("创建hbaseTableMeta失败", e);
+            LogUtils.error(sparkSession, "创建hbaseTableMeta失败" + e.getMessage());
+            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 创建hbaseTableMeta失败", e);
+        } finally {
+            if (!destConnection.isClosed()){
+                destConnection.close();
+            }
+        }
+
+        Configuration sourceConfig = getSourceConfig();
+        // hfile路径
+        String stagingDir = hbaseTableMeta.getStagingDir();
         logger.info("hfile路径={}", stagingDir);
         LogUtils.info(sparkSession, "hfile路径=" + stagingDir);
-
-        //hfile生成成功后的路径
+        // hfile生成成功后的路径
         String stagingDirSucc = buildStagingDirSucc(stagingDir);
         Path stagingDirPath = new Path(stagingDir);
         Path stagingDirSuccPath = new Path(stagingDirSucc);
 
-        //判断目录是否存在
+        // 判断目录是否存在
         FileSystem fileSystem = FileSystem.get(sourceConfig);
         try {
             if (fileSystem.exists(stagingDirPath)){
@@ -162,97 +317,47 @@ public class HbaseWriter implements DataxWriter {
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + "清空目录异常", e);
         }
 
-        //生成hfile
-        logger.info("开始生成hfile");
-        LogUtils.info(sparkSession, "开始生成hfile");
-        WriteMode writeMode = EnumUtils.getEnum(WriteMode.class, options.get(WRITE_MODE));
-        MappingMode mappingMode = EnumUtils.getEnum(MappingMode.class, options.get(MAPPING_MODE));
-        String table = options.get(TABLE);
-
-        Configuration destConfig = new Configuration(false);
-        destConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/core-site.xml"));
-        destConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hdfs-site.xml"));
-        destConfig.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hbase-site.xml"));
-        Connection destConnection = ConnectionFactory.createConnection(destConfig);
-
-        HbaseTableMeta hbaseTableMeta = null;
-        try {
-            hbaseTableMeta = HbaseBulkLoadTool.buildHbaseTableMeta(destConnection, table, tmpDir);
-            logger.info("hbaseTableMeta={}", hbaseTableMeta);
-            LogUtils.info(sparkSession, "hbaseTableMeta=" + hbaseTableMeta);
-        } catch (Exception e) {
-            logger.error("创建hbaseTableMeta失败", e);
-            LogUtils.error(sparkSession, "创建hbaseTableMeta失败" + e.getMessage());
-            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 创建hbaseTableMeta失败", e);
-        } finally {
-            if (!destConnection.isClosed()){
-                destConnection.close();
-            }
-        }
         int regionSize = hbaseTableMeta.getStartKeys().length;
-        logger.info("table={} regionSize={}", table, regionSize);
-        LogUtils.info(sparkSession, "table=" + table + " regionSize=" + regionSize);
+        logger.info("table={} regionSize={}", tableName, regionSize);
+        LogUtils.info(sparkSession, "table=" + tableName + " regionSize=" + regionSize);
 
         JavaSparkContext jsc = new JavaSparkContext(sparkSession.sparkContext());
         JavaHBaseContext javaHBaseContext = new JavaHBaseContext(jsc, sourceConfig);
 
         try {
             if (WriteMode.bulkLoad.equals(writeMode)){
-                BulkLoadFunctional functional = null;
-                if (MappingMode.one2one.equals(mappingMode)){
-                    functional = new One2OneBulkLoadFunction(hbaseTableMeta.getColumnFamily());
-                    logger.info("dazhenBulkLoad one2one");
-                    LogUtils.info(sparkSession, "dazhenBulkLoad one2one");
-                } else {
-                    functional = new ArrayZstdBulkLoadFunction(hbaseTableMeta.getColumnFamily(), Bytes.toBytes(options.getOrDefault(MERGE_QUALIFIER, DEFAULT_MERGE_QUALIFIER)));
-                    logger.info("dazhenBulkLoad arrayZstd");
-                    LogUtils.info(sparkSession, "dazhenBulkLoad arrayZstd");
-                }
-
                 HbaseBulkLoadTool.dazhenBulkLoad(javaHBaseContext,
                         dataset,
                         hbaseTableMeta,
-                        functional,
-                        BooleanUtils.toBoolean(options.get(COMPACTION_EXCLUDE)),
-                        Optional.ofNullable(options.get(HFILE_MAX_SIZE)).map((size)->NumberUtils.toLong(size)).orElse(DEFAULT_HFILE_MAX_SIZE),
-                        Optional.ofNullable(options.get(HFILE_TIME)).map((time)->NumberUtils.toLong(time)).orElse(System.currentTimeMillis()),
-                        options
-                        );
-                logger.info("writeMode={},mappingMode={} hfile生成成功", writeMode, mappingMode);
-                LogUtils.info(sparkSession, "writeMode=" + writeMode + " mappingMode=" + mappingMode + " hfile生成成功");
+                        mappingMode.createBulkLoadFunction(hbaseTableMeta.getColumnFamily(), mergeQualifier, separator),
+                        compactionExclude,
+                        hfileMaxSize,
+                        hfileTime,
+                        null
+                );
             } else {
-                ThinBulkLoadFunctional functional = null;
-                if (MappingMode.one2one.equals(mappingMode)){
-                    functional = new One2OneThinBulkLoadFunction(hbaseTableMeta.getColumnFamily());
-                    logger.info("dazhenBulkLoadThinRows one2one");
-                    LogUtils.info(sparkSession, "dazhenBulkLoadThinRows one2one");
-                } else {
-                    functional = new ArrayZstdThinBulkLoadFunction(hbaseTableMeta.getColumnFamily(), Bytes.toBytes(options.getOrDefault(MERGE_QUALIFIER, DEFAULT_MERGE_QUALIFIER)));
-                    logger.info("dazhenBulkLoadThinRows arrayZstd");
-                    LogUtils.info(sparkSession, "dazhenBulkLoadThinRows arrayZstd");
-                }
                 HbaseBulkLoadTool.dazhenBulkLoadThinRows(javaHBaseContext,
                         dataset,
                         hbaseTableMeta,
-                        functional,
-                        BooleanUtils.toBoolean(options.get(COMPACTION_EXCLUDE)),
-                        Optional.ofNullable(options.get(HFILE_MAX_SIZE)).map((size)->NumberUtils.toLong(size)).orElse(DEFAULT_HFILE_MAX_SIZE),
-                        Optional.ofNullable(options.get(HFILE_TIME)).map((time)->NumberUtils.toLong(time)).orElse(System.currentTimeMillis()),
-                        options
+                        mappingMode.createThinBulkLoadFunction(hbaseTableMeta.getColumnFamily(), mergeQualifier, separator),
+                        compactionExclude,
+                        hfileMaxSize,
+                        hfileTime,
+                        null
                 );
-                logger.info("writeMode={},mappingMode={} hfile生成成功", writeMode, mappingMode);
-                LogUtils.info(sparkSession, "writeMode=" + writeMode + " mappingMode=" + mappingMode + " hfile生成成功");
             }
+            logger.info("writeMode={},mappingMode={} hfile生成成功", writeMode, mappingMode);
+            LogUtils.info(sparkSession, "writeMode=" + writeMode + " mappingMode=" + mappingMode + " hfile生成成功");
         } catch (Exception e) {
             logger.error("hfile生成失败", e);
             LogUtils.error(sparkSession, "hfile生成失败," + e.getMessage());
-            //清理目录
+            // 清理目录
             fileSystem.delete(stagingDirPath, true);
             LogUtils.error(sparkSession, "清理目录" + stagingDirPath);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " hfile生成失败", e);
         }
 
-        //hifle目录改成_succ后缀
+        // hifle目录改成_succ后缀
         if (fileSystem.rename(stagingDirPath, stagingDirSuccPath)){
             logger.info("修改hfile目录名={}成功", stagingDirSuccPath);
             LogUtils.info(sparkSession, "修改hfile目录名=" + stagingDirSuccPath + "成功");
@@ -262,92 +367,127 @@ public class HbaseWriter implements DataxWriter {
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 修改hfile目录名=" + stagingDirSuccPath + "失败");
         }
 
+        // 统计
         try {
-            //统计
             statisticsHfileInfo(sparkSession, sourceConfig, stagingDirSuccPath);
         } catch (Exception e) {
             logger.warn("统计hfile信息异常", e);
             LogUtils.warn(sparkSession, "统计hfile信息异常");
         }
+        logger.info("结束createHfileStep");
+        LogUtils.info(sparkSession, "结束createHfileStep");
+    }
 
-        //是否进行bulkload
-        if (BooleanUtils.toBooleanObject(options.get(DO_BULKLOAD))){
-            try {
-                int maxMaps = Integer.valueOf(options.get(DISTCP_MAXMAPS));
-                int mapBandwidth = Integer.valueOf(options.get(DISTCP_MAPBANDWIDTH));
+    public void distcpStep(SparkSession sparkSession, String jobInstanceCode){
+        logger.info("开始distcpStep");
+        LogUtils.info(sparkSession, "开始distcpStep");
 
-                String distHfileDir = options.get(DISTCP_HFILE_DIR);
+        try {
+            Configuration sourceConfig = getSourceConfig();
+            Configuration destConfig = getDestConfig();
 
-                String distTmpDir = null;
-                if (StringUtils.isBlank(distHfileDir)){
-                    distTmpDir = tmpDir;
-                } else {
-                    distTmpDir = buildTmpDir(distHfileDir, jobInstanceCode);
-                }
-                String distStagingDir = HbaseBulkLoadTool.buildStagingDir(distTmpDir);
-                logger.info("distCp目录={}", distStagingDir);
-                LogUtils.info(sparkSession, "distCp目录=" + distStagingDir);
-                UserGroupInformation operateUser = UserGroupInformation.getCurrentUser();
-                if (StringUtils.isBlank(destConfig.get("hadoop.security.authentication")) || "simple".equals(destConfig.get("hadoop.security.authentication"))) {
-                    operateUser = UserGroupInformation.createRemoteUser("admin");
-                }
-
-                FileSystem destFileSystem = operateUser.doAs(new PrivilegedExceptionAction<FileSystem>(){
-                    @Override
-                    public FileSystem run() throws Exception {
-                        return FileSystem.get(destConfig);
-                    }
-                });
-
-                String nameServices = sourceConfig.get("dfs.nameservices");
-                logger.info("nameServices={}", nameServices);
-                LogUtils.info(sparkSession, "nameServices=" + nameServices);
-                String[] nameServiceArray = nameServices.split(",");
-
-                Path sourcePath = new Path("hdfs://" + nameServiceArray[0] + stagingDirSuccPath);
-                Path destPath = new Path("hdfs://" + nameServiceArray[1] + distStagingDir);
-
-                logger.info("sourcePath={},destPath={}", sourcePath, destPath);
-                LogUtils.info(sparkSession, "sourcePath=" + sourcePath + ",destPath=" + destPath);
-
-                DistCpUtil.distcp(sourceConfig, Arrays.asList(sourcePath), destPath, maxMaps, mapBandwidth);
-
-                //distcp成功后创建distcp.succ文件
-                operateUser.doAs(new PrivilegedExceptionAction<Void>(){
-                    @Override
-                    public Void run() throws Exception {
-                        destFileSystem.create(new Path(distStagingDir, "distcp.succ"));
-                        return null;
-                    }
-                });
-
-                logger.info("distcp成功,开始bulkload");
-                LogUtils.info(sparkSession, "distcp成功,开始bulkload");
-                String distTempDir = distTmpDir;
-                operateUser.doAs(new PrivilegedExceptionAction<Void>(){
-                    @Override
-                    public Void run() throws Exception {
-                        HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig), table, distTempDir);
-                        return null;
-                    }
-                });
-
-                //删除原集群数据
-                fileSystem.delete(stagingDirSuccPath, true);
-            } catch (Exception e) {
-                logger.error("distcp失败", e);
-                LogUtils.error(sparkSession, "distcp失败");
-                throw new DataXException("jobInstanceCode=" + jobInstanceCode + " distcp失败", e);
-
+            String destTmpDir = buildTmpDir(distcpHfileDir, jobInstanceCode);
+            String destStagingDir = HbaseBulkLoadTool.buildStagingDir(destTmpDir);
+            logger.info("distCp目录={}", destStagingDir);
+            LogUtils.info(sparkSession, "distCp目录=" + destStagingDir);
+            UserGroupInformation operateUser = UserGroupInformation.getCurrentUser();
+            if (StringUtils.isBlank(destConfig.get("hadoop.security.authentication")) || "simple".equals(destConfig.get("hadoop.security.authentication"))) {
+                operateUser = UserGroupInformation.createRemoteUser("admin");
             }
+
+            String nameServices = sourceConfig.get("dfs.nameservices");
+            logger.info("nameServices={}", nameServices);
+            LogUtils.info(sparkSession, "nameServices=" + nameServices);
+            String[] nameServiceArray = nameServices.split(",");
+
+            String sourceStagingDir = HbaseBulkLoadTool.buildStagingDir(buildTmpDir(hfileDir, jobInstanceCode));
+            String sourceStagingDirSucc = buildStagingDirSucc(sourceStagingDir);
+            Path sourceStagingDirSuccPath = new Path(sourceStagingDirSucc);
+
+            Path sourcePath = new Path("hdfs://" + nameServiceArray[0] + sourceStagingDirSuccPath);
+            Path destPath = new Path("hdfs://" + nameServiceArray[1] + destStagingDir);
+
+            logger.info("sourcePath={},destPath={}", sourcePath, destPath);
+            LogUtils.info(sparkSession, "sourcePath=" + sourcePath + ",destPath=" + destPath);
+
+            DistCpUtil.distcp(sourceConfig, Arrays.asList(sourcePath), destPath, distcpMaxMaps, distcpMapBandWidth);
+
+            //distcp成功后创建distcp.succ文件
+            operateUser.doAs(new PrivilegedExceptionAction<Void>() {
+                @Override
+                public Void run() throws Exception {
+                    FileSystem destFileSystem = FileSystem.get(destConfig);
+                    destFileSystem.create(new Path(destStagingDir, "distcp.succ"));
+                    return null;
+                }
+            });
+
+            logger.info("distcp成功");
+            LogUtils.info(sparkSession, "distcp成功");
+            // 删除原集群数据
+            FileSystem.get(sourceConfig).delete(sourceStagingDirSuccPath, true);
+            logger.info("删除原集群hfile成功");
+            LogUtils.info(sparkSession, "删除原集群hfile成功");
+        } catch (Exception e){
+            logger.error("distcp失败", e);
+            LogUtils.error(sparkSession, "distcp失败");
+            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " distcp失败", e);
         }
-        logger.info("hbaseWriter成功");
-        LogUtils.info(sparkSession, "hbaseWriter成功");
+        logger.info("结束distcpStep");
+        LogUtils.info(sparkSession, "结束distcpStep");
+    }
+
+    public void loadStep(SparkSession sparkSession, String jobInstanceCode){
+        logger.info("开始loadStep");
+        LogUtils.info(sparkSession, "开始loadStep");
+
+        try {
+            Configuration destConfig = getDestConfig();
+            UserGroupInformation operateUser = UserGroupInformation.getCurrentUser();
+            if (StringUtils.isBlank(destConfig.get("hadoop.security.authentication")) || "simple".equals(destConfig.get("hadoop.security.authentication"))) {
+                operateUser = UserGroupInformation.createRemoteUser("admin");
+            }
+            String destTmpDir = buildTmpDir(distcpHfileDir, jobInstanceCode);
+            operateUser.doAs(new PrivilegedExceptionAction<Void>(){
+                @Override
+                public Void run() throws Exception {
+                    HbaseBulkLoadTool.loadIncrementalHFiles(ConnectionFactory.createConnection(destConfig), tableName, destTmpDir);
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            logger.error("load失败", e);
+            LogUtils.error(sparkSession, "load失败");
+            throw new DataXException("jobInstanceCode=" + jobInstanceCode + " load失败", e);
+
+        }
+        logger.info("结束loadStep");
+        LogUtils.info(sparkSession, "结束loadStep");
+    }
+
+    private Configuration getSourceConfig(){
+        Configuration config = new Configuration();
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/core-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/yarn-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/mapred-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hdfs-site.xml"));
+        //https://blog.csdn.net/qq_26838315/article/details/111941281
+        //安全集群和非安全集群之间进行数据迁移时需要配置参数ipc.client.fallback-to-simple-auth-allowed 为 true
+        config.set("ipc.client.fallback-to-simple-auth-allowed", "true");
+        return config;
+    }
+
+    private Configuration getDestConfig(){
+        Configuration config = new Configuration(false);
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/core-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hdfs-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hbase-site.xml"));
+        return config;
     }
 
     private String buildTmpDir(String stagingDir, String jobInstanceCode){
         StringBuilder sb = new StringBuilder();
-        sb.append(LocalDate.now());
+        sb.append(LocalDateTime.ofInstant(bizdate.toInstant(), ZoneId.systemDefault()).toLocalDate());
         if (stagingDir.startsWith("/")){
             sb.append(stagingDir);
         } else {
@@ -356,6 +496,7 @@ public class HbaseWriter implements DataxWriter {
         if (!stagingDir.endsWith("/")){
             sb.append("/");
         }
+
         sb.append(jobInstanceCode);
         return sb.toString();
     }
@@ -386,5 +527,30 @@ public class HbaseWriter implements DataxWriter {
         sb.append("hfile总大小:" + FileUtils.byteCountToDisplaySize(totalSize));
         logger.info(sb.toString());
         LogUtils.info(sparkSession, sb.toString());
+    }
+
+    @Override
+    public String toString() {
+        return "HbaseWriter{" +
+                "runningMode=" + runningMode +
+                ", tableName='" + tableName + '\'' +
+                ", hfileDir='" + hfileDir + '\'' +
+                ", writeMode=" + writeMode +
+                ", mappingMode=" + mappingMode +
+                ", hfileMaxSize=" + hfileMaxSize +
+                ", hfileTime=" + hfileTime +
+                ", compactionExclude=" + compactionExclude +
+                ", mergeQualifier='" + mergeQualifier + '\'' +
+                ", separator='" + separator + '\'' +
+                ", distcpHfileDir='" + distcpHfileDir + '\'' +
+                ", distcpMaxMaps=" + distcpMaxMaps +
+                ", distcpMapBandWidth=" + distcpMapBandWidth +
+                ", bizdate=" + bizdate +
+                '}';
+    }
+
+    public static void main(String[] args) {
+        WriteMode writeMode = EnumUtils.getEnum(WriteMode.class, "a");
+        System.out.println(writeMode);
     }
 }
