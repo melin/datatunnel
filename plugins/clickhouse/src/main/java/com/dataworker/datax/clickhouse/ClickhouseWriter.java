@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.clickhouse.constant.ClickHouseWriterOption;
+import com.dataworker.datax.common.util.AESUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.spark.sql.Dataset;
@@ -79,7 +80,7 @@ public class ClickhouseWriter implements DataxWriter {
         Properties properties = new Properties();
         properties.put("driver", "cc.blynk.clickhouse.ClickHouseDriver");
         properties.put("user", datasourceMap.get(USERNAME));
-        properties.put("password", datasourceMap.get(PASSWORD));
+        properties.put("password", AESUtil.decrypt((String) datasourceMap.get(PASSWORD)));
         properties.put("batchsize", options.getOrDefault(BATCH_SIZE, "200000"));
         properties.put("socket_timeout", "300000");
         properties.put("numPartitions", options.getOrDefault(NUM_PARTITIONS, "8"));
