@@ -532,7 +532,7 @@ public class HbaseWriter implements DataxWriter {
     @Override
     public String toString() {
         return "HbaseWriter{" +
-                "runningMode=" + runningMode +
+                "runningMode=" + Integer.toBinaryString(runningMode) +
                 ", tableName='" + tableName + '\'' +
                 ", hfileDir='" + hfileDir + '\'' +
                 ", writeMode=" + writeMode +
