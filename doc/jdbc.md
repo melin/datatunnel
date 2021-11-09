@@ -39,7 +39,8 @@
 | batchsize        | int       |          | 1000     | The JDBC batch size, which determines how many rows to insert per round trip. This can help performance on JDBC drivers. This option applies only to writing.|
 | preSql           | string    | √        |          | 写入数据到目的表前，会先执行这里的标准语句                  |
 | postSql          | string    | √        |          | 写入数据到目的表后，会执行这里的标准语句                  |
-| writeMode        | string    | √        | insert   | 控制写入数据到目标表采用 insert 或者 replace 或者 ON DUPLICATE KEY UPDATE 语句, 所有选项：insert/replace/update                |
+| writeMode        | string    |          | append   | 写入模式: append, overwrite|
+| truncate         | boolean   |          | false    | writeMode等于overwrite，truncate=true, 插入之前是否清空表                |
 
 ### 参考
 1. https://github.com/niutaofan/bazinga
