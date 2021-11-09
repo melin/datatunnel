@@ -9,9 +9,14 @@ package com.dataworker.datax.hbase.constant;
 public class HbaseWriterOption {
 
     /**
+     * 运行模式
+     */
+    public static final String RUNNING_MODE = "runningMode";
+
+    /**
      * hbase表名
      */
-    public static final String TABLE = "table";
+    public static final String TABLE_NAME = "tableName";
 
     /**
      * bulkLoad的模式
@@ -39,14 +44,14 @@ public class HbaseWriterOption {
     public static final String HFILE_MAX_SIZE = "hfileMaxSize";
 
     /**
-     * 生成hfile后是否bulkLoad
-     */
-    public static final String DO_BULKLOAD = "doBulkLoad";
-
-    /**
-     * arrayZstd模式下,合并字段的列名
+     * arrayZstd,StringConcat模式下,合并字段的列名
      */
     public static final String MERGE_QUALIFIER = "mergeQualifier";
+
+    /**
+     * StringConcat模式下,字段拼接分隔符
+     */
+    public static final String SEPARATOR = "separator";
 
     /**
      * the exclude compaction metadata flag for the HFile
