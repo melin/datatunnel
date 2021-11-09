@@ -28,6 +28,21 @@ import java.util.Map;
  * @@VERSION :
  *****************************************/
 public class HbaseWriterBulkLoadArrayZstd {
+
+//    writer("hbase") options(tableName="bulkLoadTest1",
+//    hfileDir='/test2',
+//    runningMode=111,
+//    writeMode='bulkLoad',
+//    mappingMode='stringConcat',
+//    hfileTime=11,
+//    hfileMaxSize=53687091200,
+//    compactionExclude=false,
+//    mergeQualifier='merge',
+//    separator=',',
+//    distcp.hfileDir='dist2/test2',
+//    distcp.maxMaps=5,
+//    distcp.perMapBandwidth=100
+//            );
 //        create 'bulkLoadTest4', {NAME=>'f1', VERSIONS=>5},SPLITS => ['1', '3', '5', '7']
 //        get 'bulkLoadTest4','1',{COLUMN=>'f1',VERSIONS=>5}
 
