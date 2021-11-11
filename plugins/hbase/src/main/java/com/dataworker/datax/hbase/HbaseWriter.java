@@ -235,19 +235,23 @@ public class HbaseWriter implements DataxWriter {
             throw new DataXException("dataset为空");
         }
 
+        String profile = getProfile(sparkSession);
+        logger.info("profile={}", profile);
+        LogUtils.info(sparkSession, "profile=" + profile);
+
         logger.info("开始hbaseWriter");
         LogUtils.info(sparkSession, "开始hbaseWriter");
 
         if (haveCreateHfileStep()){
-            createHfileStep(sparkSession, dataset, jobInstanceCode);
+            createHfileStep(sparkSession, dataset, jobInstanceCode, profile);
         }
 
         if (haveDistcpStep()){
-            distcpStep(sparkSession, jobInstanceCode);
+            distcpStep(sparkSession, jobInstanceCode, profile);
         }
 
         if (haveLoadStep()){
-            loadStep(sparkSession, jobInstanceCode);
+            loadStep(sparkSession, jobInstanceCode, profile);
         }
 
         logger.info("hbaseWriter成功");
@@ -266,10 +270,10 @@ public class HbaseWriter implements DataxWriter {
         return 1 == (this.runningMode & STEP_FLAG);
     }
 
-    public void createHfileStep(SparkSession sparkSession, Dataset<Row> dataset, String jobInstanceCode) throws IOException{
+    public void createHfileStep(SparkSession sparkSession, Dataset<Row> dataset, String jobInstanceCode, String profile) throws IOException{
         logger.info("开始createHfileStep");
         LogUtils.info(sparkSession, "开始createHfileStep");
-        Configuration destConfig = getDestConfig();
+        Configuration destConfig = getDestConfig(profile);
         Connection destConnection = ConnectionFactory.createConnection(destConfig);
 
         String tmpDir = buildTmpDir(hfileDir, jobInstanceCode);
@@ -288,7 +292,7 @@ public class HbaseWriter implements DataxWriter {
             }
         }
 
-        Configuration sourceConfig = getSourceConfig();
+        Configuration sourceConfig = getSourceConfig(profile);
         // hfile路径
         String stagingDir = hbaseTableMeta.getStagingDir();
         logger.info("hfile路径={}", stagingDir);
@@ -378,13 +382,13 @@ public class HbaseWriter implements DataxWriter {
         LogUtils.info(sparkSession, "结束createHfileStep");
     }
 
-    public void distcpStep(SparkSession sparkSession, String jobInstanceCode){
+    public void distcpStep(SparkSession sparkSession, String jobInstanceCode, String profile){
         logger.info("开始distcpStep");
         LogUtils.info(sparkSession, "开始distcpStep");
 
         try {
-            Configuration sourceConfig = getSourceConfig();
-            Configuration destConfig = getDestConfig();
+            Configuration sourceConfig = getSourceConfig(profile);
+            Configuration destConfig = getDestConfig(profile);
 
             String destTmpDir = buildTmpDir(distcpHfileDir, jobInstanceCode);
             String destStagingDir = HbaseBulkLoadTool.buildStagingDir(destTmpDir);
@@ -437,12 +441,12 @@ public class HbaseWriter implements DataxWriter {
         LogUtils.info(sparkSession, "结束distcpStep");
     }
 
-    public void loadStep(SparkSession sparkSession, String jobInstanceCode){
+    public void loadStep(SparkSession sparkSession, String jobInstanceCode, String profile){
         logger.info("开始loadStep");
         LogUtils.info(sparkSession, "开始loadStep");
 
         try {
-            Configuration destConfig = getDestConfig();
+            Configuration destConfig = getDestConfig(profile);
             UserGroupInformation operateUser = UserGroupInformation.getCurrentUser();
             if (StringUtils.isBlank(destConfig.get("hadoop.security.authentication")) || "simple".equals(destConfig.get("hadoop.security.authentication"))) {
                 operateUser = UserGroupInformation.createRemoteUser("admin");
@@ -465,24 +469,30 @@ public class HbaseWriter implements DataxWriter {
         LogUtils.info(sparkSession, "结束loadStep");
     }
 
-    private Configuration getSourceConfig(){
+    private Configuration getSourceConfig(String profile){
+        String path = profile + "/source";
         Configuration config = new Configuration();
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/core-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/yarn-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/mapred-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("source" + "/hdfs-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/core-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/yarn-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/mapred-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/hdfs-site.xml"));
         //https://blog.csdn.net/qq_26838315/article/details/111941281
         //安全集群和非安全集群之间进行数据迁移时需要配置参数ipc.client.fallback-to-simple-auth-allowed 为 true
         config.set("ipc.client.fallback-to-simple-auth-allowed", "true");
         return config;
     }
 
-    private Configuration getDestConfig(){
+    private Configuration getDestConfig(String profile){
+        String path = profile + "/dest";
         Configuration config = new Configuration(false);
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/core-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hdfs-site.xml"));
-        config.addResource(Thread.currentThread().getContextClassLoader().getResource("dest" + "/hbase-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/core-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/hdfs-site.xml"));
+        config.addResource(Thread.currentThread().getContextClassLoader().getResource(path + "/hbase-site.xml"));
         return config;
+    }
+
+    private String getProfile(SparkSession sparkSession){
+        return sparkSession.sparkContext().getConf().get("spark.spring.profile.active");
     }
 
     private String buildTmpDir(String stagingDir, String jobInstanceCode){
