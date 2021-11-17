@@ -32,6 +32,13 @@ public class JdbcUtils {
             url = url + "/" + schema;
         }
 
+        // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+        if ("mysql".equals(dsType)) {
+            url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true";
+        } else if ("postgresql".equals(dsType)) {
+            url = url + "?reWriteBatchedInserts=true";
+        }
+
         return url;
     }
 }
