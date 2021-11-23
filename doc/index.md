@@ -22,12 +22,12 @@ datax reader("hdfs") options(path="/user/datawork/export/20210812")
 
 | 数据源         | Reader(读)  | Writer(写)    |文档                          |
 | :-----        | :-----      | :------      | :------                      |
-| sftp          | √           | √            | [读写](sftp.html)      |
-| hdfs          | √           |              | [读](hdfs.html)        |
-| jdbc          | √           | √            | [读写](jdbc.html)        |
-| hive          | √           | √            | [读写](hive.html)        |
-| hbase         |             | √            | [写](hbase.html)         |
-| clickhouse    |             | √            | [写](clickhouse.html)    |
+| sftp          | √           | √            | [读写](sftp.md)      |
+| hdfs          | √           |              | [读](hdfs.md)        |
+| jdbc          | √           | √            | [读写](jdbc.md)        |
+| hive          | √           | √            | [读写](hive.md)        |
+| hbase         |             | √            | [写](hbase.md)         |
+| clickhouse    |             | √            | [写](clickhouse.md)    |
 | elasticsearch |             | √            | 开发中        |
-| log           |             | √            | [写](log.html)       |
+| log           |             | √            | [写](log.md)       |
 
