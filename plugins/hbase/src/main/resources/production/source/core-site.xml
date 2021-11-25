@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>fs.defaultFS</name>
-    <value>hdfs://nameservice1</value>
+    <value>hdfs://test-hdfs</value>
   </property>
   <property>
     <name>fs.trash.interval</name>
@@ -32,7 +32,7 @@
   </property>
   <property>
     <name>hadoop.proxyuser.oozie.hosts</name>
-    <value></value>
+    <value>*</value>
   </property>
   <property>
     <name>hadoop.proxyuser.oozie.groups</name>
@@ -142,7 +142,6 @@
     <value>ssl-client.xml</value>
     <final>true</final>
   </property>
-
   <property>
     <name>ipc.client.fallback-to-simple-auth-allowed</name>
     <value>true</value>

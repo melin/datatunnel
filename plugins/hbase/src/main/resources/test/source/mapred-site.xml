@@ -60,7 +60,7 @@
   </property>
   <property>
     <name>mapreduce.job.reduces</name>
-    <value>12</value>
+    <value>4</value>
   </property>
   <property>
     <name>mapreduce.task.io.sort.mb</name>
@@ -80,23 +80,23 @@
   </property>
   <property>
     <name>mapreduce.jobhistory.address</name>
-    <value>hadoop-test-nn1-9-11:10020</value>
+    <value>hadoop-nn-010010195213.test.dztech.com:10020</value>
   </property>
   <property>
     <name>mapreduce.jobhistory.webapp.address</name>
-    <value>hadoop-test-nn1-9-11:19888</value>
+    <value>hadoop-nn-010010195213.test.dztech.com:19888</value>
   </property>
   <property>
     <name>mapreduce.jobhistory.webapp.https.address</name>
-    <value>hadoop-test-nn1-9-11:19890</value>
+    <value>hadoop-nn-010010195213.test.dztech.com:19890</value>
   </property>
   <property>
     <name>mapreduce.jobhistory.admin.address</name>
-    <value>hadoop-test-nn1-9-11:10033</value>
+    <value>hadoop-nn-010010195213.test.dztech.com:10033</value>
   </property>
   <property>
     <name>mapreduce.jobhistory.principal</name>
-    <value>mapred/_HOST@DZTECH.COM</value>
+    <value>mapred/_HOST@DZTEST.COM</value>
   </property>
   <property>
     <name>mapreduce.framework.name</name>
@@ -128,11 +128,11 @@
   </property>
   <property>
     <name>mapreduce.map.java.opts</name>
-    <value>-Djava.net.preferIPv4Stack=true</value>
+    <value>-Djava.net.preferIPv4Stack=true -Xmx1610612736</value>
   </property>
   <property>
     <name>mapreduce.reduce.java.opts</name>
-    <value>-Djava.net.preferIPv4Stack=true</value>
+    <value>-Djava.net.preferIPv4Stack=true -Xmx1610612736</value>
   </property>
   <property>
     <name>yarn.app.mapreduce.am.admin.user.env</name>
@@ -140,19 +140,19 @@
   </property>
   <property>
     <name>mapreduce.map.memory.mb</name>
-    <value>0</value>
+    <value>2048</value>
   </property>
   <property>
     <name>mapreduce.map.cpu.vcores</name>
-    <value>1</value>
+    <value>2</value>
   </property>
   <property>
     <name>mapreduce.reduce.memory.mb</name>
-    <value>0</value>
+    <value>2048</value>
   </property>
   <property>
     <name>mapreduce.reduce.cpu.vcores</name>
-    <value>1</value>
+    <value>2</value>
   </property>
   <property>
     <name>mapreduce.job.heap.memory-mb.ratio</name>

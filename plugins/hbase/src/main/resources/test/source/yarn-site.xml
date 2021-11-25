@@ -11,28 +11,92 @@
     <value>*</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.address</name>
-    <value>hadoop-test-nn1-9-11:8032</value>
+    <name>yarn.resourcemanager.ha.enabled</name>
+    <value>true</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.admin.address</name>
-    <value>hadoop-test-nn1-9-11:8033</value>
+    <name>yarn.resourcemanager.ha.automatic-failover.enabled</name>
+    <value>true</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.scheduler.address</name>
-    <value>hadoop-test-nn1-9-11:8030</value>
+    <name>yarn.resourcemanager.ha.automatic-failover.embedded</name>
+    <value>true</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value>hadoop-test-nn1-9-11:8031</value>
+    <name>yarn.resourcemanager.recovery.enabled</name>
+    <value>true</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.webapp.address</name>
-    <value>hadoop-test-nn1-9-11:8088</value>
+    <name>yarn.resourcemanager.zk-address</name>
+    <value>hadoop-dn-010010195215.test.dztech.com:2181,hadoop-dn-010010195217.test.dztech.com:2181,hadoop-dn-010010195216.test.dztech.com:2181</value>
   </property>
   <property>
-    <name>yarn.resourcemanager.webapp.https.address</name>
-    <value>hadoop-test-nn1-9-11:8090</value>
+    <name>yarn.resourcemanager.store.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
+  </property>
+  <property>
+    <name>yarn.client.failover-sleep-base-ms</name>
+    <value>100</value>
+  </property>
+  <property>
+    <name>yarn.client.failover-sleep-max-ms</name>
+    <value>2000</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.cluster-id</name>
+    <value>yarnRM</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.address.rm42</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8032</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.scheduler.address.rm42</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8030</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.resource-tracker.address.rm42</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8031</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.admin.address.rm42</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8033</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.address.rm42</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8088</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.https.address.rm42</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8090</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.address.rm43</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8032</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.scheduler.address.rm43</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8030</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.resource-tracker.address.rm43</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8031</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.admin.address.rm43</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8033</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.address.rm43</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8088</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.https.address.rm43</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8090</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.ha.rm-ids</name>
+    <value>rm42,rm43</value>
   </property>
   <property>
     <name>yarn.resourcemanager.client.thread-count</name>
@@ -56,7 +120,7 @@
   </property>
   <property>
     <name>yarn.scheduler.maximum-allocation-mb</name>
-    <value>8241</value>
+    <value>16854</value>
   </property>
   <property>
     <name>yarn.scheduler.minimum-allocation-vcores</name>
@@ -68,7 +132,7 @@
   </property>
   <property>
     <name>yarn.scheduler.maximum-allocation-vcores</name>
-    <value>3</value>
+    <value>8</value>
   </property>
   <property>
     <name>yarn.resourcemanager.amliveliness-monitor.interval-ms</name>
@@ -120,6 +184,6 @@
   </property>
   <property>
     <name>yarn.resourcemanager.principal</name>
-    <value>yarn/_HOST@DZTECH.COM</value>
+    <value>yarn/_HOST@DZTEST.COM</value>
   </property>
 </configuration>

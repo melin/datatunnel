@@ -4,55 +4,55 @@
 <configuration>
   <property>
     <name>dfs.nameservices</name>
-    <value>nameservice1,nameservice2</value>
+    <value>test-hdfs,nameservice2</value>
   </property>
   <property>
-    <name>dfs.client.failover.proxy.provider.nameservice1</name>
+    <name>dfs.client.failover.proxy.provider.test-hdfs</name>
     <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
   </property>
   <property>
-    <name>dfs.ha.automatic-failover.enabled.nameservice1</name>
+    <name>dfs.ha.automatic-failover.enabled.test-hdfs</name>
     <value>true</value>
   </property>
   <property>
     <name>ha.zookeeper.quorum</name>
-    <value>hadoop-test-dn1-9-13:2181,hadoop-test-nn1-9-11:2181,hadoop-test-nn2-9-12:2181</value>
+    <value>hadoop-dn-010010195215.test.dztech.com:2181,hadoop-dn-010010195216.test.dztech.com:2181,hadoop-dn-010010195217.test.dztech.com:2181</value>
   </property>
   <property>
-    <name>dfs.ha.namenodes.nameservice1</name>
-    <value>namenode230,namenode244</value>
+    <name>dfs.ha.namenodes.test-hdfs</name>
+    <value>namenode25,namenode27</value>
   </property>
   <property>
-    <name>dfs.namenode.rpc-address.nameservice1.namenode230</name>
-    <value>hadoop-test-nn1-9-11:8020</value>
+    <name>dfs.namenode.rpc-address.test-hdfs.namenode25</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8020</value>
   </property>
   <property>
-    <name>dfs.namenode.servicerpc-address.nameservice1.namenode230</name>
-    <value>hadoop-test-nn1-9-11:8022</value>
+    <name>dfs.namenode.servicerpc-address.test-hdfs.namenode25</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:8022</value>
   </property>
   <property>
-    <name>dfs.namenode.http-address.nameservice1.namenode230</name>
-    <value>hadoop-test-nn1-9-11:50070</value>
+    <name>dfs.namenode.http-address.test-hdfs.namenode25</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:50070</value>
   </property>
   <property>
-    <name>dfs.namenode.https-address.nameservice1.namenode230</name>
-    <value>hadoop-test-nn1-9-11:50470</value>
+    <name>dfs.namenode.https-address.test-hdfs.namenode25</name>
+    <value>hadoop-nn-010010195213.test.dztech.com:50470</value>
   </property>
   <property>
-    <name>dfs.namenode.rpc-address.nameservice1.namenode244</name>
-    <value>hadoop-test-nn2-9-12:8020</value>
+    <name>dfs.namenode.rpc-address.test-hdfs.namenode27</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8020</value>
   </property>
   <property>
-    <name>dfs.namenode.servicerpc-address.nameservice1.namenode244</name>
-    <value>hadoop-test-nn2-9-12:8022</value>
+    <name>dfs.namenode.servicerpc-address.test-hdfs.namenode27</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:8022</value>
   </property>
   <property>
-    <name>dfs.namenode.http-address.nameservice1.namenode244</name>
-    <value>hadoop-test-nn2-9-12:50070</value>
+    <name>dfs.namenode.http-address.test-hdfs.namenode27</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:50070</value>
   </property>
   <property>
-    <name>dfs.namenode.https-address.nameservice1.namenode244</name>
-    <value>hadoop-test-nn2-9-12:50470</value>
+    <name>dfs.namenode.https-address.test-hdfs.namenode27</name>
+    <value>hadoop-nn-010010195214.test.dztech.com:50470</value>
   </property>
 
 
@@ -164,14 +164,14 @@
   </property>
   <property>
     <name>dfs.namenode.kerberos.principal</name>
-    <value>hdfs/_HOST@DZTECH.COM</value>
+    <value>hdfs/_HOST@DZTEST.COM</value>
   </property>
   <property>
     <name>dfs.namenode.kerberos.internal.spnego.principal</name>
-    <value>HTTP/_HOST@DZTECH.COM</value>
+    <value>HTTP/_HOST@DZTEST.COM</value>
   </property>
   <property>
     <name>dfs.datanode.kerberos.principal</name>
-    <value>hdfs/_HOST@DZTECH.COM</value>
+    <value>hdfs/_HOST@DZTEST.COM</value>
   </property>
 </configuration>
