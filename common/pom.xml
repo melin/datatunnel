@@ -5,7 +5,7 @@
     <parent>
         <artifactId>datax</artifactId>
         <groupId>com.dataworker.datax</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>3.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.dataworker.spark.jobserver</groupId>
             <artifactId>spark-jobserver-api</artifactId>
-            <version>3.1.0-SNAPSHOT</version>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
