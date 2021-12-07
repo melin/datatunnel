@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datax-plugin-sftp</artifactId>
+    <artifactId>datax-plugin-kafka</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -19,21 +19,23 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.8.1</version>
+            <scope>${libScope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${scala.bin.version}</artifactId>
+            <version>${spark.version}</version>
+            <scope>${libScope}</scope>
+        </dependency>
+
+        <dependency>
             <artifactId>datax-common</artifactId>
             <groupId>com.dataworker.datax</groupId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.springml</groupId>
-            <artifactId>sftp.client</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.55</version>
         </dependency>
     </dependencies>
 
@@ -66,7 +68,7 @@
                     </args>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
