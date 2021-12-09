@@ -55,6 +55,13 @@ public class JdbcReader implements DataxReader {
         String password = dsConfMap.getString("password");
         password = AESUtil.decrypt(password);
 
+        if (StringUtils.isBlank(username)) {
+            throw new IllegalArgumentException("username不能为空");
+        }
+        if (StringUtils.isBlank(password)) {
+            throw new IllegalArgumentException("password不能为空");
+        }
+
         String url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
 
         int fetchSize = 1000;
