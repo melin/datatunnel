@@ -5,12 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.common.util.AESUtil;
+import com.dataworker.datax.common.util.CommonUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SaveMode;
-import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -86,6 +84,8 @@ public class JdbcWriter implements DataxWriter {
                 truncate = true;
             }
 
+            String sql = CommonUtils.genOutputSql(dataset, options);
+            dataset = sparkSession.sql(sql);
             dataset.write()
                     .format("jdbc")
                     .mode(mode)

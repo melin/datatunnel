@@ -2,6 +2,7 @@ package com.dataworker.datax.hive;
 
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.api.DataXException;
+import com.dataworker.datax.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -22,6 +23,9 @@ public class HiveWriter implements DataxWriter {
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
         try {
+            String sql = CommonUtils.genOutputSql(dataset, options);
+            dataset = sparkSession.sql(sql);
+
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
@@ -40,7 +44,6 @@ public class HiveWriter implements DataxWriter {
                 table = databaseName + "." + tableName;
             }
 
-            String sql = "";
             if ("append".equals(writeMode)) {
                 if (isPartition) {
                     sql = "insert into table " + table + " partition(" + partition + ") select * from " + tdlName;
