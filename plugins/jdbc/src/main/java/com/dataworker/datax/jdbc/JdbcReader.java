@@ -73,19 +73,29 @@ public class JdbcReader implements DataxReader {
             queryTimeout = Integer.parseInt(options.get("queryTimeout"));
         }
 
-        Dataset<Row> result = sparkSession.read()
-                .format("jdbc")
-                .option("url", url)
-                .option("dbtable", databaseName + "." + tableName)
-                .option("fetchSize", fetchSize)
-                .option("queryTimeout", queryTimeout)
-                .option("user", username)
-                .option("password", password)
-                .load();
+        String[] tables = StringUtils.split(tableName, ",");
+        Dataset<Row> dataset = null;
+        for (int i = 0, len = tables.length; i < len; i++) {
+            Dataset<Row> result = sparkSession.read()
+                    .format("jdbc")
+                    .option("url", url)
+                    .option("dbtable", databaseName + "." + tables[i])
+                    .option("fetchSize", fetchSize)
+                    .option("queryTimeout", queryTimeout)
+                    .option("user", username)
+                    .option("password", password)
+                    .load();
+
+            if (i == 0) {
+                dataset = result;
+            } else  {
+                dataset = dataset.unionAll(result);
+            }
+        }
 
         try {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
-            result.createTempView(tdlName);
+            dataset.createTempView(tdlName);
             String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
             return sparkSession.sql(sql);
         } catch (AnalysisException e) {
