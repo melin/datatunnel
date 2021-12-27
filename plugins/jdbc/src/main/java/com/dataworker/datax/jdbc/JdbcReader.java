@@ -1,11 +1,10 @@
 package com.dataworker.datax.jdbc;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxReader;
 import com.dataworker.datax.common.util.AESUtil;
 import com.dataworker.datax.common.util.CommonUtils;
+import com.dataworker.datax.common.util.MapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
@@ -14,6 +13,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,7 +28,10 @@ public class JdbcReader implements DataxReader {
     public void validateOptions(Map<String, String> options) {
         String dsType = options.get("__dsType__");
         if (StringUtils.isBlank(dsType)) {
-            throw new IllegalArgumentException("数据类型不能为空");
+            dsType = options.get("type");
+            if (StringUtils.isBlank(dsType)) {
+                throw new IllegalArgumentException("数据类型不能为空");
+            }
         }
 
         if (!ArrayUtils.contains(DATASOURCE_TYPES, dsType)) {
@@ -45,24 +48,32 @@ public class JdbcReader implements DataxReader {
     public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
         String dsConf = options.get("__dsConf__");
         String dsType = options.get("__dsType__");
-        JSONObject dsConfMap = JSON.parseObject(dsConf);
 
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
         String column = options.get("column");
-        String[] columns = CommonUtils.parseColumn(column);
-        String username = dsConfMap.getString("username");
-        String password = dsConfMap.getString("password");
-        password = AESUtil.decrypt(password);
+        List<String> columns = CommonUtils.parseColumn(column);
+
+        String username = options.get("username");
+        String password = options.get("password");
+        String url = options.get("url");
+        if ("yes".equals(options.get("__dataworks__"))) {
+            Map<String, String> dsConfMap =  MapperUtils.toJavaMap(dsConf, String.class);
+            username = dsConfMap.get("username");
+            password = dsConfMap.get("password");
+            password = AESUtil.decrypt(password);
+            url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
+        }
 
         if (StringUtils.isBlank(username)) {
-            throw new IllegalArgumentException("username不能为空");
+            throw new IllegalArgumentException("username 不能为空");
         }
         if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("password不能为空");
+            throw new IllegalArgumentException("password 不能为空");
         }
-
-        String url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
+        if (StringUtils.isBlank(url)) {
+            throw new IllegalArgumentException("url 不能为空");
+        }
 
         int fetchSize = 1000;
         if (options.containsKey("fetchSize")) {

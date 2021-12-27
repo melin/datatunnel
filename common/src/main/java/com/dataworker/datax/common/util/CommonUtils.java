@@ -1,13 +1,13 @@
 package com.dataworker.datax.common.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,15 +15,14 @@ import java.util.Map;
  */
 public class CommonUtils {
 
-    public static String[] parseColumn(String column) {
-        JSONArray json = JSON.parseArray(column);
-        return json.toArray(new String[0]);
+    public static List<String> parseColumn(String column) throws IOException {
+        return MapperUtils.toJavaListObject(column, String.class);
     }
 
     @NotNull
-    public static String genOutputSql(Dataset<Row> dataset, Map<String, String> options) throws AnalysisException {
+    public static String genOutputSql(Dataset<Row> dataset, Map<String, String> options) throws AnalysisException, IOException {
         String column = options.get("column");
-        String[] columns = CommonUtils.parseColumn(column);
+        String[] columns = CommonUtils.parseColumn(column).toArray(new String[0]);
         String tableName = options.get("tableName");
         String tdlName = "tdl_" + tableName + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);

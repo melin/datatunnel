@@ -17,11 +17,5 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.gitee.bee</groupId>
-            <artifactId>bee</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>

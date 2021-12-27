@@ -19,9 +19,14 @@
     <dependencies>
         <dependency>
             <groupId>com.dataworker.datax</groupId>
-            <artifactId>datax-plugin-clickhouse</artifactId>
+            <artifactId>datax-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>
+            <groupId>com.dataworker.datax</groupId>
+            <artifactId>datax-plugin-clickhouse</artifactId>
+            <version>${project.version}</version>
+        </dependency>-->
         <!--<dependency>
             <groupId>com.dataworker.datax</groupId>
             <artifactId>datax-plugin-hbase</artifactId>
@@ -37,11 +42,11 @@
             <artifactId>datax-plugin-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.dataworker.datax</groupId>
             <artifactId>datax-plugin-sftp</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.dataworker.datax</groupId>
             <artifactId>datax-plugin-hdfs</artifactId>

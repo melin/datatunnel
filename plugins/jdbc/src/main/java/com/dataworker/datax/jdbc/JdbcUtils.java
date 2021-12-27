@@ -1,17 +1,18 @@
 package com.dataworker.datax.jdbc;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 /**
  * @author melin 2021/11/8 4:19 下午
  */
 public class JdbcUtils {
 
-    public static String buildJdbcUrl(String dsType, JSONObject dsConfMap) {
-        String host = dsConfMap.getString("host");
-        int port = dsConfMap.getInteger("port");
-        String schema = dsConfMap.getString("schema");
+    public static String buildJdbcUrl(String dsType, Map<String, String> dsConfMap) {
+        String host = dsConfMap.get("host");
+        int port = Integer.parseInt(dsConfMap.get("port"));
+        String schema = dsConfMap.get("schema");
 
         String url = "";
         if ("mysql".equals(dsType)) {
