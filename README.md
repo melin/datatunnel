@@ -22,6 +22,21 @@ datax reader("jdbc") options(
     url="jdbc:mysql://10.5.20.20:3306",
     databaseName='dataworks', tableName='dc_datax_datasource', column=["*"])
     writer("hive") options(databaseName="bigdata", tableName='hive_datax_datasource', writeMode='overwrite', column=["*"]);
+    
+datax reader("hive") options(
+        databaseName="bigdata", 
+        tableName='hive_datax_datasource', 
+        column=['id', 'code', 'type', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier'])
+    writer("jdbc") options(
+        username="dataworks",
+        password="dataworks2021",
+        type="mysql",
+        url="jdbc:mysql://10.5.20.20:3306",
+        databaseName='dataworks', 
+        tableName='dc_datax_datasource_copy1', 
+        writeMode='overwrite',
+        truncate=true,
+        column=['id', 'code', 'dstype', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier'])
 ```
 
 ### 参考
