@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package com.dataworker.datax.kafka
+package com.dataworker.datax.kafka.writer
 
 import org.apache.kafka.clients.producer.{Callback, ProducerRecord}
 

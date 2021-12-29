@@ -1,1 +1,1 @@
-kafka=com.dataworker.datax.kafka.DataxKafkaWriter
+kafka=com.dataworker.datax.kafka.writer.DataxKafkaWriter
