@@ -15,6 +15,7 @@ PARTITIONED BY (ds)
 lifeCycle 100
 comment 'hudi demo'
 
+--直接bin/spark-sql 建表语句
 create table test_hudi_demo (
     id string comment "默认为kafka key，如果key为空，值为timestamp",
     message string comment "采集消息",
