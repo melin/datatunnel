@@ -21,6 +21,7 @@ public class MapperUtils {
     static {
         objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public static ObjectMapper getInstance() {
@@ -35,18 +36,6 @@ public class MapperUtils {
      */
     public static String toJSONString(Object obj) throws IOException {
         return objectMapper.writeValueAsString(obj);
-    }
-
-    /**
-     * 转换为 JSON 字符串，忽略空值
-     *
-     * @param obj
-     * @throws Exception
-     */
-    public static String toJSONStringIgnoreNull(Object obj) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.writeValueAsString(obj);
     }
 
     /**
