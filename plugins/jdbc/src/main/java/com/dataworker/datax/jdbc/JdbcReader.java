@@ -58,7 +58,7 @@ public class JdbcReader implements DataxReader {
         String password = options.get("password");
         String url = options.get("url");
         if ("yes".equals(options.get("__dataworks__"))) {
-            Map<String, String> dsConfMap =  MapperUtils.toJavaMap(dsConf, String.class);
+            Map<String, String> dsConfMap = MapperUtils.toJavaMap(dsConf, String.class);
             username = dsConfMap.get("username");
             password = dsConfMap.get("password");
             password = AESUtil.decrypt(password);

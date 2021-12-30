@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,23 +68,14 @@ public class MapperUtils {
      * @throws Exception
      */
     public static <T> Map<String, Object> toJavaMap(String jsonString) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.readValue(jsonString, Map.class);
+        return objectMapper.readValue(jsonString, Map.class);
     }
 
     /**
      * 字符串转换为 Map
      */
     public static <T> Map<String, T> toJavaMap(String jsonString, Class<T> clazz) throws IOException {
-        Map<String, Map<String, T>> map = objectMapper.readValue(jsonString,
-                new TypeReference<Map<String, Map<String, T>>>() {
-                });
-        Map<String, T> result = new HashMap<>();
-        for (Map.Entry<String, Map<String, T>> entry : map.entrySet()) {
-            result.put(entry.getKey(), map2pojo(entry.getValue(), clazz));
-        }
-        return result;
+        return objectMapper.readValue(jsonString, new TypeReference<Map<String, T>>() {});
     }
 
     /**
