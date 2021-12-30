@@ -6,7 +6,6 @@ import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.hbase.constant.MappingMode;
 import com.dataworker.datax.hbase.constant.WriteMode;
 import com.dataworker.datax.hbase.util.DistCpUtil;
-import com.dataworker.spark.jobserver.api.LogUtils;
 import com.dazhenyun.hbasesparkproto.HbaseBulkLoadTool;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
@@ -44,7 +43,7 @@ import static com.dataworker.datax.hbase.constant.HbaseWriterOption.*;
  */
 public class HbaseWriter implements DataxWriter {
 
-    private static final Logger logger = LoggerFactory.getLogger(HbaseWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HbaseWriter.class);
 
     private static final int STEP_FLAG = 0b1;
 
@@ -229,18 +228,16 @@ public class HbaseWriter implements DataxWriter {
         }
 
         long count = dataset.count();
-        logger.info("dataset count={}", count);
-        LogUtils.info(sparkSession, "dataset count=" + count);
+        LOGGER.info("dataset count=" + count);
         if (0 == count){
             throw new DataXException("dataset为空");
         }
 
         String profile = getProfile(sparkSession);
         logger.info("profile={}", profile);
-        LogUtils.info(sparkSession, "profile=" + profile);
+        LOGGER.info(, "profile=" + profile);
 
         logger.info("开始hbaseWriter");
-        LogUtils.info(sparkSession, "开始hbaseWriter");
 
         if (haveCreateHfileStep()){
             createHfileStep(sparkSession, dataset, jobInstanceCode, profile);
@@ -255,7 +252,6 @@ public class HbaseWriter implements DataxWriter {
         }
 
         logger.info("hbaseWriter成功");
-        LogUtils.info(sparkSession, "hbaseWriter成功");
     }
 
     public boolean haveCreateHfileStep(){
@@ -272,7 +268,6 @@ public class HbaseWriter implements DataxWriter {
 
     public void createHfileStep(SparkSession sparkSession, Dataset<Row> dataset, String jobInstanceCode, String profile) throws IOException{
         logger.info("开始createHfileStep");
-        LogUtils.info(sparkSession, "开始createHfileStep");
         Configuration destConfig = getDestConfig(profile);
         Connection destConnection = ConnectionFactory.createConnection(destConfig);
 
@@ -281,10 +276,8 @@ public class HbaseWriter implements DataxWriter {
         try {
             hbaseTableMeta = HbaseBulkLoadTool.buildHbaseTableMeta(destConnection, tableName, tmpDir);
             logger.info("hbaseTableMeta={}", hbaseTableMeta);
-            LogUtils.info(sparkSession, "hbaseTableMeta=" + hbaseTableMeta);
         } catch (Exception e) {
             logger.error("创建hbaseTableMeta失败", e);
-            LogUtils.error(sparkSession, "创建hbaseTableMeta失败" + e.getMessage());
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 创建hbaseTableMeta失败", e);
         } finally {
             if (!destConnection.isClosed()){
@@ -295,8 +288,7 @@ public class HbaseWriter implements DataxWriter {
         Configuration sourceConfig = getSourceConfig(profile);
         // hfile路径
         String stagingDir = hbaseTableMeta.getStagingDir();
-        logger.info("hfile路径={}", stagingDir);
-        LogUtils.info(sparkSession, "hfile路径=" + stagingDir);
+        LOGGER.info("hfile路径={}", stagingDir);
         // hfile生成成功后的路径
         String stagingDirSucc = buildStagingDirSucc(stagingDir);
         Path stagingDirPath = new Path(stagingDir);
@@ -307,23 +299,19 @@ public class HbaseWriter implements DataxWriter {
         try {
             if (fileSystem.exists(stagingDirPath)){
                 fileSystem.delete(stagingDirPath, true);
-                logger.warn("目录{}已存在,清空目录", stagingDir);
-                LogUtils.warn(sparkSession, "目录" + stagingDir + "已存在,清空目录");
+                LOGGER.warn("目录{}已存在,清空目录", stagingDir);
             }
             if (fileSystem.exists(stagingDirSuccPath)){
                 fileSystem.delete(stagingDirSuccPath, true);
-                logger.warn("目录{}已存在,清空目录", stagingDirSucc);
-                LogUtils.warn(sparkSession, "目录" + stagingDirSucc + "已存在,清空目录");
+                LOGGER.warn("目录{}已存在,清空目录", stagingDirSucc);
             }
         } catch (Exception e) {
-            logger.error("清空目录异常", e);
-            LogUtils.error(sparkSession, "清空目录异常");
+            LOGGER.error("清空目录异常", e);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + "清空目录异常", e);
         }
 
         int regionSize = hbaseTableMeta.getStartKeys().length;
-        logger.info("table={} regionSize={}", tableName, regionSize);
-        LogUtils.info(sparkSession, "table=" + tableName + " regionSize=" + regionSize);
+        LOGGER.info("table={} regionSize={}", tableName, regionSize);
 
         JavaSparkContext jsc = new JavaSparkContext(sparkSession.sparkContext());
         JavaHBaseContext javaHBaseContext = new JavaHBaseContext(jsc, sourceConfig);
@@ -350,24 +338,19 @@ public class HbaseWriter implements DataxWriter {
                         null
                 );
             }
-            logger.info("writeMode={},mappingMode={} hfile生成成功", writeMode, mappingMode);
-            LogUtils.info(sparkSession, "writeMode=" + writeMode + " mappingMode=" + mappingMode + " hfile生成成功");
+            LOGGER.info("writeMode={},mappingMode={} hfile生成成功", writeMode, mappingMode);
         } catch (Exception e) {
-            logger.error("hfile生成失败", e);
-            LogUtils.error(sparkSession, "hfile生成失败," + e.getMessage());
+            LOGGER.error("hfile生成失败", e);
             // 清理目录
             fileSystem.delete(stagingDirPath, true);
-            LogUtils.error(sparkSession, "清理目录" + stagingDirPath);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " hfile生成失败", e);
         }
 
         // hifle目录改成_succ后缀
         if (fileSystem.rename(stagingDirPath, stagingDirSuccPath)){
-            logger.info("修改hfile目录名={}成功", stagingDirSuccPath);
-            LogUtils.info(sparkSession, "修改hfile目录名=" + stagingDirSuccPath + "成功");
+            LOGGER.info("修改hfile目录名={}成功", stagingDirSuccPath);
         } else {
-            logger.error("修改hfile目录名={}失败", stagingDirSuccPath);
-            LogUtils.error(sparkSession, "修改hfile目录名=" + stagingDirSuccPath + "失败");
+            LOGGER.error("修改hfile目录名={}失败", stagingDirSuccPath);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " 修改hfile目录名=" + stagingDirSuccPath + "失败");
         }
 
@@ -375,16 +358,13 @@ public class HbaseWriter implements DataxWriter {
         try {
             statisticsHfileInfo(sparkSession, sourceConfig, stagingDirSuccPath);
         } catch (Exception e) {
-            logger.warn("统计hfile信息异常", e);
-            LogUtils.warn(sparkSession, "统计hfile信息异常");
+            LOGGER.warn("统计hfile信息异常", e);
         }
-        logger.info("结束createHfileStep");
-        LogUtils.info(sparkSession, "结束createHfileStep");
+        LOGGER.info("结束createHfileStep");
     }
 
     public void distcpStep(SparkSession sparkSession, String jobInstanceCode, String profile){
-        logger.info("开始distcpStep");
-        LogUtils.info(sparkSession, "开始distcpStep");
+        LOGGER.info("开始distcpStep");
 
         try {
             Configuration sourceConfig = getSourceConfig(profile);
@@ -392,16 +372,14 @@ public class HbaseWriter implements DataxWriter {
 
             String destTmpDir = buildTmpDir(distcpHfileDir, jobInstanceCode);
             String destStagingDir = HbaseBulkLoadTool.buildStagingDir(destTmpDir);
-            logger.info("distCp目录={}", destStagingDir);
-            LogUtils.info(sparkSession, "distCp目录=" + destStagingDir);
+            LOGGER.info("distCp目录={}", destStagingDir);
             UserGroupInformation operateUser = UserGroupInformation.getCurrentUser();
             if (StringUtils.isBlank(destConfig.get("hadoop.security.authentication")) || "simple".equals(destConfig.get("hadoop.security.authentication"))) {
                 operateUser = UserGroupInformation.createRemoteUser("admin");
             }
 
             String nameServices = sourceConfig.get("dfs.nameservices");
-            logger.info("nameServices={}", nameServices);
-            LogUtils.info(sparkSession, "nameServices=" + nameServices);
+            LOGGER.info("nameServices={}", nameServices);
             String[] nameServiceArray = nameServices.split(",");
 
             String sourceStagingDir = HbaseBulkLoadTool.buildStagingDir(buildTmpDir(hfileDir, jobInstanceCode));
@@ -411,8 +389,7 @@ public class HbaseWriter implements DataxWriter {
             Path sourcePath = new Path("hdfs://" + nameServiceArray[0] + sourceStagingDirSuccPath);
             Path destPath = new Path("hdfs://" + nameServiceArray[1] + destStagingDir);
 
-            logger.info("sourcePath={},destPath={}", sourcePath, destPath);
-            LogUtils.info(sparkSession, "sourcePath=" + sourcePath + ",destPath=" + destPath);
+            LOGGER.info("sourcePath={},destPath={}", sourcePath, destPath);
 
             DistCpUtil.distcp(sourceConfig, Arrays.asList(sourcePath), destPath, distcpMaxMaps, distcpPerMapBandwidth);
 
@@ -426,24 +403,19 @@ public class HbaseWriter implements DataxWriter {
                 }
             });
 
-            logger.info("distcp成功");
-            LogUtils.info(sparkSession, "distcp成功");
+            LOGGER.info("distcp成功");
             // 删除原集群数据
             FileSystem.get(sourceConfig).delete(sourceStagingDirSuccPath, true);
-            logger.info("删除原集群hfile成功");
-            LogUtils.info(sparkSession, "删除原集群hfile成功");
+            LOGGER.info("删除原集群hfile成功");
         } catch (Exception e){
-            logger.error("distcp失败", e);
-            LogUtils.error(sparkSession, "distcp失败");
+            LOGGER.error("distcp失败", e);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " distcp失败", e);
         }
-        logger.info("结束distcpStep");
-        LogUtils.info(sparkSession, "结束distcpStep");
+        LOGGER.info("结束distcpStep");
     }
 
     public void loadStep(SparkSession sparkSession, String jobInstanceCode, String profile){
-        logger.info("开始loadStep");
-        LogUtils.info(sparkSession, "开始loadStep");
+        LOGGER.info("开始loadStep");
 
         try {
             Configuration destConfig = getDestConfig(profile);
@@ -460,13 +432,11 @@ public class HbaseWriter implements DataxWriter {
                 }
             });
         } catch (Exception e) {
-            logger.error("load失败", e);
-            LogUtils.error(sparkSession, "load失败");
+            LOGGER.error("load失败", e);
             throw new DataXException("jobInstanceCode=" + jobInstanceCode + " load失败", e);
 
         }
-        logger.info("结束loadStep");
-        LogUtils.info(sparkSession, "结束loadStep");
+        LOGGER.info("结束loadStep");
     }
 
     private Configuration getSourceConfig(String profile){
@@ -535,8 +505,7 @@ public class HbaseWriter implements DataxWriter {
             }
         }
         sb.append("hfile总大小:" + FileUtils.byteCountToDisplaySize(totalSize));
-        logger.info(sb.toString());
-        LogUtils.info(sparkSession, sb.toString());
+        LOGGER.info(sb.toString());
     }
 
     @Override

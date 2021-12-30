@@ -23,12 +23,6 @@
             <groupId>com.dataworker.datax</groupId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.dataworker.spark.jobserver</groupId>
-            <artifactId>spark-jobserver-api</artifactId>
-            <version>3.2.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>

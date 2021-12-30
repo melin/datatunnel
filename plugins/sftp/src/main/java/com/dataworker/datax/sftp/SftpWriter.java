@@ -3,7 +3,6 @@ package com.dataworker.datax.sftp;
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.sftp.util.SftpUtils;
-import com.dataworker.spark.jobserver.api.LogUtils;
 import com.jcraft.jsch.ChannelSftp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -71,7 +70,7 @@ public class SftpWriter implements DataxWriter {
 
                     boolean exist = SftpUtils.checkFileExists(channelSftp, filename);
                     if ("false".equals(overwrite) && exist) {
-                        LogUtils.warn(sparkSession, path.getName() + " 文件已经存在 不重复上传");
+                        LOGGER.warn(path.getName() + " 文件已经存在 不重复上传");
                     } else {
                         Stopwatch stopWatch = new Stopwatch();
                         stopWatch.start();
@@ -87,7 +86,7 @@ public class SftpWriter implements DataxWriter {
                         SftpUtils.rename(channelSftp, tmpName, filename);
 
                         stopWatch.stop();
-                        LogUtils.info(sparkSession, path.getName() + " 文件上传成功, 耗时: " + stopWatch.toString());
+                        LOGGER.info(path.getName() + " 文件上传成功, 耗时: " + stopWatch.toString());
                     }
                 } catch (Exception e) {
                     throw new DataXException("上传文件失败: " + e.getMessage(), e);

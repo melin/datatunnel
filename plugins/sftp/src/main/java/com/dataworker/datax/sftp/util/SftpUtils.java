@@ -1,6 +1,5 @@
 package com.dataworker.datax.sftp.util;
 
-import com.dataworker.spark.jobserver.api.LogUtils;
 import com.jcraft.jsch.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -9,6 +8,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.spark.sql.SparkSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +22,8 @@ import java.util.Map;
  * @author melin 2021/8/18 2:51 下午
  */
 public class SftpUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SftpUtils.class);
 
     private static final String STR_STRICT_HOST_KEY_CHECKING = "StrictHostKeyChecking";
 
@@ -50,7 +53,7 @@ public class SftpUtils {
 
             boolean useIdentity = keyFilePath != null && !keyFilePath.isEmpty();
             if (useIdentity) {
-                LogUtils.info(sparkSession, "秘钥认证");
+                LOGGER.info("秘钥认证");
                 if (passPhrase != null) {
                     jsch.addIdentity(keyFilePath, passPhrase);
                 } else {
@@ -61,7 +64,7 @@ public class SftpUtils {
             Session session = jsch.getSession(username, host, sftpPort);
             session.setConfig(STR_STRICT_HOST_KEY_CHECKING, STR_NO);
             if (!useIdentity) {
-                LogUtils.info(sparkSession, "密码认证");
+                LOGGER.info("密码认证");
                 session.setPassword(password);
             }
             session.connect();
@@ -99,7 +102,7 @@ public class SftpUtils {
 
                 return tempFile.getPath();
             } else {
-                LogUtils.warn(sparkSession, "文件不存在: " + keyFilePath);
+                LOGGER.warn("文件不存在: " + keyFilePath);
             }
         }
 
