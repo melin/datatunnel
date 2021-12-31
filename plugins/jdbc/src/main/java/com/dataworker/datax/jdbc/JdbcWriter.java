@@ -2,9 +2,7 @@ package com.dataworker.datax.jdbc;
 
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxWriter;
-import com.dataworker.datax.common.util.AESUtil;
 import com.dataworker.datax.common.util.CommonUtils;
-import com.dataworker.datax.common.util.MapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
@@ -22,12 +20,9 @@ public class JdbcWriter implements DataxWriter {
 
     @Override
     public void validateOptions(Map<String, String> options) {
-        String dsType = options.get("__dsType__");
+        String dsType = options.get("type");
         if (StringUtils.isBlank(dsType)) {
-            dsType = options.get("type");
-            if (StringUtils.isBlank(dsType)) {
-                throw new IllegalArgumentException("数据类型不能为空");
-            }
+            throw new IllegalArgumentException("数据类型不能为空");
         }
 
         if (!ArrayUtils.contains(DATASOURCE_TYPES, dsType)) {
@@ -38,9 +33,6 @@ public class JdbcWriter implements DataxWriter {
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
         try {
-            String dsConf = options.get("__dsConf__");
-            String dsType = options.get("__dsType__");
-
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
@@ -55,13 +47,6 @@ public class JdbcWriter implements DataxWriter {
             String username = options.get("username");
             String password = options.get("password");
             String url = options.get("url");
-            if ("yes".equals(options.get("__dataworks__"))) {
-                Map<String, String> dsConfMap =  MapperUtils.toJavaMap(dsConf, String.class);
-                username = dsConfMap.get("username");
-                password = dsConfMap.get("password");
-                password = AESUtil.decrypt(password);
-                url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
-            }
 
             if (StringUtils.isBlank(username)) {
                 throw new IllegalArgumentException("username 不能为空");
