@@ -11,6 +11,7 @@
     <modules>
         <module>api</module>
         <module>common</module>
+        <module>core</module>
         <module>assembly</module>
         <module>plugins/log</module>
         <module>plugins/clickhouse</module>
@@ -81,14 +82,14 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.9</version>
             <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.9</version>
             <scope>${libScope}</scope>
         </dependency>
 

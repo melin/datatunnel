@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,7 +38,7 @@ public class HiveReader implements DataxReader {
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
         String column = options.get("column");
-        String[] columns = CommonUtils.parseColumn(column);
+        List<String> columns = CommonUtils.parseColumn(column);
         String condition = options.get("condition");
 
         String table = tableName;

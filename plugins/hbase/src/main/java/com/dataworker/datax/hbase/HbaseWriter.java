@@ -1,6 +1,5 @@
 package com.dataworker.datax.hbase;
 
-import com.alibaba.fastjson.JSON;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.hbase.constant.MappingMode;
@@ -85,7 +84,7 @@ public class HbaseWriter implements DataxWriter {
 
     @Override
     public void validateOptions(Map<String, String> options) {
-        logger.debug("HbaseWriter options={}", JSON.toJSONString(options));
+        logger.debug("HbaseWriter options={}", MapperUtils.toJSONString(options));
         String runningMode = options.get(RUNNING_MODE);
         if (!Objects.isNull(runningMode)){
             try {

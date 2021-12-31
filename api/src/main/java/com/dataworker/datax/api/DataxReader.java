@@ -15,7 +15,7 @@ import java.util.Map;
 @SPI
 public interface DataxReader extends Serializable {
 
-    void validateOptions(Map<String, String> options);
+    void validateOptions(Map<String, String> options) throws IOException;
 
     Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException;
 }

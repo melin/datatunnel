@@ -1,11 +1,10 @@
 package com.dataworker.datax.clickhouse;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.clickhouse.constant.ClickHouseWriterOption;
 import com.dataworker.datax.common.util.AESUtil;
+import com.gitee.bee.util.MapperUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.spark.sql.Dataset;
@@ -30,8 +29,8 @@ public class ClickhouseWriter implements DataxWriter {
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseWriter.class);
 
     @Override
-    public void validateOptions(Map<String, String> options) {
-        logger.info("ClickhouseWriter options = {}",  JSON.toJSONString(options));
+    public void validateOptions(Map<String, String> options) throws IOException {
+        logger.info("ClickhouseWriter options = {}",  MapperUtils.toJSONString(options));
         String dataSourceCode = options.get(DATASOURCE_CODE);
         if (StringUtils.isBlank(dataSourceCode)){
             throw new DataXException("缺少code参数");
@@ -65,13 +64,13 @@ public class ClickhouseWriter implements DataxWriter {
         }
         String tableName = options.get(TABLE_NAME);
         String datasourceConfig = options.get(DATASOURCE_CONFIG);
-        Map datasourceMap = JSONObject.parseObject(datasourceConfig, Map.class);
+        Map<String, Object> datasourceMap = MapperUtils.toJavaMap(datasourceConfig);
         dataset.write()
                 .mode(SaveMode.Append)
                 .jdbc(getCKJdbcUrl(options, datasourceMap), tableName, getCKJdbcProperties(options, datasourceMap));
     }
 
-    private String getCKJdbcUrl(Map<String, String> options, Map datasourceMap){
+    private String getCKJdbcUrl(Map<String, String> options, Map<String, Object> datasourceMap){
         String databaseName = options.getOrDefault(DATABASE_NAME, (String) datasourceMap.get(SCHEMA));
         return String.format("jdbc:clickhouse://%s:%s/%s", datasourceMap.get(HOST), datasourceMap.get(PORT), databaseName);
     }

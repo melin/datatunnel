@@ -1,11 +1,10 @@
 package com.dataworker.datax.jdbc;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxWriter;
 import com.dataworker.datax.common.util.AESUtil;
 import com.dataworker.datax.common.util.CommonUtils;
+import com.gitee.bee.util.MapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
@@ -22,7 +21,7 @@ public class JdbcWriter implements DataxWriter {
             new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
 
     @Override
-    public void validateOptions(Map<String, String> options) {
+    public void validateOptions(Map<String, String> options) throws IOException {
         String dsType = options.get("__dsType__");
         if (StringUtils.isBlank(dsType)) {
             throw new IllegalArgumentException("数据类型不能为空");
@@ -38,7 +37,7 @@ public class JdbcWriter implements DataxWriter {
         try {
             String dsConf = options.get("__dsConf__");
             String dsType = options.get("__dsType__");
-            JSONObject dsConfMap = JSON.parseObject(dsConf);
+            Map<String, Object> dsConfMap = MapperUtils.toJavaMap(dsConf);
 
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
@@ -51,8 +50,8 @@ public class JdbcWriter implements DataxWriter {
                 table = databaseName + "." + tableName;
             }
 
-            String username = dsConfMap.getString("username");
-            String password = dsConfMap.getString("password");
+            String username = (String) dsConfMap.get("username");
+            String password = (String) dsConfMap.get("password");
             password = AESUtil.decrypt(password);
             if (StringUtils.isBlank(username)) {
                 throw new IllegalArgumentException("username不能为空");

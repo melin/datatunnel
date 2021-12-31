@@ -1,10 +1,11 @@
-package com.dataworker.datax.kafka
+package com.dataworker.datax.kafka.writer
 
 import com.dataworker.datax.api.DataxWriter
+import com.dataworker.datax.kafka.writer.kafka.datasetToKafkaWriter
 import org.apache.commons.lang3.StringUtils
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
-import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 import java.util
 import scala.collection.JavaConverters._

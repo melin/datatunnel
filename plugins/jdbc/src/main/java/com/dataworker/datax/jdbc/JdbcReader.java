@@ -1,11 +1,10 @@
 package com.dataworker.datax.jdbc;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.dataworker.datax.api.DataXException;
 import com.dataworker.datax.api.DataxReader;
 import com.dataworker.datax.common.util.AESUtil;
 import com.dataworker.datax.common.util.CommonUtils;
+import com.gitee.bee.util.MapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
@@ -14,6 +13,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,7 +25,7 @@ public class JdbcReader implements DataxReader {
             new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
 
     @Override
-    public void validateOptions(Map<String, String> options) {
+    public void validateOptions(Map<String, String> options) throws IOException {
         String dsType = options.get("__dsType__");
         if (StringUtils.isBlank(dsType)) {
             throw new IllegalArgumentException("数据类型不能为空");
@@ -45,14 +45,14 @@ public class JdbcReader implements DataxReader {
     public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
         String dsConf = options.get("__dsConf__");
         String dsType = options.get("__dsType__");
-        JSONObject dsConfMap = JSON.parseObject(dsConf);
+        Map<String, Object> dsConfMap = MapperUtils.toJavaMap(dsConf);
 
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
         String column = options.get("column");
-        String[] columns = CommonUtils.parseColumn(column);
-        String username = dsConfMap.getString("username");
-        String password = dsConfMap.getString("password");
+        List<String> columns = CommonUtils.parseColumn(column);
+        String username = (String) dsConfMap.get("username");
+        String password = (String) dsConfMap.get("password");
         password = AESUtil.decrypt(password);
 
         if (StringUtils.isBlank(username)) {
