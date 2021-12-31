@@ -24,6 +24,7 @@
                 <exclude>com.sun.jersey.contribs:*:jar</exclude>
                 <exclude>javax.servlet:servlet-api:jar</exclude>
                 <exclude>com.google.guava:guava:jar</exclude>
+                <exclude>com.gitee.bee:bee:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
