@@ -20,8 +20,8 @@
 
     <dependencies>
         <dependency>
-            <artifactId>datax-common</artifactId>
             <groupId>com.dataworker.datax</groupId>
+            <artifactId>datax-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
