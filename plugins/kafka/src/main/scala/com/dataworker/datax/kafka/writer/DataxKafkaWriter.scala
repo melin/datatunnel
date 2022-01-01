@@ -38,7 +38,11 @@ class DataxKafkaWriter extends DataxWriter {
   }
 
   def convertRowToJSON(row: Row): String = {
-    val m = row.getValuesMap(row.schema.fieldNames)
-    JSONObject(m).toString()
+    if (row.schema.fieldNames.length == 1) {
+      row.getString(0)
+    } else {
+      val m = row.getValuesMap(row.schema.fieldNames)
+      JSONObject(m).toString()
+    }
   }
 }
