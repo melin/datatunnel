@@ -1,0 +1,1 @@
+hdfs=com.dataworks.datatunnel.hdfs.HdfsReader

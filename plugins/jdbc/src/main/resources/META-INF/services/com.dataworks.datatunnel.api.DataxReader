@@ -1,0 +1,1 @@
+jdbc=com.dataworks.datatunnel.jdbc.JdbcReader
