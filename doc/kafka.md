@@ -5,14 +5,14 @@
 
 ```sql
 -- kafka 不做消息解析，建表语句如下，
-create table kafka_log_dt ( 
+create table kafka_log_dt (
     id string comment "默认为kafka key，如果key为空，值为timestamp",
     message string comment "采集消息",
     kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息",
     ds string comment "小时分区：yyyyMMddHH")
 using hudi  
 primary key (id) with MOR 
-PARTITIONED BY (ds, kafka_topic)
+PARTITIONED BY (ds)
 lifeCycle 100
 comment 'hudi demo'
 
@@ -28,20 +28,21 @@ OPTIONS (
    type='mor',
    hoodie.parquet.compression.codec='snappy',
    hoodie.payload.event.time.field='ds',
-   hoodie.payload.ordering.field='id',
+   hoodie.payload.ordering.field='ds',
+   hoodie.datasource.write.precombine.field='ds',
    hoodie.metadata.enable=true,
    hoodie.cleaner.commits.retained=24
 )
-PARTITIONED BY (ds, kafka_topic)
+PARTITIONED BY (ds)
 comment 'hudi demo'
 ```
 
 #### 参数说明
 
-| 参数key    | 数据类型    | 是否必填  | 默认值    | 描述               |
-|:---------|:--------| :-----   | :------  |:-----------------|
-| subscribe    | string  |          | 10       | 可以配置多个topic，逗号分割 |
-| bootstrap.servers | strint  |          | 20       | kafka 服务器地址      |
+| 参数key    | 数据类型    | 是否必填  | 默认值    | 描述                                                                         |
+|:---------|:--------| :-----   | :------  |:---------------------------------------------------------------------------|
+| subscribe    | string  |          | 10       | topic                                                                      |
+| bootstrap.servers | strint  |          | 20       | kafka 服务器地址                                                                |
 
 > 基于spark streaming kafka 实现，详细参数请参考：https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
 
@@ -62,4 +63,3 @@ comment 'hudi demo'
 
 1. https://github.com/BenFradet/spark-kafka-writer
 
- 

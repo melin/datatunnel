@@ -19,9 +19,6 @@ class KafkaReader extends DataxReader {
     val subscribe = options.get("subscribe")
     if (StringUtils.isBlank(subscribe)) throw new DataXException("subscribe 不能为空")
 
-    val group = options.get("kafka.group.id")
-    if (StringUtils.isBlank(group)) throw new DataXException("kafka.group.id 不能为空")
-
     val services = options.get("kafka.bootstrap.servers")
     if (StringUtils.isBlank(services)) throw new DataXException("kafka.bootstrap.servers 不能为空")
 
