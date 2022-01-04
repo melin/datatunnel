@@ -21,9 +21,14 @@
     <dependencies>
         <dependency>
             <groupId>com.dataworker.datax</groupId>
+            <artifactId>datax-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dataworker.datax</groupId>
             <artifactId>datax-api</artifactId>
             <version>${project.version}</version>
-            <scope>${libScope}</scope>
         </dependency>
     </dependencies>
 

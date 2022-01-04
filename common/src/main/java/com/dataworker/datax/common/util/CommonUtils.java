@@ -1,5 +1,6 @@
 package com.dataworker.datax.common.util;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
@@ -38,5 +39,79 @@ public class CommonUtils {
             sql = "select * from " + tdlName;
         }
         return sql;
+    }
+
+    /**
+     * 清除sql中多行和单行注释
+     * http://daimojingdeyu.iteye.com/blog/382720
+     *
+     * @param sql
+     * @return
+     */
+    public static String cleanSqlComment(String sql) {
+        boolean singleLineComment = false;
+        List<Character> chars = Lists.newArrayList();
+        List<Character> delChars = Lists.newArrayList();
+
+        for (int i = 0, len = sql.length(); i < len; i++) {
+            char ch = sql.charAt(i);
+
+            if ((i + 1) < len) {
+                char nextCh = sql.charAt(i + 1);
+                if (ch == '-' && nextCh == '-' && !singleLineComment) {
+                    singleLineComment = true;
+                }
+            }
+
+            if (!singleLineComment) {
+                chars.add(ch);
+            }
+
+            if (singleLineComment && ch == '\n') {
+                singleLineComment = false;
+                chars.add(ch);
+            }
+        }
+
+        sql = StringUtils.join(chars, "");
+
+        chars = Lists.newArrayList();
+        boolean mutilLineComment = false;
+        for (int i = 0, len = sql.length(); i < len; i++) {
+            char ch = sql.charAt(i);
+
+            if ((i + 2) < len) {
+                char nextCh1 = sql.charAt(i + 1);
+                char nextCh2 = sql.charAt(i + 2);
+                if (ch == '/' && nextCh1 == '*' && nextCh2 != '+' && !mutilLineComment) {
+                    mutilLineComment = true;
+                }
+            }
+
+            if (!mutilLineComment) {
+                chars.add(ch);
+
+                if (delChars.size() > 0) {
+                    delChars.clear();
+                }
+            } else {
+                delChars.add(ch);
+            }
+
+            if ((i + 1) < len) {
+                char nextCh1 = sql.charAt(i + 1);
+                if (mutilLineComment && ch == '*' && nextCh1 == '/') {
+                    mutilLineComment = false;
+                    i++;
+                }
+            }
+        }
+
+        if (mutilLineComment) {
+            chars.addAll(delChars);
+            delChars.clear();
+        }
+
+        return StringUtils.join(chars, "");
     }
 }
