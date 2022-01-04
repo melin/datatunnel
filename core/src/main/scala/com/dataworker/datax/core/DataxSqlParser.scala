@@ -24,9 +24,10 @@ class DataxSqlParser (spark: SparkSession,
   private val builder = new DataxAstBuilder()
 
   override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
+    val sql = com.dataworker.datax.common.util.CommonUtils.cleanSqlComment(sqlText)
     builder.visit(parser.singleStatement()) match {
       case plan: LogicalPlan => plan
-      case _ => delegate.parsePlan(sqlText)
+      case _ => delegate.parsePlan(sql)
     }
   }
 
