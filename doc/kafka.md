@@ -17,14 +17,15 @@ lifeCycle 100
 comment 'hudi demo'
 
 --直接bin/spark-sql 建表语句
-create table test_hudi_demo (
+create table kafka_log1_dt (
     id string comment "默认为kafka key，如果key为空，值为timestamp",
     message string comment "采集消息",
+    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息",
     ds string comment "小时分区：yyyyMMddHH")
 using hudi    
 OPTIONS (
    primaryKey='id',
-   type='MOR',
+   type='mor',
    hoodie.parquet.compression.codec='snappy',
    hoodie.payload.event.time.field='ds',
    hoodie.payload.ordering.field='ds',
@@ -33,7 +34,7 @@ OPTIONS (
    hoodie.cleaner.commits.retained=24
 )
 PARTITIONED BY (ds)
-comment ‘hudi demo’
+comment 'hudi demo'
 ```
 
 #### 参数说明
