@@ -49,6 +49,6 @@ class KafkaSouce {
       .option("enable.auto.commit", "false")
       .load
 
-    lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message", "timestamp as kafka_timestamp")
+    lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message", "topic as kafka_topic", "timestamp as kafka_timestamp")
   }
 }

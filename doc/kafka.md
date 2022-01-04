@@ -8,6 +8,7 @@
 create table kafka_log_dt ( 
     id string comment "默认为kafka key，如果key为空，值为timestamp",
     message string comment "采集消息",
+    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息",
     ds string comment "小时分区：yyyyMMddHH")
 using hudi  
 primary key (id) with MOR 
