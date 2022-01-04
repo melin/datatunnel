@@ -45,8 +45,10 @@ class KafkaSouce {
   }
 
   private def createDataSet(spark: SparkSession, options: util.Map[String, String]): Dataset[Row] = {
-    val lines = spark.readStream.format("kafka").options(options)
-      .option("enable.auto.commit", "false")
+
+    val lines = spark.readStream.format("kafka")
+      .option("auto.offset.reset", "earliest")
+      .options(options)
       .load
 
     lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message", "topic as kafka_topic", "timestamp as kafka_timestamp")
