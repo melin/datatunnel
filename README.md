@@ -1,7 +1,5 @@
 ### 发布打包
 ```
-datax 依赖 bee: https://gitee.com/melin/bee，请先获取代码，本地编译打包。
-
 mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 ```
 
