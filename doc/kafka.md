@@ -13,7 +13,7 @@ create table kafka_log_dt (
     kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息")
 using hudi  
 primary key (id) with MOR 
-PARTITIONED BY (ds)
+PARTITIONED BY (ds, kafka_topic)
 lifeCycle 100
 comment 'hudi demo'
 
