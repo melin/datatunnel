@@ -64,3 +64,4 @@ comment 'hudi demo'
 ### 参考
 
 1. https://github.com/BenFradet/spark-kafka-writer
+2. [如何基于Hudi的Payload机制灵活定制化数据写入方式](https://bbs.huaweicloud.com/blogs/detail/302579)
