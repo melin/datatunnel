@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.api;
 
-import com.gitee.bee.core.extension.SPI;
+import com.gitee.melin.bee.core.extension.SPI;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;

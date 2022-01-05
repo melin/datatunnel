@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.common.util;
 
-import com.gitee.bee.util.MapperUtils;
+import com.gitee.melin.bee.util.MapperUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;

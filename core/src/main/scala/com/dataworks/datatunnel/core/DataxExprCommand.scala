@@ -4,7 +4,7 @@ import com.dataworks.datatunnel.api.DataxReader
 import com.dataworks.datatunnel.parser.DataxStatementParser.DataxExprContext
 import com.dataworks.datatunnel.api.{DataXException, DataxWriter}
 import com.dataworks.datatunnel.common.util.CommonUtils
-import com.gitee.bee.core.extension.ExtensionLoader
+import com.gitee.melin.bee.core.extension.ExtensionLoader
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}

@@ -4,7 +4,7 @@ import com.dataworks.datatunnel.api.DataXException;
 import com.dataworks.datatunnel.api.DataxWriter;
 import com.dataworks.datatunnel.clickhouse.constant.ClickHouseWriterOption;
 import com.dataworks.datatunnel.common.util.AESUtil;
-import com.gitee.bee.util.MapperUtils;
+import com.gitee.melin.bee.util.MapperUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.spark.sql.Dataset;
