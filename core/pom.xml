@@ -26,8 +26,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.dataworker.datax</groupId>
-            <artifactId>datax-api</artifactId>
+            <groupId>com.dataworks.datatunnel</groupId>
+            <artifactId>datatunnel-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
