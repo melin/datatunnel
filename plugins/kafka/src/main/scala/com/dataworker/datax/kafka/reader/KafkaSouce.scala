@@ -55,6 +55,6 @@ class KafkaSouce {
       .load
 
     lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message",
-      "topic as kafka_topic", "unix_millis(kafka_timestamp) as kafka_timestamp")
+      "topic as kafka_topic", "timestamp", "unix_millis(timestamp) as kafka_timestamp")
   }
 }
