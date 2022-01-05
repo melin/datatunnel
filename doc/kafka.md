@@ -8,8 +8,9 @@
 create table kafka_log_dt ( 
     id string comment "默认为kafka key，如果key为空，值为timestamp",
     message string comment "采集消息",
-    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息",
-    ds string comment "小时分区：yyyyMMddHH")
+    kafka_timestamp timestamp,
+    ds string comment "小时分区：yyyyMMddHH",
+    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息")
 using hudi  
 primary key (id) with MOR 
 PARTITIONED BY (ds)
@@ -17,23 +18,21 @@ lifeCycle 100
 comment 'hudi demo'
 
 --直接bin/spark-sql 建表语句
-create table kafka_log1_dt (
+create table kafka_log_dt (
     id string comment "默认为kafka key，如果key为空，值为timestamp",
     message string comment "采集消息",
-    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息",
-    ds string comment "小时分区：yyyyMMddHH")
+    kafka_timestamp timestamp,
+    ds string comment "小时分区：yyyyMMddHH",
+    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息")
 using hudi    
 OPTIONS (
    primaryKey='id',
    type='mor',
    hoodie.parquet.compression.codec='snappy',
-   hoodie.payload.event.time.field='ds',
-   hoodie.payload.ordering.field='ds',
-   hoodie.datasource.write.precombine.field='ds',
    hoodie.metadata.enable=true,
    hoodie.cleaner.commits.retained=24
 )
-PARTITIONED BY (ds)
+PARTITIONED BY (ds,kafka_topic)
 comment 'hudi demo'
 ```
 
