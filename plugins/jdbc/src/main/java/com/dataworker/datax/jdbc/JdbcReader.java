@@ -69,6 +69,14 @@ public class JdbcReader implements DataxReader {
             queryTimeout = Integer.parseInt(options.get("queryTimeout"));
         }
 
+        // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+        String dsType = options.get("type");
+        if ("mysql".equals(dsType)) {
+            url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false";
+        } else if ("postgresql".equals(dsType)) {
+            url = url + "?reWriteBatchedInserts=true";
+        }
+
         String[] tables = StringUtils.split(tableName, ",");
         Dataset<Row> dataset = null;
         for (int i = 0, len = tables.length; i < len; i++) {

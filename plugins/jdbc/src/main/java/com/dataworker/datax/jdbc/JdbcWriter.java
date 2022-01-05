@@ -79,6 +79,14 @@ public class JdbcWriter implements DataxWriter {
                 truncate = true;
             }
 
+            // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+            String dsType = options.get("type");
+            if ("mysql".equals(dsType)) {
+                url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false";
+            } else if ("postgresql".equals(dsType)) {
+                url = url + "?reWriteBatchedInserts=true";
+            }
+
             String sql = CommonUtils.genOutputSql(dataset, options);
             dataset = sparkSession.sql(sql);
             dataset.write()
