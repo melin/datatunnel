@@ -82,7 +82,7 @@ object HudiUtils extends Logging{
       .option(DataSourceWriteOptions.RECORDKEY_FIELD.key, primaryKey)
       .option(DataSourceWriteOptions.PARTITIONPATH_FIELD.key, PARTITION_COL_NAME)
       .option(DataSourceWriteOptions.HIVE_STYLE_PARTITIONING.key, "true")
-      .option(DataSourceWriteOptions.PRECOMBINE_FIELD.key, "kafka_timestamp")
+      .option(DataSourceWriteOptions.PRECOMBINE_FIELD.key, "id")
       .option(HoodieCompactionConfig.INLINE_COMPACT_NUM_DELTA_COMMITS.key, "5")
       .option(DataSourceWriteOptions.ASYNC_COMPACT_ENABLE.key, "true")
       .option(DataSourceWriteOptions.ASYNC_CLUSTERING_ENABLE.key, "true")

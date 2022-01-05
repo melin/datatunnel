@@ -30,6 +30,9 @@ OPTIONS (
    type='mor',
    hoodie.parquet.compression.codec='snappy',
    hoodie.metadata.enable=true,
+   hoodie.payload.event.time.field='kafka_timestamp',
+   hoodie.payload.ordering.field='kafka_timestamp',
+   hoodie.datasource.write.precombine.field='id',
    hoodie.cleaner.commits.retained=24
 )
 PARTITIONED BY (ds,kafka_topic)
