@@ -42,6 +42,19 @@ public class CommonUtils {
         return sql;
     }
 
+    public static String cleanQuote(String value) {
+        String result;
+        if (StringUtils.startsWith(value, "'") && StringUtils.endsWith(value, "'")) {
+            result = StringUtils.substring(value, 1, -1);
+        } else if (StringUtils.startsWith(value, "\"") && StringUtils.endsWith(value, "\"")) {
+            result = StringUtils.substring(value, 1, -1);
+        } else {
+            result = value;
+        }
+
+        return result.trim();
+    }
+
     /**
      * 清除sql中多行和单行注释
      * http://daimojingdeyu.iteye.com/blog/382720

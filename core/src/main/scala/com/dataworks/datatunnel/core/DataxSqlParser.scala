@@ -1,5 +1,6 @@
 package com.dataworks.datatunnel.core
 
+import com.dataworks.datatunnel.common.util.CommonUtils
 import com.dataworks.datatunnel.parser.{DataxStatementBaseVisitor, DataxStatementLexer, DataxStatementParser}
 import com.dataworks.datatunnel.parser.DataxStatementParser.{DataxExprContext, PassThroughContext, SingleStatementContext}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
@@ -24,7 +25,7 @@ class DataxSqlParser (spark: SparkSession,
   private val builder = new DataxAstBuilder()
 
   override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
-    val sql = com.dataworks.datatunnel.common.util.CommonUtils.cleanSqlComment(sqlText)
+    val sql = CommonUtils.cleanSqlComment(sqlText)
     builder.visit(parser.singleStatement()) match {
       case plan: LogicalPlan => plan
       case _ => delegate.parsePlan(sql)

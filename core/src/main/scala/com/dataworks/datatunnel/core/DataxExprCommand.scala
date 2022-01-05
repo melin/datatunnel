@@ -2,7 +2,8 @@ package com.dataworks.datatunnel.core
 
 import com.dataworks.datatunnel.api.DataxReader
 import com.dataworks.datatunnel.parser.DataxStatementParser.DataxExprContext
-import com.dataworks.datatunnel.api.{DataXException, DataxReader, DataxWriter}
+import com.dataworks.datatunnel.api.{DataXException, DataxWriter}
+import com.dataworks.datatunnel.common.util.CommonUtils
 import com.gitee.bee.core.extension.ExtensionLoader
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
@@ -17,8 +18,8 @@ case class DataxExprCommand(ctx: DataxExprContext) extends LeafRunnableCommand w
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceType = CommonUtils.cleanQuote(ctx.srcName.getText)
     val targetType = CommonUtils.cleanQuote(ctx.distName.getText)
-    val readOpts = CommonUtils.convertOptions(ctx.readOpts)
-    val writeOpts = CommonUtils.convertOptions(ctx.writeOpts)
+    val readOpts = Utils.convertOptions(ctx.readOpts)
+    val writeOpts = Utils.convertOptions(ctx.writeOpts)
 
     writeOpts.put("__sourceType__", sourceType)
     writeOpts.put("__dataworks__", "no")
