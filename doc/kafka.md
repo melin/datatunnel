@@ -38,10 +38,10 @@ comment 'hudi demo'
 
 #### 参数说明
 
-| 参数key    | 数据类型    | 是否必填  | 默认值    | 描述                                                                         |
-|:---------|:--------| :-----   | :------  |:---------------------------------------------------------------------------|
-| subscribe    | string  |          | 10       | topic                                                                      |
-| bootstrap.servers | strint  |          | 20       | kafka 服务器地址                                                                |
+| 参数key    | 数据类型    | 是否必填  | 默认值    | 描述          |
+|:---------|:--------| :-----   | :------  |:------------|
+| subscribe    | string  |          | 10       | 多个topic逗号分割 |
+| bootstrap.servers | strint  |          | 20       | kafka 服务器地址 |
 
 > 基于spark streaming kafka 实现，详细参数请参考：https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
 

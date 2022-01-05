@@ -43,9 +43,9 @@ class KafkaReader extends DataxReader {
     }
 
     val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
-      "message, cast(kafka_timestamp as bigint) kafka_timestamp, date_format(kafka_timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
+      "message, unix_millis(kafka_timestamp) kafka_timestamp, date_format(kafka_timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
     HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, targetDatabaseName, targetTableName, querySql)
-    return null
+    null
   }
 
 }
