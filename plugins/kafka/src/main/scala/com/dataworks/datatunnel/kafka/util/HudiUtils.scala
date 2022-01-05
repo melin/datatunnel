@@ -7,20 +7,20 @@ import org.apache.hudi.DataSourceWriteOptions
 import org.apache.hudi.common.model.{HoodieTableType, WriteOperationType}
 import org.apache.hudi.common.table.HoodieTableMetaClient
 import org.apache.hudi.config.{HoodieCompactionConfig, HoodieWriteConfig}
-import org.apache.hudi.hive.HiveStylePartitionValueExtractor
+import org.apache.hudi.hive.MultiPartKeysValueExtractor
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
 import org.apache.spark.sql.hudi.HoodieSqlUtils
-import org.apache.spark.sql.streaming.OutputMode
+import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 
 /**
  * 多数据源简单适配
  */
 object HudiUtils extends Logging{
 
-  private val PARTITION_COL_NAME = "ds";
+  private val PARTITION_COL_NAME = "ds,kafka_topic";
 
   def isHudiTable(spark: SparkSession,
                   tableName: String,
@@ -76,49 +76,35 @@ object HudiUtils extends Logging{
     mkCheckpointDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
-    val writer = streamingInput.writeStream.format("org.apache.hudi")
+    var writer = streamingInput.writeStream.format("org.apache.hudi")
       .option(DataSourceWriteOptions.OPERATION.key, WriteOperationType.INSERT.value)
       .option(DataSourceWriteOptions.TABLE_TYPE.key, HoodieTableType.MERGE_ON_READ.name)
       .option(DataSourceWriteOptions.RECORDKEY_FIELD.key, primaryKey)
       .option(DataSourceWriteOptions.PARTITIONPATH_FIELD.key, PARTITION_COL_NAME)
       .option(DataSourceWriteOptions.HIVE_STYLE_PARTITIONING.key, "true")
-      .option(DataSourceWriteOptions.PRECOMBINE_FIELD.key, PARTITION_COL_NAME)
+      .option(DataSourceWriteOptions.PRECOMBINE_FIELD.key, "kafka_timestamp")
       .option(HoodieCompactionConfig.INLINE_COMPACT_NUM_DELTA_COMMITS.key, "5")
       .option(DataSourceWriteOptions.ASYNC_COMPACT_ENABLE.key, "true")
       .option(DataSourceWriteOptions.ASYNC_CLUSTERING_ENABLE.key, "true")
       .option(HoodieWriteConfig.TBL_NAME.key, tableName)
       .option("checkpointLocation", checkpointLocation)
-      .option("path", catalogTable.location.toString)
       .outputMode(OutputMode.Append)
 
-    writer.option(DataSourceWriteOptions.HIVE_TABLE.key, tableName)
+    writer = writer.option(DataSourceWriteOptions.HIVE_TABLE.key, tableName)
       .option(DataSourceWriteOptions.HIVE_DATABASE.key, databaseName)
       .option(DataSourceWriteOptions.HIVE_SYNC_MODE.key, "HMS")
       .option(DataSourceWriteOptions.HIVE_SYNC_ENABLED.key, "true")
       .option(DataSourceWriteOptions.META_SYNC_ENABLED.key, "false")
 
-      .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS.key,
-        classOf[HiveStylePartitionValueExtractor].getName)
       .option(DataSourceWriteOptions.HIVE_PARTITION_FIELDS.key, PARTITION_COL_NAME)
+      .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS.key, classOf[MultiPartKeysValueExtractor].getCanonicalName)
 
-    writer.start().awaitTermination()
+    writer.trigger(Trigger.ProcessingTime(100)).start(catalogTable.location.toString).awaitTermination()
   }
 
   private def mkCheckpointDir(sparkSession: SparkSession, path: String): Unit = {
     val configuration = sparkSession.sparkContext.hadoopConfiguration
     val fs = FileSystem.get(configuration)
     if (!fs.exists(new Path(path))) fs.mkdirs(new Path(path))
-  }
-
-  /**
-   * 如果用户没有填写数据库名，则以当前的项目名作为数据库名
-   */
-  private def getDbName(spark: SparkSession,
-                        name: String): String = {
-    if (StringUtils.isBlank(name)) {
-      spark.catalog.currentDatabase
-    } else {
-      name
-    }
   }
 }

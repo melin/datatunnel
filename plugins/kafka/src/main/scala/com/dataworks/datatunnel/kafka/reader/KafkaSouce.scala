@@ -34,11 +34,14 @@ class KafkaSouce {
     try {
       adminClient = AdminClient.create(props)
       val topics = adminClient.listTopics().namesToListings().get()
-      if (!topics.containsKey(subscribe)) {
-        val value = adminClient.listTopics().names().get().asScala.mkString(",")
-        throw new DataXException("topic 不存在: " + subscribe + ", 可用topic: " + value)
-      }
 
+      val subscribes = StringUtils.split(subscribe, ",")
+      subscribes.foreach(item => {
+        if (!topics.containsKey(item)) {
+          val value = adminClient.listTopics().names().get().asScala.mkString(",")
+          throw new DataXException("topic 不存在: " + item + ", 可用topic: " + value)
+        }
+      })
     } catch {
       case e: Exception => throw new DataXException("kafka broker " + servers + " 不可用: " + e.getMessage)
     } finally if (adminClient != null) adminClient.close()
