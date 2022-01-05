@@ -29,6 +29,9 @@ OPTIONS (
    primaryKey='id',
    type='mor',
    hoodie.parquet.compression.codec='snappy',
+   hoodie.payload.event.time.field='kafka_timestamp',
+   hoodie.payload.ordering.field='kafka_timestamp',
+   hoodie.datasource.write.precombine.field='id',
    hoodie.metadata.enable=true,
    hoodie.cleaner.commits.retained=24
 )
