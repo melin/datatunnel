@@ -45,7 +45,7 @@ datax reader("hive") options(
 
 ### 参考
 
-1. [Java plugin，不同于spi，支持classloader 隔离]（https://pf4j.org/）
+1. [Java plugin，不同于spi，支持classloader 隔离](https://pf4j.org/)
 2. [Bucket4j 限流库](https://github.com/vladimir-bukhtoyarov/bucket4j)
 3. https://github.com/housepower/spark-clickhouse-connector
 4. https://github.com/apache/incubator-seatunnel
