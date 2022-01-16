@@ -12,7 +12,9 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 
 ### datax sql 语法
 ```sql
-datax reader('数据类型名称') options(键值对参数) writer('数据类型名称') options(键值对参数)
+datax reader('数据类型名称') options(键值对参数) 
+    [filter('filter action name') options(键值对参数)]*
+    writer('数据类型名称') options(键值对参数)
 ```
 
 ### example
