@@ -10,7 +10,9 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 
 ### datax sql 语法
 ```sql
-datax reader('数据类型名称') options(键值对参数) writer('数据类型名称') options(键值对参数)
+datax reader('数据类型名称') options(键值对参数) 
+    [filter('filter action name') options(键值对参数)]*
+    writer('数据类型名称') options(键值对参数)
 ```
 
 ### example
@@ -41,6 +43,7 @@ datax reader("hive") options(
 
 ### 参考
 
-1. [Bucket4j 限流库](https://github.com/vladimir-bukhtoyarov/bucket4j)
-2. https://github.com/housepower/spark-clickhouse-connector
-3. https://github.com/apache/incubator-seatunnel
+1. [Java plugin，不同于spi，支持classloader 隔离](https://pf4j.org/)
+2. [Bucket4j 限流库](https://github.com/vladimir-bukhtoyarov/bucket4j)
+3. https://github.com/housepower/spark-clickhouse-connector
+4. https://github.com/apache/incubator-seatunnel
