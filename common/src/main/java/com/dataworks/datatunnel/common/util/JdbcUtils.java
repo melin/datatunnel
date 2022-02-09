@@ -1,4 +1,4 @@
-package com.dataworks.datatunnel.jdbc;
+package com.dataworks.datatunnel.common.util;
 
 import org.apache.commons.lang3.StringUtils;
 
