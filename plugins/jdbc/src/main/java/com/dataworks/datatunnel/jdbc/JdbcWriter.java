@@ -22,8 +22,8 @@ public class JdbcWriter implements DataxWriter {
             new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
 
     @Override
-    public void validateOptions(Map<String, String> options) throws IOException {
-        String dsType = options.get("__dsType__");
+    public void validateOptions(Map<String, String> options) {
+        String dsType = options.get("type");
         if (StringUtils.isBlank(dsType)) {
             throw new IllegalArgumentException("数据类型不能为空");
         }
@@ -36,10 +36,6 @@ public class JdbcWriter implements DataxWriter {
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
         try {
-            String dsConf = options.get("__dsConf__");
-            String dsType = options.get("__dsType__");
-            Map<String, Object> dsConfMap = MapperUtils.toJavaMap(dsConf);
-
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
@@ -51,17 +47,19 @@ public class JdbcWriter implements DataxWriter {
                 table = databaseName + "." + tableName;
             }
 
-            String username = (String) dsConfMap.get("username");
-            String password = (String) dsConfMap.get("password");
-            password = AESUtil.decrypt(password);
+            String username = options.get("username");
+            String password = options.get("password");
+            String url = options.get("url");
+
             if (StringUtils.isBlank(username)) {
-                throw new IllegalArgumentException("username不能为空");
+                throw new IllegalArgumentException("username 不能为空");
             }
             if (StringUtils.isBlank(password)) {
-                throw new IllegalArgumentException("password不能为空");
+                throw new IllegalArgumentException("password 不能为空");
             }
-
-            String url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
+            if (StringUtils.isBlank(url)) {
+                throw new IllegalArgumentException("url 不能为空");
+            }
 
             int batchsize = 1000;
             if (options.containsKey("batchsize")) {
@@ -82,6 +80,14 @@ public class JdbcWriter implements DataxWriter {
             boolean truncate = false;
             if ("true".equals(truncateStr)) {
                 truncate = true;
+            }
+
+            // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+            String dsType = options.get("type");
+            if ("mysql".equals(dsType)) {
+                url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false";
+            } else if ("postgresql".equals(dsType)) {
+                url = url + "?reWriteBatchedInserts=true";
             }
 
             String sql = CommonUtils.genOutputSql(dataset, options);

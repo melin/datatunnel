@@ -26,8 +26,8 @@ public class JdbcReader implements DataxReader {
             new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
 
     @Override
-    public void validateOptions(Map<String, String> options) throws IOException {
-        String dsType = options.get("__dsType__");
+    public void validateOptions(Map<String, String> options) {
+        String dsType = options.get("type");
         if (StringUtils.isBlank(dsType)) {
             throw new IllegalArgumentException("数据类型不能为空");
         }
@@ -44,26 +44,24 @@ public class JdbcReader implements DataxReader {
 
     @Override
     public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
-        String dsConf = options.get("__dsConf__");
-        String dsType = options.get("__dsType__");
-        Map<String, Object> dsConfMap = MapperUtils.toJavaMap(dsConf);
-
         String databaseName = options.get("databaseName");
         String tableName = options.get("tableName");
         String column = options.get("column");
         List<String> columns = CommonUtils.parseColumn(column);
-        String username = (String) dsConfMap.get("username");
-        String password = (String) dsConfMap.get("password");
-        password = AESUtil.decrypt(password);
+
+        String username = options.get("username");
+        String password = options.get("password");
+        String url = options.get("url");
 
         if (StringUtils.isBlank(username)) {
-            throw new IllegalArgumentException("username不能为空");
+            throw new IllegalArgumentException("username 不能为空");
         }
         if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("password不能为空");
+            throw new IllegalArgumentException("password 不能为空");
         }
-
-        String url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap);
+        if (StringUtils.isBlank(url)) {
+            throw new IllegalArgumentException("url 不能为空");
+        }
 
         int fetchSize = 1000;
         if (options.containsKey("fetchSize")) {
@@ -72,6 +70,14 @@ public class JdbcReader implements DataxReader {
         int queryTimeout = 0;
         if (options.containsKey("queryTimeout")) {
             queryTimeout = Integer.parseInt(options.get("queryTimeout"));
+        }
+
+        // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+        String dsType = options.get("type");
+        if ("mysql".equals(dsType)) {
+            url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false";
+        } else if ("postgresql".equals(dsType)) {
+            url = url + "?reWriteBatchedInserts=true";
         }
 
         String[] tables = StringUtils.split(tableName, ",");
