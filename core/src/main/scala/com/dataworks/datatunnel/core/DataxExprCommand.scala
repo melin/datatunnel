@@ -21,15 +21,17 @@ case class DataxExprCommand(ctx: DataxExprContext) extends LeafRunnableCommand w
     val readOpts = Utils.convertOptions(ctx.readOpts)
     val writeOpts = Utils.convertOptions(ctx.writeOpts)
 
+    readOpts.put("__sinkType__", sinkType)
     writeOpts.put("__sourceType__", sourceType)
 
-    if ("kafka".equals(sourceType) && !"hive".equals(sinkType)) {
-      throw new DataXException("kafka 数据源只能写入 hive hudi表")
+    if ("kafka".equals(sourceType) && !("hive".equals(sinkType) || "jdbc".equals(sinkType))) {
+      throw new DataXException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 
     if ("kafka".equals(sourceType)) {
-      readOpts.put("target_databaseName", writeOpts.getOrDefault("databaseName", ""));
-      readOpts.put("target_tableName", writeOpts.getOrDefault("tableName", ""));
+      writeOpts.forEach((key, value) => {
+        readOpts.put("_sink_" + key, value);
+      })
     }
 
     val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataxReader])
