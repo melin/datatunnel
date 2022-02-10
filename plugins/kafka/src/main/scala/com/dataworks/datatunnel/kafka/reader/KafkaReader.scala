@@ -57,33 +57,33 @@ class KafkaReader extends DataxReader {
 
       import com.dataworks.datatunnel.common.util.CommonUtils
       import org.apache.spark.sql.SaveMode
-      val username = options.get("username")
-      val password = options.get("password")
-      var url = options.get("url")
+      val username = sinkOptions.get("username")
+      val password = sinkOptions.get("password")
+      var url = sinkOptions.get("url")
 
       if (StringUtils.isBlank(username)) throw new IllegalArgumentException("username 不能为空")
       if (StringUtils.isBlank(password)) throw new IllegalArgumentException("password 不能为空")
       if (StringUtils.isBlank(url)) throw new IllegalArgumentException("url 不能为空")
 
       var batchsize = 1000
-      if (options.containsKey("batchsize")) batchsize = options.get("batchsize").toInt
+      if (sinkOptions.containsKey("batchsize")) batchsize = sinkOptions.get("batchsize").toInt
       var queryTimeout = 0
-      if (options.containsKey("queryTimeout")) queryTimeout = options.get("queryTimeout").toInt
+      if (sinkOptions.containsKey("queryTimeout")) queryTimeout = sinkOptions.get("queryTimeout").toInt
 
-      val writeMode = options.get("writeMode")
+      val writeMode = sinkOptions.get("writeMode")
       var mode = SaveMode.Append
       if ("overwrite" == writeMode) mode = SaveMode.Overwrite
 
-      val truncateStr = options.get("truncate")
+      val truncateStr = sinkOptions.get("truncate")
       var truncate = false
       if ("true" == truncateStr) truncate = true
 
       // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
-      val dsType = options.get("type")
+      val dsType = sinkOptions.get("type")
       if ("mysql" == dsType) url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false"
       else if ("postgresql" == dsType) url = url + "?reWriteBatchedInserts=true"
 
-      val sql = CommonUtils.genOutputSql(dataset, options)
+      val sql = CommonUtils.genOutputSql(dataset, sinkOptions)
       dataset = sparkSession.sql(sql)
       dataset.write.format("jdbc")
         .mode(mode)
@@ -101,5 +101,4 @@ class KafkaReader extends DataxReader {
 
     null
   }
-
 }
