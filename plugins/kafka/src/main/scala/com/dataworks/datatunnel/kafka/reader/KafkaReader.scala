@@ -5,9 +5,11 @@ import com.dataworks.datatunnel.api.DataXException
 import com.dataworks.datatunnel.kafka.util.HudiUtils
 import com.google.common.collect.Maps
 import org.apache.commons.lang3.StringUtils
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.streaming.{OutputMode, Trigger}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
 import java.util
+import scala.concurrent.duration.DurationInt
 
 /**
  * huaixin 2021/12/29 2:23 PM
@@ -85,16 +87,24 @@ class KafkaReader extends DataxReader {
 
       val sql = CommonUtils.genOutputSql(dataset, sinkOptions)
       dataset = sparkSession.sql(sql)
-      dataset.write.format("jdbc")
-        .mode(mode)
-        .option("url", url)
-        .option("dbtable", table)
-        .option("batchsize", batchsize)
-        .option("queryTimeout", queryTimeout)
-        .option("truncate", truncate)
-        .option("user", username)
-        .option("password", password)
-        .save
+
+      val query= dataset.writeStream.trigger(Trigger.ProcessingTime(10.seconds))
+        .outputMode(OutputMode.Update)
+        .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
+          batchDF.write
+            .format("jdbc")
+            .mode(mode)
+            .option("url", url)
+            .option("dbtable", table)
+            .option("batchsize", batchsize)
+            .option("queryTimeout", queryTimeout)
+            .option("truncate", truncate)
+            .option("user", username)
+            .option("password", password)
+            .save
+        }.start()
+
+      query.awaitTermination()
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
