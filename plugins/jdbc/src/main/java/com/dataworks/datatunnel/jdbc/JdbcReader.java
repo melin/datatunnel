@@ -2,10 +2,7 @@ package com.dataworks.datatunnel.jdbc;
 
 import com.dataworks.datatunnel.api.DataXException;
 import com.dataworks.datatunnel.api.DataxReader;
-import com.dataworks.datatunnel.common.util.AESUtil;
 import com.dataworks.datatunnel.common.util.CommonUtils;
-import com.dataworks.datatunnel.common.util.JdbcUtils;
-import com.gitee.melin.bee.util.MapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
