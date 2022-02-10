@@ -1,6 +1,5 @@
 package com.dataworks.datatunnel.kafka.writer
 
-import com.dataworks.datatunnel.kafka.writer.datasetToKafkaWriter
 import com.dataworks.datatunnel.api.DataxWriter
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.clients.producer.ProducerRecord

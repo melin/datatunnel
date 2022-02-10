@@ -15,6 +15,7 @@
         <module>assembly</module>
         <module>plugins/log</module>
         <module>plugins/clickhouse</module>
+        <module>plugins/elasticsearch</module>
         <module>plugins/sftp</module>
         <module>plugins/hdfs</module>
         <!--<module>plugins/hbase</module>-->
