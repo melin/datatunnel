@@ -25,6 +25,10 @@
             <version>7.17.0</version>
             <exclusions>
                 <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.spark</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
