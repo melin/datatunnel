@@ -29,7 +29,8 @@ class DataxKafkaWriter extends DataxWriter {
     options.put("key.serializer", classOf[StringSerializer].getName)
     options.put("value.serializer", classOf[StringSerializer].getName)
 
-    val config = collection.immutable.Map(options.asScala.toSeq: _*)
+    val map = options.asScala.filter{ case (key, _) => !key.startsWith("__") && key != "topic" }
+    val config = collection.immutable.Map(map.toSeq: _*)
     dataset.writeToKafka(
       config,
       row => new ProducerRecord[String, String](topic, convertRowToJSON(row))
