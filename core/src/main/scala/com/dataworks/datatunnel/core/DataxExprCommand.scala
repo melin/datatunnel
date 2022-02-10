@@ -22,7 +22,6 @@ case class DataxExprCommand(ctx: DataxExprContext) extends LeafRunnableCommand w
     val writeOpts = Utils.convertOptions(ctx.writeOpts)
 
     writeOpts.put("__sourceType__", sourceType)
-    writeOpts.put("__dataworks__", "no")
 
     if ("kafka".equals(sourceType) && !"hive".equals(sinkType)) {
       throw new DataXException("kafka 数据源只能写入 hive hudi表")
