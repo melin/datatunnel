@@ -86,7 +86,7 @@ class KafkaReader extends DataxReader {
 
       val sql = CommonUtils.genOutputSql(dataset, options)
       dataset = sparkSession.sql(sql)
-      val query= dataset.writeStream.trigger(Trigger.ProcessingTime(10.seconds))
+      val query= dataset.writeStream.trigger(Trigger.ProcessingTime(1.seconds))
         .outputMode(OutputMode.Update)
         .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
           batchDF.write
