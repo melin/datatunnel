@@ -101,6 +101,12 @@ public class JdbcReader implements DataxReader {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
             String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
+
+            String condition = options.get("condition");
+            if (StringUtils.isNotBlank(condition)) {
+                sql = sql + " where " + condition;
+            }
+
             return sparkSession.sql(sql);
         } catch (AnalysisException e) {
             throw new DataXException(e.message(), e);
