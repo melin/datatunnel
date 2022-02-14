@@ -72,19 +72,19 @@ class KafkaReader extends DataxReader {
       val url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap)
 
       var batchsize = 1000
-      if (options.containsKey("batchsize")) batchsize = options.get("batchsize").toInt
+      if (sinkOptions.containsKey("batchsize")) batchsize = sinkOptions.get("batchsize").toInt
       var queryTimeout = 0
-      if (options.containsKey("queryTimeout")) queryTimeout = options.get("queryTimeout").toInt
+      if (sinkOptions.containsKey("queryTimeout")) queryTimeout = sinkOptions.get("queryTimeout").toInt
 
-      val writeMode = options.get("writeMode")
+      val writeMode = sinkOptions.get("writeMode")
       var mode = SaveMode.Append
       if ("overwrite" == writeMode) mode = SaveMode.Overwrite
 
-      val truncateStr = options.get("truncate")
+      val truncateStr = sinkOptions.get("truncate")
       var truncate = false
       if ("true" == truncateStr) truncate = true
 
-      val sql = CommonUtils.genOutputSql(dataset, options)
+      val sql = CommonUtils.genOutputSql(dataset, sinkOptions)
       dataset = sparkSession.sql(sql)
       val query= dataset.writeStream.trigger(Trigger.ProcessingTime(1.seconds))
         .outputMode(OutputMode.Update)
