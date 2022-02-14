@@ -40,6 +40,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <artifactId>datatunnel-plugin-jdbc</artifactId>
+            <groupId>com.dataworks.datatunnel</groupId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- hudi -->
         <dependency>
             <groupId>org.apache.hudi</groupId>

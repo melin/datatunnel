@@ -49,27 +49,20 @@ class KafkaReader extends DataxReader {
         "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
       HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, querySql)
     } else if ("jdbc" == sinkType) {
-      val dsConf = sinkOptions.get("__dsConf__")
-      val dsType = sinkOptions.get("__dsType__")
-      val dsConfMap = MapperUtils.toJavaMap(dsConf)
-
       val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
         "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
-
       var dataset = sparkSession.sql(querySql)
-      val tdlName = "tdl_datax_" + System.currentTimeMillis
-      dataset.createTempView(tdlName)
 
       var table = sinkTableName
       if (StringUtils.isNotBlank(sinkDatabaseName)) table = sinkDatabaseName + "." + sinkTableName
 
-      val username = dsConfMap.get("username").asInstanceOf[String]
-      var password = dsConfMap.get("password").asInstanceOf[String]
-      password = AESUtil.decrypt(password)
-      if (StringUtils.isBlank(username)) throw new IllegalArgumentException("username不能为空")
-      if (StringUtils.isBlank(password)) throw new IllegalArgumentException("password不能为空")
+      val username = sinkOptions.get("username")
+      val password = sinkOptions.get("password")
+      var url = sinkOptions.get("url")
 
-      val url = JdbcUtils.buildJdbcUrl(dsType, dsConfMap)
+      if (StringUtils.isBlank(username)) throw new IllegalArgumentException("username 不能为空")
+      if (StringUtils.isBlank(password)) throw new IllegalArgumentException("password 不能为空")
+      if (StringUtils.isBlank(url)) throw new IllegalArgumentException("url 不能为空")
 
       var batchsize = 1000
       if (sinkOptions.containsKey("batchsize")) batchsize = sinkOptions.get("batchsize").toInt
@@ -84,8 +77,11 @@ class KafkaReader extends DataxReader {
       var truncate = false
       if ("true" == truncateStr) truncate = true
 
-      val sql = CommonUtils.genOutputSql(dataset, sinkOptions)
-      dataset = sparkSession.sql(sql)
+      // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+      val dsType = sinkOptions.get("type")
+      if ("mysql" == dsType) url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false"
+      else if ("postgresql" == dsType) url = url + "?reWriteBatchedInserts=true"
+
       val query= dataset.writeStream.trigger(Trigger.ProcessingTime(1.seconds))
         .outputMode(OutputMode.Update)
         .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
