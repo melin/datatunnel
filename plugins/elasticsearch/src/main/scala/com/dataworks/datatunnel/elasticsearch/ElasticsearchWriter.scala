@@ -18,16 +18,11 @@ class ElasticsearchWriter extends DataxWriter {
     if (StringUtils.isBlank(hosts)) {
       throw new DataXException("es.hosts 不能为空")
     }
-
-    val index = options.get("es.resource.write")
-    if (StringUtils.isBlank(index)) {
-      throw new DataXException("es.resource.write 不能为空")
-    }
   }
 
   override def write(sparkSession: SparkSession, dataset: Dataset[Row], options: util.Map[String, String]): Unit = {
-    val index = options.get("index")
+    val index = options.get("es.resource")
     val esCfg = options.asScala.filter(item => StringUtils.startsWith(item._1, "es."))
-    dataset.saveToEs(index)
+    dataset.saveToEs(index, esCfg)
   }
 }
