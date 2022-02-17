@@ -42,6 +42,11 @@
             <artifactId>datatunnel-plugin-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.dataworks.datatunnel</groupId>
+            <artifactId>datatunnel-plugin-elasticsearch</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>
             <groupId>com.dataworks.datatunnel</groupId>
             <artifactId>datatunnel-plugin-sftp</artifactId>
