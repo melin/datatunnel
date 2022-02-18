@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,7 +20,6 @@ public class CommonUtils {
         return MapperUtils.toJavaListObject(column, String.class);
     }
 
-    @NotNull
     public static String genOutputSql(Dataset<Row> dataset, Map<String, String> options) throws AnalysisException, IOException {
         String column = options.get("column");
         String[] columns = CommonUtils.parseColumn(column).toArray(new String[0]);

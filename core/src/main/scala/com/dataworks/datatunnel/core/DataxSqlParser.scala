@@ -69,8 +69,7 @@ class DataxSqlParser (spark: SparkSession,
         throw e.withCommand(command)
       case e: AnalysisException =>
         val position = Origin(e.line, e.startPosition)
-        throw new ParseException(Option(command), e.message, position, position,
-          e.errorClass, e.messageParameters)
+        throw new ParseException(Option(command), e.message, position, position)
     }
   }
 

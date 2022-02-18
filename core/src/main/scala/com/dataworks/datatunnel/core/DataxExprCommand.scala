@@ -6,14 +6,14 @@ import com.dataworks.datatunnel.api.{DataXException, DataxWriter}
 import com.dataworks.datatunnel.common.util.CommonUtils
 import com.gitee.melin.bee.core.extension.ExtensionLoader
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.execution.command.LeafRunnableCommand
+import org.apache.spark.sql.execution.command.RunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}
 
 /**
  *
  * @author melin 2021/6/28 2:23 下午
  */
-case class DataxExprCommand(ctx: DataxExprContext) extends LeafRunnableCommand with Logging{
+case class DataxExprCommand(ctx: DataxExprContext) extends RunnableCommand with Logging {
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceType = CommonUtils.cleanQuote(ctx.srcName.getText)
