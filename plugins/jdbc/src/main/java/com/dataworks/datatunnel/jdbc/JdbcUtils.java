@@ -3,10 +3,7 @@ package com.dataworks.datatunnel.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,6 +56,24 @@ public class JdbcUtils {
             if (printError) {
                 LOG.debug("close statement error", e);
             }
+        }
+    }
+
+    public static void close(Connection x) {
+        if (x == null) {
+            return;
+        }
+
+        try {
+            if (x.isClosed()) {
+                return;
+            }
+
+            x.close();
+        } catch (SQLRecoverableException e) {
+            // skip
+        } catch (Exception e) {
+            LOG.debug("close connection error", e);
         }
     }
 }

@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Map;
 
-import static com.dataworks.datatunnel.jdbc.JdbcUtils.execute;
+import static com.dataworks.datatunnel.jdbc.JdbcUtils.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -41,6 +41,7 @@ public class JdbcWriter implements DataxWriter {
 
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
+        Connection connection = null;
         try {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
@@ -98,7 +99,6 @@ public class JdbcWriter implements DataxWriter {
 
             String preSql = options.get("preSql");
             String postSql = options.get("postSql");
-            Connection connection = null;
             if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
                 connection = buildConnection(url, table, options);
             }
@@ -128,6 +128,8 @@ public class JdbcWriter implements DataxWriter {
             }
         } catch (Exception e) {
             throw new DataXException(e.getMessage(), e);
+        } finally {
+            close(connection);
         }
     }
 
