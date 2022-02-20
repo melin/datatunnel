@@ -8,7 +8,6 @@ import org.apache.hudi.common.model.{HoodieTableType, WriteOperationType}
 import org.apache.hudi.common.table.HoodieTableMetaClient
 import org.apache.hudi.config.{HoodieCompactionConfig, HoodieWriteConfig}
 import org.apache.hudi.hive.MultiPartKeysValueExtractor
-import org.apache.hudi.keygen.ComplexKeyGenerator
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
@@ -46,9 +45,8 @@ object HudiUtils extends Logging{
         logError(s"${qualifiedName} ${tableType} location: $tablPath")
         throw new DataXException(s"${qualifiedName} 是hudi COW类型表，不支持流数据写入，请使用MOR类型表")
       } else {
-        if (catalogTable.partitionColumnNames.isEmpty
-          || catalogTable.partitionColumnNames.size != 1
-          || !catalogTable.partitionColumnNames.head.equals(PARTITION_COL_NAME)) {
+        val partColumns = catalogTable.partitionColumnNames
+        if (partColumns.isEmpty || partColumns.size != 2 || !partColumns.mkString(",").equals(PARTITION_COL_NAME)) {
           throw new DataXException(s"${qualifiedName} 必须是分区表，写分区字段名必须为: $PARTITION_COL_NAME")
         }
 
@@ -87,7 +85,6 @@ object HudiUtils extends Logging{
       .option(HoodieCompactionConfig.INLINE_COMPACT_NUM_DELTA_COMMITS.key, "5")
       .option(DataSourceWriteOptions.ASYNC_COMPACT_ENABLE.key, "true")
       .option(DataSourceWriteOptions.ASYNC_CLUSTERING_ENABLE.key, "true")
-      .option(DataSourceWriteOptions.KEYGENERATOR_CLASS_NAME.key, classOf[ComplexKeyGenerator].getName)
       .option(HoodieWriteConfig.TBL_NAME.key, tableName)
       .option("checkpointLocation", checkpointLocation)
       .outputMode(OutputMode.Append)
@@ -99,7 +96,7 @@ object HudiUtils extends Logging{
       .option(DataSourceWriteOptions.META_SYNC_ENABLED.key, "false")
 
       .option(DataSourceWriteOptions.HIVE_PARTITION_FIELDS.key, PARTITION_COL_NAME)
-      .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS.key, classOf[MultiPartKeysValueExtractor].getName)
+      .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS.key, classOf[MultiPartKeysValueExtractor].getCanonicalName)
 
     writer.trigger(Trigger.ProcessingTime(100)).start(catalogTable.location.toString).awaitTermination()
   }
