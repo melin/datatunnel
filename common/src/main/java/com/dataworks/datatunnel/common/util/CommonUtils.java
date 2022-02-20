@@ -29,6 +29,11 @@ public class CommonUtils {
         String tdlName = "tdl_" + tableName + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);
 
+        int inputColCount = dataset.schema().fieldNames().length;
+        if (dataset.schema().fieldNames().length != columns.length) {
+            throw new UnsupportedOperationException("输入" + inputColCount + "列, 输出" + columns.length + "列, 不匹配");
+        }
+
         String sql;
         if (!"*".equals(columns[0])) {
             String[] fieldNames = dataset.schema().fieldNames();

@@ -9,14 +9,23 @@ import com.gitee.melin.bee.util.MapperUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.collection.JavaConverters;
 
 import java.io.IOException;
+import java.sql.*;
 import java.util.Map;
+
+import static com.dataworks.datatunnel.jdbc.JdbcUtils.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午
  */
 public class JdbcWriter implements DataxWriter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcWriter.class);
 
     private static final String[] DATASOURCE_TYPES =
             new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
@@ -35,6 +44,7 @@ public class JdbcWriter implements DataxWriter {
 
     @Override
     public void write(SparkSession sparkSession, Dataset<Row> dataset, Map<String, String> options) throws IOException {
+        Connection connection = null;
         try {
             String dsConf = options.get("__dsConf__");
             String dsType = options.get("__dsType__");
@@ -84,6 +94,17 @@ public class JdbcWriter implements DataxWriter {
                 truncate = true;
             }
 
+            String preSql = options.get("preSql");
+            String postSql = options.get("postSql");
+            if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
+                connection = buildConnection(url, table, options);
+            }
+
+            if (StringUtils.isNotBlank(preSql)) {
+                LOG.info("exec preSql: " + preSql);
+                execute(connection, preSql);
+            }
+
             String sql = CommonUtils.genOutputSql(dataset, options);
             dataset = sparkSession.sql(sql);
             dataset.write()
@@ -97,8 +118,21 @@ public class JdbcWriter implements DataxWriter {
                     .option("user", username)
                     .option("password", password)
                     .save();
+
+            if (StringUtils.isNotBlank(postSql)) {
+                LOG.info("exec postSql: " + postSql);
+                execute(connection, postSql);
+            }
         } catch (Exception e) {
             throw new DataXException(e.getMessage(), e);
+        } finally {
+            close(connection);
         }
+    }
+
+    private Connection buildConnection(String url, String dbtable, Map<String, String> params) {
+        JDBCOptions options = new JDBCOptions(url, dbtable,
+                JavaConverters.mapAsScalaMapConverter(params).asScala().toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
+        return org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.createConnectionFactory(options).apply();
     }
 }
