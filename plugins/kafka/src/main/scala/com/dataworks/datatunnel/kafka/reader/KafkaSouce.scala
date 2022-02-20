@@ -49,7 +49,7 @@ class KafkaSouce {
 
   private def createDataSet(spark: SparkSession, options: util.Map[String, String]): Dataset[Row] = {
     val lines = spark.readStream.format("kafka").options(options)
-      .option("enable.auto.commit", "false")
+      .option("failOnDataLoss", "false")
       .option("auto.offset.reset", "earliest")
       .load
 
