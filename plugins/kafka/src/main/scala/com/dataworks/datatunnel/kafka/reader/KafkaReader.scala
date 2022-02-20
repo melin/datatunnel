@@ -89,7 +89,7 @@ class KafkaReader extends DataxReader {
       val query= dataset.writeStream
         .trigger(Trigger.ProcessingTime(1.seconds))
         .outputMode(OutputMode.Update)
-        .option("checkpointLocation", "")
+        .option("checkpointLocation", checkpointLocation)
         .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
           batchDF.write
             .format("jdbc")
