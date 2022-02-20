@@ -7,7 +7,8 @@ import org.apache.hudi.DataSourceWriteOptions
 import org.apache.hudi.common.model.{HoodieTableType, WriteOperationType}
 import org.apache.hudi.common.table.HoodieTableMetaClient
 import org.apache.hudi.config.{HoodieCompactionConfig, HoodieWriteConfig}
-import org.apache.hudi.hive.{HiveStylePartitionValueExtractor, MultiPartKeysValueExtractor}
+import org.apache.hudi.hive.MultiPartKeysValueExtractor
+import org.apache.hudi.keygen.ComplexKeyGenerator
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
@@ -85,6 +86,7 @@ object HudiUtils extends Logging{
       .option(HoodieCompactionConfig.INLINE_COMPACT_NUM_DELTA_COMMITS.key, "5")
       .option(DataSourceWriteOptions.ASYNC_COMPACT_ENABLE.key, "true")
       .option(DataSourceWriteOptions.ASYNC_CLUSTERING_ENABLE.key, "true")
+      .option(DataSourceWriteOptions.KEYGENERATOR_CLASS_NAME.key, classOf[ComplexKeyGenerator].getName)
       .option(HoodieWriteConfig.TBL_NAME.key, tableName)
       .option("checkpointLocation", checkpointLocation)
       .outputMode(OutputMode.Append)
