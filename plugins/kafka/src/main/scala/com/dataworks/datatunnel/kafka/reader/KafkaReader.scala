@@ -7,6 +7,7 @@ import com.dataworks.datatunnel.kafka.util.HudiUtils
 import com.gitee.melin.bee.util.MapperUtils
 import com.google.common.collect.Maps
 import org.apache.commons.lang3.StringUtils
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SaveMode, SparkSession}
 
@@ -82,8 +83,13 @@ class KafkaReader extends DataxReader {
       if ("mysql" == dsType) url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false"
       else if ("postgresql" == dsType) url = url + "?reWriteBatchedInserts=true"
 
-      val query= dataset.writeStream.trigger(Trigger.ProcessingTime(1.seconds))
+
+      val checkpointLocation = s"/user/dataworks/stream_checkpoint/$sinkDatabaseName.db/$sinkTableName"
+      mkCheckpointDir(sparkSession, checkpointLocation)
+      val query= dataset.writeStream
+        .trigger(Trigger.ProcessingTime(1.seconds))
         .outputMode(OutputMode.Update)
+        .option("checkpointLocation", "")
         .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
           batchDF.write
             .format("jdbc")
@@ -106,4 +112,9 @@ class KafkaReader extends DataxReader {
     null
   }
 
+  private def mkCheckpointDir(sparkSession: SparkSession, path: String): Unit = {
+    val configuration = sparkSession.sparkContext.hadoopConfiguration
+    val fs = FileSystem.get(configuration)
+    if (!fs.exists(new Path(path))) fs.mkdirs(new Path(path))
+  }
 }
