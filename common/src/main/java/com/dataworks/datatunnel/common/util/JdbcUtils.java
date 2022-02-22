@@ -1,13 +1,20 @@
 package com.dataworks.datatunnel.common.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author melin 2021/11/8 4:19 下午
  */
 public class JdbcUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcUtils.class);
 
     public static String buildJdbcUrl(String dsType, Map<String, Object> dsConfMap) {
         String host = (String) dsConfMap.get("host");
@@ -41,5 +48,69 @@ public class JdbcUtils {
         }
 
         return url;
+    }
+
+    public static void execute(Connection conn, String sql) throws SQLException {
+        execute(conn, sql, Collections.emptyList());
+    }
+
+    public static void execute(Connection conn, String sql, List<Object> parameters) throws SQLException {
+        PreparedStatement stmt = null;
+
+        try {
+            stmt = conn.prepareStatement(sql);
+
+            setParameters(stmt, parameters);
+
+            stmt.executeUpdate();
+        } finally {
+            close(stmt);
+        }
+    }
+
+    private static void setParameters(PreparedStatement stmt, List<Object> parameters) throws SQLException {
+        for (int i = 0, size = parameters.size(); i < size; ++i) {
+            Object param = parameters.get(i);
+            stmt.setObject(i + 1, param);
+        }
+    }
+
+    public static void close(Statement x) {
+        if (x == null) {
+            return;
+        }
+        try {
+            x.close();
+        } catch (Exception e) {
+            boolean printError = true;
+
+            if (e instanceof java.sql.SQLRecoverableException
+                    && "Closed Connection".equals(e.getMessage())
+            ) {
+                printError = false;
+            }
+
+            if (printError) {
+                LOG.debug("close statement error", e);
+            }
+        }
+    }
+
+    public static void close(Connection x) {
+        if (x == null) {
+            return;
+        }
+
+        try {
+            if (x.isClosed()) {
+                return;
+            }
+
+            x.close();
+        } catch (SQLRecoverableException e) {
+            // skip
+        } catch (Exception e) {
+            LOG.debug("close connection error", e);
+        }
     }
 }

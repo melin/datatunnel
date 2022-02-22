@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Map;
 
-import static com.dataworks.datatunnel.jdbc.JdbcUtils.*;
+import static com.dataworks.datatunnel.common.util.JdbcUtils.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午
