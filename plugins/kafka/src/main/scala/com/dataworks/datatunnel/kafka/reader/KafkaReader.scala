@@ -88,10 +88,11 @@ class KafkaReader extends DataxReader with Logging {
         if ("mysql" == dsType) url = url + "?useServerPrepStmts=false&rewriteBatchedStatements=true&&tinyInt1isBit=false"
         else if ("postgresql" == dsType) url = url + "?reWriteBatchedInserts=true"
 
-        val preSql = options.get("preSql")
-        val postSql = options.get("postSql")
+        val preSql = sinkOptions.get("preSql")
+        val postSql = sinkOptions.get("postSql")
         if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
-          connection = buildConnection(url, table, options)
+          sinkOptions.put("user", username)
+          connection = buildConnection(url, table, sinkOptions)
         }
 
         if (StringUtils.isNotBlank(preSql)) {

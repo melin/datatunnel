@@ -99,6 +99,7 @@ public class JdbcWriter implements DataxWriter {
 
             String preSql = options.get("preSql");
             String postSql = options.get("postSql");
+            options.put("user", username);
             if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
                 connection = buildConnection(url, table, options);
             }
