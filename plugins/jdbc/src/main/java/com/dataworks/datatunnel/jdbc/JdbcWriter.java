@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Map;
 
-import static com.dataworks.datatunnel.jdbc.JdbcUtils.*;
+import static com.dataworks.datatunnel.common.util.JdbcUtils.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -97,6 +97,7 @@ public class JdbcWriter implements DataxWriter {
             String preSql = options.get("preSql");
             String postSql = options.get("postSql");
             if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
+                options.put("user", username);
                 connection = buildConnection(url, table, options);
             }
 
