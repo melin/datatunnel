@@ -57,7 +57,13 @@ class KafkaReader extends DataxReader with Logging {
       try {
         val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
           "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
-        val dataset = sparkSession.sql(querySql)
+        var dataset = sparkSession.sql(querySql)
+
+        val filter = sinkOptions.get("filter")
+        if (StringUtils.isNotBlank(filter)) {
+          dataset.createOrReplaceTempView("tdl_kafka")
+          dataset = sparkSession.sql(filter)
+        }
 
         var table = sinkTableName
         if (StringUtils.isNotBlank(sinkDatabaseName)) table = sinkDatabaseName + "." + sinkTableName

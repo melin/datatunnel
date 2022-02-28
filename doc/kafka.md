@@ -39,6 +39,19 @@ PARTITIONED BY (ds,kafka_topic)
 comment 'hudi demo'
 ```
 
+```sql
+datax reader("kafka") options(
+    subscribe='test2,test_other',
+    kafka.bootstrap.servers='10.5.20.16:9092,10.5.20.17:9092,10.5.20.18:9092'
+ )
+
+writer("hive") options(
+    databaseName='bigdata',
+    tableName='kafka_log1_dt',
+    filter="select id, kafka_timestamp, udf_test(message), ds, kafka_topic from tmp_table"
+);
+```
+
 #### 参数说明
 
 | 参数key    | 数据类型    | 是否必填  | 默认值    | 描述          |
