@@ -31,7 +31,7 @@
 
         <scala.version>2.12.15</scala.version>
         <scala.bin.version>2.12</scala.bin.version>
-        <spark.version>3.2.0</spark.version>
+        <spark.version>3.2.1</spark.version>
         <spotbugs.version>4.5.0</spotbugs.version>
     </properties>
 
@@ -97,21 +97,21 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
-            <version>1.7.32</version>
+            <version>1.7.36</version>
             <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.32</version>
+            <version>1.7.36</version>
             <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.32</version>
+            <version>1.7.36</version>
             <scope>${libScope}</scope>
         </dependency>
 

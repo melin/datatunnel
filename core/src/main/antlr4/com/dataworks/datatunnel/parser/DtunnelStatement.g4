@@ -1,4 +1,4 @@
-grammar DataxStatement;
+grammar DtunnelStatement;
 
 singleStatement
     : statement EOF
@@ -6,13 +6,13 @@ singleStatement
 
 // If you add keywords here that should not be reserved, add them to 'nonReserved' list.
 statement
-    : dataxStatement                                                       #dataxCommand
+    : dtunnelStatement                                                     #dtunnelCommand
     | .*?                                                                  #passThrough
     ;
 
-dataxStatement
-    : DATAX READER '(' srcName=STRING ')' readOpts=sparkOptions
-        WRITER '(' distName=STRING ')' writeOpts=sparkOptions              #dataxExpr
+dtunnelStatement
+    : DTUNNEL READER '(' srcName=STRING ')' readOpts=sparkOptions
+        WRITER '(' distName=STRING ')' writeOpts=sparkOptions              #dtunnelExpr
     ;
 
 sparkOptions
@@ -52,7 +52,7 @@ quotedIdentifier
 ALL: 'ALL';
 TRUE: 'TRUE';
 FALSE: 'FALSE';
-DATAX: 'DATAX';
+DTUNNEL: 'DTUNNEL';
 READER: 'READER';
 WRITER: 'WRITER';
 OPTIONS: 'OPTIONS';

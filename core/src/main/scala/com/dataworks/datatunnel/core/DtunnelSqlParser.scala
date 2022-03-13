@@ -1,8 +1,8 @@
 package com.dataworks.datatunnel.core
 
 import com.dataworks.datatunnel.common.util.CommonUtils
-import com.dataworks.datatunnel.parser.{DataxStatementBaseVisitor, DataxStatementLexer, DataxStatementParser}
-import com.dataworks.datatunnel.parser.DataxStatementParser.{DataxExprContext, PassThroughContext, SingleStatementContext}
+import com.dataworks.datatunnel.parser.{DtunnelStatementBaseVisitor, DtunnelStatementLexer, DtunnelStatementParser}
+import com.dataworks.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, PassThroughContext, SingleStatementContext}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}
@@ -22,7 +22,7 @@ import org.apache.spark.sql.types.{DataType, StructType}
 class DataxSqlParser (spark: SparkSession,
                       val delegate: ParserInterface) extends ParserInterface with Logging {
 
-  private val builder = new DataxAstBuilder()
+  private val builder = new DtunnelAstBuilder()
 
   override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
     val sql = CommonUtils.cleanSqlComment(sqlText)
@@ -32,15 +32,15 @@ class DataxSqlParser (spark: SparkSession,
     }
   }
 
-  protected def parse[T](command: String)(toResult: DataxStatementParser => T): T = {
+  protected def parse[T](command: String)(toResult: DtunnelStatementParser => T): T = {
     logInfo(s"Parsing command: $command")
 
-    val lexer = new DataxStatementLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
+    val lexer = new DtunnelStatementLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
     lexer.removeErrorListeners()
     lexer.addErrorListener(ParseErrorListener)
 
     val tokenStream = new CommonTokenStream(lexer)
-    val parser = new DataxStatementParser(tokenStream)
+    val parser = new DtunnelStatementParser(tokenStream)
     parser.addParseListener(PostProcessor)
     parser.removeErrorListeners()
     parser.addErrorListener(ParseErrorListener)
@@ -108,9 +108,9 @@ class DataxSqlParser (spark: SparkSession,
   }
 }
 
-class DataxAstBuilder extends DataxStatementBaseVisitor[AnyRef] {
-  override def visitDataxExpr(ctx: DataxExprContext): LogicalPlan = withOrigin(ctx) {
-    DataxExprCommand(ctx: DataxExprContext)
+class DtunnelAstBuilder extends DtunnelStatementBaseVisitor[AnyRef] {
+  override def visitDtunnelExpr(ctx: DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
+    DtunnelExprCommand(ctx: DtunnelExprContext)
   }
 
   override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan = withOrigin(ctx) {
