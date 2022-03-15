@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.jdbc;
 
-import com.dataworks.datatunnel.api.DataXException;
-import com.dataworks.datatunnel.api.DataxWriter;
+import com.dataworks.datatunnel.api.DataTunnelException;
+import com.dataworks.datatunnel.api.DataTunnelSink;
 import com.dataworks.datatunnel.common.util.AESUtil;
 import com.dataworks.datatunnel.common.util.CommonUtils;
 import com.dataworks.datatunnel.common.util.JdbcUtils;
@@ -23,7 +23,7 @@ import static com.dataworks.datatunnel.common.util.JdbcUtils.*;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class JdbcWriter implements DataxWriter {
+public class JdbcWriter implements DataTunnelSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcWriter.class);
 
@@ -125,7 +125,7 @@ public class JdbcWriter implements DataxWriter {
                 execute(connection, postSql);
             }
         } catch (Exception e) {
-            throw new DataXException(e.getMessage(), e);
+            throw new DataTunnelException(e.getMessage(), e);
         } finally {
             close(connection);
         }

@@ -13,7 +13,7 @@ import java.util.Map;
  * @author melin 2021/7/27 10:47 上午
  */
 @SPI
-public interface DataxReader extends Serializable {
+public interface DataTunnelSource extends Serializable {
 
     void validateOptions(Map<String, String> options) throws IOException;
 

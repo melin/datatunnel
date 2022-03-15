@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.kafka.reader
 
-import com.dataworks.datatunnel.api.{DataXException, DataxReader}
+import com.dataworks.datatunnel.api.{DataTunnelException, DataTunnelSource}
 import com.dataworks.datatunnel.common.util.{AESUtil, CommonUtils, JdbcUtils}
 import com.dataworks.datatunnel.kafka.util.HudiUtils
 import com.gitee.melin.bee.util.MapperUtils
@@ -20,14 +20,14 @@ import scala.collection.JavaConverters._
 /**
  * huaixin 2021/12/29 2:23 PM
  */
-class KafkaReader extends DataxReader with Logging {
+class KafkaReader extends DataTunnelSource with Logging {
 
   override def validateOptions(options: util.Map[String, String]): Unit = {
     val subscribe = options.get("subscribe")
-    if (StringUtils.isBlank(subscribe)) throw new DataXException("subscribe 不能为空")
+    if (StringUtils.isBlank(subscribe)) throw new DataTunnelException("subscribe 不能为空")
 
     val services = options.get("kafka.bootstrap.servers")
-    if (StringUtils.isBlank(services)) throw new DataXException("kafka.bootstrap.servers 不能为空")
+    if (StringUtils.isBlank(services)) throw new DataTunnelException("kafka.bootstrap.servers 不能为空")
   }
 
   override def read(sparkSession: SparkSession, options: util.Map[String, String]): Dataset[Row] = {
@@ -47,7 +47,7 @@ class KafkaReader extends DataxReader with Logging {
 
     if ("hive" == sinkType) {
       if (!HudiUtils.isHudiTable(sparkSession, sinkTableName, sinkDatabaseName)) {
-        throw new DataXException(s"${sinkDatabaseName}.${sinkTableName} 不是hudi类型表")
+        throw new DataTunnelException(s"${sinkDatabaseName}.${sinkTableName} 不是hudi类型表")
       }
       val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
         "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable

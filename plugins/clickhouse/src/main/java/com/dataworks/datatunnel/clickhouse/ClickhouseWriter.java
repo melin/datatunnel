@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.clickhouse;
 
-import com.dataworks.datatunnel.api.DataXException;
-import com.dataworks.datatunnel.api.DataxWriter;
+import com.dataworks.datatunnel.api.DataTunnelException;
+import com.dataworks.datatunnel.api.DataTunnelSink;
 import com.dataworks.datatunnel.clickhouse.constant.ClickHouseWriterOption;
 import com.dataworks.datatunnel.common.util.AESUtil;
 import com.gitee.melin.bee.util.MapperUtils;
@@ -24,7 +24,7 @@ import static com.dataworks.datatunnel.clickhouse.constant.ClickHouseWriterOptio
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class ClickhouseWriter implements DataxWriter {
+public class ClickhouseWriter implements DataTunnelSink {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseWriter.class);
 
@@ -33,20 +33,20 @@ public class ClickhouseWriter implements DataxWriter {
         logger.info("ClickhouseWriter options = {}",  MapperUtils.toJSONString(options));
         String dataSourceCode = options.get(DATASOURCE_CODE);
         if (StringUtils.isBlank(dataSourceCode)){
-            throw new DataXException("缺少code参数");
+            throw new DataTunnelException("缺少code参数");
         } else {
             String config = options.get(DATASOURCE_CONFIG);
             logger.info("ClickhouseWriter config = {}",  config);
             if (StringUtils.isBlank(config)){
-                throw new DataXException("数据源未配置");
+                throw new DataTunnelException("数据源未配置");
             }
         }
         if (StringUtils.isBlank(options.get(TABLE_NAME))){
-            throw new DataXException("缺少table参数");
+            throw new DataTunnelException("缺少table参数");
         }
         if (Objects.nonNull(options.get(ClickHouseWriterOption.NUM_PARTITIONS))){
             if (NumberUtils.toInt(options.get(ClickHouseWriterOption.NUM_PARTITIONS)) <= 0){
-                throw new DataXException("numPartitions参数设置错误");
+                throw new DataTunnelException("numPartitions参数设置错误");
             }
         }
     }
@@ -56,11 +56,11 @@ public class ClickhouseWriter implements DataxWriter {
         //实例编号
         String jobInstanceCode = sparkSession.sparkContext().getConf().get("spark.datawork.job.code");
         if (StringUtils.isBlank(jobInstanceCode)){
-            throw new DataXException("实例编号为空");
+            throw new DataTunnelException("实例编号为空");
         }
 
         if (0 == dataset.count()){
-            throw new DataXException("dataset为空");
+            throw new DataTunnelException("dataset为空");
         }
         String tableName = options.get(TABLE_NAME);
         String datasourceConfig = options.get(DATASOURCE_CONFIG);

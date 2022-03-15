@@ -11,8 +11,8 @@ statement
     ;
 
 dtunnelStatement
-    : DTUNNEL READER '(' srcName=STRING ')' readOpts=sparkOptions
-        WRITER '(' distName=STRING ')' writeOpts=sparkOptions              #dtunnelExpr
+    : DTUNNEL SOURCE '(' srcName=STRING ')' readOpts=sparkOptions
+        SINK '(' distName=STRING ')' writeOpts=sparkOptions              #dtunnelExpr
     ;
 
 sparkOptions
@@ -53,8 +53,8 @@ ALL: 'ALL';
 TRUE: 'TRUE';
 FALSE: 'FALSE';
 DTUNNEL: 'DTUNNEL';
-READER: 'READER';
-WRITER: 'WRITER';
+SOURCE: 'SOURCE';
+SINK: 'SINK';
 OPTIONS: 'OPTIONS';
 
 EQ  : '=' | '==';

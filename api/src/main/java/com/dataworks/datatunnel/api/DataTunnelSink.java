@@ -13,7 +13,7 @@ import java.util.Map;
  * @author melin 2021/7/27 10:47 上午
  */
 @SPI
-public interface DataxWriter extends Serializable {
+public interface DataTunnelSink extends Serializable {
 
     void validateOptions(Map<String, String> options) throws IOException;
 

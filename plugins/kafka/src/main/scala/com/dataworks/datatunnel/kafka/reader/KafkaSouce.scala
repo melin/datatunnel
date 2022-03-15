@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.kafka.reader
 
-import com.dataworks.datatunnel.api.DataXException
+import com.dataworks.datatunnel.api.DataTunnelException
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
@@ -39,11 +39,11 @@ class KafkaSouce {
       subscribes.foreach(item => {
         if (!topics.containsKey(item)) {
           val value = adminClient.listTopics().names().get().asScala.mkString(",")
-          throw new DataXException("topic 不存在: " + item + ", 可用topic: " + value)
+          throw new DataTunnelException("topic 不存在: " + item + ", 可用topic: " + value)
         }
       })
     } catch {
-      case e: Exception => throw new DataXException("kafka broker " + servers + " 不可用: " + e.getMessage)
+      case e: Exception => throw new DataTunnelException("kafka broker " + servers + " 不可用: " + e.getMessage)
     } finally if (adminClient != null) adminClient.close()
   }
 

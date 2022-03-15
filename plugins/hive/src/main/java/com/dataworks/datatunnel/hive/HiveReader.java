@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.hive;
 
-import com.dataworks.datatunnel.api.DataXException;
-import com.dataworks.datatunnel.api.DataxReader;
+import com.dataworks.datatunnel.api.DataTunnelException;
+import com.dataworks.datatunnel.api.DataTunnelSource;
 import com.dataworks.datatunnel.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
@@ -17,19 +17,19 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class HiveReader implements DataxReader {
+public class HiveReader implements DataTunnelSource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveReader.class);
 
     @Override
     public void validateOptions(Map<String, String> options) {
         String tableName = options.get("tableName");
         if (StringUtils.isBlank(tableName)) {
-            throw new DataXException("tableName 不能为空");
+            throw new DataTunnelException("tableName 不能为空");
         }
 
         String column = options.get("column");
         if (StringUtils.isBlank(column)) {
-            throw new DataXException("column 不能为空");
+            throw new DataTunnelException("column 不能为空");
         }
     }
 

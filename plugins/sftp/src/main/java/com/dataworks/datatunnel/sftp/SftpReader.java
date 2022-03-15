@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.sftp;
 
-import com.dataworks.datatunnel.api.DataxReader;
+import com.dataworks.datatunnel.api.DataTunnelSource;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class SftpReader implements DataxReader {
+public class SftpReader implements DataTunnelSource {
 
     @Override
     public void validateOptions(Map<String, String> options) {

@@ -1,9 +1,8 @@
 package com.dataworks.datatunnel.core
 
-import com.dataworks.datatunnel.api.DataxReader
-import com.dataworks.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
-import com.dataworks.datatunnel.api.{DataXException, DataxWriter}
+import com.dataworks.datatunnel.api.{DataTunnelException, DataTunnelSink, DataTunnelSource}
 import com.dataworks.datatunnel.common.util.CommonUtils
+import com.dataworks.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
 import com.gitee.melin.bee.core.extension.ExtensionLoader
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
@@ -25,7 +24,7 @@ case class DtunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableComma
     writeOpts.put("__sourceType__", sourceType)
 
     if ("kafka".equals(sourceType) && !("hive".equals(sinkType) || "jdbc".equals(sinkType))) {
-      throw new DataXException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
+      throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 
     if ("kafka".equals(sourceType)) {
@@ -34,28 +33,28 @@ case class DtunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableComma
       })
     }
 
-    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataxReader])
-    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataxWriter])
+    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource])
+    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink])
 
-    var reader: DataxReader = null
-    var writer: DataxWriter = null
+    var source: DataTunnelSource = null
+    var sink: DataTunnelSink = null
     try {
-      reader = readLoader.getExtension(sourceType)
+      source = readLoader.getExtension(sourceType)
       if (!"kafka".equals(sourceType)) {
-        writer = writeLoader.getExtension(sinkType)
+        sink = writeLoader.getExtension(sinkType)
       }
     } catch {
       case e: IllegalStateException => throw new RuntimeException(e.getMessage, e)
     }
 
-    reader.validateOptions(readOpts)
+    source.validateOptions(readOpts)
     if (!"kafka".equals(sourceType)) {
-      writer.validateOptions(writeOpts)
+      sink.validateOptions(writeOpts)
     }
 
-    val df = reader.read(sparkSession, readOpts)
+    val df = source.read(sparkSession, readOpts)
     if (!"kafka".equals(sourceType)) {
-      writer.write(sparkSession, df, writeOpts)
+      sink.write(sparkSession, df, writeOpts)
     }
     Seq.empty[Row]
   }

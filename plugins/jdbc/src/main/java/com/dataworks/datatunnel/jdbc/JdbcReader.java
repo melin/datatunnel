@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.jdbc;
 
-import com.dataworks.datatunnel.api.DataXException;
-import com.dataworks.datatunnel.api.DataxReader;
+import com.dataworks.datatunnel.api.DataTunnelException;
+import com.dataworks.datatunnel.api.DataTunnelSource;
 import com.dataworks.datatunnel.common.util.AESUtil;
 import com.dataworks.datatunnel.common.util.CommonUtils;
 import com.dataworks.datatunnel.common.util.JdbcUtils;
@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class JdbcReader implements DataxReader {
+public class JdbcReader implements DataTunnelSource {
 
     private static final String[] DATASOURCE_TYPES =
             new String[]{"mysql", "sqlserver", "db2", "oracle", "postgresql"};
@@ -38,7 +38,7 @@ public class JdbcReader implements DataxReader {
 
         String column = options.get("column");
         if (StringUtils.isBlank(column)) {
-            throw new DataXException("column 不能为空");
+            throw new DataTunnelException("column 不能为空");
         }
     }
 
@@ -106,7 +106,7 @@ public class JdbcReader implements DataxReader {
 
             return sparkSession.sql(sql);
         } catch (AnalysisException e) {
-            throw new DataXException(e.message(), e);
+            throw new DataTunnelException(e.message(), e);
         }
     }
 }

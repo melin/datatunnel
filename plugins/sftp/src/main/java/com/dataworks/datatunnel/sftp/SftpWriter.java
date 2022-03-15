@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.sftp;
 
-import com.dataworks.datatunnel.api.DataxWriter;
-import com.dataworks.datatunnel.api.DataXException;
+import com.dataworks.datatunnel.api.DataTunnelSink;
+import com.dataworks.datatunnel.api.DataTunnelException;
 import com.dataworks.datatunnel.sftp.util.SftpUtils;
 import com.dataworker.spark.jobserver.api.LogUtils;
 import com.jcraft.jsch.ChannelSftp;
@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class SftpWriter implements DataxWriter {
+public class SftpWriter implements DataTunnelSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SftpWriter.class);
 
@@ -30,22 +30,22 @@ public class SftpWriter implements DataxWriter {
     public void validateOptions(Map<String, String> options) {
         String sourceType = options.get("__sourceType__");
         if (!"hdfs".equals(sourceType)) {
-            throw new DataXException("只支持从hdfs读取文件写入sftp");
+            throw new DataTunnelException("只支持从hdfs读取文件写入sftp");
         }
 
         String remotePath = options.get("path");
         if (StringUtils.isBlank(remotePath)) {
-            throw new DataXException("path 不能为空");
+            throw new DataTunnelException("path 不能为空");
         }
 
         String username = options.get("username");
         if (StringUtils.isBlank(username)) {
-            throw new DataXException("username 不能为空");
+            throw new DataTunnelException("username 不能为空");
         }
 
         String host = options.get("host");
         if (StringUtils.isBlank(host)) {
-            throw new DataXException("host 不能为空");
+            throw new DataTunnelException("host 不能为空");
         }
     }
 
@@ -90,7 +90,7 @@ public class SftpWriter implements DataxWriter {
                         LogUtils.info(sparkSession, path.getName() + " 文件上传成功, 耗时: " + stopWatch.toString());
                     }
                 } catch (Exception e) {
-                    throw new DataXException("上传文件失败: " + e.getMessage(), e);
+                    throw new DataTunnelException("上传文件失败: " + e.getMessage(), e);
                 }
             });
 

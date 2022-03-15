@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.hive;
 
-import com.dataworks.datatunnel.api.DataxWriter;
-import com.dataworks.datatunnel.api.DataXException;
+import com.dataworks.datatunnel.api.DataTunnelSink;
+import com.dataworks.datatunnel.api.DataTunnelException;
 import com.dataworks.datatunnel.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class HiveWriter implements DataxWriter {
+public class HiveWriter implements DataTunnelSink {
 
     @Override
     public void validateOptions(Map<String, String> options) {
@@ -36,7 +36,7 @@ public class HiveWriter implements DataxWriter {
 
             boolean isPartition = HiveUtils.checkPartition(sparkSession, databaseName, tableName);
             if (isPartition && StringUtils.isBlank(partition)) {
-                throw new DataXException("写入表为分区表，请指定写入分区");
+                throw new DataTunnelException("写入表为分区表，请指定写入分区");
             }
 
             String table = tableName;
@@ -60,7 +60,7 @@ public class HiveWriter implements DataxWriter {
 
             sparkSession.sql(sql);
         } catch (Exception e) {
-            throw new DataXException(e.getMessage(), e);
+            throw new DataTunnelException(e.getMessage(), e);
         }
     }
 }

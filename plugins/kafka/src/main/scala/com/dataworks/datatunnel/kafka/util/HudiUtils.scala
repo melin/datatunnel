@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.kafka.util
 
-import com.dataworks.datatunnel.api.DataXException
+import com.dataworks.datatunnel.api.DataTunnelException
 import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hudi.DataSourceWriteOptions
@@ -43,23 +43,23 @@ object HudiUtils extends Logging{
       val tableType = metaClient.getTableType
       if (tableType == null || HoodieTableType.COPY_ON_WRITE == tableType) {
         logError(s"${qualifiedName} ${tableType} location: $tablPath")
-        throw new DataXException(s"${qualifiedName} 是hudi COW类型表，不支持流数据写入，请使用MOR类型表")
+        throw new DataTunnelException(s"${qualifiedName} 是hudi COW类型表，不支持流数据写入，请使用MOR类型表")
       } else {
         val partColumns = catalogTable.partitionColumnNames
         if (partColumns.isEmpty || partColumns.size != 2 || !partColumns.mkString(",").equals(PARTITION_COL_NAME)) {
-          throw new DataXException(s"${qualifiedName} 必须是分区表，写分区字段名必须为: $PARTITION_COL_NAME")
+          throw new DataTunnelException(s"${qualifiedName} 必须是分区表，写分区字段名必须为: $PARTITION_COL_NAME")
         }
 
         logInfo(s"$qualifiedName table properties: ${properties.mkString(",")}")
         val primaryKey = properties("primaryKey")
         if (StringUtils.isBlank(primaryKey)) {
-          throw new DataXException(s"$catalogTable 主键不能为空")
+          throw new DataTunnelException(s"$catalogTable 主键不能为空")
         }
 
         primaryKey
       }
     } else {
-      throw new DataXException(s"${catalogTable.qualifiedName} 不是hudi 类型表，不支持流数据写入")
+      throw new DataTunnelException(s"${catalogTable.qualifiedName} 不是hudi 类型表，不支持流数据写入")
     }
   }
 

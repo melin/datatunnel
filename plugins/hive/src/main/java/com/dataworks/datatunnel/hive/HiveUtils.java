@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.hive;
 
-import com.dataworks.datatunnel.api.DataXException;
+import com.dataworks.datatunnel.api.DataTunnelException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.catalyst.TableIdentifier;
@@ -34,7 +34,7 @@ public class HiveUtils {
                 }
             }
         } catch (Exception e) {
-            throw new DataXException("检测表是否分区失败", e);
+            throw new DataTunnelException("检测表是否分区失败", e);
         }
 
         return false;

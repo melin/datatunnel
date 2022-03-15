@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.log;
 
-import com.dataworks.datatunnel.api.DataxWriter;
+import com.dataworks.datatunnel.api.DataTunnelSink;
 import com.dataworker.spark.jobserver.api.LogUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class LogWriter implements DataxWriter {
+public class LogWriter implements DataTunnelSink {
 
     @Override
     public void validateOptions(Map<String, String> options) {

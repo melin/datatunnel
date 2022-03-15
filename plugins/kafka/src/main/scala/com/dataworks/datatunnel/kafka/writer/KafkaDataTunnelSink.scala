@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.kafka.writer
 
-import com.dataworks.datatunnel.api.DataxWriter
+import com.dataworks.datatunnel.api.DataTunnelSink
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -13,7 +13,7 @@ import scala.util.parsing.json.JSONObject
 /**
  * huaixin 2021/12/7 8:12 PM
  */
-class DataxKafkaWriter extends DataxWriter {
+class KafkaDataTunnelSink extends DataTunnelSink {
 
   override def validateOptions(options: util.Map[String, String]): Unit = {
     val topic = options.get("topic")

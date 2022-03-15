@@ -1,7 +1,7 @@
 package com.dataworks.datatunnel.hdfs;
 
-import com.dataworks.datatunnel.api.DataxReader;
-import com.dataworks.datatunnel.api.DataXException;
+import com.dataworks.datatunnel.api.DataTunnelSource;
+import com.dataworks.datatunnel.api.DataTunnelException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -18,16 +18,16 @@ import java.util.stream.Stream;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class HdfsReader implements DataxReader {
+public class HdfsReader implements DataTunnelSource {
 
     @Override
     public void validateOptions(Map<String, String> options) {
         if (!options.containsKey("path")) {
-            throw new DataXException("缺少path 参数");
+            throw new DataTunnelException("缺少path 参数");
         } else {
             String path = options.get("path");
             if (StringUtils.isBlank(path)) {
-                throw new DataXException("path 不能为空");
+                throw new DataTunnelException("path 不能为空");
             }
         }
     }
@@ -36,13 +36,13 @@ public class HdfsReader implements DataxReader {
     public Dataset<Row> read(SparkSession sparkSession, Map<String, String> options) throws IOException {
         String userId = sparkSession.conf().get("spark.datawork.job.userId", "");
         if (StringUtils.isBlank(userId)) {
-            throw new DataXException("spark.datawork.job.userId 不能为空");
+            throw new DataTunnelException("spark.datawork.job.userId 不能为空");
         }
 
         String path = options.get("path");
         String pathPrefix = "/user/datawork/users/" + userId;
         if (!StringUtils.startsWith(path, pathPrefix)) {
-            throw new DataXException("只能访问 " + pathPrefix + " 路径下文件");
+            throw new DataTunnelException("只能访问 " + pathPrefix + " 路径下文件");
         }
 
         String fileNameSuffix = options.get("fileNameSuffix");
