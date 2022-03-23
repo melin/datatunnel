@@ -109,6 +109,7 @@
                             <artifactSet>
                                 <excludes>
                                     <exclude>com.fasterxml.jackson.*:*</exclude>
+                                    <exclude>com.gitee.melin.bee:bee</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>

@@ -78,6 +78,7 @@
               <artifactSet>
                 <excludes>
                   <exclude>com.fasterxml.jackson.*:*</exclude>
+                  <exclude>com.gitee.melin.bee:bee</exclude>
                 </excludes>
               </artifactSet>
             </configuration>
@@ -557,8 +558,8 @@
     </dependency>
   </dependencies>
   <properties>
-    <antlr4.version>4.8</antlr4.version>
-    <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
+    <antlr4.version>4.8</antlr4.version>
   </properties>
 </project>
