@@ -17,7 +17,7 @@
                 <exclude>org.apache.zookeeper:zookeeper:jar</exclude>
                 <exclude>org.apache.hadoop:hadoop-annotations:jar</exclude>
                 <exclude>org.apache.hadoop:hadoop-auth:jar</exclude>
-                <exclude>com.dataworker.spark.jobserver:spark-jobserver-api</exclude>
+                <exclude>com.github.melin.superior.jobserver:spark-jobserver-api</exclude>
                 <!-- hudi 中包含hadoop-server 不需要打包进去 -->
                 <exclude>org.apache.hbase:hbase-server:jar</exclude>
                 <exclude>com.sun.jersey:*:jar</exclude>
