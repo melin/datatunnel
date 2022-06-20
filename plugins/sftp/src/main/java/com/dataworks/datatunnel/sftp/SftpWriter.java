@@ -3,7 +3,7 @@ package com.dataworks.datatunnel.sftp;
 import com.dataworks.datatunnel.api.DataTunnelSink;
 import com.dataworks.datatunnel.api.DataTunnelException;
 import com.dataworks.datatunnel.sftp.util.SftpUtils;
-import com.dataworker.spark.jobserver.api.LogUtils;
+import com.github.melin.superior.jobserver.api.LogUtils;
 import com.jcraft.jsch.ChannelSftp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -71,7 +71,7 @@ public class SftpWriter implements DataTunnelSink {
 
                     boolean exist = SftpUtils.checkFileExists(channelSftp, filename);
                     if ("false".equals(overwrite) && exist) {
-                        LogUtils.warn(sparkSession, path.getName() + " 文件已经存在 不重复上传");
+                        LogUtils.warn(path.getName() + " 文件已经存在 不重复上传");
                     } else {
                         Stopwatch stopWatch = new Stopwatch();
                         stopWatch.start();
@@ -87,7 +87,7 @@ public class SftpWriter implements DataTunnelSink {
                         SftpUtils.rename(channelSftp, tmpName, filename);
 
                         stopWatch.stop();
-                        LogUtils.info(sparkSession, path.getName() + " 文件上传成功, 耗时: " + stopWatch.toString());
+                        LogUtils.info(path.getName() + " 文件上传成功, 耗时: " + stopWatch.toString());
                     }
                 } catch (Exception e) {
                     throw new DataTunnelException("上传文件失败: " + e.getMessage(), e);

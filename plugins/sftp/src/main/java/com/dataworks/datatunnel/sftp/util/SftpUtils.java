@@ -1,6 +1,6 @@
 package com.dataworks.datatunnel.sftp.util;
 
-import com.dataworker.spark.jobserver.api.LogUtils;
+import com.github.melin.superior.jobserver.api.LogUtils;
 import com.jcraft.jsch.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -50,7 +50,7 @@ public class SftpUtils {
 
             boolean useIdentity = keyFilePath != null && !keyFilePath.isEmpty();
             if (useIdentity) {
-                LogUtils.info(sparkSession, "秘钥认证");
+                LogUtils.info("秘钥认证");
                 if (passPhrase != null) {
                     jsch.addIdentity(keyFilePath, passPhrase);
                 } else {
@@ -61,7 +61,7 @@ public class SftpUtils {
             Session session = jsch.getSession(username, host, sftpPort);
             session.setConfig(STR_STRICT_HOST_KEY_CHECKING, STR_NO);
             if (!useIdentity) {
-                LogUtils.info(sparkSession, "密码认证");
+                LogUtils.info("密码认证");
                 session.setPassword(password);
             }
             session.connect();
@@ -99,7 +99,7 @@ public class SftpUtils {
 
                 return tempFile.getPath();
             } else {
-                LogUtils.warn(sparkSession, "文件不存在: " + keyFilePath);
+                LogUtils.warn("文件不存在: " + keyFilePath);
             }
         }
 

@@ -32,6 +32,14 @@ class DataxSqlParser (spark: SparkSession,
     }
   }
 
+  override def parseQuery(sqlText: String): LogicalPlan =  parse(sqlText) { parser =>
+    val sql = CommonUtils.cleanSqlComment(sqlText)
+    builder.visit(parser.singleStatement()) match {
+      case plan: LogicalPlan => plan
+      case _ => delegate.parseQuery(sql)
+    }
+  }
+
   protected def parse[T](command: String)(toResult: DtunnelStatementParser => T): T = {
     logInfo(s"Parsing command: $command")
 

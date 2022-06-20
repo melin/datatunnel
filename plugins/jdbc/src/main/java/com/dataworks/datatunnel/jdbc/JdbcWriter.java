@@ -10,6 +10,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
+import org.apache.spark.sql.jdbc.JdbcDialect;
+import org.apache.spark.sql.jdbc.JdbcDialects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
@@ -134,6 +136,8 @@ public class JdbcWriter implements DataTunnelSink {
     private Connection buildConnection(String url, String dbtable, Map<String, String> params) {
         JDBCOptions options = new JDBCOptions(url, dbtable,
                 JavaConverters.mapAsScalaMapConverter(params).asScala().toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
-        return org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.createConnectionFactory(options).apply();
+
+        JdbcDialect dialect = JdbcDialects.get(url);
+        return dialect.createConnectionFactory(options).apply(-1);
     }
 }

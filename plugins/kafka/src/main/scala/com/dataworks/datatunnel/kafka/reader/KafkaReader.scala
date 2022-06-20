@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
+import org.apache.spark.sql.jdbc.{JdbcDialect, JdbcDialects}
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SaveMode, SparkSession}
 
@@ -137,8 +138,9 @@ class KafkaReader extends DataTunnelSource with Logging {
   }
 
   private def buildConnection(url: String, dbtable: String, params: util.Map[String, String]): Connection = {
-    val map = new JDBCOptions(url, dbtable, params.asScala.toMap)
-    org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.createConnectionFactory(map)()
+    val options = new JDBCOptions(url, dbtable, params.asScala.toMap)
+    val dialect = JdbcDialects.get(url)
+    dialect.createConnectionFactory(options)(-1)
   }
 
   private def mkCheckpointDir(sparkSession: SparkSession, path: String): Unit = {
