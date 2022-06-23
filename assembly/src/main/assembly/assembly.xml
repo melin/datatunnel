@@ -10,7 +10,7 @@
     <dependencySets>
         <dependencySet>
             <excludes>
-                <exclude>com.dataworker.datatunnel:datatunnel-assembly:jar</exclude>
+                <exclude>com.superior.datatunnel:datatunnel-assembly:jar</exclude>
                 <exclude>*:commons-*:jar</exclude>
                 <exclude>com.alibaba:fastjson:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java:jar</exclude>

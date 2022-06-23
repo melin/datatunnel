@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>datatunnel</artifactId>
-        <groupId>com.dataworks.datatunnel</groupId>
+        <groupId>com.superior.datatunnel</groupId>
         <version>3.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -18,52 +18,52 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-clickhouse</artifactId>
             <version>${project.version}</version>
         </dependency>-->
         <!--<dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-hbase</artifactId>
             <version>${project.version}</version>
         </dependency>-->
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-hive</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-elasticsearch</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-sftp</artifactId>
             <version>${project.version}</version>
         </dependency>-->
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-hdfs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-log</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataworks.datatunnel</groupId>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>

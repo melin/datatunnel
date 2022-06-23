@@ -1,8 +1,8 @@
 package com.dataworks.datatunnel.core
 
-import com.dataworks.datatunnel.common.util.CommonUtils
-import com.dataworks.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, PassThroughContext, SingleStatementContext}
-import com.dataworks.datatunnel.parser.{DtunnelStatementBaseVisitor, DtunnelStatementLexer, DtunnelStatementParser}
+import com.superior.datatunnel.common.util.CommonUtils
+import com.superior.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, PassThroughContext, SingleStatementContext}
+import com.superior.datatunnel.parser.{DtunnelStatementBaseVisitor, DtunnelStatementLexer, DtunnelStatementParser}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}

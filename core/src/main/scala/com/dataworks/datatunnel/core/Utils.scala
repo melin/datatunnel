@@ -1,8 +1,8 @@
 package com.dataworks.datatunnel.core
 
-import com.dataworks.datatunnel.common.util.CommonUtils
-import com.dataworks.datatunnel.parser.DtunnelStatementParser.SparkOptionsContext
+import com.superior.datatunnel.parser.DtunnelStatementParser.SparkOptionsContext
 import com.google.common.collect.Maps
+import com.superior.datatunnel.common.util.CommonUtils
 
 import java.util
 import scala.collection.JavaConverters._
