@@ -3,7 +3,7 @@ package com.dataworks.datatunnel.core
 import com.superior.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
 import com.gitee.melin.bee.core.extension.ExtensionLoader
 import com.superior.datatunnel.api.model.{SinkOption, SourceOption}
-import com.superior.datatunnel.api.{DataTunnelException, DataTunnelSink, DataTunnelSinkContext, DataTunnelSource, DataTunnelSourceContext}
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSink, DataTunnelSource}
 import com.superior.datatunnel.common.util.CommonUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
@@ -16,33 +16,27 @@ import org.apache.spark.sql.{Row, SparkSession}
 case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
-    val sourceType = CommonUtils.cleanQuote(ctx.srcName.getText)
-    val sinkType = CommonUtils.cleanQuote(ctx.distName.getText)
-    val readOpts = Utils.convertOptions(ctx.readOpts)
-    val writeOpts = Utils.convertOptions(ctx.writeOpts)
+    val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
+    val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
+    val sourceOpts = Utils.convertOptions(ctx.sourceOpts)
+    val sinkOpts = Utils.convertOptions(ctx.sinkOpts)
 
-    readOpts.put("__sinkType__", sinkType)
-    writeOpts.put("__sourceType__", sourceType)
+    val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
+    val sinkType = DataSourceType.valueOf(sinkName.toUpperCase)
 
     if ("kafka".equals(sourceType) && !("hive".equals(sinkType) || "jdbc".equals(sinkType))) {
       throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 
-    if ("kafka".equals(sourceType)) {
-      writeOpts.forEach((key, value) => {
-        readOpts.put("_sink_" + key, value);
-      })
-    }
+    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource])
+    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink])
 
-    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource[SourceOption]])
-    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink[SinkOption]])
-
-    var source: DataTunnelSource[SourceOption] = null
-    var sink: DataTunnelSink[SinkOption] = null
+    var source: DataTunnelSource = null
+    var sink: DataTunnelSink = null
     try {
-      source = readLoader.getExtension(sourceType)
+      source = readLoader.getExtension(sourceName)
       if (!"kafka".equals(sourceType)) {
-        sink = writeLoader.getExtension(sinkType)
+        sink = writeLoader.getExtension(sinkName)
       }
     } catch {
       case e: IllegalStateException => throw new RuntimeException(e.getMessage, e)
@@ -52,17 +46,13 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     val sourceOption: SourceOption = null
     val sinkOption: SinkOption = null
 
-    val sourceContext = new DataTunnelSourceContext[SourceOption]
-    sourceContext.setSourceOption(sourceOption)
-    sourceContext.setSinkOption(sinkOption)
+    val context = new DataTunnelContext
+    context.setSourceOption(sourceOption)
+    context.setSinkOption(sinkOption)
 
-    val sinkContext = new DataTunnelSinkContext[SinkOption]
-    sinkContext.setSourceOption(sourceOption)
-    sinkContext.setSinkOption(sinkOption)
-
-    val df = source.read(sourceContext)
+    val df = source.read(context)
     if (!"kafka".equals(sourceType)) {
-      sink.sink(df, sinkContext)
+      sink.sink(df, context)
     }
     Seq.empty[Row]
   }

@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.bin.version}</artifactId>
+            <artifactId>spark-hive_${scala.bin.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
 
@@ -34,6 +34,18 @@
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-jdbc</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-plugin-log</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.29</version>
         </dependency>
     </dependencies>
 </project>

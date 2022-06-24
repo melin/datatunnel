@@ -1,6 +1,6 @@
 package com.superior.datatunnel.hdfs;
 
-import com.superior.datatunnel.api.DataTunnelSourceContext;
+import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.DataTunnelException;
 import org.apache.commons.lang3.StringUtils;
@@ -18,12 +18,12 @@ import java.util.stream.Stream;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class HdfsSource implements DataTunnelSource<HdfsSourceOption> {
+public class HdfsSource implements DataTunnelSource {
 
     @Override
-    public Dataset<Row> read(DataTunnelSourceContext<HdfsSourceOption> context) throws IOException {
+    public Dataset<Row> read(DataTunnelContext context) throws IOException {
         String userId = context.getSparkSession().conf().get("spark.datawork.job.userId", "");
-        HdfsSourceOption sourceOption = context.getSourceOption();
+        HdfsSourceOption sourceOption = (HdfsSourceOption) context.getSourceOption();
 
         if (StringUtils.isBlank(userId)) {
             throw new DataTunnelException("spark.superior.job.userId 不能为空");

@@ -20,11 +20,11 @@ import static com.superior.datatunnel.api.DataSourceType.HDFS;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class SftpSink implements DataTunnelSink<SftpSinkOption> {
+public class SftpSink implements DataTunnelSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SftpSink.class);
 
-    private void validateOptions(DataTunnelSinkContext<SftpSinkOption> context) {
+    private void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
         if (HDFS == dsType) {
             throw new DataTunnelException("只支持从hdfs读取文件写入sftp");
@@ -32,11 +32,11 @@ public class SftpSink implements DataTunnelSink<SftpSinkOption> {
     }
 
     @Override
-    public void sink(Dataset<Row> dataset, DataTunnelSinkContext<SftpSinkOption> context) throws IOException {
+    public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         validateOptions(context);
 
         ChannelSftp channelSftp = SftpUtils.setupJsch(context.getSparkSession(), context.getSinkOption().getParams());
-        SftpSinkOption sinkOption = context.getSinkOption();
+        SftpSinkOption sinkOption = (SftpSinkOption) context.getSinkOption();
         try {
             FileSystem fileSystem = FileSystem.get(context.getSparkSession().sparkContext().hadoopConfiguration());
             String remotePath = sinkOption.getPath();
@@ -72,7 +72,7 @@ public class SftpSink implements DataTunnelSink<SftpSinkOption> {
                         SftpUtils.rename(channelSftp, tmpName, filename);
 
                         stopWatch.stop();
-                        LogUtils.info(path.getName() + " 文件上传成功, 耗时: " + stopWatch.toString());
+                        LogUtils.info(path.getName() + " 文件上传成功, 耗时: " + stopWatch);
                     }
                 } catch (Exception e) {
                     throw new DataTunnelException("上传文件失败: " + e.getMessage(), e);

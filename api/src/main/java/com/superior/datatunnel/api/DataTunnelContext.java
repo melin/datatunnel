@@ -7,8 +7,9 @@ import lombok.Getter;
 import org.apache.spark.sql.SparkSession;
 
 @Data
-public class DataTunnelSourceContext<T extends SourceOption> {
-    private T sourceOption;
+public class DataTunnelContext {
+
+    private SourceOption sourceOption;
 
     private SinkOption sinkOption;
 

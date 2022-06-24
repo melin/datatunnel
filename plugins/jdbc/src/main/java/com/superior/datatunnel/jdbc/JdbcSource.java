@@ -12,9 +12,9 @@ import java.io.IOException;
 /**
  * @author melin 2021/7/27 11:06 上午O
  */
-public class JdbcSource implements DataTunnelSource<JdbcSourceOption> {
+public class JdbcSource implements DataTunnelSource {
 
-    public void validateOptions(DataTunnelSourceContext<JdbcSourceOption> context) {
+    public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
 
         if (!DataSourceType.isJdbcDataSource(dsType)) {
@@ -23,10 +23,10 @@ public class JdbcSource implements DataTunnelSource<JdbcSourceOption> {
     }
 
     @Override
-    public Dataset<Row> read(DataTunnelSourceContext<JdbcSourceOption> context) throws IOException {
+    public Dataset<Row> read(DataTunnelContext context) throws IOException {
         validateOptions(context);
 
-        JdbcSourceOption sourceOption = context.getSourceOption();
+        JdbcSourceOption sourceOption = (JdbcSourceOption) context.getSourceOption();
         DataSourceType dsType = sourceOption.getDataSourceType();
 
         String databaseName = sourceOption.getDatabaseName();

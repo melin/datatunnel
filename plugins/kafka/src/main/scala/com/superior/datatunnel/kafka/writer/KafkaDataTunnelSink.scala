@@ -1,6 +1,6 @@
 package com.superior.datatunnel.kafka.writer
 
-import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSinkContext}
+import com.superior.datatunnel.api.{DataTunnelContext, DataTunnelSink}
 import com.superior.datatunnel.kafka.KafkaSinkOption
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -12,11 +12,12 @@ import scala.util.parsing.json.JSONObject
 /**
  * huaixin 2021/12/7 8:12 PM
  */
-class KafkaDataTunnelSink extends DataTunnelSink[KafkaSinkOption] {
+class KafkaDataTunnelSink extends DataTunnelSink {
 
-  override def sink(dataset: Dataset[Row], context: DataTunnelSinkContext[KafkaSinkOption]): Unit = {
-    val topic = context.getSinkOption.getTopic
-    val options = context.getSinkOption.getParams
+  override def sink(dataset: Dataset[Row], context: DataTunnelContext): Unit = {
+    val sinkOption = context.getSinkOption.asInstanceOf[KafkaSinkOption]
+    val topic = sinkOption.getTopic
+    val options = sinkOption.getParams
 
     options.put("key.serializer", classOf[StringSerializer].getName)
     options.put("value.serializer", classOf[StringSerializer].getName)

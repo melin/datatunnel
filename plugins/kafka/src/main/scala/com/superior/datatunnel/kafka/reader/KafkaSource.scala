@@ -1,10 +1,9 @@
 package com.superior.datatunnel.kafka.reader
 
-import com.superior.datatunnel.api.{DataTunnelException, DataTunnelSource, DataTunnelSourceContext}
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
 import com.superior.datatunnel.hive.HiveSinkOption
 import com.superior.datatunnel.jdbc.JdbcSinkOption
-import com.superior.datatunnel.kafka.KafkaSourceOption
 import com.superior.datatunnel.kafka.util.HudiUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -22,15 +21,15 @@ import scala.collection.JavaConverters._
 /**
  * huaixin 2021/12/29 2:23 PM
  */
-class KafkaSource extends DataTunnelSource[KafkaSourceOption] with Logging {
+class KafkaSource extends DataTunnelSource with Logging {
 
-  override def read(context: DataTunnelSourceContext[KafkaSourceOption]): Dataset[Row] = {
+  override def read(context: DataTunnelContext): Dataset[Row] = {
     val sparkSession = context.getSparkSession
     val tmpTable = "tdl_datax_kafka_" + System.currentTimeMillis()
     KafkaSupport.createStreamTempTable(tmpTable, context.getSourceOption.getParams)
 
     val sinkType = context.getSinkOption.getDataSourceType
-    if ("hive" == sinkType) {
+    if (DataSourceType.HIVE == sinkType) {
       val hiveSinkOption = context.getSinkOption.asInstanceOf[HiveSinkOption]
       val sinkDatabaseName = hiveSinkOption.getDatabaseName
       val sinkTableName = hiveSinkOption.getTableName
@@ -41,7 +40,7 @@ class KafkaSource extends DataTunnelSource[KafkaSourceOption] with Logging {
       val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
         "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
       HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, querySql)
-    } else if ("jdbc" == sinkType) {
+    } else if (DataSourceType.isJdbcDataSource(sinkType)) {
       var connection: Connection = null
       try {
         val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +

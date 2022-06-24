@@ -1,6 +1,6 @@
 package com.superior.datatunnel.hive;
 
-import com.superior.datatunnel.api.DataTunnelSinkContext;
+import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.common.util.CommonUtils;
@@ -13,11 +13,11 @@ import java.io.IOException;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class HiveSink implements DataTunnelSink<HiveSinkOption> {
+public class HiveSink implements DataTunnelSink {
 
     @Override
-    public void sink(Dataset<Row> dataset, DataTunnelSinkContext<HiveSinkOption> context) throws IOException {
-        HiveSinkOption sinkOption = context.getSinkOption();
+    public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
+        HiveSinkOption sinkOption = (HiveSinkOption) context.getSinkOption();
 
         try {
             String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
