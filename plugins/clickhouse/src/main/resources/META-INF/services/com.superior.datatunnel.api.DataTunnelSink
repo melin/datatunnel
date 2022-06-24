@@ -1,1 +1,1 @@
-clickhouse=com.superior.datatunnel.clickhouse.ClickhouseWriter
+clickhouse=com.superior.datatunnel.clickhouse.ClickhouseSink

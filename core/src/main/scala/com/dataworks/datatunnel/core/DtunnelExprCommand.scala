@@ -2,7 +2,8 @@ package com.dataworks.datatunnel.core
 
 import com.superior.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
 import com.gitee.melin.bee.core.extension.ExtensionLoader
-import com.superior.datatunnel.api.{DataTunnelException, DataTunnelSink, DataTunnelSource}
+import com.superior.datatunnel.api.model.{SinkOption, SourceOption}
+import com.superior.datatunnel.api.{DataTunnelException, DataTunnelSink, DataTunnelSinkContext, DataTunnelSource, DataTunnelSourceContext}
 import com.superior.datatunnel.common.util.CommonUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
@@ -33,11 +34,11 @@ case class DtunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableComma
       })
     }
 
-    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource])
-    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink])
+    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource[SourceOption]])
+    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink[SinkOption]])
 
-    var source: DataTunnelSource = null
-    var sink: DataTunnelSink = null
+    var source: DataTunnelSource[SourceOption] = null
+    var sink: DataTunnelSink[SinkOption] = null
     try {
       source = readLoader.getExtension(sourceType)
       if (!"kafka".equals(sourceType)) {
@@ -47,14 +48,21 @@ case class DtunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableComma
       case e: IllegalStateException => throw new RuntimeException(e.getMessage, e)
     }
 
-    source.validateOptions(readOpts)
-    if (!"kafka".equals(sourceType)) {
-      sink.validateOptions(writeOpts)
-    }
+    // @TODO
+    val sourceOption: SourceOption = null
+    val sinkOption: SinkOption = null
 
-    val df = source.read(sparkSession, readOpts)
+    val sourceContext = new DataTunnelSourceContext[SourceOption]
+    sourceContext.setSourceOption(sourceOption)
+    sourceContext.setSinkOption(sinkOption)
+
+    val sinkContext = new DataTunnelSinkContext[SinkOption]
+    sinkContext.setSourceOption(sourceOption)
+    sinkContext.setSinkOption(sinkOption)
+
+    val df = source.read(sourceContext)
     if (!"kafka".equals(sourceType)) {
-      sink.write(sparkSession, df, writeOpts)
+      sink.sink(df, sinkContext)
     }
     Seq.empty[Row]
   }

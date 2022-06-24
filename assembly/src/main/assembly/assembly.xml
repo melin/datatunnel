@@ -25,6 +25,7 @@
                 <exclude>javax.servlet:servlet-api:jar</exclude>
                 <exclude>com.google.guava:guava:jar</exclude>
                 <exclude>com.gitee.melin.bee:bee:jar</exclude>
+                <exclude>org.hibernate:hibernate-validator:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

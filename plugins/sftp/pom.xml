@@ -25,6 +25,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.springml</groupId>
             <artifactId>sftp.client</artifactId>
             <version>1.0.3</version>

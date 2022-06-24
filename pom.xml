@@ -18,7 +18,6 @@
         <module>plugins/elasticsearch</module>
         <module>plugins/sftp</module>
         <module>plugins/hdfs</module>
-        <!--<module>plugins/hbase</module>-->
         <module>plugins/hive</module>
         <module>plugins/jdbc</module>
         <module>plugins/kafka</module>
@@ -34,6 +33,8 @@
         <spark.version>3.3.0</spark.version>
         <spotbugs.version>4.7.0</spotbugs.version>
         <log4j.version>2.17.2</log4j.version>
+
+        <scala-maven-plugin.version>4.6.3</scala-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -109,6 +110,17 @@
             <scope>${libScope}</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.24</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <repositories>
         <repository>

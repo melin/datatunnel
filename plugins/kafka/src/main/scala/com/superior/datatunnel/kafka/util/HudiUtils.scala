@@ -12,8 +12,9 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
-import org.apache.spark.sql.hudi.HoodieSqlUtils
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
+
+import java.util.Locale
 
 /**
  * 多数据源简单适配
@@ -22,11 +23,10 @@ object HudiUtils extends Logging{
 
   private val PARTITION_COL_NAME = "ds,kafka_topic";
 
-  def isHudiTable(spark: SparkSession,
-                  tableName: String,
+  def isHudiTable(tableName: String,
                   database: String): Boolean = {
-    val catalogTable = spark.sessionState.catalog.getTableMetadata(TableIdentifier(tableName, Some(database)))
-    HoodieSqlUtils.isHoodieTable(catalogTable)
+    val table = SparkSession.active.sessionState.catalog.getTableMetadata(TableIdentifier(tableName, Some(database)))
+    table.provider.map(_.toLowerCase(Locale.ROOT)).orNull == "hudi"
   }
 
   private def getHudiTablePrimaryKey(spark: SparkSession,
@@ -34,7 +34,9 @@ object HudiUtils extends Logging{
                                      properties: Map[String, String]): String = {
 
     val qualifiedName = catalogTable.qualifiedName
-    if (HoodieSqlUtils.isHoodieTable(catalogTable)) {
+    val isHudiTable = catalogTable.provider.map(_.toLowerCase(Locale.ROOT)).orNull == "hudi"
+
+    if (isHudiTable) {
       // scalastyle:off hadoopconfiguration
       val hadoopConf = spark.sparkContext.hadoopConfiguration
       // scalastyle:on hadoopconfiguration

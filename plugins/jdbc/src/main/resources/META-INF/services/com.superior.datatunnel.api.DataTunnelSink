@@ -1,1 +1,1 @@
-jdbc=com.superior.datatunnel.jdbc.JdbcWriter
+jdbc=com.superior.datatunnel.jdbc.JdbcSink

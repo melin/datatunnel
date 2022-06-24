@@ -1,1 +1,1 @@
-sftp=com.superior.datatunnel.sftp.SftpReader
+sftp=com.superior.datatunnel.sftp.SftpSource

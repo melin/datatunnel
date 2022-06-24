@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author melin 2021/7/27 11:48 上午
@@ -22,10 +21,7 @@ public class CommonUtils {
     }
 
     @NotNull
-    public static String genOutputSql(Dataset<Row> dataset, Map<String, String> options) throws AnalysisException, IOException {
-        String column = options.get("column");
-        String[] columns = CommonUtils.parseColumn(column).toArray(new String[0]);
-        String tableName = options.get("tableName");
+    public static String genOutputSql(Dataset<Row> dataset, String[] columns, String tableName) throws AnalysisException, IOException {
         String tdlName = "tdl_" + tableName + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);
 

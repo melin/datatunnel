@@ -1,1 +1,1 @@
-log=com.superior.datatunnel.log.LogWriter
+log=com.superior.datatunnel.log.LogSink

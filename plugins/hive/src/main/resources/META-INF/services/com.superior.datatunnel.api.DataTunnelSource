@@ -1,1 +1,1 @@
-hive=com.superior.datatunnel.hive.HiveReader
+hive=com.superior.datatunnel.hive.HiveSource
