@@ -10,22 +10,22 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 
 ### dtunnel sql 语法
 ```sql
-dtunnel source('数据类型名称') options(键值对参数) 
+datatunnel source('数据类型名称') options(键值对参数) 
     transform("action 名称") options(键值对参数)
     sink('数据类型名称') options(键值对参数)
 ```
 
 ### example
 ```sql
-dtunnel source("jdbc") options(
+datatunnel source("jdbc") options(
     username="dataworks",
     password="dataworks2021",
     type="mysql",
     url="jdbc:mysql://10.5.20.20:3306",
     databaseName='dataworks', tableName='dc_datax_datasource', column=["*"])
     sink("hive") options(databaseName="bigdata", tableName='hive_datax_datasource', writeMode='overwrite', column=["*"]);
-    
-dtunnel source("hive") options(
+
+datatunnel source("hive") options(
         databaseName="bigdata", 
         tableName='hive_datax_datasource', 
         column=['id', 'code', 'type', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier'])

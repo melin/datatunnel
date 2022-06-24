@@ -1,30 +1,22 @@
 package com.superior.datatunnel.kafka.writer
 
-import com.superior.datatunnel.api.DataTunnelSink
-import org.apache.commons.lang3.StringUtils
+import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSinkContext}
+import com.superior.datatunnel.kafka.KafkaSinkOption
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.{Dataset, Row}
 
-import java.util
 import scala.collection.JavaConverters._
 import scala.util.parsing.json.JSONObject
 
 /**
  * huaixin 2021/12/7 8:12 PM
  */
-class KafkaDataTunnelSink extends DataTunnelSink {
+class KafkaDataTunnelSink extends DataTunnelSink[KafkaSinkOption] {
 
-  override def validateOptions(options: util.Map[String, String]): Unit = {
-    val topic = options.get("topic")
-    if (StringUtils.isBlank(topic)) throw new IllegalArgumentException("topic 不能为空")
-
-    val servers = options.get("bootstrap.servers")
-    if (StringUtils.isBlank(servers)) throw new IllegalArgumentException("topic不能为空 不能为空")
-  }
-
-  override def write(sparkSession: SparkSession, dataset: Dataset[Row], options: util.Map[String, String]): Unit = {
-    val topic = options.get("topic")
+  override def sink(dataset: Dataset[Row], context: DataTunnelSinkContext[KafkaSinkOption]): Unit = {
+    val topic = context.getSinkOption.getTopic
+    val options = context.getSinkOption.getParams
 
     options.put("key.serializer", classOf[StringSerializer].getName)
     options.put("value.serializer", classOf[StringSerializer].getName)

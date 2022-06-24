@@ -1,12 +1,10 @@
-package com.superior.datatunnel.kafka.reader;
+package com.superior.datatunnel.kafka;
 
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.SourceOption;
-import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
-@Data
 public class KafkaSourceOption extends SourceOption {
 
     @NotBlank(message = "subscribe can not blank")
@@ -15,4 +13,20 @@ public class KafkaSourceOption extends SourceOption {
     @ParamKey("kafka.bootstrap.servers")
     @NotBlank(message = "kafka.bootstrap.servers can not blank")
     private String servers;
+
+    public String getSubscribe() {
+        return subscribe;
+    }
+
+    public void setSubscribe(String subscribe) {
+        this.subscribe = subscribe;
+    }
+
+    public String getServers() {
+        return servers;
+    }
+
+    public void setServers(String servers) {
+        this.servers = servers;
+    }
 }

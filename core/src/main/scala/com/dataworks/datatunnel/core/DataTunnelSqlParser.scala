@@ -118,7 +118,7 @@ class DataxSqlParser (spark: SparkSession,
 
 class DtunnelAstBuilder extends DtunnelStatementBaseVisitor[AnyRef] {
   override def visitDtunnelExpr(ctx: DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
-    DtunnelExprCommand(ctx: DtunnelExprContext)
+    DataTunnelExprCommand(ctx: DtunnelExprContext)
   }
 
   override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan = withOrigin(ctx) {

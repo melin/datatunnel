@@ -21,6 +21,7 @@
         <module>plugins/hive</module>
         <module>plugins/jdbc</module>
         <module>plugins/kafka</module>
+        <module>examples</module>
     </modules>
 
     <properties>

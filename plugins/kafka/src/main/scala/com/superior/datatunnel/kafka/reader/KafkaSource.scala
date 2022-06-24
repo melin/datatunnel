@@ -4,12 +4,13 @@ import com.superior.datatunnel.api.{DataTunnelException, DataTunnelSource, DataT
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
 import com.superior.datatunnel.hive.HiveSinkOption
 import com.superior.datatunnel.jdbc.JdbcSinkOption
+import com.superior.datatunnel.kafka.KafkaSourceOption
 import com.superior.datatunnel.kafka.util.HudiUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
-import org.apache.spark.sql.jdbc.{JdbcDialects}
+import org.apache.spark.sql.jdbc.JdbcDialects
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SaveMode, SparkSession}
 

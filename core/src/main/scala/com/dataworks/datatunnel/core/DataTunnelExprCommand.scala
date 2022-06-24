@@ -13,7 +13,7 @@ import org.apache.spark.sql.{Row, SparkSession}
  *
  * @author melin 2021/6/28 2:23 下午
  */
-case class DtunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
+case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceType = CommonUtils.cleanQuote(ctx.srcName.getText)

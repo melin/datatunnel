@@ -1,7 +1,6 @@
 package com.superior.datatunnel.jdbc;
 
 import com.superior.datatunnel.api.*;
-import com.superior.datatunnel.common.util.AESUtil;
 import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import org.apache.commons.lang3.StringUtils;

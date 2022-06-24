@@ -11,7 +11,7 @@ statement
     ;
 
 dtunnelStatement
-    : DTUNNEL SOURCE '(' srcName=STRING ')' readOpts=sparkOptions
+    : DATATUNNEL SOURCE '(' srcName=STRING ')' readOpts=sparkOptions
         SINK '(' distName=STRING ')' writeOpts=sparkOptions              #dtunnelExpr
     ;
 
@@ -52,7 +52,7 @@ quotedIdentifier
 ALL: 'ALL';
 TRUE: 'TRUE';
 FALSE: 'FALSE';
-DTUNNEL: 'DTUNNEL';
+DATATUNNEL: 'DATATUNNEL';
 SOURCE: 'SOURCE';
 SINK: 'SINK';
 OPTIONS: 'OPTIONS';

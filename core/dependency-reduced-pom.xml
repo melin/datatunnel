@@ -12,7 +12,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>4.5.3</version>
+        <version>${scala-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>scala-compile-first</id>
@@ -465,20 +465,24 @@
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
-      <version>2.6.0-cdh5.15.0</version>
+      <version>3.3.2</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
-          <artifactId>guava</artifactId>
-          <groupId>com.google.guava</groupId>
+          <artifactId>hadoop-shaded-guava</artifactId>
+          <groupId>org.apache.hadoop.thirdparty</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>jetty</artifactId>
-          <groupId>org.mortbay.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
         </exclusion>
         <exclusion>
           <artifactId>jetty-util</artifactId>
-          <groupId>org.mortbay.jetty</groupId>
+          <groupId>org.eclipse.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-util-ajax</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
         </exclusion>
         <exclusion>
           <artifactId>jersey-core</artifactId>
@@ -493,20 +497,12 @@
           <groupId>commons-cli</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-lang</artifactId>
-          <groupId>commons-lang</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>commons-logging</artifactId>
           <groupId>commons-logging</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-daemon</artifactId>
           <groupId>commons-daemon</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jsp-api</artifactId>
-          <groupId>javax.servlet.jsp</groupId>
         </exclusion>
         <exclusion>
           <artifactId>log4j</artifactId>
@@ -517,36 +513,12 @@
           <groupId>com.google.protobuf</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>servlet-api</artifactId>
+          <artifactId>javax.servlet-api</artifactId>
           <groupId>javax.servlet</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-core-asl</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-mapper-asl</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jasper-runtime</artifactId>
-          <groupId>tomcat</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>xmlenc</artifactId>
-          <groupId>xmlenc</groupId>
         </exclusion>
         <exclusion>
           <artifactId>netty</artifactId>
           <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>xercesImpl</artifactId>
-          <groupId>xerces</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>htrace-core4</artifactId>
-          <groupId>org.apache.htrace</groupId>
         </exclusion>
         <exclusion>
           <artifactId>leveldbjni-all</artifactId>
@@ -563,6 +535,10 @@
         <exclusion>
           <artifactId>netty-all</artifactId>
           <groupId>io.netty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jackson-databind</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
         </exclusion>
       </exclusions>
     </dependency>

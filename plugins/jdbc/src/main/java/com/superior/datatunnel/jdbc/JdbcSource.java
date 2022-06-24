@@ -1,7 +1,6 @@
 package com.superior.datatunnel.jdbc;
 
 import com.superior.datatunnel.api.*;
-import com.superior.datatunnel.common.util.AESUtil;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
@@ -11,7 +10,7 @@ import org.apache.spark.sql.Row;
 import java.io.IOException;
 
 /**
- * @author melin 2021/7/27 11:06 上午
+ * @author melin 2021/7/27 11:06 上午O
  */
 public class JdbcSource implements DataTunnelSource<JdbcSourceOption> {
 
