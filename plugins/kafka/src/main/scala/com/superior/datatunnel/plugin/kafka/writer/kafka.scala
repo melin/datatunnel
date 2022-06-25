@@ -4,6 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.streaming.dstream.DStream
 
+import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 /** Implicit conversions between

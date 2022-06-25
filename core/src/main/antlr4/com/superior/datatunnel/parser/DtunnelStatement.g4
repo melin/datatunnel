@@ -11,7 +11,7 @@ statement
 
 dtunnelStatement
     : DATATUNNEL SOURCE '(' sourceName=STRING ')' sourceOpts=sparkOptions
-        SINK '(' sinkName=STRING ')' sinkOpts=sparkOptions                #dtunnelExpr
+        SINK '(' sinkName=STRING ')' (sinkOpts=sparkOptions)?              #dtunnelExpr
     ;
 
 sparkOptions

@@ -3,7 +3,7 @@ package com.superior.datatunnel.plugin.kafka.reader
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
-import com.superior.datatunnel.hive.HiveDataTunnelSinkOption
+import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
 import com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSinkOption
 import com.superior.datatunnel.plugin.kafka.KafkaDataTunnelSourceOption
 import com.superior.datatunnel.plugin.kafka.util.HudiUtils

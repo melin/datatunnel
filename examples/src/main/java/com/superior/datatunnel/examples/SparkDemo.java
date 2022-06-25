@@ -22,7 +22,7 @@ public class SparkDemo {
                 "    host='10.5.20.20',\n" +
                 "    port=3306,\n" +
                 "    databaseName='dataworks', tableName='dc_job', columns=['*'])\n" +
-                "    sink('log') options(numRows = 10)";
+                "    sink('log')";
 
         spark.sql(sql);
     }
