@@ -9,6 +9,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
+import org.apache.commons.lang3.StringUtils
 
 /**
  *
@@ -21,6 +22,8 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
     val sourceOpts = Utils.convertOptions(ctx.sourceOpts)
     val sinkOpts = Utils.convertOptions(ctx.sinkOpts)
+
+    val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null
 
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
     val sinkType = DataSourceType.valueOf(sinkName.toUpperCase)
@@ -52,7 +55,16 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
 
-    val df = source.read(context)
+    var df = source.read(context)
+
+    if (StringUtils.isBlank(sourceOption.getResultTableName)
+      && StringUtils.isNotBlank(transfromSql)) {
+      throw new IllegalArgumentException("transfrom 存在，source 必须指定 resultTableName")
+    } else if (StringUtils.isNotBlank(transfromSql)) {
+      df.createTempView(sourceOption.getResultTableName)
+      df = SparkSession.active.sql(transfromSql)
+    }
+
     if (KAFKA != sourceType) {
       sink.sink(df, context)
     }

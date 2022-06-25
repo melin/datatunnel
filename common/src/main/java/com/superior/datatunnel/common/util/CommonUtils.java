@@ -77,6 +77,10 @@ public class CommonUtils {
     }
 
     public static String cleanQuote(String value) {
+        if (value == null) {
+            return null;
+        }
+
         String result;
         if (StringUtils.startsWith(value, "'") && StringUtils.endsWith(value, "'")) {
             result = StringUtils.substring(value, 1, -1);

@@ -15,13 +15,12 @@ import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException,
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
-import org.apache.spark.sql.execution.command.ExplainCommand
 import org.apache.spark.sql.types.{DataType, StructType}
 
 /**
  * huaixin 2021/12/27 2:48 PM
  */
-class DataxSqlParser (spark: SparkSession,
+class DataTunnelSqlParser (spark: SparkSession,
                       val delegate: ParserInterface) extends ParserInterface with Logging {
 
   private val builder = new DtunnelAstBuilder()
@@ -129,6 +128,7 @@ class DataxSqlParser (spark: SparkSession,
 }
 
 class DtunnelAstBuilder extends DtunnelStatementBaseVisitor[AnyRef] {
+
   override def visitDtunnelExpr(ctx: DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
     DataTunnelExprCommand(ctx: DtunnelExprContext)
   }

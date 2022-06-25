@@ -6,4 +6,6 @@ import lombok.Data;
 @Data
 public abstract class DataTunnelSourceOption extends DataTunnelOption {
     private DataSourceType dataSourceType;
+
+    private String resultTableName;
 }

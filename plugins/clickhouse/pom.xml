@@ -29,6 +29,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.housepower</groupId>
+            <artifactId>clickhouse-spark-runtime-3.3_2.12</artifactId>
+            <version>0.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>

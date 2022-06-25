@@ -11,6 +11,7 @@ statement
 
 dtunnelStatement
     : DATATUNNEL SOURCE '(' sourceName=STRING ')' sourceOpts=sparkOptions
+        (TRANSFORM EQ transfromSql=STRING)?
         SINK '(' sinkName=STRING ')' (sinkOpts=sparkOptions)?              #dtunnelExpr
     ;
 
@@ -55,6 +56,7 @@ FALSE: 'FALSE';
 DATATUNNEL: 'DATATUNNEL';
 SOURCE: 'SOURCE';
 SINK: 'SINK';
+TRANSFORM: 'TRANSFORM';
 OPTIONS: 'OPTIONS';
 
 EQ  : '=' | '==';
