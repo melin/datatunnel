@@ -1,1 +1,1 @@
-hive=com.superior.datatunnel.hive.HiveDataTunnelSource
+hive=com.superior.datatunnel.plugin.hive.HiveDataTunnelSource

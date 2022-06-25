@@ -1,1 +1,1 @@
-clickhouse=com.superior.datatunnel.clickhouse.ClickhouseDataTunnelSink
+clickhouse=com.superior.datatunnel.plugin.clickhouse.ClickhouseDataTunnelSink

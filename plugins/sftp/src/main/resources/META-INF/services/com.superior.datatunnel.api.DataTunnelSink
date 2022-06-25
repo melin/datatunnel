@@ -1,1 +1,1 @@
-sftp=com.superior.datatunnel.sftp.SftpDataTunnelSink
+sftp=com.superior.datatunnel.plugin.sftp.SftpDataTunnelSink

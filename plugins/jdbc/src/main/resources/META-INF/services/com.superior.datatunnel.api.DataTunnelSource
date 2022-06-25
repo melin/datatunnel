@@ -1,5 +1,5 @@
-mysql=com.superior.datatunnel.jdbc.JdbcDataTunnelSource
-oracle=com.superior.datatunnel.jdbc.JdbcDataTunnelSource
-db2=com.superior.datatunnel.jdbc.JdbcDataTunnelSource
-sqlserver=com.superior.datatunnel.jdbc.JdbcDataTunnelSource
-postgresql=com.superior.datatunnel.jdbc.JdbcDataTunnelSource
+mysql=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
+oracle=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
+db2=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
+sqlserver=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
+postgresql=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
