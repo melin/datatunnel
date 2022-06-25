@@ -1,12 +1,12 @@
 package com.superior.datatunnel.elasticsearch;
 
-import com.superior.datatunnel.api.model.SinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class EsSinkOption extends SinkOption {
+public class EsDataTunnelSinkOption extends DataTunnelSinkOption {
 
     @NotBlank(message = "hosts can not blank")
     private String hosts;

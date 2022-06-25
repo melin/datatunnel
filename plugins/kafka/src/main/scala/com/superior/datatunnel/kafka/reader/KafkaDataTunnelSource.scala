@@ -1,9 +1,11 @@
 package com.superior.datatunnel.kafka.reader
 
+import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
-import com.superior.datatunnel.hive.HiveSinkOption
-import com.superior.datatunnel.jdbc.JdbcSinkOption
+import com.superior.datatunnel.hive.HiveDataTunnelSinkOption
+import com.superior.datatunnel.jdbc.JdbcDataTunnelSinkOption
+import com.superior.datatunnel.kafka.KafkaDataTunnelSourceOption
 import com.superior.datatunnel.kafka.util.HudiUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -21,7 +23,7 @@ import scala.collection.JavaConverters._
 /**
  * huaixin 2021/12/29 2:23 PM
  */
-class KafkaSource extends DataTunnelSource with Logging {
+class KafkaDataTunnelSource extends DataTunnelSource with Logging {
 
   override def read(context: DataTunnelContext): Dataset[Row] = {
     val sparkSession = context.getSparkSession
@@ -30,7 +32,7 @@ class KafkaSource extends DataTunnelSource with Logging {
 
     val sinkType = context.getSinkOption.getDataSourceType
     if (DataSourceType.HIVE == sinkType) {
-      val hiveSinkOption = context.getSinkOption.asInstanceOf[HiveSinkOption]
+      val hiveSinkOption = context.getSinkOption.asInstanceOf[HiveDataTunnelSinkOption]
       val sinkDatabaseName = hiveSinkOption.getDatabaseName
       val sinkTableName = hiveSinkOption.getTableName
 
@@ -50,7 +52,7 @@ class KafkaSource extends DataTunnelSource with Logging {
         val tdlName = "tdl_datax_" + System.currentTimeMillis
         dataset.createTempView(tdlName)
 
-        val jdbcSinkOption = context.getSinkOption.asInstanceOf[JdbcSinkOption]
+        val jdbcSinkOption = context.getSinkOption.asInstanceOf[JdbcDataTunnelSinkOption]
         val sinkDatabaseName = jdbcSinkOption.getDatabaseName
         val sinkTableName = jdbcSinkOption.getTableName
         val table = sinkDatabaseName + "." + sinkTableName
@@ -113,6 +115,8 @@ class KafkaSource extends DataTunnelSource with Logging {
 
     null
   }
+
+  override def getOptionClass: Class[_ <: DataTunnelSourceOption] = classOf[KafkaDataTunnelSourceOption]
 
   private def buildConnection(url: String, dbtable: String, params: util.Map[String, String]): Connection = {
     val options = new JDBCOptions(url, dbtable, params.asScala.toMap)

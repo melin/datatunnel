@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.gitee.melin.bee</groupId>
             <artifactId>bee</artifactId>
-            <version>1.2.0</version>
+            <version>${bee.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

@@ -1,6 +1,6 @@
 package com.superior.datatunnel.jdbc;
 
-import com.superior.datatunnel.api.model.SinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class JdbcSinkOption extends SinkOption {
+public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
 
     @NotBlank(message = "databaseName can not blank")
     private String databaseName;
@@ -33,15 +33,9 @@ public class JdbcSinkOption extends SinkOption {
 
     private String schema;
 
-    private int batchsize = 1000;
+    private int fetchSize = 1000;
 
     private int queryTimeout = 0;
 
-    private String writeMode = "append";
-
-    private boolean truncate = false;
-
-    private String preSql;
-
-    private String postSql;
+    private String condition;
 }

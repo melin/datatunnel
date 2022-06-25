@@ -6,6 +6,7 @@ import com.superior.datatunnel.parser.{DtunnelStatementBaseVisitor, DtunnelState
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}
+import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{AnalysisException, SparkSession}
 import org.apache.spark.sql.catalyst.expressions.Expression
@@ -14,6 +15,7 @@ import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException,
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
+import org.apache.spark.sql.execution.command.ExplainCommand
 import org.apache.spark.sql.types.{DataType, StructType}
 
 /**
@@ -24,19 +26,29 @@ class DataxSqlParser (spark: SparkSession,
 
   private val builder = new DtunnelAstBuilder()
 
-  override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
+  override def parsePlan(sqlText: String): LogicalPlan = {
     val sql = CommonUtils.cleanSqlComment(sqlText)
-    builder.visit(parser.singleStatement()) match {
-      case plan: LogicalPlan => plan
-      case _ => delegate.parsePlan(sql)
+    if (StringUtils.startsWithIgnoreCase(sqlText, "datatunnel")) {
+      parse(sql) { parser => builder.visit(parser.singleStatement()) }.asInstanceOf[LogicalPlan]
+    } else {
+      val parsedPlan = delegate.parsePlan(sqlText)
+      parsedPlan match {
+        case plan: LogicalPlan => plan
+        case _ => delegate.parsePlan(sql)
+      }
     }
   }
 
-  override def parseQuery(sqlText: String): LogicalPlan =  parse(sqlText) { parser =>
+  override def parseQuery(sqlText: String): LogicalPlan = {
     val sql = CommonUtils.cleanSqlComment(sqlText)
-    builder.visit(parser.singleStatement()) match {
-      case plan: LogicalPlan => plan
-      case _ => delegate.parseQuery(sql)
+    if (StringUtils.startsWithIgnoreCase(sqlText, "datatunnel")) {
+      parse(sql) { parser => builder.visit(parser.singleStatement()) }.asInstanceOf[LogicalPlan]
+    } else {
+      val parsedPlan = delegate.parseQuery(sqlText)
+      parsedPlan match {
+        case plan: LogicalPlan => plan
+        case _ => delegate.parseQuery(sql)
+      }
     }
   }
 

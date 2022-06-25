@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class Option {
+public abstract class DataTunnelOption {
 
     public Map<String, String> getParams() {
         try {

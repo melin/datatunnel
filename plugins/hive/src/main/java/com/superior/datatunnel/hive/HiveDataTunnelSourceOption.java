@@ -1,13 +1,13 @@
 package com.superior.datatunnel.hive;
 
-import com.superior.datatunnel.api.model.SinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 @Data
-public class HiveSinkOption extends SinkOption {
+public class HiveDataTunnelSourceOption extends DataTunnelSourceOption {
 
     @NotBlank(message = "databaseName can not blank")
     private String databaseName;
@@ -18,7 +18,5 @@ public class HiveSinkOption extends SinkOption {
     @NotEmpty(message = "columns can not empty")
     private String[] columns;
 
-    private String partition;
-
-    private String writeMode = "append";
+    private String condition;
 }

@@ -2,12 +2,13 @@ package com.dataworks.datatunnel.core
 
 import com.superior.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
 import com.gitee.melin.bee.core.extension.ExtensionLoader
-import com.superior.datatunnel.api.model.{SinkOption, SourceOption}
+import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSink, DataTunnelSource}
 import com.superior.datatunnel.common.util.CommonUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}
+import com.superior.datatunnel.api.DataSourceType._
 
 /**
  *
@@ -24,34 +25,35 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
     val sinkType = DataSourceType.valueOf(sinkName.toUpperCase)
 
-    if ("kafka".equals(sourceType) && !("hive".equals(sinkType) || "jdbc".equals(sinkType))) {
+    if (KAFKA == sourceType && !(HIVE == sinkType || DataSourceType.isJdbcDataSource(sinkType))) {
       throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 
     val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource])
     val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink])
 
-    var source: DataTunnelSource = null
+    var source: DataTunnelSource = null;
     var sink: DataTunnelSink = null
     try {
       source = readLoader.getExtension(sourceName)
-      if (!"kafka".equals(sourceType)) {
+      if (KAFKA != sourceType) {
         sink = writeLoader.getExtension(sinkName)
       }
     } catch {
       case e: IllegalStateException => throw new RuntimeException(e.getMessage, e)
     }
 
-    // @TODO
-    val sourceOption: SourceOption = null
-    val sinkOption: SinkOption = null
+    val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, source.getOptionClass)
+    sourceOption.setDataSourceType(sourceType)
+    val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass)
+    sinkOption.setDataSourceType(sinkType)
 
     val context = new DataTunnelContext
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
 
     val df = source.read(context)
-    if (!"kafka".equals(sourceType)) {
+    if (KAFKA != sourceType) {
       sink.sink(df, context)
     }
     Seq.empty[Row]

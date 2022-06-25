@@ -1,7 +1,9 @@
 package com.superior.datatunnel.common.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.gitee.melin.bee.util.MapperUtils;
 import com.google.common.collect.Lists;
+import com.superior.datatunnel.api.DataTunnelException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
@@ -9,15 +11,46 @@ import org.apache.spark.sql.Row;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author melin 2021/7/27 11:48 上午
  */
 public class CommonUtils {
 
-    public static List<String> parseColumn(String column) throws IOException {
-        return MapperUtils.toJavaListObject(column, String.class);
+    public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz) throws Exception {
+        T beanInstance = clazz.getConstructor().newInstance();
+        for (String fieldName : map.keySet()) {
+            String value = map.get(fieldName);
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                if (field.getType() == String.class) {
+                    field.set(beanInstance, value);
+                } else if (field.getType() == Integer.class || field.getType() == int.class) {
+                    field.set(beanInstance, Integer.parseInt(value));
+                } else if (field.getType() == Long.class || field.getType() == long.class) {
+                    field.set(beanInstance, Long.parseLong(value));
+                } else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
+                    field.set(beanInstance, Boolean.valueOf(value));
+                } else if (field.getType() == Float.class || field.getType() == float.class) {
+                    field.set(beanInstance, Float.parseFloat(value));
+                } else if (field.getType() == Double.class || field.getType() == double.class) {
+                    field.set(beanInstance, Double.parseDouble(value));
+                } else if (field.getType() == String[].class) {
+                    field.set(beanInstance, MapperUtils.toJavaObject(value, new TypeReference<String[]>() {}));
+                } else {
+                    throw new IllegalStateException(fieldName + " not support data type: " + field.getType());
+                }
+
+                field.setAccessible(false);
+            } catch (NoSuchFieldException e) {
+                throw new DataTunnelException("no such param: " + fieldName);
+            }
+        }
+        return beanInstance;
     }
 
     @NotNull
@@ -58,10 +91,6 @@ public class CommonUtils {
 
     /**
      * 清除sql中多行和单行注释
-     * http://daimojingdeyu.iteye.com/blog/382720
-     *
-     * @param sql
-     * @return
      */
     public static String cleanSqlComment(String sql) {
         boolean singleLineComment = false;

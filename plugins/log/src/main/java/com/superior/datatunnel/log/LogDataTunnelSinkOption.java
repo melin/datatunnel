@@ -1,10 +1,10 @@
 package com.superior.datatunnel.log;
 
-import com.superior.datatunnel.api.model.SinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import lombok.Data;
 
 @Data
-public class LogSinkOption extends SinkOption {
+public class LogDataTunnelSinkOption extends DataTunnelSinkOption {
 
     /**
      * Number of rows to show

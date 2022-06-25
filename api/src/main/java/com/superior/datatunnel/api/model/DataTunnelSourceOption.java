@@ -4,6 +4,6 @@ import com.superior.datatunnel.api.DataSourceType;
 import lombok.Data;
 
 @Data
-public abstract class SinkOption extends Option {
+public abstract class DataTunnelSourceOption extends DataTunnelOption {
     private DataSourceType dataSourceType;
 }

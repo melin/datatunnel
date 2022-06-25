@@ -1,11 +1,11 @@
 package com.superior.datatunnel.kafka;
 
 import com.superior.datatunnel.api.ParamKey;
-import com.superior.datatunnel.api.model.SourceOption;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 
 import javax.validation.constraints.NotBlank;
 
-public class KafkaSourceOption extends SourceOption {
+public class KafkaDataTunnelSourceOption extends DataTunnelSourceOption {
 
     @NotBlank(message = "subscribe can not blank")
     private String subscribe;

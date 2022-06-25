@@ -1,6 +1,7 @@
 package com.superior.datatunnel.jdbc;
 
 import com.superior.datatunnel.api.*;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
@@ -12,7 +13,7 @@ import java.io.IOException;
 /**
  * @author melin 2021/7/27 11:06 上午O
  */
-public class JdbcSource implements DataTunnelSource {
+public class JdbcDataTunnelSource implements DataTunnelSource {
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
@@ -26,7 +27,7 @@ public class JdbcSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         validateOptions(context);
 
-        JdbcSourceOption sourceOption = (JdbcSourceOption) context.getSourceOption();
+        JdbcDataTunnelSourceOption sourceOption = (JdbcDataTunnelSourceOption) context.getSourceOption();
         DataSourceType dsType = sourceOption.getDataSourceType();
 
         String databaseName = sourceOption.getDatabaseName();
@@ -74,5 +75,10 @@ public class JdbcSource implements DataTunnelSource {
         } catch (AnalysisException e) {
             throw new DataTunnelException(e.message(), e);
         }
+    }
+
+    @Override
+    public Class<? extends DataTunnelSourceOption> getOptionClass() {
+        return JdbcDataTunnelSourceOption.class;
     }
 }

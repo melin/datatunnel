@@ -1,1 +1,1 @@
-hdfs=com.superior.datatunnel.hdfs.HdfsSource
+hdfs=com.superior.datatunnel.hdfs.HdfsDataTunnelSource

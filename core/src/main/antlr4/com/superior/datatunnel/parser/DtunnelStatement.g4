@@ -4,7 +4,6 @@ singleStatement
     : statement EOF
     ;
 
-// If you add keywords here that should not be reserved, add them to 'nonReserved' list.
 statement
     : dtunnelStatement                                                     #dtunnelCommand
     | .*?                                                                  #passThrough
@@ -41,12 +40,13 @@ booleanValue
     ;
 
 identifier
-    : IDENTIFIER              #unquotedIdentifier
-    | quotedIdentifier        #quotedIdentifierAlternative
+    : IDENTIFIER    #unquotedIdentifier
+    | STRING        #quotedIdentifierAlternative
     ;
 
-quotedIdentifier
-    : BACKQUOTED_IDENTIFIER
+STRING
+    : '\'' ( ~('\''|'\\') | ('\\' .) )* '\''
+    | '"' ( ~('"'|'\\') | ('\\' .) )* '"'
     ;
 
 ALL: 'ALL';
@@ -59,13 +59,16 @@ OPTIONS: 'OPTIONS';
 
 EQ  : '=' | '==';
 
-STRING
-    : '\'' ( ~('\''|'\\') | ('\\' .) )* '\''
-    | '"' ( ~('"'|'\\') | ('\\' .) )* '"'
+BIGINT_LITERAL
+    : DIGIT+ 'L'
     ;
 
-IDENTIFIER
-    : (LETTER | DIGIT | '_')+
+SMALLINT_LITERAL
+    : DIGIT+ 'S'
+    ;
+
+TINYINT_LITERAL
+    : DIGIT+ 'Y'
     ;
 
 INTEGER_VALUE
@@ -77,13 +80,12 @@ DECIMAL_VALUE
     | DECIMAL_DIGITS EXPONENT?
     ;
 
-DOUBLE_LITERAL
-    : DIGIT+ EXPONENT? 'D'
-    | DECIMAL_DIGITS EXPONENT? 'D'
+IDENTIFIER
+    : (LETTER | DIGIT | '_')+
     ;
 
-BACKQUOTED_IDENTIFIER
-    : '`' ( ~'`' | '``' )* '`'
+fragment EXPONENT
+    : 'E' [+-]? DIGIT+
     ;
 
 fragment DECIMAL_DIGITS
@@ -91,8 +93,14 @@ fragment DECIMAL_DIGITS
     | '.' DIGIT+
     ;
 
-fragment EXPONENT
-    : 'E' [+-]? DIGIT+
+DOUBLE_LITERAL
+    : DIGIT+ EXPONENT? 'D'
+    | DECIMAL_DIGITS EXPONENT? 'D'
+    ;
+
+BIGDECIMAL_LITERAL
+    : DIGIT+ EXPONENT? 'BD'
+    | DECIMAL_DIGITS EXPONENT? 'BD'
     ;
 
 fragment DIGIT
@@ -100,15 +108,21 @@ fragment DIGIT
     ;
 
 fragment LETTER
-    : [A-Z]
+    : [a-zA-Z]
+    | ~[\u0000-\u007F\uD800-\uDBFF] // covers all characters above 0x7F which are not a surrogate
+    | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
 
-WS  : [ \r\n\t]+ -> channel(HIDDEN)
+SIMPLE_COMMENT
+    : '--' ('\\\n' | ~[\r\n])* '\r'? '\n'? -> channel(HIDDEN)
     ;
 
-// Catch-all for anything we can't recognize.
-// We use this to be able to ignore and recover all the text
-// when splitting statements with DelimiterLexer
-UNRECOGNIZED
-    : .
+BRACKETED_EMPTY_COMMENT
+    : '/**/' -> channel(HIDDEN)
     ;
+
+BRACKETED_COMMENT
+    : '/*' ~[+] .*? '*/' -> channel(HIDDEN)
+    ;
+
+WS  : [ \r\n\t] + -> skip ;

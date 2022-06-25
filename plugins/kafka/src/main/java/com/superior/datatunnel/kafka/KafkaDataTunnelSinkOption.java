@@ -1,13 +1,13 @@
 package com.superior.datatunnel.kafka;
 
 import com.superior.datatunnel.api.ParamKey;
-import com.superior.datatunnel.api.model.SinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class KafkaSinkOption extends SinkOption {
+public class KafkaDataTunnelSinkOption extends DataTunnelSinkOption {
 
     @NotBlank(message = "topic can not blank")
     private String topic;

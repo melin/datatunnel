@@ -1,13 +1,13 @@
 package com.superior.datatunnel.sftp;
 
-import com.superior.datatunnel.api.model.SinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class SftpSinkOption extends SinkOption {
+public class SftpDataTunnelSourceOption extends DataTunnelSourceOption {
 
     @NotBlank(message = "path can not blank")
     private String path;
@@ -28,5 +28,4 @@ public class SftpSinkOption extends SinkOption {
 
     private String passPhrase;
 
-    private boolean overwrite;
 }

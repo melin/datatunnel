@@ -1,1 +1,1 @@
-sftp=com.superior.datatunnel.sftp.SftpSink
+sftp=com.superior.datatunnel.sftp.SftpDataTunnelSink

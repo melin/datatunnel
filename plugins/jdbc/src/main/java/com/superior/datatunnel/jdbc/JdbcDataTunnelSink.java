@@ -1,6 +1,7 @@
 package com.superior.datatunnel.jdbc;
 
 import com.superior.datatunnel.api.*;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +22,9 @@ import static com.superior.datatunnel.common.util.JdbcUtils.*;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class JdbcSink implements DataTunnelSink {
+public class JdbcDataTunnelSink implements DataTunnelSink {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSink.class);
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSinkOption().getDataSourceType();
@@ -37,7 +38,7 @@ public class JdbcSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         validateOptions(context);
 
-        JdbcSinkOption sinkOption = (JdbcSinkOption) context.getSinkOption();
+        JdbcDataTunnelSinkOption sinkOption = (JdbcDataTunnelSinkOption) context.getSinkOption();
         DataSourceType dsType = sinkOption.getDataSourceType();
 
         Connection connection = null;
@@ -101,7 +102,7 @@ public class JdbcSink implements DataTunnelSink {
         }
     }
 
-    private Connection buildConnection(String url, String dbtable, JdbcSinkOption sinkOption) {
+    private Connection buildConnection(String url, String dbtable, JdbcDataTunnelSinkOption sinkOption) {
         Map<String, String> params = sinkOption.getParams();
         params.put("user", sinkOption.getUsername());
         JDBCOptions options = new JDBCOptions(url, dbtable,
@@ -109,5 +110,10 @@ public class JdbcSink implements DataTunnelSink {
 
         JdbcDialect dialect = JdbcDialects.get(url);
         return dialect.createConnectionFactory(options).apply(-1);
+    }
+
+    @Override
+    public Class<? extends DataTunnelSinkOption> getOptionClass() {
+        return JdbcDataTunnelSinkOption.class;
     }
 }

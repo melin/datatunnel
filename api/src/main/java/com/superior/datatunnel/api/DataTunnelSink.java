@@ -1,6 +1,7 @@
 package com.superior.datatunnel.api;
 
 import com.gitee.melin.bee.core.extension.SPI;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -14,4 +15,6 @@ import java.io.Serializable;
 public interface DataTunnelSink extends Serializable {
 
     void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException;
+
+    Class<? extends DataTunnelSinkOption> getOptionClass();
 }

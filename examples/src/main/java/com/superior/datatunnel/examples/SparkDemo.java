@@ -14,16 +14,15 @@ public class SparkDemo {
                 .config("spark.sql.parquet.compression.codec", "zstd")
                 .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
                 .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
-
                 .getOrCreate();
 
-        String sql = "datatunnel source(\"jdbc\") options(\n" +
-                "    username=\"dataworks\",\n" +
-                "    password=\"dataworks2021\",\n" +
-                "    type=\"mysql\",\n" +
-                "    url=\"jdbc:mysql://10.5.20.20:3306\",\n" +
-                "    databaseName='dataworks', tableName='dc_datax_datasource', column=[\"*\"])\n" +
-                "    sink(\"log\") options(sa='dd')";
+        String sql = "datatunnel source('mysql') options(\n" +
+                "    username='dataworks',\n" +
+                "    password='dataworks2021',\n" +
+                "    host='10.5.20.20',\n" +
+                "    port=3306,\n" +
+                "    databaseName='dataworks', tableName='dc_job', columns=['*'])\n" +
+                "    sink('log') options(numRows = 10)";
 
         spark.sql(sql);
     }

@@ -1,1 +1,1 @@
-hive=com.superior.datatunnel.hive.HiveSink
+hive=com.superior.datatunnel.hive.HiveDataTunnelSink

@@ -1,6 +1,7 @@
 package com.superior.datatunnel.sftp;
 
 import com.superior.datatunnel.api.*;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.sftp.util.SftpUtils;
 import com.github.melin.superior.jobserver.api.LogUtils;
 import com.jcraft.jsch.ChannelSftp;
@@ -20,9 +21,9 @@ import static com.superior.datatunnel.api.DataSourceType.HDFS;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class SftpSink implements DataTunnelSink {
+public class SftpDataTunnelSink implements DataTunnelSink {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SftpSink.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SftpDataTunnelSink.class);
 
     private void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
@@ -36,7 +37,7 @@ public class SftpSink implements DataTunnelSink {
         validateOptions(context);
 
         ChannelSftp channelSftp = SftpUtils.setupJsch(context.getSparkSession(), context.getSinkOption().getParams());
-        SftpSinkOption sinkOption = (SftpSinkOption) context.getSinkOption();
+        SftpDataTunnelSinkOption sinkOption = (SftpDataTunnelSinkOption) context.getSinkOption();
         try {
             FileSystem fileSystem = FileSystem.get(context.getSparkSession().sparkContext().hadoopConfiguration());
             String remotePath = sinkOption.getPath();
@@ -85,4 +86,8 @@ public class SftpSink implements DataTunnelSink {
         }
     }
 
+    @Override
+    public Class<? extends DataTunnelSinkOption> getOptionClass() {
+        return SftpDataTunnelSinkOption.class;
+    }
 }

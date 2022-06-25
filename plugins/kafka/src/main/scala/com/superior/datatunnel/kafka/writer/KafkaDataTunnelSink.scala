@@ -1,7 +1,8 @@
 package com.superior.datatunnel.kafka.writer
 
+import com.superior.datatunnel.api.model.DataTunnelSinkOption
 import com.superior.datatunnel.api.{DataTunnelContext, DataTunnelSink}
-import com.superior.datatunnel.kafka.KafkaSinkOption
+import com.superior.datatunnel.kafka.KafkaDataTunnelSinkOption
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.sql.{Dataset, Row}
@@ -15,7 +16,7 @@ import scala.util.parsing.json.JSONObject
 class KafkaDataTunnelSink extends DataTunnelSink {
 
   override def sink(dataset: Dataset[Row], context: DataTunnelContext): Unit = {
-    val sinkOption = context.getSinkOption.asInstanceOf[KafkaSinkOption]
+    val sinkOption = context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
     val topic = sinkOption.getTopic
     val options = sinkOption.getParams
 
@@ -38,4 +39,6 @@ class KafkaDataTunnelSink extends DataTunnelSink {
       JSONObject(m).toString()
     }
   }
+
+  override def getOptionClass: Class[_ <: DataTunnelSinkOption] = classOf[KafkaDataTunnelSinkOption]
 }
