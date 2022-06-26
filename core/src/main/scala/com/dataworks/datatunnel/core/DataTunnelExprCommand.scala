@@ -1,7 +1,9 @@
 package com.dataworks.datatunnel.core
 
-import com.superior.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
+import com.superior.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, SparkOptionsContext}
 import com.gitee.melin.bee.core.extension.ExtensionLoader
+import com.gitee.melin.bee.util.MapperUtils
+import com.google.common.collect.Maps
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.api._
 import com.superior.datatunnel.common.util.CommonUtils
@@ -11,8 +13,8 @@ import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
 import org.apache.commons.lang3.StringUtils
 
+import java.util
 import scala.collection.JavaConverters._
-
 import javax.validation.{Validation, Validator, ValidatorFactory}
 
 /**
@@ -28,8 +30,8 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
     val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
-    val sourceOpts = Utils.convertOptions(ctx.sourceOpts)
-    val sinkOpts = Utils.convertOptions(ctx.sinkOpts)
+    val sourceOpts = convertOptions(sparkSession, ctx.sourceOpts)
+    val sinkOpts = convertOptions(sparkSession, ctx.sinkOpts)
 
     val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null
 
@@ -59,6 +61,7 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass)
     sinkOption.setDataSourceType(sinkType)
 
+    // 校验 Option
     val sourceViolations = validator.validate(sourceOption)
     if (!sourceViolations.isEmpty) {
       val msg = sourceViolations.asScala.map(validator => validator.getMessage).mkString("\n")
@@ -81,12 +84,34 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
       throw new IllegalArgumentException("transfrom 存在，source 必须指定 resultTableName")
     } else if (StringUtils.isNotBlank(transfromSql)) {
       df.createTempView(sourceOption.getResultTableName)
-      df = SparkSession.active.sql(transfromSql)
+      df = sparkSession.sql(transfromSql)
     }
 
     if (KAFKA != sourceType) {
       sink.sink(df, context)
     }
     Seq.empty[Row]
+  }
+
+  def convertOptions(sparkSession: SparkSession, ctx: SparkOptionsContext): util.HashMap[String, String] = {
+    val options: util.HashMap[String, String] = Maps.newHashMap()
+    if (ctx != null) {
+      for (entry <- ctx.optionVal().asScala) {
+        val key = CommonUtils.cleanQuote(entry.optionKey().getText)
+        val value = CommonUtils.cleanQuote(entry.optionValue().getText)
+        options.put(key, value);
+      }
+    }
+
+    // superior 通过 datasourceCode 获取数据源链接信息.
+    if (options.containsKey("datasourceCode")) {
+      val code = options.containsKey("datasourceCode")
+      val key = "spark.sql.datatunnel.datasource." + code
+      val json = sparkSession.conf.get(key);
+      val map = MapperUtils.toJavaMap[String](json);
+      options.putAll(map)
+    }
+
+    options
   }
 }
