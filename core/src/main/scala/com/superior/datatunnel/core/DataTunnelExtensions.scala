@@ -1,4 +1,4 @@
-package com.dataworks.datatunnel.core
+package com.superior.datatunnel.core
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSessionExtensions

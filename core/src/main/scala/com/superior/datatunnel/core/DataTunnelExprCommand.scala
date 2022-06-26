@@ -1,4 +1,4 @@
-package com.dataworks.datatunnel.core
+package com.superior.datatunnel.core
 
 import com.superior.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, SparkOptionsContext}
 import com.gitee.melin.bee.core.extension.ExtensionLoader

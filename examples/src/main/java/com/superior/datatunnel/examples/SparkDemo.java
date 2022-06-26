@@ -1,6 +1,6 @@
 package com.superior.datatunnel.examples;
 
-import com.dataworks.datatunnel.core.DataTunnelExtensions;
+import com.superior.datatunnel.core.DataTunnelExtensions;
 import org.apache.spark.sql.SparkSession;
 
 public class SparkDemo {
