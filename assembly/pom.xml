@@ -21,6 +21,12 @@
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-core</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
