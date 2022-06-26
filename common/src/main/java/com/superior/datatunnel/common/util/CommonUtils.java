@@ -25,7 +25,7 @@ public class CommonUtils {
         for (String fieldName : map.keySet()) {
             String value = map.get(fieldName);
             try {
-                Field field = clazz.getDeclaredField(fieldName);
+                Field field = ReflectionUtils.findField(clazz, fieldName);
                 field.setAccessible(true);
                 if (field.getType() == String.class) {
                     field.set(beanInstance, value);
@@ -46,8 +46,8 @@ public class CommonUtils {
                 }
 
                 field.setAccessible(false);
-            } catch (NoSuchFieldException e) {
-                throw new DataTunnelException("no such param: " + fieldName);
+            } catch (IllegalStateException e) {
+                throw new DataTunnelException(clazz.getName() + " no such param: " + fieldName);
             }
         }
         return beanInstance;
