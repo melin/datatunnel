@@ -3,7 +3,7 @@ package com.dataworks.datatunnel.core
 import com.superior.datatunnel.parser.DtunnelStatementParser.DtunnelExprContext
 import com.gitee.melin.bee.core.extension.ExtensionLoader
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
-import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSink, DataTunnelSource}
+import com.superior.datatunnel.api._
 import com.superior.datatunnel.common.util.CommonUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
@@ -11,11 +11,19 @@ import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
 import org.apache.commons.lang3.StringUtils
 
+import scala.collection.JavaConverters._
+
+import javax.validation.{Validation, Validator, ValidatorFactory}
+
 /**
  *
  * @author melin 2021/6/28 2:23 下午
  */
 case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
+
+  val factory: ValidatorFactory = Validation.buildDefaultValidatorFactory
+
+  val validator: Validator = factory.getValidator
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
@@ -50,6 +58,17 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     sourceOption.setDataSourceType(sourceType)
     val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass)
     sinkOption.setDataSourceType(sinkType)
+
+    val sourceViolations = validator.validate(sourceOption)
+    if (!sourceViolations.isEmpty) {
+      val msg = sourceViolations.asScala.map(validator => validator.getMessage).mkString("\n")
+      throw new DataTunnelException("Source param is incorrect: \n" + msg)
+    }
+    val sinkViolations = validator.validate(sinkOption)
+    if (!sinkViolations.isEmpty) {
+      val msg = sinkViolations.asScala.map(validator => validator.getMessage).mkString("\n")
+      throw new DataTunnelException("sink param is incorrect: \n" + msg)
+    }
 
     val context = new DataTunnelContext
     context.setSourceOption(sourceOption)

@@ -136,8 +136,6 @@ class DtunnelAstBuilder extends DtunnelStatementBaseVisitor[AnyRef] {
   override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan = withOrigin(ctx) {
     visit(ctx.statement).asInstanceOf[LogicalPlan]
   }
-
-  override def visitPassThrough(ctx: PassThroughContext): LogicalPlan = null
 }
 
 class UpperCaseCharStream(wrapped: CodePointCharStream) extends CharStream {
