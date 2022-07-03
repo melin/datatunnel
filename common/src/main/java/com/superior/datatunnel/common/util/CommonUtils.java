@@ -24,34 +24,30 @@ public class CommonUtils {
         T beanInstance = clazz.getConstructor().newInstance();
         for (String fieldName : map.keySet()) {
             String value = map.get(fieldName);
-            try {
-                Field field = ReflectionUtils.findField(clazz, fieldName);
-                if (field == null) {
-                    throw new IllegalArgumentException(msg + fieldName);
-                }
-                field.setAccessible(true);
-                if (field.getType() == String.class) {
-                    field.set(beanInstance, value);
-                } else if (field.getType() == Integer.class || field.getType() == int.class) {
-                    field.set(beanInstance, Integer.parseInt(value));
-                } else if (field.getType() == Long.class || field.getType() == long.class) {
-                    field.set(beanInstance, Long.parseLong(value));
-                } else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-                    field.set(beanInstance, Boolean.valueOf(value));
-                } else if (field.getType() == Float.class || field.getType() == float.class) {
-                    field.set(beanInstance, Float.parseFloat(value));
-                } else if (field.getType() == Double.class || field.getType() == double.class) {
-                    field.set(beanInstance, Double.parseDouble(value));
-                } else if (field.getType() == String[].class) {
-                    field.set(beanInstance, MapperUtils.toJavaObject(value, new TypeReference<String[]>() {}));
-                } else {
-                    throw new IllegalStateException(fieldName + " not support data type: " + field.getType());
-                }
-
-                field.setAccessible(false);
-            } catch (IllegalStateException e) {
-                throw new DataTunnelException(clazz.getName() + " no such param: " + fieldName);
+            Field field = ReflectionUtils.findField(clazz, fieldName);
+            if (field == null) {
+                throw new DataTunnelException(msg + fieldName);
             }
+            field.setAccessible(true);
+            if (field.getType() == String.class) {
+                field.set(beanInstance, value);
+            } else if (field.getType() == Integer.class || field.getType() == int.class) {
+                field.set(beanInstance, Integer.parseInt(value));
+            } else if (field.getType() == Long.class || field.getType() == long.class) {
+                field.set(beanInstance, Long.parseLong(value));
+            } else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
+                field.set(beanInstance, Boolean.valueOf(value));
+            } else if (field.getType() == Float.class || field.getType() == float.class) {
+                field.set(beanInstance, Float.parseFloat(value));
+            } else if (field.getType() == Double.class || field.getType() == double.class) {
+                field.set(beanInstance, Double.parseDouble(value));
+            } else if (field.getType() == String[].class) {
+                field.set(beanInstance, MapperUtils.toJavaObject(value, new TypeReference<String[]>() {}));
+            } else {
+                throw new DataTunnelException(fieldName + " not support data type: " + field.getType());
+            }
+
+            field.setAccessible(false);
         }
         return beanInstance;
     }
