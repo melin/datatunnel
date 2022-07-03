@@ -56,9 +56,11 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
       case e: IllegalStateException => throw new RuntimeException(e.getMessage, e)
     }
 
-    val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, source.getOptionClass)
+    var errorMsg = s"source $sourceName has no parameter: "
+    val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, source.getOptionClass, errorMsg)
     sourceOption.setDataSourceType(sourceType)
-    val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass)
+    errorMsg = s"sink $sourceName has no parameter: "
+    val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass, errorMsg)
     sinkOption.setDataSourceType(sinkType)
 
     // 校验 Option

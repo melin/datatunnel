@@ -20,12 +20,15 @@ import java.util.Map;
  */
 public class CommonUtils {
 
-    public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz) throws Exception {
+    public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz, String msg) throws Exception {
         T beanInstance = clazz.getConstructor().newInstance();
         for (String fieldName : map.keySet()) {
             String value = map.get(fieldName);
             try {
                 Field field = ReflectionUtils.findField(clazz, fieldName);
+                if (field == null) {
+                    throw new IllegalArgumentException(msg + fieldName);
+                }
                 field.setAccessible(true);
                 if (field.getType() == String.class) {
                     field.set(beanInstance, value);
