@@ -28,7 +28,6 @@
             <groupId>com.github.melin.superior.jobserver</groupId>
             <artifactId>spark-jobserver-api</artifactId>
             <version>3.3.0-SNAPSHOT</version>
-            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
