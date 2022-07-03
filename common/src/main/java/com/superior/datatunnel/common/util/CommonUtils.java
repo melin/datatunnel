@@ -58,8 +58,11 @@ public class CommonUtils {
         dataset.createTempView(tdlName);
 
         int inputColCount = dataset.schema().fieldNames().length;
+
         if (dataset.schema().fieldNames().length != columns.length) {
-            throw new UnsupportedOperationException("输入" + inputColCount + "列, 输出" + columns.length + "列, 不匹配");
+            if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
+                throw new UnsupportedOperationException("输入" + inputColCount + "列, 输出" + columns.length + "列, 不匹配");
+            }
         }
 
         String sql;

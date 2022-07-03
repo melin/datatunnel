@@ -28,12 +28,21 @@
             <groupId>com.github.melin.superior.jobserver</groupId>
             <artifactId>spark-jobserver-api</artifactId>
             <version>3.3.0-SNAPSHOT</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>6.2.3.Final</version>
+            <scope>${libScope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>3.0.4</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
