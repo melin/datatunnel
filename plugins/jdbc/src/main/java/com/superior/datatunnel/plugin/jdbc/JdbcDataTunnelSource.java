@@ -5,6 +5,7 @@ import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
+import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -44,7 +45,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         String[] tables = StringUtils.split(tableName, ",");
         Dataset<Row> dataset = null;
         for (int i = 0, len = tables.length; i < len; i++) {
-            Dataset<Row> result = context.getSparkSession().read()
+            DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")
                     .option("url", url)
                     .option("dbtable", databaseName + "." + tables[i])
@@ -52,7 +53,18 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     .option("queryTimeout", queryTimeout)
                     .option("user", username)
                     .option("password", password)
-                    .load();
+                    .option("pushDownPredicate", sourceOption.isPushDownPredicate())
+                    .option("pushDownAggregate", sourceOption.isPushDownAggregate())
+                    .option("pushDownLimit", sourceOption.isPushDownLimit());
+
+            if (StringUtils.isNotBlank(sourceOption.getPartitionColumn())) {
+                reader.option("partitionColumn", sourceOption.getPartitionColumn())
+                        .option("numPartitions", sourceOption.getNumPartitions())
+                        .option("lowerBound", sourceOption.getLowerBound())
+                        .option("upperBound", sourceOption.getUpperBound());
+            }
+
+            Dataset<Row> result = reader.load();
 
             if (i == 0) {
                 dataset = result;

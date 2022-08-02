@@ -38,4 +38,18 @@ public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
     private int queryTimeout = 0;
 
     private String condition;
+
+    private String partitionColumn;
+
+    private int numPartitions;
+
+    private String lowerBound;
+
+    private String upperBound;
+
+    private boolean pushDownPredicate = true;
+
+    private boolean pushDownAggregate = true;
+
+    private boolean pushDownLimit = true;
 }
