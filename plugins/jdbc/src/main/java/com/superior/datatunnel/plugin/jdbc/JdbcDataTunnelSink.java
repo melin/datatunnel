@@ -46,10 +46,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String tdlName = "tdl_datax_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
-            String databaseName = sinkOption.getDatabaseName();
-            String tableName = sinkOption.getTableName();
-
-            String table = databaseName + "." + tableName;
+            String table = sinkOption.getFullTableName();
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();

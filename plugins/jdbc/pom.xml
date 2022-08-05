@@ -25,6 +25,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-plugin-hive</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>

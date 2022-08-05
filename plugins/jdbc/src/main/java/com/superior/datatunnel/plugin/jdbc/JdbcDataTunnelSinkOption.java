@@ -44,4 +44,8 @@ public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
     private String preSql;
 
     private String postSql;
+
+    public String getFullTableName() {
+        return databaseName + "." + tableName;
+    }
 }

@@ -21,4 +21,8 @@ public class HiveDataTunnelSinkOption extends DataTunnelSinkOption {
     private String partition;
 
     private String writeMode = "append";
+
+    public String getFullTableName() {
+        return databaseName + "." + tableName;
+    }
 }
