@@ -25,7 +25,7 @@ public class LogDataTunnelSink implements DataTunnelSink {
         boolean vertical = sinkOption.isVertical();
         String data = dataset.showString(numRows, truncate, vertical);
         LogUtils.stdout(data);
-        LOG.info("\n" + data);
+        LOG.info("log sink result:\n" + data);
     }
 
     @Override
