@@ -1,5 +1,6 @@
 package com.superior.datatunnel.common.util;
 
+import com.superior.datatunnel.api.DataTunnelException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -16,21 +17,21 @@ import java.util.List;
  */
 public class HttpClientUtils {
 
-    public static void postRequet(String url, String key, String value) throws IOException {
+    public static void postRequet(String url, String key, String value) {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair(key, value));
         postRequet(url, params);
     }
 
     public static void postRequet(String url, String key1, String value1,
-                                  String key2, String value2) throws IOException {
+                                  String key2, String value2) {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair(key1, value1));
         params.add(new BasicNameValuePair(key2, value2));
         postRequet(url, params);
     }
 
-    public static void postRequet(String url, List<NameValuePair> params) throws IOException {
+    public static void postRequet(String url, List<NameValuePair> params) {
         CloseableHttpClient client = null;
         try {
             client = HttpClients.createDefault();
@@ -38,6 +39,8 @@ public class HttpClientUtils {
 
             httpPost.setEntity(new UrlEncodedFormEntity(params));
             client.execute(httpPost);
+        } catch (IOException e) {
+            throw new DataTunnelException(e.getMessage(), e);
         } finally {
             org.apache.http.client.utils.HttpClientUtils.closeQuietly(client);
         }

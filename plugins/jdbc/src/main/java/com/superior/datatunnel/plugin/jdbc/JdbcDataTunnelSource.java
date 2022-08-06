@@ -3,13 +3,13 @@ package com.superior.datatunnel.plugin.jdbc;
 import com.github.melin.superior.jobserver.api.LogUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.common.util.HttpClientUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.spark.sql.AnalysisException;
-import org.apache.spark.sql.DataFrameReader;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.spark.sql.*;
 import org.apache.spark.sql.catalyst.util.CharVarcharUtils;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
 import org.apache.spark.sql.jdbc.JdbcDialect;
@@ -22,7 +22,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -118,6 +120,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
     private void createHiveTable(DataTunnelContext context, JDBCOptions options, Connection connection) {
         HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
+        String databaseName = sinkOption.getDatabaseName();
+        String tableName = sinkOption.getTableName();
         boolean exists = context.getSparkSession().catalog()
                 .tableExists(sinkOption.getDatabaseName(), sinkOption.getTableName());
 
@@ -142,7 +146,24 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         sql += "USING parquet";
         context.getSparkSession().sql(sql);
 
-        // @TODO 同步表元数据到superior 平台
+        LogUtils.info("自动创建表，同步表元数据");
+        syncTableMeta(databaseName, tableName);
+    }
+
+    private void syncTableMeta(String databaseName, String tableName) {
+        String superiorUrl = SparkSession.active().conf().get("spark.current.superior.url", null);
+        String appKey = SparkSession.active().conf().get("spark.current.appKey", null);
+        String appSecret = SparkSession.active().conf().get("spark.current.appSecret", null);
+        if (StringUtils.isNotBlank(superiorUrl) && appKey != null && appSecret != null) {
+            superiorUrl += "/innerApi/v1/importHiveTable";
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("databaseName", databaseName));
+            params.add(new BasicNameValuePair("tableName", tableName));
+            params.add(new BasicNameValuePair("appKey", appKey));
+            params.add(new BasicNameValuePair("appSecret", appSecret));
+
+            HttpClientUtils.postRequet(superiorUrl, params);
+        }
     }
 
     private JDBCOptions buildJDBCOptions(String url, String dbtable, JdbcDataTunnelSourceOption sourceOption) {
