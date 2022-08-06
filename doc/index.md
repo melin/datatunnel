@@ -30,5 +30,6 @@ datatunnel source("hdfs") options(path="/user/datawork/export/20210812")
 | clickhouse    |             | √            | [写](clickhouse.md) |
 | elasticsearch |             | √            | 开发中                |
 | kafka         |             | √            | [写](kafka.md)      |
+| excel         |√             |             | [读](excel.md)      |
 | log           |             | √            | [写](log.md)        |
 
