@@ -185,6 +185,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String partitionColumn = sourceOption.getPartitionColumn();
             if (StringUtils.isNotBlank(partitionColumn)) {
                 sql += ", max(" + partitionColumn + ") maxValue, min(" + partitionColumn + ") minValue from " + table;
+            } else {
+                sql += " from " + table;
             }
             stmt = conn.prepareStatement(sql);
             ResultSet resultSet = stmt.executeQuery();
