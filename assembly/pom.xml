@@ -53,6 +53,11 @@
             <artifactId>datatunnel-plugin-elasticsearch</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-plugin-files</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-sftp</artifactId>

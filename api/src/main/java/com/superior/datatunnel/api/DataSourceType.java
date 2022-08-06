@@ -12,7 +12,7 @@ public enum DataSourceType {
     CLICKHOUSE,
     HBASE,
     LOG,
-    FILE,
+    EXCEL,
     SFTP,
     HDFS,
     ELASTICSEARCH;
