@@ -100,13 +100,18 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
     }
 
     private Connection buildConnection(String url, String dbtable, JdbcDataTunnelSinkOption sinkOption) {
-        Map<String, String> params = sinkOption.getParams();
-        params.put("user", sinkOption.getUsername());
-        JDBCOptions options = new JDBCOptions(url, dbtable,
-                JavaConverters.mapAsScalaMapConverter(params).asScala().toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
+        try {
+            Map<String, String> params = sinkOption.getParams();
+            params.put("user", sinkOption.getUsername());
+            JDBCOptions options = new JDBCOptions(url, dbtable,
+                    JavaConverters.mapAsScalaMapConverter(params).asScala().toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
 
-        JdbcDialect dialect = JdbcDialects.get(url);
-        return dialect.createConnectionFactory(options).apply(-1);
+            JdbcDialect dialect = JdbcDialects.get(url);
+            return dialect.createConnectionFactory(options).apply(-1);
+        } catch (Exception e) {
+            String msg = "无法访问数据源: " + url + ", 失败原因: " + e.getMessage();
+            throw new DataTunnelException(msg);
+        }
     }
 
     @Override

@@ -174,8 +174,13 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     }
 
     private Connection buildConnection(String url, JDBCOptions options) {
-        JdbcDialect dialect = JdbcDialects.get(url);
-        return dialect.createConnectionFactory(options).apply(-1);
+        try {
+            JdbcDialect dialect = JdbcDialects.get(url);
+            return dialect.createConnectionFactory(options).apply(-1);
+        } catch (Exception e) {
+            String msg = "无法访问数据源: " + url + ", 失败原因: " + e.getMessage();
+            throw new DataTunnelException(msg);
+        }
     }
 
     private void statTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String table) {
