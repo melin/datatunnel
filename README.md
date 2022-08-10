@@ -17,30 +17,53 @@ datatunnel source('数据类型名称') options(键值对参数)
 
 ### example
 ```sql
-datatunnel source('mysql') options(
-    username='dataworks',
-    password='dataworks2021',
-    host='10.5.20.20",
-    port=3306,
-    resultTableName='temp_dc_job',
-    databaseName='dataworks', tableName='dc_datax_datasource', column=["*"])
-    transform = 'select * from temp_dc_job where type="spark_sql"'
-    sink('hive') options(databaseName='bigdata', tableName='hive_datax_datasource', writeMode='overwrite', column=["*"]);
+DATATUNNEL SOURCE("mysql") OPTIONS (
+  username = "dataworks",
+  password = "dataworks2021",
+  host = '10.5.20.20',
+  port = 3306,
+  databaseName = 'dataworks',
+  tableName = 'dc_dtunnel_datasource',
+  columns = ["*"]
+)
+SINK("hive") OPTIONS (
+  databaseName = "bigdata",
+  tableName = 'hive_dtunnel_datasource',
+  writeMode = 'overwrite',
+  columns = ["*"]
+);
 
-datatunnel source("hive") options(
-        databaseName="bigdata", 
-        tableName='hive_datax_datasource', 
-        column=['id', 'code', 'type', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier'])
-    sink('mysql') options(
-        username='dataworks',
-        password='dataworks2021',
-        host="10.5.20.20',
-        port=3306
-        databaseName='dataworks', 
-        tableName='dc_datax_datasource_copy1', 
-        writeMode='overwrite',
-        truncate=true,
-        column=['id', 'code', 'dstype', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier'])
+DATATUNNEL SOURCE('mysql') OPTIONS (
+  username = 'dataworks',
+  password = 'dataworks2021',
+  host = '10.5.20.20',
+  port = 3306,
+  resultTableName = 'tdl_dc_job',
+  databaseName = 'dataworks',
+  tableName = 'dc_job',
+  columns = ['*']
+)
+TRANSFORM = 'select * from tdl_dc_job where type="spark_sql"'
+SINK('log') OPTIONS (
+  numRows = 10
+);
+
+DATATUNNEL SOURCE("hive") OPTIONS (
+  databaseName = 'bigdata',
+  tableName = 'hive_dtunnel_datasource',
+  columns = ['id', 'code', 'type', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
+)
+SINK("mysql") OPTIONS (
+  username = "dataworks",
+  password = "dataworks2021",
+  host = '10.5.20.20',
+  port = 3306,
+  databaseName = 'dataworks',
+  tableName = 'dc_datax_datasource_copy1',
+  writeMode = 'overwrite',
+  truncate = true,
+  columns = ['id', 'code', 'dstype', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
+)
 ```
 
 ### 参考
