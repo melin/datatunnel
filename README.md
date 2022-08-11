@@ -11,7 +11,7 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 ### dtunnel sql 语法
 ```sql
 datatunnel source('数据类型名称') options(键值对参数) 
-    transform("action 名称") options(键值对参数)
+    transform(数据加工SQL，可以对数据处理后输出)
     sink('数据类型名称') options(键值对参数)
 ```
 
