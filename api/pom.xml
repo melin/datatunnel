@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.gitee.melin.bee</groupId>
             <artifactId>bee</artifactId>
-            <version>1.4.8</version>
+            <version>${bee.version}</version>
             <scope>provided</scope>
         </dependency>
 
