@@ -20,18 +20,20 @@ public class JdbcUtils {
 
     public static String buildJdbcUrl(DataSourceType dsType, String host, int port, String schema) {
         String url = "";
-        if (MYSQL == dsType) {
+        if (MYSQL == dsType || TIDB == dsType) {
             url = "jdbc:mysql://" + host + ":" + port;
-        } else if (SQLSERVER == dsType) {
-            url = "jdbc:sqlserver://" + host + ":" + port;
-        } else if (DB2 == dsType) {
-            url = "jdbc:db2://" + host + ":" + port;
         } else if (ORACLE == dsType) {
             url = "jdbc:oracle://" + host + ":" + port;
-        } else if (POSTGRESQL == dsType) {
+        } else if (DB2 == dsType) {
+            url = "jdbc:db2://" + host + ":" + port;
+        } else if (POSTGRESQL == dsType || GAUSS == dsType) {
             url = "jdbc:postgresql://" + host + ":" + port;
-        } else {
-            throw new IllegalArgumentException("不支持数据源类型: " + dsType);
+        } else if (SQLSERVER == dsType) {
+            url = "jdbc:sqlserver://" + host + ":" + port;
+        } else if (HANA == dsType) {
+            url = "jdbc:sap://" + host + ":" + port + "?reconnect=true";
+        } else if (GREENPLUM == dsType) {
+            url = "jdbc:pivotal:greenplum://" + host + ":" + port;
         }
 
         if (StringUtils.isNotBlank(schema)) {
