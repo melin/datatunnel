@@ -151,18 +151,22 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     }
 
     private void syncTableMeta(String databaseName, String tableName) {
-        String superiorUrl = SparkSession.active().conf().get("spark.current.superior.url", null);
-        String appKey = SparkSession.active().conf().get("spark.current.appKey", null);
-        String appSecret = SparkSession.active().conf().get("spark.current.appSecret", null);
+        String superiorUrl = SparkSession.active().conf().get("spark.jobserver.superior.url", null);
+        String appKey = SparkSession.active().conf().get("spark.jobserver.superior.appKey", null);
+        String appSecret = SparkSession.active().conf().get("spark.jobserver.superior.appSecret", null);
+        String tenantId = SparkSession.active().conf().get("spark.jobserver.superior.tenantId", null);
         if (StringUtils.isNotBlank(superiorUrl) && appKey != null && appSecret != null) {
             superiorUrl += "/innerApi/v1/importHiveTable";
             List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("tenantId", tenantId));
             params.add(new BasicNameValuePair("databaseName", databaseName));
             params.add(new BasicNameValuePair("tableName", tableName));
             params.add(new BasicNameValuePair("appKey", appKey));
             params.add(new BasicNameValuePair("appSecret", appSecret));
 
             HttpClientUtils.postRequet(superiorUrl, params);
+        } else {
+            LogUtils.warn("请求同步失败");
         }
     }
 
