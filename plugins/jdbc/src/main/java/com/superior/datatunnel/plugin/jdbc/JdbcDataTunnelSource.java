@@ -128,7 +128,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         if (exists) {
             return;
         }
-        LogUtils.info("create table {}", sinkOption.getFullTableName());
 
         StructType structType = org.apache.spark.sql.execution.datasources.jdbc
                 .JdbcUtils.getSchemaOption(connection, options).get();
@@ -146,7 +145,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         sql += "USING parquet";
         context.getSparkSession().sql(sql);
 
-        LogUtils.info("自动创建表，同步表元数据");
+        LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
         syncTableMeta(databaseName, tableName);
     }
 
@@ -166,7 +165,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             HttpClientUtils.postRequet(superiorUrl, params);
         } else {
-            LogUtils.warn("请求同步失败");
+            LogUtils.warn("请求同步失败: superiorUrl: {}, appKey: {}, appSecret: {}",
+                    superiorUrl, appKey, appSecret);
         }
     }
 
