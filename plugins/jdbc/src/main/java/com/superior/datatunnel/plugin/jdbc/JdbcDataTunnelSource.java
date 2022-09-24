@@ -204,16 +204,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     private void statTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String table) {
         PreparedStatement stmt = null;
         try {
-            String sql = "select count(1) as num ";
+
             String partitionColumn = sourceOption.getPartitionColumn();
             String lowerBound = sourceOption.getLowerBound();
             String upperBound = sourceOption.getUpperBound();
 
-            if (StringUtils.isNotBlank(partitionColumn)) {
-                sql += ", max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value from " + table;
-            } else {
-                sql += " from " + table;
-            }
+            String sql = "select count(1) as num , max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value " +
+                    "from " + table;
+
             stmt = conn.prepareStatement(sql);
             ResultSet resultSet = stmt.executeQuery();
             resultSet.next();
