@@ -8,8 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jetbrains.annotations.NotNull;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -19,6 +22,14 @@ import java.util.Map;
  * @author melin 2021/7/27 11:48 上午
  */
 public class CommonUtils {
+
+    //https://stackoverflow.com/questions/24386771/javax-validation-validationexception-hv000183-unable-to-load-javax-el-express
+    public static final Validator VALIDATOR =
+            Validation.byDefaultProvider()
+                    .configure()
+                    .messageInterpolator(new ParameterMessageInterpolator())
+                    .buildValidatorFactory()
+                    .getValidator();
 
     public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz, String msg) throws Exception {
         T beanInstance = clazz.getConstructor().newInstance();

@@ -60,6 +60,15 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         int queryTimeout = sourceOption.getQueryTimeout();
         String[] tables = StringUtils.split(tableName, ",");
 
+        String partitionColumn = sourceOption.getPartitionColumn();
+        int numPartitions = sourceOption.getNumPartitions();
+        String lowerBound = sourceOption.getLowerBound();
+        String upperBound = sourceOption.getUpperBound();
+        sourceOption.setPartitionColumn(null);
+        sourceOption.setNumPartitions(null);
+        sourceOption.setLowerBound(null);
+        sourceOption.setUpperBound(null);
+
         String table = databaseName + "." + tables[0];
         JDBCOptions options = buildJDBCOptions(url, table, sourceOption);
         Connection connection = buildConnection(url, options);
@@ -67,6 +76,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         if (DataSourceType.HIVE == context.getSinkOption().getDataSourceType()) {
             createHiveTable(context, options, connection);
         }
+
+        sourceOption.setPartitionColumn(partitionColumn);
+        sourceOption.setNumPartitions(numPartitions);
+        sourceOption.setLowerBound(lowerBound);
+        sourceOption.setUpperBound(upperBound);
 
         Dataset<Row> dataset = null;
         for (int i = 0, len = tables.length; i < len; i++) {
@@ -192,8 +206,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         try {
             String sql = "select count(1) as num ";
             String partitionColumn = sourceOption.getPartitionColumn();
+            String lowerBound = sourceOption.getLowerBound();
+            String upperBound = sourceOption.getUpperBound();
+
             if (StringUtils.isNotBlank(partitionColumn)) {
-                sql += ", max(" + partitionColumn + ") maxValue, min(" + partitionColumn + ") minValue from " + table;
+                sql += ", max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value from " + table;
             } else {
                 sql += " from " + table;
             }
@@ -202,12 +219,16 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             resultSet.next();
             long count = (Long) resultSet.getObject("num");
             LogUtils.info("table {} record count: {}", table, count);
-            if (StringUtils.isNotBlank(partitionColumn)) {
-                String maxValue = String.valueOf(resultSet.getObject("maxValue"));
-                String minValue = String.valueOf(resultSet.getObject("minValue"));
+
+            String maxValue = String.valueOf(resultSet.getObject("max_value"));
+            String minValue = String.valueOf(resultSet.getObject("min_value"));
+            LogUtils.info("table {} max value: {}, min value: {}", table, maxValue, minValue);
+
+            if (StringUtils.isNotBlank(partitionColumn) && StringUtils.isNotBlank(lowerBound)
+                    && StringUtils.isNotBlank(upperBound)) {
+                LogUtils.info("auto compute lowerBound: {}, upperBound: {}", lowerBound, upperBound);
                 sourceOption.setUpperBound(maxValue);
                 sourceOption.setLowerBound(minValue);
-                LogUtils.info("table {} max value: {}, min value: {}", table, maxValue, minValue);
             }
         } catch (SQLException e) {
             throw new DataTunnelException(e.getMessage(), e);

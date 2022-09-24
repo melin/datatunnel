@@ -41,7 +41,7 @@ public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
 
     private String partitionColumn;
 
-    private int numPartitions;
+    private Integer numPartitions;
 
     private String lowerBound;
 

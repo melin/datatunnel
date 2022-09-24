@@ -15,17 +15,12 @@ import org.apache.commons.lang3.StringUtils
 
 import java.util
 import scala.collection.JavaConverters._
-import javax.validation.{Validation, Validator, ValidatorFactory}
 
 /**
  *
  * @author melin 2021/6/28 2:23 下午
  */
 case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
-
-  val factory: ValidatorFactory = Validation.buildDefaultValidatorFactory
-
-  val validator: Validator = factory.getValidator
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
@@ -64,12 +59,12 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     sinkOption.setDataSourceType(sinkType)
 
     // 校验 Option
-    val sourceViolations = validator.validate(sourceOption)
+    val sourceViolations = CommonUtils.VALIDATOR.validate(sourceOption)
     if (!sourceViolations.isEmpty) {
       val msg = sourceViolations.asScala.map(validator => validator.getMessage).mkString("\n")
       throw new DataTunnelException("Source param is incorrect: \n" + msg)
     }
-    val sinkViolations = validator.validate(sinkOption)
+    val sinkViolations = CommonUtils.VALIDATOR.validate(sinkOption)
     if (!sinkViolations.isEmpty) {
       val msg = sinkViolations.asScala.map(validator => validator.getMessage).mkString("\n")
       throw new DataTunnelException("sink param is incorrect: \n" + msg)
