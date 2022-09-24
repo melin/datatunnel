@@ -61,7 +61,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         String[] tables = StringUtils.split(tableName, ",");
 
         String partitionColumn = sourceOption.getPartitionColumn();
-        int numPartitions = sourceOption.getNumPartitions();
+        Integer numPartitions = sourceOption.getNumPartitions();
         String lowerBound = sourceOption.getLowerBound();
         String upperBound = sourceOption.getUpperBound();
         sourceOption.setPartitionColumn(null);
