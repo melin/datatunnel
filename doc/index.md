@@ -1,35 +1,73 @@
-Datax 两个不同数据源之间交换同步数据，具体语法：
+DataTunnel 两个不同数据源之间交换同步数据，具体语法：
 
+### DataTunnel sql 语法
 ```sql
-datatunnel reader('数据类型名称') options(键值对参数) writer('数据类型名称') options(键值对参数)
-```
-
-###实例
-
-```sql
--- 从sftp 导入 hive 表
-datatunnel source("sftp") options(host="x.x.x.x", port=22, username="sftpuser", password='xxxx',
-              path="/upload/demo.csv", fileType="csv", hdfsTempLocation="/user/datawork/temp")
-    sink("hive") options(tableName="tdl_ftp_demo")
-
--- 从hdfs 导入 sftp
-datatunnel source("hdfs") options(path="/user/datawork/export/20210812")
-    sink("sftp") options(host1="x.x.x.x", port=22, username="sftpuser", password='xxxx',
-              path="/upload/20210812", overwrite=true);
+datatunnel source('数据类型名称') options(键值对参数) 
+    transform(数据加工SQL，可以对数据处理后输出)
+    sink('数据类型名称') options(键值对参数)
 ```
 
 ### 支持数据源
 
-| 数据源           | Reader(读)  | Writer(写)    | 文档                 |
-|:--------------| :-----      | :------      |:-------------------|
-| sftp          | √           | √            | [读写](sftp.md)      |
-| hdfs          | √           |              | [读](hdfs.md)       |
-| jdbc          | √           | √            | [读写](jdbc.md)      |
-| hive          | √           | √            | [读写](hive.md)      |
-| hbase         |             | √            | [写](hbase.md)      |
-| clickhouse    |             | √            | [写](clickhouse.md) |
-| elasticsearch |             | √            | 开发中                |
-| kafka         |             | √            | [写](kafka.md)      |
-| excel         |√             |             | [读](excel.md)      |
-| log           |             | √            | [写](log.md)        |
+| 数据源           | Reader(读)  | Writer(写)    | 文档                   |
+|:--------------| :-----      | :------      |:---------------------|
+| sftp          | √           | √            | [读写](sftp.html)      |
+| hdfs          | √           |              | [读](hdfs.html)       |
+| jdbc          | √           | √            | [读写](jdbc.html)      |
+| hive          | √           | √            | [读写](hive.html)      |
+| hbase         |             | √            | [写](hbase.html)      |
+| clickhouse    |             | √            | [写](clickhouse.html) |
+| elasticsearch |             | √            | 开发中                  |
+| log           |             | √            | [写](log.html)        |
+| kafka         |             | √            | [写](kafka.html)      |
 
+### example
+```sql
+DATATUNNEL SOURCE("mysql") OPTIONS (
+  username = "dataworks",
+  password = "dataworks2021",
+  host = '10.5.20.20',
+  port = 3306,
+  databaseName = 'dataworks',
+  tableName = 'dc_dtunnel_datasource',
+  columns = ["*"]
+)
+SINK("hive") OPTIONS (
+  databaseName = "bigdata",
+  tableName = 'hive_dtunnel_datasource',
+  writeMode = 'overwrite',
+  columns = ["*"]
+);
+
+DATATUNNEL SOURCE('mysql') OPTIONS (
+  username = 'dataworks',
+  password = 'dataworks2021',
+  host = '10.5.20.20',
+  port = 3306,
+  resultTableName = 'tdl_dc_job',
+  databaseName = 'dataworks',
+  tableName = 'dc_job',
+  columns = ['*']
+)
+TRANSFORM = 'select * from tdl_dc_job where type="spark_sql"'
+SINK('log') OPTIONS (
+  numRows = 10
+);
+
+DATATUNNEL SOURCE("hive") OPTIONS (
+  databaseName = 'bigdata',
+  tableName = 'hive_dtunnel_datasource',
+  columns = ['id', 'code', 'type', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
+)
+SINK("mysql") OPTIONS (
+  username = "dataworks",
+  password = "dataworks2021",
+  host = '10.5.20.20',
+  port = 3306,
+  databaseName = 'dataworks',
+  tableName = 'dc_datax_datasource_copy1',
+  writeMode = 'overwrite',
+  truncate = true,
+  columns = ['id', 'code', 'dstype', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
+)
+```

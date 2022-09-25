@@ -51,4 +51,5 @@
 ### 参考
 1. https://github.com/niutaofan/bazinga
 2. https://spark.apache.org/docs/latest/sql-data-sources-jdbc.html
+3. https://luminousmen.com/post/spark-tips-optimizing-jdbc-data-source-reads
 
