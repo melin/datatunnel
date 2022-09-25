@@ -1,5 +1,11 @@
 package com.superior.datatunnel.common.util;
 
+import com.superior.datatunnel.api.DataTunnelException;
+import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import org.apache.spark.sql.DataFrameReader;
+import org.apache.spark.sql.DataFrameWriter;
+
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,5 +48,37 @@ public class ReflectionUtils {
             }
         }
         return result;
+    }
+
+    public static void setDataFrameReaderOptions(
+            DataFrameReader reader, DataTunnelSourceOption option) {
+        try {
+            Field[] fields = option.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = field.get(option);
+                if (value != null) {
+                    reader.option(field.getName(), value.toString());
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new DataTunnelException(e.getMessage(), e);
+        }
+    }
+
+    public static void setDataFrameWriterOptions(
+            DataFrameWriter writer, DataTunnelSinkOption option) {
+        try {
+            Field[] fields = option.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = field.get(option);
+                if (value != null) {
+                    writer.option(field.getName(), value.toString());
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new DataTunnelException(e.getMessage(), e);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.files;
+package com.superior.datatunnel.plugin.files.source;
 
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;

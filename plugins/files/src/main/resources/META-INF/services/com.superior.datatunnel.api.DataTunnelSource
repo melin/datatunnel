@@ -1,1 +1,3 @@
-excel=com.superior.datatunnel.plugin.files.ExcelDataTunnelSource
+excel=com.superior.datatunnel.plugin.files.source.ExcelDataTunnelSource
+csv=com.superior.datatunnel.plugin.files.source.CsvDataTunnelSource
+json=com.superior.datatunnel.plugin.files.source.JsonDataTunnelSource

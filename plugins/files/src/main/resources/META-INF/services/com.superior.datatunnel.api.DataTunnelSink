@@ -1,0 +1,2 @@
+csv=com.superior.datatunnel.plugin.files.sink.CsvDataTunnelSink
+json=com.superior.datatunnel.plugin.files.sink.JsonDataTunnelSink

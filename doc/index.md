@@ -9,17 +9,18 @@ datatunnel source('数据类型名称') options(键值对参数)
 
 ### 支持数据源
 
-| 数据源           | Reader(读)  | Writer(写)    | 文档                   |
-|:--------------| :-----      | :------      |:---------------------|
-| sftp          | √           | √            | [读写](sftp.html)      |
-| hdfs          | √           |              | [读](hdfs.html)       |
-| jdbc          | √           | √            | [读写](jdbc.html)      |
-| hive          | √           | √            | [读写](hive.html)      |
-| hbase         |             | √            | [写](hbase.html)      |
-| clickhouse    |             | √            | [写](clickhouse.html) |
-| elasticsearch |             | √            | 开发中                  |
-| log           |             | √            | [写](log.html)        |
-| kafka         |             | √            | [写](kafka.html)      |
+| 数据源           | Reader(读)  | Writer(写)    | 文档                     |
+|:--------------| :-----      | :------      |:-----------------------|
+| file          | √           | √            | [读写](file.md) 支持excel, |
+| sftp          | √           | √            | [读写](sftp.md)        |
+| hdfs          | √           |              | [读](hdfs.md)         |
+| jdbc          | √           | √            | [读写](jdbc.md)        |
+| hive          | √           | √            | [读写](hive.md)        |
+| hbase         |             | √            | [写](hbase.md)        |
+| clickhouse    |             | √            | [写](clickhouse.md)   |
+| elasticsearch |             | √            | 开发中                    |
+| log           |             | √            | [写](log.md)          |
+| kafka         |             | √            | [写](kafka.md)        |
 
 ### example
 ```sql

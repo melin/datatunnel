@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.files;
+package com.superior.datatunnel.plugin.files.source;
 
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import lombok.Data;
