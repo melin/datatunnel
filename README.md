@@ -19,7 +19,7 @@ datatunnel source('数据类型名称') options(键值对参数)
 
 | 数据源           | Reader(读)  | Writer(写)    | 文档                     |
 |:--------------| :-----      | :------      |:-----------------------|
-| file          | √           | √            | [读写](file.md) 支持excel, |
+| file          | √           | √            | [读写](file.md) 支持excel, json，csv|
 | sftp          | √           | √            | [读写](sftp.md)        |
 | hdfs          | √           |              | [读](hdfs.md)         |
 | jdbc          | √           | √            | [读写](jdbc.md)        |
@@ -28,7 +28,7 @@ datatunnel source('数据类型名称') options(键值对参数)
 | clickhouse    |             | √            | [写](clickhouse.md)   |
 | elasticsearch |             | √            | 开发中                    |
 | log           |             | √            | [写](log.md)          |
-| kafka         |             | √            | [写](kafka.md)        |
+| kafka         |             | √            | [写](kafka.md) spark streaming任务，支持写入jdbc，hudi表      |
 
 ### example
 ```sql
