@@ -22,6 +22,7 @@
         <module>plugins/hive</module>
         <module>plugins/jdbc</module>
         <module>plugins/kafka</module>
+        <module>plugins/doris</module>
         <module>examples</module>
     </modules>
 
