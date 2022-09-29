@@ -19,17 +19,17 @@ datatunnel source('数据类型名称') options(键值对参数)
 
 | 数据源           | Reader(读)  | Writer(写)    | 文档                                            |
 |:--------------|:-----------| :------      |:----------------------------------------------|
-| file          | √          | √            | [读写](file.md) 支持excel, json，csv               |
-| sftp          | √          | √            | [读写](sftp.md)                                 |
-| hdfs          | √          |              | [读](hdfs.md)                                  |
-| jdbc          | √          | √            | [读写](jdbc.md)                                 |
-| hive          | √          | √            | [读写](hive.md)                                 |
-| hbase         |            | √            | [写](hbase.md)                                 |
-| clickhouse    |            | √            | [写](clickhouse.md)                            |
+| file          | √          | √            | [读写](doc/file.md) 支持excel, json，csv               |
+| sftp          | √          | √            | [读写](doc/sftp.md)                                 |
+| hdfs          | √          |              | [读](doc/hdfs.md)                                  |
+| jdbc          | √          | √            | [读写](doc/jdbc.md) DB2、MySQL、MS Sql、Oracle、PostgreSQL、TIDB、Hana、Greenplum、Gauss                                 |
+| hive          | √          | √            | [读写](doc/hive.md)                                 |
+| hbase         |            | √            | [写](doc/hbase.md)                                 |
+| clickhouse    |            | √            | [写](doc/clickhouse.md)                            |
 | elasticsearch |            | √            | 开发中                                           |
-| log           |            | √            | [写](log.md)                                   |
-| kafka         | √          | √            | [读写](kafka.md) spark streaming任务，支持写入jdbc，hudi表 |
-| doris         | √          | √            | [读写](doris.md)                                |
+| log           |            | √            | [写](doc/log.md)                                   |
+| kafka         | √          | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表 |
+| doris         | √          | √            | [读写](doc/doris.md)                                |
 
 ### example
 ```sql
