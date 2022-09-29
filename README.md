@@ -25,7 +25,7 @@ datatunnel source('数据类型名称') options(键值对参数)
 | jdbc          | √          | √            | [读写](doc/jdbc.md) 支持 DB2、MySQL、MS Sql、Oracle、PostgreSQL、TIDB、Hana、Greenplum、Gauss                                 |
 | hive          | √          | √            | [读写](doc/hive.md)                                 |
 | hbase         |            | √            | [写](doc/hbase.md)                                 |
-| clickhouse    |            | √            | [写](doc/clickhouse.md)                            |
+| clickhouse    | √           | √            | [读写](doc/clickhouse.md)                            |
 | elasticsearch |            | √            | 开发中                                           |
 | log           |            | √            | [写](doc/log.md)                                   |
 | kafka         | √          | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表 |

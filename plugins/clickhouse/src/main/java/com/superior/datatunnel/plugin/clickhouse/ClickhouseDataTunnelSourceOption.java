@@ -32,29 +32,13 @@ public class ClickhouseDataTunnelSourceOption extends DataTunnelSourceOption {
 
     private String protocol = "http";
 
-    private int batchSize = 10000;
+    private boolean ignoreUnsupportedTransform;
 
     private String compressionCodec = "lz4";
 
-    private boolean distributedConvertLocal = false;
+    private boolean distributedConvertLocal = true;
 
-    private boolean distributedUseClusterNodes = true;
+    private String format = "json";
 
-    private String format = "arrow";
-
-    private boolean localSortByKey = true;
-
-    private Boolean localSortByPartition;
-
-    private int maxRetry = 3;
-
-    private boolean repartitionByPartition = true;
-
-    private int repartitionNum = 0;
-
-    private boolean repartitionStrictly = false;
-
-    private String retryInterval = "10s";
-
-    private String retryableErrorCodes = "241";
+    private boolean splitByPartitionId = true;
 }
