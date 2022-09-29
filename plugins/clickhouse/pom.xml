@@ -33,7 +33,13 @@
         <dependency>
             <groupId>com.github.housepower</groupId>
             <artifactId>clickhouse-spark-runtime-3.3_2.12</artifactId>
-            <version>0.4.0</version>
+            <version>0.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.3.2-patch11</version>
         </dependency>
     </dependencies>
 

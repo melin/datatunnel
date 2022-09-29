@@ -17,7 +17,7 @@ public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
     private String tableName;
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns;
+    private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
     private String username;

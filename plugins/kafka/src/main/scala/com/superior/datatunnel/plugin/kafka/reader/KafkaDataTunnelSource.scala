@@ -27,7 +27,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
 
   override def read(context: DataTunnelContext): Dataset[Row] = {
     val sparkSession = context.getSparkSession
-    val tmpTable = "tdl_datax_kafka_" + System.currentTimeMillis()
+    val tmpTable = "tdl_datatunnel_kafka_" + System.currentTimeMillis()
     KafkaSupport.createStreamTempTable(tmpTable, context.getSourceOption.getParams)
 
     val sinkType = context.getSinkOption.getDataSourceType
@@ -49,7 +49,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
           "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
 
         var dataset = context.getSparkSession.sql(querySql)
-        val tdlName = "tdl_datax_" + System.currentTimeMillis
+        val tdlName = "tdl_datatunnel_" + System.currentTimeMillis
         dataset.createTempView(tdlName)
 
         val jdbcSinkOption = context.getSinkOption.asInstanceOf[JdbcDataTunnelSinkOption]

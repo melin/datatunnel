@@ -24,7 +24,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
             dataset = context.getSparkSession().sql(sql);
 
-            String tdlName = "tdl_datax_" + System.currentTimeMillis();
+            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
             String databaseName = sinkOption.getDatabaseName();

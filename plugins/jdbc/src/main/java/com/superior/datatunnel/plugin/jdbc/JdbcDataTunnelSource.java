@@ -117,7 +117,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         JdbcUtils.close(connection);
 
         try {
-            String tdlName = "tdl_datax_" + System.currentTimeMillis();
+            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
             String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
 

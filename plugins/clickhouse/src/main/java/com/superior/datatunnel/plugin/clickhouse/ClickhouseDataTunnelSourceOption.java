@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.clickhouse;
 
-import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class ClickhouseDataTunnelSinkOption extends DataTunnelSinkOption {
+public class ClickhouseDataTunnelSourceOption extends DataTunnelSourceOption {
 
     @NotBlank(message = "databaseName can not blank")
     private String databaseName;
@@ -32,13 +32,29 @@ public class ClickhouseDataTunnelSinkOption extends DataTunnelSinkOption {
 
     private String protocol = "http";
 
-    private boolean ignoreUnsupportedTransform;
+    private int batchSize = 10000;
 
     private String compressionCodec = "lz4";
 
-    private boolean distributedConvertLocal = true;
+    private boolean distributedConvertLocal = false;
 
-    private String format = "json";
+    private boolean distributedUseClusterNodes = true;
 
-    private boolean splitByPartitionId = true;
+    private String format = "arrow";
+
+    private boolean localSortByKey = true;
+
+    private Boolean localSortByPartition;
+
+    private int maxRetry = 3;
+
+    private boolean repartitionByPartition = true;
+
+    private int repartitionNum = 0;
+
+    private boolean repartitionStrictly = false;
+
+    private String retryInterval = "10s";
+
+    private String retryableErrorCodes = "241";
 }

@@ -43,7 +43,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
         Connection connection = null;
         try {
-            String tdlName = "tdl_datax_" + System.currentTimeMillis();
+            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
             String table = sinkOption.getFullTableName();
