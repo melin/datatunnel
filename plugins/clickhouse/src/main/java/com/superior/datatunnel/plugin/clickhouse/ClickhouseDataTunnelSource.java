@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -26,16 +27,14 @@ public class ClickhouseDataTunnelSource implements DataTunnelSource {
         SparkSession sparkSession = context.getSparkSession();
         ClickhouseDataTunnelSourceOption option = (ClickhouseDataTunnelSourceOption) context.getSourceOption();
         sparkSession.conf().set("spark.sql.catalog.clickhouse", ClickHouseCatalog.class.getName());
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.host", option.getHost());
         sparkSession.conf().set("spark.sql.catalog.clickhouse.protocol", option.getProtocol());
         if ("http".equals(option.getProtocol())) {
             sparkSession.conf().set("spark.sql.catalog.clickhouse.http_port", option.getPort());
         } else {
             sparkSession.conf().set("spark.sql.catalog.clickhouse.grpc_port", option.getPort());
         }
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.user", option.getUsername());
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.password", option.getPassword());
         sparkSession.conf().set("spark.sql.catalog.clickhouse.database", "default");
+        CommonUtils.convertOptionToSparkConf(sparkSession, option);
 
         try {
             String ckTableName = "clickhouse." + option.getDatabaseName() + "." + option.getTableName();

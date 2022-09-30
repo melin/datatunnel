@@ -1,6 +1,8 @@
 package com.superior.datatunnel.plugin.clickhouse;
 
+import com.gitee.melin.bee.core.hibernate5.validation.ValidConst;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.common.annotation.SparkConfKey;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -20,25 +22,34 @@ public class ClickhouseDataTunnelSourceOption extends DataTunnelSourceOption {
     private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
+    @SparkConfKey("spark.sql.catalog.clickhouse.user")
     private String username;
 
-    private String password;
+    @SparkConfKey("spark.sql.catalog.clickhouse.password")
+    private String password = "";
 
     @NotBlank(message = "host can not blank")
+    @SparkConfKey("spark.sql.catalog.clickhouse.host")
     private String host;
 
     @NotNull(message = "port can not blank")
     private Integer port;
 
+    @ValidConst({"http", "grpc"})
     private String protocol = "http";
 
+    @SparkConfKey("spark.clickhouse.ignoreUnsupportedTransform")
     private boolean ignoreUnsupportedTransform;
 
+    @SparkConfKey("spark.clickhouse.read.compression.codec")
     private String compressionCodec = "lz4";
 
+    @SparkConfKey("spark.clickhouse.read.distributed.convertLocal")
     private boolean distributedConvertLocal = true;
 
+    @SparkConfKey("spark.clickhouse.read.format")
     private String format = "json";
 
+    @SparkConfKey("spark.clickhouse.read.splitByPartitionId")
     private boolean splitByPartitionId = true;
 }

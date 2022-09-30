@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.util.CommonUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -25,16 +26,14 @@ public class ClickhouseDataTunnelSink implements DataTunnelSink {
         SparkSession sparkSession = context.getSparkSession();
         ClickhouseDataTunnelSinkOption option = (ClickhouseDataTunnelSinkOption) context.getSinkOption();
         sparkSession.conf().set("spark.sql.catalog.clickhouse", ClickHouseCatalog.class.getName());
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.host", option.getHost());
         sparkSession.conf().set("spark.sql.catalog.clickhouse.protocol", option.getProtocol());
         if ("http".equals(option.getProtocol())) {
             sparkSession.conf().set("spark.sql.catalog.clickhouse.http_port", option.getPort());
         } else {
             sparkSession.conf().set("spark.sql.catalog.clickhouse.grpc_port", option.getPort());
         }
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.user", option.getUsername());
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.password", option.getPassword());
         sparkSession.conf().set("spark.sql.catalog.clickhouse.database", "default");
+        CommonUtils.convertOptionToSparkConf(sparkSession, option);
 
         try {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();

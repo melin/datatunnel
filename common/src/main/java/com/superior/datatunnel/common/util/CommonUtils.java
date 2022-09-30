@@ -4,12 +4,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gitee.melin.bee.util.MapperUtils;
 import com.google.common.collect.Lists;
 import com.superior.datatunnel.api.DataTunnelException;
+import com.superior.datatunnel.common.annotation.SparkConfKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -22,6 +26,33 @@ import java.util.Map;
  * @author melin 2021/7/27 11:48 上午
  */
 public class CommonUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommonUtils.class);
+
+    public static void convertOptionToSparkConf(SparkSession sparkSession, Object obj) {
+        try {
+            Field[] fields = obj.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                SparkConfKey confKey = field.getAnnotation(SparkConfKey.class);
+                if (confKey == null) {
+                    continue;
+                }
+
+                String sparkKey = confKey.value();
+                field.setAccessible(true);
+                Object value = field.get(obj);
+
+                if (value == null) {
+                    sparkSession.conf().unset(sparkKey);
+                } else {
+                    sparkSession.conf().set(sparkKey, String.valueOf(value));
+                    LOG.info("add spark conf {} = {}", sparkKey, String.valueOf(value));
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
 
     //https://stackoverflow.com/questions/24386771/javax-validation-validationexception-hv000183-unable-to-load-javax-el-express
     public static final Validator VALIDATOR =
