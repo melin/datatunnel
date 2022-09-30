@@ -2,4 +2,7 @@ mysql=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 oracle=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 db2=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 sqlserver=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
+hana=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
+tidb=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
+gauss=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 postgresql=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink

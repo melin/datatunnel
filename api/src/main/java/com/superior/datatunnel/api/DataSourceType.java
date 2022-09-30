@@ -3,6 +3,7 @@ package com.superior.datatunnel.api;
 public enum DataSourceType {
     MYSQL,
     TIDB,
+    TISPARK,
     ORACLE,
     SQLSERVER,
     POSTGRESQL,

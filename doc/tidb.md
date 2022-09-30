@@ -5,10 +5,9 @@
 3. MS Sql
 4. Oracle
 5. PostgreSQL
-6. TIDB
-7. Hana
-8. Greenplum
-9. Gauss
+6. Hana
+7. Greenplum
+8. Gauss
 
 ### Reader
 
