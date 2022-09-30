@@ -19,6 +19,7 @@ public class ClickhouseReaderTest {
                 "    password='clickhouse2022',\n" +
                 "    host='40.73.102.235',\n" +
                 "    port=8123,\n" +
+                "    condition='id > 2',\n" +
                 "    databaseName='default', tableName='student')\n" +
                 "    sink('log') options(numRows = 10)";
 

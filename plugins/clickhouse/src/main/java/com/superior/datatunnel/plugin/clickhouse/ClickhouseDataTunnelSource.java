@@ -39,6 +39,10 @@ public class ClickhouseDataTunnelSource implements DataTunnelSource {
         try {
             String ckTableName = "clickhouse." + option.getDatabaseName() + "." + option.getTableName();
             String sql = "select " + StringUtils.join(option.getColumns(), ", ") + " from " + ckTableName;
+            String condition = option.getCondition();
+            if (StringUtils.isNotBlank(condition)) {
+                sql = sql + " where " + condition;
+            }
             return sparkSession.sql(sql);
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);

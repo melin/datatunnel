@@ -38,6 +38,8 @@ public class ClickhouseDataTunnelSourceOption extends DataTunnelSourceOption {
     @ValidConst({"http", "grpc"})
     private String protocol = "http";
 
+    private String condition;
+
     @SparkConfKey("spark.clickhouse.ignoreUnsupportedTransform")
     private boolean ignoreUnsupportedTransform;
 
