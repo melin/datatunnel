@@ -88,3 +88,4 @@ SINK("mysql") OPTIONS (
 1. [Bucket4j 限流库](https://github.com/vladimir-bukhtoyarov/bucket4j)
 2. https://github.com/housepower/spark-clickhouse-connector
 3. https://github.com/apache/incubator-seatunnel
+4. https://www.oudeis.co/blog/2020/spark-jdbc-throttling-writes/
