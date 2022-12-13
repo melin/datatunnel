@@ -9,6 +9,9 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 在conf/spark-default.conf 添加配置: spark.sql.extensions com.github.melin.datatunnel.core.DataxExtensions
 
 ### dtunnel sql 语法
+
+启动 ./bin/spark-sql，可以直接执行如下SQL 语法
+
 ```sql
 datatunnel source('数据类型名称') options(键值对参数) 
     transform(数据加工SQL，可以对数据处理后输出)
