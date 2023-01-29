@@ -204,8 +204,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     private void statTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String table) {
         PreparedStatement stmt = null;
         try {
-
             String partitionColumn = sourceOption.getPartitionColumn();
+            Integer numPartitions = sourceOption.getNumPartitions();
             String lowerBound = sourceOption.getLowerBound();
             String upperBound = sourceOption.getUpperBound();
 
@@ -216,14 +216,20 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             ResultSet resultSet = stmt.executeQuery();
             resultSet.next();
             long count = (Long) resultSet.getObject("num");
-            LogUtils.info("table {} record count: {}", table, count);
 
-            String maxValue = String.valueOf(resultSet.getObject("max_value"));
-            String minValue = String.valueOf(resultSet.getObject("min_value"));
-            LogUtils.info("table {} max value: {}, min value: {}", table, maxValue, minValue);
+            if ((StringUtils.isBlank(partitionColumn) || numPartitions == null)
+                    && count > 500000) {
+                LogUtils.warn("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
+            } else {
+                LogUtils.info("table {} record count: {}", table, count);
+            }
 
             if (StringUtils.isNotBlank(partitionColumn) && StringUtils.isNotBlank(lowerBound)
                     && StringUtils.isNotBlank(upperBound)) {
+
+                String maxValue = String.valueOf(resultSet.getObject("max_value"));
+                String minValue = String.valueOf(resultSet.getObject("min_value"));
+                LogUtils.info("table {} max value: {}, min value: {}", table, maxValue, minValue);
                 LogUtils.info("auto compute lowerBound: {}, upperBound: {}", lowerBound, upperBound);
                 sourceOption.setUpperBound(maxValue);
                 sourceOption.setLowerBound(minValue);
