@@ -1,8 +1,8 @@
 package com.superior.datatunnel.core
 
 import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, PassThroughContext, SingleStatementContext}
-import com.superior.datatunnel.parser.{DtunnelStatementBaseVisitor, DtunnelStatementLexer, DtunnelStatementParser}
+import com.superior.datatunnel.parser.DataTunnelParser.{DtunnelExprContext, SingleStatementContext}
+import com.superior.datatunnel.parser.{DataTunnelLexer, DataTunnelParser, DataTunnelParserBaseVisitor}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}
@@ -51,15 +51,15 @@ class DataTunnelSqlParser (spark: SparkSession,
     }
   }
 
-  protected def parse[T](command: String)(toResult: DtunnelStatementParser => T): T = {
+  protected def parse[T](command: String)(toResult: DataTunnelParser => T): T = {
     logInfo(s"Parsing command: $command")
 
-    val lexer = new DtunnelStatementLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
+    val lexer = new DataTunnelLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
     lexer.removeErrorListeners()
     lexer.addErrorListener(ParseErrorListener)
 
     val tokenStream = new CommonTokenStream(lexer)
-    val parser = new DtunnelStatementParser(tokenStream)
+    val parser = new DataTunnelParser(tokenStream)
     parser.addParseListener(PostProcessor)
     parser.removeErrorListeners()
     parser.addErrorListener(ParseErrorListener)
@@ -127,9 +127,9 @@ class DataTunnelSqlParser (spark: SparkSession,
   }
 }
 
-class DtunnelAstBuilder extends DtunnelStatementBaseVisitor[AnyRef] {
+class DtunnelAstBuilder extends DataTunnelParserBaseVisitor[AnyRef] {
 
-  override def visitDtunnelExpr(ctx: DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
+  override def visitDtunnelExpr(ctx: DataTunnelParser.DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
     DataTunnelExprCommand(ctx: DtunnelExprContext)
   }
 

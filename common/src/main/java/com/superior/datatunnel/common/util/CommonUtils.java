@@ -1,7 +1,7 @@
 package com.superior.datatunnel.common.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.gitee.melin.bee.util.MapperUtils;
+import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
@@ -84,7 +84,7 @@ public class CommonUtils {
             } else if (field.getType() == Double.class || field.getType() == double.class) {
                 field.set(beanInstance, Double.parseDouble(value));
             } else if (field.getType() == String[].class) {
-                field.set(beanInstance, MapperUtils.toJavaObject(value, new TypeReference<String[]>() {}));
+                field.set(beanInstance, JsonUtils.toJavaObject(value, new TypeReference<String[]>() {}));
             } else {
                 throw new DataTunnelException(fieldName + " not support data type: " + field.getType());
             }

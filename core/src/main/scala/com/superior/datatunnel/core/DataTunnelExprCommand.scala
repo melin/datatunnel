@@ -1,8 +1,7 @@
 package com.superior.datatunnel.core
 
-import com.superior.datatunnel.parser.DtunnelStatementParser.{DtunnelExprContext, SparkOptionsContext}
 import com.gitee.melin.bee.core.extension.ExtensionLoader
-import com.gitee.melin.bee.util.MapperUtils
+import com.gitee.melin.bee.util.JsonUtils
 import com.google.common.collect.Maps
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.api._
@@ -11,6 +10,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
+import com.superior.datatunnel.parser.DataTunnelParser.{DtunnelExprContext, SparkOptionsContext}
 import org.apache.commons.lang3.StringUtils
 
 import java.util
@@ -105,7 +105,7 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
       val code = options.containsKey("datasourceCode")
       val key = "spark.sql.datatunnel.datasource." + code
       val json = sparkSession.conf.get(key);
-      val map = MapperUtils.toJavaMap[String](json);
+      val map = JsonUtils.toJavaMap[String](json);
       options.putAll(map)
     }
 
