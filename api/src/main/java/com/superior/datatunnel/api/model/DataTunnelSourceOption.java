@@ -8,4 +8,6 @@ public abstract class DataTunnelSourceOption extends DataTunnelOption {
     private DataSourceType dataSourceType;
 
     private String resultTableName;
+
+    private String cteSql;
 }

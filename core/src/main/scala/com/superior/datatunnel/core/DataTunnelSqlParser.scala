@@ -23,31 +23,18 @@ import org.apache.spark.sql.types.{DataType, StructType}
 class DataTunnelSqlParser (spark: SparkSession,
                       val delegate: ParserInterface) extends ParserInterface with Logging {
 
-  private val builder = new DtunnelAstBuilder()
-
   override def parsePlan(sqlText: String): LogicalPlan = {
-    val sql = CommonUtils.cleanSqlComment(sqlText)
-    if (StringUtils.startsWithIgnoreCase(sqlText, "datatunnel")) {
+    val sql = StringUtils.trim(CommonUtils.cleanSqlComment(sqlText))
+    try {
+      val builder = new DtunnelAstBuilder(sql)
       parse(sql) { parser => builder.visit(parser.singleStatement()) }.asInstanceOf[LogicalPlan]
-    } else {
-      val parsedPlan = delegate.parsePlan(sqlText)
-      parsedPlan match {
-        case plan: LogicalPlan => plan
-        case _ => delegate.parsePlan(sql)
-      }
-    }
-  }
-
-  override def parseQuery(sqlText: String): LogicalPlan = {
-    val sql = CommonUtils.cleanSqlComment(sqlText)
-    if (StringUtils.startsWithIgnoreCase(sqlText, "datatunnel")) {
-      parse(sql) { parser => builder.visit(parser.singleStatement()) }.asInstanceOf[LogicalPlan]
-    } else {
-      val parsedPlan = delegate.parseQuery(sqlText)
-      parsedPlan match {
-        case plan: LogicalPlan => plan
-        case _ => delegate.parseQuery(sql)
-      }
+    } catch {
+      case _: Throwable =>
+        val parsedPlan = delegate.parsePlan(sqlText)
+        parsedPlan match {
+          case plan: LogicalPlan => plan
+          case _ => delegate.parsePlan(sql)
+        }
     }
   }
 
@@ -125,12 +112,16 @@ class DataTunnelSqlParser (spark: SparkSession,
   override def parseTableSchema(sqlText: String): StructType = {
     delegate.parseTableSchema(sqlText)
   }
+
+  override def parseQuery(sqlText: String): LogicalPlan = {
+    delegate.parseQuery(sqlText)
+  }
 }
 
-class DtunnelAstBuilder extends DataTunnelParserBaseVisitor[AnyRef] {
+class DtunnelAstBuilder(val sqlText: String) extends DataTunnelParserBaseVisitor[AnyRef] {
 
   override def visitDtunnelExpr(ctx: DataTunnelParser.DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
-    DataTunnelExprCommand(ctx: DtunnelExprContext)
+    DataTunnelExprCommand(sqlText, ctx: DtunnelExprContext)
   }
 
   override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan = withOrigin(ctx) {

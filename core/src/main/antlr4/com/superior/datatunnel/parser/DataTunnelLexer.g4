@@ -488,7 +488,7 @@ fragment DIGIT
     ;
 
 fragment LETTER
-    : [A-Z]
+    : [a-zA-Z]
     ;
 
 SIMPLE_COMMENT

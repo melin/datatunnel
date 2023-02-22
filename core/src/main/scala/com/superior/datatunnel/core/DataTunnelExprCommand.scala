@@ -12,6 +12,7 @@ import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
 import com.superior.datatunnel.parser.DataTunnelParser.{DtunnelExprContext, SparkOptionsContext}
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.reflect.FieldUtils
 
 import java.util
 import scala.collection.JavaConverters._
@@ -20,14 +21,13 @@ import scala.collection.JavaConverters._
  *
  * @author melin 2021/6/28 2:23 下午
  */
-case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
+case class DataTunnelExprCommand(sqlText: String, ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
     val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
     val sourceOpts = convertOptions(sparkSession, ctx.sourceOpts)
     val sinkOpts = convertOptions(sparkSession, ctx.sinkOpts)
-
     val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null
 
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
@@ -54,6 +54,12 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     var errorMsg = s"source $sourceName has no parameter: "
     val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, source.getOptionClass, errorMsg)
     sourceOption.setDataSourceType(sourceType)
+    if (ctx.ctes() != null) {
+      val cteSql = StringUtils.substring(sqlText, ctx.ctes().start.getStartIndex, ctx.ctes().stop.getStopIndex + 1)
+      sourceOption.setCteSql(cteSql)
+    }
+
+
     errorMsg = s"sink $sourceName has no parameter: "
     val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass, errorMsg)
     sinkOption.setDataSourceType(sinkType)
@@ -74,6 +80,17 @@ case class DataTunnelExprCommand(ctx: DtunnelExprContext) extends LeafRunnableCo
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
 
+    if (sourceOption.getCteSql != null) {
+      if (source.supportCte()) {
+        val tableName = FieldUtils.readField(sourceOption, "tableName", true).asInstanceOf[String]
+        val sql = sourceOption.getCteSql + " select * from " + tableName;
+        val tdlName = "tdl_datatunnel_cte_" + System.currentTimeMillis
+        sparkSession.sql(sql).createTempView(tdlName)
+        FieldUtils.writeField(sourceOption, "tableName", tdlName, true)
+      } else {
+        throw new DataTunnelException("source " + sourceName + " not support cte")
+      }
+    }
     var df = source.read(context)
 
     if (StringUtils.isBlank(sourceOption.getResultTableName)

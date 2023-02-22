@@ -17,4 +17,8 @@ public interface DataTunnelSource extends Serializable {
     Dataset<Row> read(DataTunnelContext context) throws IOException;
 
     Class<? extends DataTunnelSourceOption> getOptionClass();
+
+    default boolean supportCte()  {
+        return false;
+    }
 }

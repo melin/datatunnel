@@ -16,15 +16,16 @@ public class SparkDemo {
                 .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
                 .getOrCreate();
 
-        String sql = "datatunnel source('mysql') options(\n" +
-                "    username='dataworks',\n" +
-                "    password='dataworks2021',\n" +
-                "    host='10.5.20.20',\n" +
+        String sql = "WITH tmp_job AS (SELECT * FROM meta_job) " +
+                "datatunnel SOURCE('mysql') OPTIONS(\n" +
+                "    username='root',\n" +
+                "    password='root2023',\n" +
+                "    host='172.18.5.44',\n" +
                 "    port=3306,\n" +
-                "    resultTableName='temp_dc_job',\n" +
-                "    databaseName='dataworks', tableName='dc_job', columns=['*'])\n" +
-                "    transform = 'select * from temp_dc_job where type=\"spark_sql\"'\n" +
-                "    sink('log') options(numRows = 10)";
+                "    resultTableName='temp_meta_job',\n" +
+                "    databaseName='superior', tableName='tmp_job', columns=['*'])\n" +
+                "    TRANSFORM = 'select * from temp_meta_job where type=\"spark_sql\"'\n" +
+                "    SINK('log') OPTIONS(numRows = 10)";
 
         spark.sql(sql);
     }

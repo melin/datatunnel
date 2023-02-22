@@ -46,33 +46,8 @@ singleStatement
     : statement SEMICOLON* EOF
     ;
 
-singleExpression
-    : namedExpression EOF
-    ;
-
-singleTableIdentifier
-    : tableIdentifier EOF
-    ;
-
-singleMultipartIdentifier
-    : multipartIdentifier EOF
-    ;
-
-singleFunctionIdentifier
-    : functionIdentifier EOF
-    ;
-
-singleDataType
-    : dataType EOF
-    ;
-
-singleTableSchema
-    : colTypeList EOF
-    ;
-
 statement
-    : query                                                                 #statementDefault
-    | ctes? DATATUNNEL SOURCE LEFT_PAREN sourceName=STRING RIGHT_PAREN
+    : ctes? DATATUNNEL SOURCE LEFT_PAREN sourceName=STRING RIGHT_PAREN
         sourceOpts=sparkOptions (TRANSFORM EQ transfromSql=STRING)?
         SINK LEFT_PAREN sinkName=STRING RIGHT_PAREN (sinkOpts=sparkOptions)? #dtunnelExpr
     ;

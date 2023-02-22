@@ -48,4 +48,9 @@ public class HiveDataTunnelSource implements DataTunnelSource {
     public Class<? extends DataTunnelSourceOption> getOptionClass() {
         return HiveDataTunnelSourceOption.class;
     }
+
+    @Override
+    public boolean supportCte() {
+        return true;
+    }
 }
