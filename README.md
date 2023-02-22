@@ -13,6 +13,11 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 启动 ./bin/spark-sql，可以直接执行如下SQL 语法
 
 ```sql
+-- 支持CTE语法，方便原表数据经过处理过，写入到目标表
+WITH t AS (
+    WITH t2 AS (SELECT 1)
+    SELECT * FROM t2
+)
 datatunnel source('数据类型名称') options(键值对参数) 
     transform(数据加工SQL，可以对数据处理后输出)
     sink('数据类型名称') options(键值对参数)
