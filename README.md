@@ -14,6 +14,7 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 
 ```sql
 -- hive source 支持CTE语法，方便原表数据经过处理过，写入到目标表，其他数据源不支持CTE 语法。
+-- 相比 transform 更灵活
 WITH t AS (
     WITH t2 AS (SELECT 1)
     SELECT * FROM t2
@@ -43,6 +44,15 @@ datatunnel source('数据类型名称') options(键值对参数)
 
 ### example
 ```sql
+-- support cte
+WITH tmp_demo_test2 AS (SELECT * FROM bigdata.test_demo_test2 where name is not null)
+datatunnel SOURCE('hive') OPTIONS(
+    databaseName='bigdata',
+    tableName='tmp_demo_test2',
+    columns=['*'])
+SINK('log') OPTIONS(numRows = 10)
+
+-- mysql to hive
 DATATUNNEL SOURCE("mysql") OPTIONS (
   username = "dataworks",
   password = "dataworks2021",

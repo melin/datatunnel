@@ -27,7 +27,7 @@ public class HiveDataTunnelSource implements DataTunnelSource {
         String condition = sourceOption.getCondition();
 
         String table = tableName;
-        if (StringUtils.isNotBlank(databaseName)) {
+        if (StringUtils.isNotBlank(databaseName) && StringUtils.isBlank(sourceOption.getCteSql())) {
             table = databaseName + "." + tableName;
         }
 
