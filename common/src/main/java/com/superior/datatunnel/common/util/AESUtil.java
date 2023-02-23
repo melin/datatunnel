@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class AESUtil {
@@ -20,8 +21,8 @@ public class AESUtil {
      */
     public static String encrypt(String value) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(ENCRYPT_KEY.getBytes("UTF-8"));
-            SecretKeySpec skeySpec = new SecretKeySpec(ENCRYPT_KEY.getBytes("UTF-8"), "AES");
+            IvParameterSpec iv = new IvParameterSpec(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
