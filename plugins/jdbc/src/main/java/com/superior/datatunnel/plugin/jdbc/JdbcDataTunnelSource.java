@@ -15,6 +15,8 @@ import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
 import org.apache.spark.sql.jdbc.JdbcDialect;
 import org.apache.spark.sql.jdbc.JdbcDialects;
 import org.apache.spark.sql.types.StructType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
 
 import java.io.IOException;
@@ -33,6 +35,8 @@ import java.util.stream.Collectors;
  */
 public class JdbcDataTunnelSource implements DataTunnelSource {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSource.class);
+
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
 
@@ -49,12 +53,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         DataSourceType dsType = sourceOption.getDataSourceType();
 
         String databaseName = sourceOption.getDatabaseName();
+        String schema = sourceOption.getSchema();
         String tableName = sourceOption.getTableName();
         String[] columns = sourceOption.getColumns();
 
         String username = sourceOption.getUsername();
         String password = sourceOption.getPassword();
-        String url = JdbcUtils.buildJdbcUrl(dsType, sourceOption.getHost(), sourceOption.getPort(), sourceOption.getSchema());
+        String url = JdbcUtils.buildJdbcUrl(dsType, sourceOption.getHost(),
+                sourceOption.getPort(), sourceOption.getDatabaseName(), sourceOption.getServerName());
 
         int fetchSize = sourceOption.getFetchSize();
         int queryTimeout = sourceOption.getQueryTimeout();
@@ -69,7 +75,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         sourceOption.setLowerBound(null);
         sourceOption.setUpperBound(null);
 
-        String table = databaseName + "." + tables[0];
+        String table = StringUtils.isNotBlank(schema) ? schema + "." + tables[0] : databaseName + "." + tables[0];
         JDBCOptions options = buildJDBCOptions(url, table, sourceOption);
         Connection connection = buildConnection(url, options);
         //自动创建hive table。如果source 是多个表，以第一个表scheme 创建hive table
@@ -84,7 +90,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         Dataset<Row> dataset = null;
         for (int i = 0, len = tables.length; i < len; i++) {
-            String fullTableName = databaseName + "." + tables[i];
+            String fullTableName = StringUtils.isNotBlank(schema) ? schema + "." + tables[i] : tables[i];
             statTable(connection, sourceOption, fullTableName);
             DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")
@@ -209,18 +215,30 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String lowerBound = sourceOption.getLowerBound();
             String upperBound = sourceOption.getUpperBound();
 
-            String sql = "select count(1) as num , max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value " +
-                    "from " + table;
+            String sql;
+            if (StringUtils.isNotBlank(partitionColumn)) {
+                sql = "select count(1) as num , max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value " +
+                        "from " + table;
+            } else {
+                sql = "select count(1) as num from " + table;
+            }
+
+            String condition = sourceOption.getCondition();
+            if (StringUtils.isNotBlank(condition)) {
+                sql = sql + " where " + condition;
+            }
 
             stmt = conn.prepareStatement(sql);
             ResultSet resultSet = stmt.executeQuery();
             resultSet.next();
-            long count = (Long) resultSet.getObject("num");
+            long count = Long.parseLong(resultSet.getString("num"));
 
             if ((StringUtils.isBlank(partitionColumn) || numPartitions == null)
                     && count > 500000) {
+                LOG.info("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
                 LogUtils.warn("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
             } else {
+                LOG.info("table {} record count: {}", table, count);
                 LogUtils.info("table {} record count: {}", table, count);
             }
 

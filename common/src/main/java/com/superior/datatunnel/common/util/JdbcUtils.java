@@ -18,26 +18,34 @@ public class JdbcUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcUtils.class);
 
-    public static String buildJdbcUrl(DataSourceType dsType, String host, int port, String schema) {
+    public static String buildJdbcUrl(DataSourceType dsType, String host, int port, String databaseName, String serverName) {
         String url = "";
         if (MYSQL == dsType || TIDB == dsType) {
-            url = "jdbc:mysql://" + host + ":" + port;
+            url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
         } else if (ORACLE == dsType) {
-            url = "jdbc:oracle://" + host + ":" + port;
+            url = "jdbc:oracle:thin:@//" + host + ":" + port;
+            if (StringUtils.isNotBlank(serverName)) {
+                url += "/" + serverName;
+            }
         } else if (DB2 == dsType) {
             url = "jdbc:db2://" + host + ":" + port;
+            if (StringUtils.isNotBlank(databaseName)) {
+                url += "/" + databaseName;
+            }
         } else if (POSTGRESQL == dsType || GAUSS == dsType) {
             url = "jdbc:postgresql://" + host + ":" + port;
+            if (StringUtils.isNotBlank(databaseName)) {
+                url += "/" + databaseName;
+            }
         } else if (SQLSERVER == dsType) {
-            url = "jdbc:sqlserver://" + host + ":" + port;
+            url = "jdbc:sqlserver://" + host + ":" + port + ";DatabaseName=" + databaseName + ";trustServerCertificate=true";
         } else if (HANA == dsType) {
             url = "jdbc:sap://" + host + ":" + port + "?reconnect=true";
         } else if (GREENPLUM == dsType) {
             url = "jdbc:pivotal:greenplum://" + host + ":" + port;
-        }
-
-        if (StringUtils.isNotBlank(schema)) {
-            url = url + "/" + schema;
+            if (StringUtils.isNotBlank(databaseName)) {
+                url += "/" + databaseName;
+            }
         }
 
         // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768

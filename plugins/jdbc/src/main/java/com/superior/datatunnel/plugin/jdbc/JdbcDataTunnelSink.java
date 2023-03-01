@@ -50,7 +50,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();
-            String url = JdbcUtils.buildJdbcUrl(dsType, sinkOption.getHost(), sinkOption.getPort(), sinkOption.getSchema());
+            String url = JdbcUtils.buildJdbcUrl(dsType, sinkOption.getHost(),
+                    sinkOption.getPort(), sinkOption.getDatabaseName(), sinkOption.getServerName());
 
             int batchsize = sinkOption.getBatchsize();
             int queryTimeout = sinkOption.getQueryTimeout();

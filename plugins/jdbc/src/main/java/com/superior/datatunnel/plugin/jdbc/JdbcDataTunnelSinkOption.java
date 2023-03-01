@@ -13,8 +13,13 @@ public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
     @NotBlank(message = "databaseName can not blank")
     private String databaseName;
 
+    private String schema;
+
     @NotBlank(message = "tableName can not blank")
     private String tableName;
+
+    //oracle
+    private String serverName;
 
     @NotEmpty(message = "columns can not empty")
     private String[] columns = new String[]{"*"};
@@ -30,8 +35,6 @@ public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
 
     @NotNull(message = "port can not blank")
     private Integer port;
-
-    private String schema;
 
     private int batchsize = 1000;
 

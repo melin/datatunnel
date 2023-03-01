@@ -58,7 +58,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
         val table = sinkDatabaseName + "." + sinkTableName
 
         val url = JdbcUtils.buildJdbcUrl(jdbcSinkOption.getDataSourceType, jdbcSinkOption.getHost,
-          jdbcSinkOption.getPort, jdbcSinkOption.getSchema)
+          jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName, jdbcSinkOption.getServerName)
 
         var batchsize = jdbcSinkOption.getBatchsize
         var queryTimeout = jdbcSinkOption.getQueryTimeout

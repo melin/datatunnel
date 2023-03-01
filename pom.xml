@@ -38,6 +38,7 @@
         <spotbugs.version>4.7.0</spotbugs.version>
         <log4j.version>2.17.2</log4j.version>
         <bee.version>1.5.5</bee.version>
+        <hudi.version>0.13.0</hudi.version>
 
         <scala-maven-plugin.version>4.6.3</scala-maven-plugin.version>
     </properties>
