@@ -8,7 +8,7 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true
 解压 assembly/target/ 目录下生成可用包 datatunnel-[version].tar.gz。复制所有jar 到 spark_home/jars 
 在conf/spark-default.conf 添加配置: spark.sql.extensions com.github.melin.datatunnel.core.DataxExtensions
 
-### dtunnel sql 语法
+### datatunnel sql 语法
 
 启动 ./bin/spark-sql，可以直接执行如下SQL 语法
 
