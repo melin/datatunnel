@@ -12,6 +12,8 @@ public enum DataSourceType {
     GREENPLUM,
     DB2,
     HANA,
+    DAMENG,
+    OCEANBASE,
 
     HIVE,
     KAFKA,
@@ -26,7 +28,8 @@ public enum DataSourceType {
     public static boolean isJdbcDataSource(DataSourceType dsType) {
         if (dsType == MYSQL || dsType == ORACLE || dsType == SQLSERVER
                 || dsType == POSTGRESQL || dsType == DB2 || dsType == TIDB
-                || dsType == GAUSS || dsType == GREENPLUM  || dsType == HANA) {
+                || dsType == GAUSS || dsType == GREENPLUM  || dsType == HANA
+                || dsType == DAMENG) {
             return true;
         } else {
             return false;

@@ -17,7 +17,7 @@ public class DataTunnelSqlServer2LogDemo {
                 .getOrCreate();
 
         String sql = "datatunnel SOURCE('sqlserver') OPTIONS(\n" +
-                "    username='sa',\n" +
+                "    username=\"sa\",\n" +
                 "    password='Password!',\n" +
                 "    host='172.18.1.53',\n" +
                 "    port=1433,\n" +

@@ -19,9 +19,12 @@ public class JdbcUtils {
     private static final Logger LOG = LoggerFactory.getLogger(JdbcUtils.class);
 
     public static String buildJdbcUrl(DataSourceType dsType, String host, int port, String databaseName, String serverName) {
+        // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
+
         String url = "";
         if (MYSQL == dsType || TIDB == dsType) {
             url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
+            url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&tinyInt1isBit=false";
         } else if (ORACLE == dsType) {
             url = "jdbc:oracle:thin:@//" + host + ":" + port;
             if (StringUtils.isNotBlank(serverName)) {
@@ -37,6 +40,7 @@ public class JdbcUtils {
             if (StringUtils.isNotBlank(databaseName)) {
                 url += "/" + databaseName;
             }
+            url = url + "?reWriteBatchedInserts=true";
         } else if (SQLSERVER == dsType) {
             url = "jdbc:sqlserver://" + host + ":" + port + ";DatabaseName=" + databaseName + ";trustServerCertificate=true";
         } else if (HANA == dsType) {
@@ -46,13 +50,11 @@ public class JdbcUtils {
             if (StringUtils.isNotBlank(databaseName)) {
                 url += "/" + databaseName;
             }
-        }
-
-        // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
-        if (MYSQL == dsType) {
-            url = url + "?characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&tinyInt1isBit=false";
-        } else if (POSTGRESQL == dsType) {
-            url = url + "?reWriteBatchedInserts=true";
+        } else if (DAMENG == dsType) {
+            url = "jdbc:dm://" + host + ":" + port + "/" + databaseName;
+        } else if (OCEANBASE == dsType) {
+            url = "jdbc:oceanbase://" + host + ":" + port + "/" + databaseName +
+                    "?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true&allowMultiQueries=true";
         }
 
         return url;

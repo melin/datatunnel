@@ -90,8 +90,16 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         Dataset<Row> dataset = null;
         for (int i = 0, len = tables.length; i < len; i++) {
-            String fullTableName = StringUtils.isNotBlank(schema) ? schema + "." + tables[i] : tables[i];
+            String fullTableName = databaseName + "." + tables[i];
+            if (StringUtils.isNotBlank(schema)) {
+                fullTableName = databaseName + "." + schema + "." + tables[i];
+            }
+
             statTable(connection, sourceOption, fullTableName);
+
+            if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
+                fullTableName = "(select " + StringUtils.join(columns, ",") + " from " + fullTableName + ")";
+            }
             DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")
                     .option("url", url)

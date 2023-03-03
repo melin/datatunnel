@@ -6,3 +6,5 @@ hana=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 tidb=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 gauss=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 postgresql=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
+dameng=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
+oceanbase=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink

@@ -56,5 +56,27 @@
             <artifactId>ngdbc</artifactId>
             <version>2.13.9</version>
         </dependency>
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>jdbc8</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oceanbase</groupId>
+            <artifactId>oceanbase-client</artifactId>
+            <version>2.4.2</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <!-- 使用 DM 的镜像仓库来下载驱动包-->
+        <repository>
+            <id>dc</id>
+            <name>dc Repository</name>
+            <url>http://119.96.92.173:8181/repository/maven-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
