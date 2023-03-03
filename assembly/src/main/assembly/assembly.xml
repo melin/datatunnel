@@ -26,6 +26,7 @@
                 <exclude>com.gitee.melin.bee:bee:jar</exclude>
                 <exclude>org.hibernate:hibernate-validator:jar</exclude>
                 <exclude>org.apache.httpcomponents:*:jar</exclude>
+                <exclude>io.netty:*:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

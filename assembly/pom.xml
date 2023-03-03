@@ -33,11 +33,11 @@
             <artifactId>datatunnel-plugin-clickhouse</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-tidb</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-plugin-hbase</artifactId>
