@@ -29,7 +29,5 @@ public class DataTunnelMysql2LogDemo {
                 "    SINK('log') OPTIONS(numRows = 10)";
 
         spark.sql(sql);
-
-        System.out.println(DataTunnelMetrics.inputRecords());
     }
 }
