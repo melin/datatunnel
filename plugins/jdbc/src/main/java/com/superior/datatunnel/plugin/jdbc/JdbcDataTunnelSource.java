@@ -60,7 +60,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         String username = sourceOption.getUsername();
         String password = sourceOption.getPassword();
         String url = JdbcUtils.buildJdbcUrl(dsType, sourceOption.getHost(),
-                sourceOption.getPort(), sourceOption.getDatabaseName(), sourceOption.getServerName());
+                sourceOption.getPort(), sourceOption.getDatabaseName(),
+                sourceOption.getSid(), sourceOption.getServiceName());
 
         int fetchSize = sourceOption.getFetchSize();
         int queryTimeout = sourceOption.getQueryTimeout();
@@ -211,7 +212,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             return dialect.createConnectionFactory(options).apply(-1);
         } catch (Exception e) {
             String msg = "无法访问数据源: " + url + ", 失败原因: " + e.getMessage();
-            throw new DataTunnelException(msg);
+            throw new DataTunnelException(msg, e);
         }
     }
 

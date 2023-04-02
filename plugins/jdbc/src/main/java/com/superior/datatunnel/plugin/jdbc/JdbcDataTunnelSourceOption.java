@@ -19,7 +19,10 @@ public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
     private String tableName;
 
     //oracle
-    private String serverName;
+    private String sid;
+
+    //oracle
+    private String serviceName;
 
     @NotEmpty(message = "columns can not empty")
     private String[] columns = new String[]{"*"};

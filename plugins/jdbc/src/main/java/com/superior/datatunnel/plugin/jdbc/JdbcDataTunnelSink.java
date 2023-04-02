@@ -51,7 +51,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();
             String url = JdbcUtils.buildJdbcUrl(dsType, sinkOption.getHost(),
-                    sinkOption.getPort(), sinkOption.getDatabaseName(), sinkOption.getServerName());
+                    sinkOption.getPort(), sinkOption.getDatabaseName(),
+                    sinkOption.getSid(), sinkOption.getServiceName());
 
             int batchsize = sinkOption.getBatchsize();
             int queryTimeout = sinkOption.getQueryTimeout();
@@ -78,7 +79,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
             dataset = context.getSparkSession().sql(sql);
             dataset.write()
-                    .format("jdbc")
+                    .format("datatunnel-jdbc")
                     .mode(mode)
                     .option("url", url)
                     .option("dbtable", table)
@@ -87,6 +88,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("truncate", truncate)
                     .option("user", username)
                     .option("password", password)
+                    .option("writeMode", writeMode)
                     .save();
 
             if (StringUtils.isNotBlank(postSql)) {

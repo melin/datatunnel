@@ -3,11 +3,9 @@ package com.superior.datatunnel.examples;
 import com.superior.datatunnel.core.DataTunnelExtensions;
 import org.apache.spark.sql.SparkSession;
 
-import java.sql.SQLException;
+public class DataTunnelOracle2MySqlDemo {
 
-public class DataTunnelOracle2LogDemo {
-
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
         SparkSession spark = SparkSession
                 .builder()
                 //.enableHiveSupport()
@@ -24,8 +22,15 @@ public class DataTunnelOracle2LogDemo {
                 "    serviceName='XE',\n" +
                 "    databaseName='FLINKUSER'," +
                 "    tableName='ORDERS', columns=['ORDER_ID', 'CUSTOMER_NAME', 'PRICE', 'PRODUCT_ID', 'ORDER_STATUS'])\n" +
-                "    SINK('log') OPTIONS(numRows = 10)";
-
+                "SINK('mysql') OPTIONS(\n" +
+                "    host='172.18.1.55',\n" +
+                "    port=3306,\n" +
+                "    username='root',\n" +
+                "    password='Datac@123',\n" +
+                "    databaseName='datatunnel_demo'," +
+                "    tableName='orders'," +
+                "    writeMode='upsert'" +
+                ")";
         spark.sql(sql);
     }
 }

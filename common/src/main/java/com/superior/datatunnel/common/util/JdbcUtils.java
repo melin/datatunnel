@@ -18,7 +18,14 @@ public class JdbcUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcUtils.class);
 
-    public static String buildJdbcUrl(DataSourceType dsType, String host, int port, String databaseName, String serverName) {
+    public static String buildJdbcUrl(
+            DataSourceType dsType,
+            String host,
+            int port,
+            String databaseName,
+            String oracleSid,
+            String oracleServiceName) {
+
         // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
 
         String url = "";
@@ -27,8 +34,10 @@ public class JdbcUtils {
             url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&tinyInt1isBit=false";
         } else if (ORACLE == dsType) {
             url = "jdbc:oracle:thin:@//" + host + ":" + port;
-            if (StringUtils.isNotBlank(serverName)) {
-                url += "/" + serverName;
+            if (StringUtils.isNotBlank(oracleSid)) {
+                url += ":" + oracleSid;
+            } else if (StringUtils.isNotBlank(oracleServiceName)) {
+                url += "/" + oracleServiceName;
             }
         } else if (DB2 == dsType) {
             url = "jdbc:db2://" + host + ":" + port;

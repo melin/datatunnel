@@ -10,9 +10,7 @@ public class DataTunnelSqlServer2LogDemo {
                 .builder()
                 //.enableHiveSupport()
                 .master("local")
-                .appName("Iceberg spark example")
-                .config("spark.sql.parquet.compression.codec", "zstd")
-                .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
+                .appName("Datatunnel spark example")
                 .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
                 .getOrCreate();
 

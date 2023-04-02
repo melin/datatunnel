@@ -36,25 +36,26 @@
 
 #### 参数说明
 
-| 参数key           | 数据类型   | 是否必填     | 默认值     |描述                                  |
-| :-----           | :-----    |:---------|:--------| :------                             |
-| host              | string    | √        |         | 数据源host                                                                                                                                                                                                                                 |
-| port              | int       | √        |         | 数据源port                                                                                                                                                                                                                                 |
-| username          | string    | √        |         | 账号                                                                                                                                                                                                                                      |
-| password          | string    | √        |         | 密码                                                                                                                                                                                                                                      |
-| databaseName     | string    | √        |         | 数据库名                             |
-| tableName        | string    | √        |         | 目的表的表名称                        |
-| columns           | array     | √        | ["*"]        | 目的表需要写入数据的字段, 字段之间用英文逗号分隔，例如: "column": ["id","name","age"]。如果读取全部字段，"column": ["*"] |
-| numPartitions    | int       |          |         | 最大分区数量，必须为整数，当为0或负整数时，实际的分区数为1   |
-| queryTimeout     | int       | √        | 0       | The number of seconds the driver will wait for a Statement object to execute to the given number of seconds. Zero means there is no limit. In the write path, this option depends on how JDBC drivers implement the API setQueryTimeout   |
-| batchsize        | int       |          | 1000    | The JDBC batch size, which determines how many rows to insert per round trip. This can help performance on JDBC drivers. This option applies only to writing.|
-| preSql           | string    | √        |         | 写入数据到目的表前，会先执行这里的标准语句                  |
-| postSql          | string    | √        |         | 写入数据到目的表后，会执行这里的标准语句                  |
-| writeMode        | string    |          | append  | 写入模式: append, overwrite|
-| truncate         | boolean   |          | false   | writeMode等于overwrite，truncate=true, 插入之前是否清空表                |
+| 参数key           | 数据类型   | 是否必填     | 默认值         | 描述                                                                                                                                                                                                                                      |
+| :-----           | :-----    |:---------|:------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| host              | string    | √        |             | 数据源host                                                                                                                                                                                                                                 |
+| port              | int       | √        |             | 数据源port                                                                                                                                                                                                                                 |
+| username          | string    | √        |             | 账号                                                                                                                                                                                                                                      |
+| password          | string    | √        |             | 密码                                                                                                                                                                                                                                      |
+| databaseName     | string    | √        |             | 数据库名                                                                                                                                                                                                                                    |
+| tableName        | string    | √        |             | 目的表的表名称                                                                                                                                                                                                                                 |
+| columns           | array     | √        | ["*"]       | 目的表需要写入数据的字段, 字段之间用英文逗号分隔，例如: "column": ["id","name","age"]。如果读取全部字段，"column": ["*"]                                                                                                                                                    |
+| numPartitions    | int       |          |             | 最大分区数量，必须为整数，当为0或负整数时，实际的分区数为1                                                                                                                                                                                                          |
+| queryTimeout     | int       | √        | 0           | The number of seconds the driver will wait for a Statement object to execute to the given number of seconds. Zero means there is no limit. In the write path, this option depends on how JDBC drivers implement the API setQueryTimeout |
+| batchsize        | int       |          | 1000        | The JDBC batch size, which determines how many rows to insert per round trip. This can help performance on JDBC drivers. This option applies only to writing.                                                                           |
+| preSql           | string    | √        |             | 写入数据到目的表前，会先执行这里的标准语句                                                                                                                                                                                                                   |
+| postSql          | string    | √        |             | 写入数据到目的表后，会执行这里的标准语句                                                                                                                                                                                                                    |
+| writeMode        | string    |          | append      | 写入模式: overwrite, insert, upsert                                                                                                                                                                                                         |
+| truncate         | boolean   |          | false       | writeMode等于overwrite，truncate=true, 插入之前是否清空表                                                                                                                                                                                           |
 
 ### 参考
 1. https://github.com/niutaofan/bazinga
 2. https://spark.apache.org/docs/latest/sql-data-sources-jdbc.html
 3. https://luminousmen.com/post/spark-tips-optimizing-jdbc-data-source-reads
+
 
