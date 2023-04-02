@@ -102,7 +102,12 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DtunnelExprContext) exten
     }
 
     if (KAFKA != sourceType) {
-      sink.sink(df, context)
+      try {
+        DataTunnelMetrics.logEnabled = true;
+        sink.sink(df, context)
+      } finally {
+        DataTunnelMetrics.logEnabled = false;
+      }
     }
     Seq.empty[Row]
   }

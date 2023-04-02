@@ -1,6 +1,7 @@
 package com.superior.datatunnel.examples;
 
 import com.superior.datatunnel.core.DataTunnelExtensions;
+import com.superior.datatunnel.core.DataTunnelMetrics;
 import org.apache.spark.sql.SparkSession;
 
 public class DataTunnelMysql2LogDemo {
@@ -28,5 +29,7 @@ public class DataTunnelMysql2LogDemo {
                 "    SINK('log') OPTIONS(numRows = 10)";
 
         spark.sql(sql);
+
+        System.out.println(DataTunnelMetrics.inputRecords());
     }
 }

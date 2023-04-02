@@ -60,6 +60,8 @@
             <groupId>com.dameng</groupId>
             <artifactId>jdbc8</artifactId>
             <version>1.8</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../jars/jdbc8-1.8.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.oceanbase</groupId>
@@ -77,6 +79,11 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
     </repositories>
 </project>
