@@ -58,10 +58,8 @@
         </dependency>
         <dependency>
             <groupId>com.dameng</groupId>
-            <artifactId>jdbc8</artifactId>
-            <version>1.8</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../../jars/jdbc8-1.8.jar</systemPath>
+            <artifactId>DmJdbcDriver18</artifactId>
+            <version>8.1.2.192</version>
         </dependency>
         <dependency>
             <groupId>com.oceanbase</groupId>
