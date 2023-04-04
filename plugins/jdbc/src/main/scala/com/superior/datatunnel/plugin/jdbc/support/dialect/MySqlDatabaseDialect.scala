@@ -5,11 +5,10 @@ import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
 
-class MySqlDatabaseDialect(conn: Connection) extends DatabaseDialect {
+class MySqlDatabaseDialect(conn: Connection, dataSourceType: String)
+  extends DatabaseDialect(conn, dataSourceType) {
 
-  override def connection: Connection = conn
-
-  def getUpsertStatement(
+  override def getUpsertStatement(
       table: String,
       rddSchema: StructType,
       tableSchema: Option[StructType],

@@ -39,7 +39,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
         validateOptions(context);
 
         JdbcDataTunnelSinkOption sinkOption = (JdbcDataTunnelSinkOption) context.getSinkOption();
-        DataSourceType dsType = sinkOption.getDataSourceType();
+        DataSourceType dataSourceType = sinkOption.getDataSourceType();
 
         Connection connection = null;
         try {
@@ -50,7 +50,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();
-            String url = JdbcUtils.buildJdbcUrl(dsType, sinkOption.getHost(),
+            String url = JdbcUtils.buildJdbcUrl(dataSourceType, sinkOption.getHost(),
                     sinkOption.getPort(), sinkOption.getDatabaseName(),
                     sinkOption.getSid(), sinkOption.getServiceName());
 
@@ -89,6 +89,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("user", username)
                     .option("password", password)
                     .option("writeMode", writeMode)
+                    .option("dataSourceType", dataSourceType.name())
                     .save();
 
             if (StringUtils.isNotBlank(postSql)) {

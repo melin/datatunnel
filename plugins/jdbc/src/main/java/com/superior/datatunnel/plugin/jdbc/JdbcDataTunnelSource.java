@@ -99,7 +99,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             statTable(connection, sourceOption, fullTableName);
 
             if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
-                fullTableName = "(select " + StringUtils.join(columns, ",") + " from " + fullTableName + ")";
+                fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") AS tdl_datatunnel";
             }
             DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")

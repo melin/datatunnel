@@ -25,6 +25,7 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider {
     val dialect = JdbcDialects.get(options.url)
     val conn = dialect.createConnectionFactory(options)(-1)
     val writeMode = parameters.getOrElse("writeMode", "insert")
+    val dataSourceType = parameters.getOrElse("dataSourceType", "UNKNOW")
     try {
       val tableExists = SparkJdbcUtils.tableExists(conn, options)
       if (tableExists) {
@@ -34,17 +35,17 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider {
               // In this case, we should truncate table and then load.
               truncateTable(conn, options)
               val tableSchema = SparkJdbcUtils.getSchemaOption(conn, options)
-              saveTable(conn, df, tableSchema, isCaseSensitive, options, writeMode)
+              saveTable(conn, df, tableSchema, isCaseSensitive, options, writeMode, dataSourceType)
             } else {
               // Otherwise, do not truncate the table, instead drop and recreate it
               dropTable(conn, options.table, options)
               createTable(conn, options.table, df.schema, isCaseSensitive, options)
-              saveTable(conn, df, Some(df.schema), isCaseSensitive, options, writeMode)
+              saveTable(conn, df, Some(df.schema), isCaseSensitive, options, writeMode, dataSourceType)
             }
 
           case SaveMode.Append =>
             val tableSchema = SparkJdbcUtils.getSchemaOption(conn, options)
-            saveTable(conn, df, tableSchema, isCaseSensitive, options, writeMode)
+            saveTable(conn, df, tableSchema, isCaseSensitive, options, writeMode, dataSourceType)
 
           case SaveMode.ErrorIfExists =>
             new DataTunnelException(
@@ -57,7 +58,7 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider {
         }
       } else {
         createTable(conn, options.table, df.schema, isCaseSensitive, options)
-        saveTable(conn, df, Some(df.schema), isCaseSensitive, options, writeMode)
+        saveTable(conn, df, Some(df.schema), isCaseSensitive, options, writeMode, dataSourceType)
       }
     } finally {
       conn.close()

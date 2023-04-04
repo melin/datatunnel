@@ -7,9 +7,7 @@ import org.apache.spark.sql.types.StructType
 
 import java.sql.{Connection, ResultSet}
 
-abstract class DatabaseDialect {
-
-  def connection: Connection
+abstract class DatabaseDialect(connection: Connection, dataSourceType: String) {
 
   protected def getColumns(
       rddSchema: StructType,
@@ -38,9 +36,6 @@ abstract class DatabaseDialect {
     try {
       val rs: ResultSet = connection.getMetaData.getPrimaryKeys(schema, null, tableName)
       try while (rs.next()) {
-        print(rs.getString(1))
-        print(rs.getString(2))
-        print(rs.getString(3))
         val columnName: String = rs.getString(4)
         keyFieldNames = keyFieldNames :+ columnName
       }
@@ -65,5 +60,8 @@ abstract class DatabaseDialect {
       table: String,
       rddSchema: StructType,
       tableSchema: Option[StructType],
-      dialect: JdbcDialect): String
+      dialect: JdbcDialect): String = {
+
+    return null;
+  }
 }

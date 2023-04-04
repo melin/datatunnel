@@ -1,7 +1,8 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
 import com.superior.datatunnel.api.DataTunnelException
-import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect}
+import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect, SupportMergeDatabaseDialect}
+import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.savePartition
@@ -18,7 +19,8 @@ object JdbcUtils {
        tableSchema: Option[StructType],
        isCaseSensitive: Boolean,
        options: JdbcOptionsInWrite,
-       writeMode: String): Unit = {
+       writeMode: String,
+       dataSourceType: String): Unit = {
 
     val url = options.url
     val table = options.table
@@ -27,7 +29,7 @@ object JdbcUtils {
     val batchSize = options.batchSize
     val isolationLevel = options.isolationLevel
 
-    val databaseDialect = getDatabaseDialect(conn)
+    val databaseDialect = getDatabaseDialect(conn, dataSourceType)
     val insertStmt = if ("upsert" == writeMode) {
       databaseDialect.getUpsertStatement(table, rddSchema, tableSchema, dialect)
     } else {
@@ -46,9 +48,14 @@ object JdbcUtils {
     }
   }
 
-  private def getDatabaseDialect(conn: Connection): DatabaseDialect = {
-    val dialect: DatabaseDialect = new MySqlDatabaseDialect(conn)
-    dialect
+  private def getDatabaseDialect(conn: Connection, dataSourceType: String): DatabaseDialect = {
+    if (StringUtils.equalsIgnoreCase("mysql", dataSourceType)) {
+      new MySqlDatabaseDialect(conn, dataSourceType)
+    } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
+      throw new IllegalArgumentException("not support type: " + dataSourceType)
+    } else {
+      new SupportMergeDatabaseDialect(conn, dataSourceType)
+    }
   }
 
   private def invalidJdbcNumPartitionsError(n: Int, jdbcNumPartitions: String): Throwable = {
