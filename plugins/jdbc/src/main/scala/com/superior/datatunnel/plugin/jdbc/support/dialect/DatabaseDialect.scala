@@ -5,7 +5,11 @@ import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.conf
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
-trait DatabaseDialect {
+import java.sql.{Connection, ResultSet}
+
+abstract class DatabaseDialect {
+
+  def connection: Connection
 
   protected def getColumns(
       rddSchema: StructType,
@@ -27,6 +31,23 @@ trait DatabaseDialect {
         dialect.quoteIdentifier(normalizedName)
       }
     }
+  }
+
+  def getKeyFieldNames(schema: String, tableName: String): Array[String] = {
+    var keyFieldNames = new Array[String](0)
+    try {
+      val rs: ResultSet = connection.getMetaData.getPrimaryKeys(schema, null, tableName)
+      try while (rs.next()) {
+        print(rs.getString(1))
+        print(rs.getString(2))
+        print(rs.getString(3))
+        val columnName: String = rs.getString(4)
+        keyFieldNames = keyFieldNames :+ columnName
+      }
+      finally if (rs != null) rs.close()
+    }
+
+    keyFieldNames
   }
 
   def getInsertStatement(

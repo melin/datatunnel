@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
 import com.superior.datatunnel.api.DataTunnelException
-import com.superior.datatunnel.plugin.jdbc.support.dialect.MySqlDatabaseDialect
+import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.savePartition
@@ -46,8 +46,9 @@ object JdbcUtils {
     }
   }
 
-  private def getDatabaseDialect(conn: Connection): Unit = {
-    val databaseDialect = new MySqlDatabaseDialect(conn)
+  private def getDatabaseDialect(conn: Connection): DatabaseDialect = {
+    val dialect: DatabaseDialect = new MySqlDatabaseDialect(conn)
+    dialect
   }
 
   private def invalidJdbcNumPartitionsError(n: Int, jdbcNumPartitions: String): Throwable = {

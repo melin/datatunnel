@@ -7,6 +7,8 @@ import java.sql.Connection
 
 class PostgresDatabaseDialect(conn: Connection) extends DatabaseDialect {
 
+  override def connection: Connection = conn
+
   def getUpsertStatement(
       table: String,
       rddSchema: StructType,
