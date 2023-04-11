@@ -10,10 +10,9 @@ import javax.validation.constraints.NotNull;
 @Data
 public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
 
-    @NotBlank(message = "databaseName can not blank")
     private String databaseName;
 
-    private String schema;
+    private String schemaName;
 
     @NotBlank(message = "tableName can not blank")
     private String tableName;

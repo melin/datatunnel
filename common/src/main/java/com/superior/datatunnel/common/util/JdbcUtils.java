@@ -30,7 +30,7 @@ public class JdbcUtils {
 
         String url = "";
         if (MYSQL == dsType || TIDB == dsType) {
-            url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
+            url = "jdbc:mysql://" + host + ":" + port;
             url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&tinyInt1isBit=false";
         } else if (ORACLE == dsType) {
             url = "jdbc:oracle:thin:@//" + host + ":" + port;

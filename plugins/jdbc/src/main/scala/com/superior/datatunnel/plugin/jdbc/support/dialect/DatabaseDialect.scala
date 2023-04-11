@@ -1,13 +1,52 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
-import com.superior.datatunnel.plugin.jdbc.support.JdbcUtils.columnNotFoundInSchemaError
+import com.google.common.collect.Lists
+import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.columnNotFoundInSchemaError
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.conf
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.{Connection, ResultSet}
+import java.util
 
 abstract class DatabaseDialect(connection: Connection, dataSourceType: String) {
+
+  def getSchemaNames: util.ArrayList[String] = {
+    val resultSet = connection.getMetaData.getSchemas(connection.getCatalog, null)
+    try {
+      val schemaNames = Lists.newArrayList[String]()
+      while (resultSet.next) {
+        val schemaName = resultSet.getString("TABLE_SCHEM")
+        // skip internal schemas
+        if (filterSchema(schemaName)) {
+          schemaNames.add(schemaName)
+        }
+      }
+      schemaNames
+    } finally {
+      if (resultSet != null) resultSet.close()
+    }
+  }
+
+  protected def filterSchema(schemaName: String): Boolean = {
+    !schemaName.equalsIgnoreCase("information_schema")
+  }
+
+  def getTableNames(schemaName: String): util.ArrayList[String] = {
+    val metadata = connection.getMetaData
+    val resultSet = metadata.getTables(connection.getCatalog, schemaName, null, Array("TABLE"))
+    try {
+      val tableNames = Lists.newArrayList[String]()
+      while (resultSet.next) {
+        val tableName = resultSet.getString("TABLE_NAME")
+        tableNames.add(tableName)
+      }
+
+      tableNames
+    } finally {
+      if (resultSet != null) resultSet.close()
+    }
+  }
 
   protected def getColumns(
       rddSchema: StructType,

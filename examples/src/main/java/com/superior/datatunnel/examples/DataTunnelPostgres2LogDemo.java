@@ -22,7 +22,7 @@ public class DataTunnelPostgres2LogDemo {
                 "    host='172.18.1.56',\n" +
                 "    port=15432,\n" +
                 "    databaseName='postgres'," +
-                "    schema='public'," +
+                "    schemaName='public'," +
                 "    tableName='ORDERS', columns=['*'])\n" +
                 "    SINK('log') OPTIONS(numRows = 10)";
 

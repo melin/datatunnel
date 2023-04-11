@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
 import com.superior.datatunnel.api.DataTunnelException
-import com.superior.datatunnel.plugin.jdbc.support.JdbcUtils.saveTable
+import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.saveTable
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{createTable, dropTable, isCascadingTruncateTable, truncateTable}
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
 import org.apache.spark.sql.execution.datasources.jdbc.{JdbcOptionsInWrite, JdbcRelationProvider, JdbcUtils => SparkJdbcUtils}

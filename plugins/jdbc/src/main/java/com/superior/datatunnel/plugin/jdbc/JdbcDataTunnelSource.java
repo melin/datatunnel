@@ -1,12 +1,16 @@
 package com.superior.datatunnel.plugin.jdbc;
 
+import com.clearspring.analytics.util.Lists;
 import com.github.melin.superior.jobserver.api.LogUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.util.HttpClientUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption;
+import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
+import com.superior.datatunnel.plugin.jdbc.support.dialect.DatabaseDialect;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.spark.sql.*;
@@ -50,57 +54,55 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         validateOptions(context);
 
         JdbcDataTunnelSourceOption sourceOption = (JdbcDataTunnelSourceOption) context.getSourceOption();
-        DataSourceType dsType = sourceOption.getDataSourceType();
+        DataSourceType dataSourceType = sourceOption.getDataSourceType();
 
-        String databaseName = sourceOption.getDatabaseName();
-        String schema = sourceOption.getSchema();
+        String schemaName = sourceOption.getSchemaName();
+        if (StringUtils.isBlank(schemaName)) {
+            schemaName = sourceOption.getDatabaseName();
+        }
         String tableName = sourceOption.getTableName();
         String[] columns = sourceOption.getColumns();
 
-        String username = sourceOption.getUsername();
-        String password = sourceOption.getPassword();
-        String url = JdbcUtils.buildJdbcUrl(dsType, sourceOption.getHost(),
+        String url = JdbcUtils.buildJdbcUrl(dataSourceType, sourceOption.getHost(),
                 sourceOption.getPort(), sourceOption.getDatabaseName(),
                 sourceOption.getSid(), sourceOption.getServiceName());
 
-        int fetchSize = sourceOption.getFetchSize();
-        int queryTimeout = sourceOption.getQueryTimeout();
-        String[] tables = StringUtils.split(tableName, ",");
-
-        String partitionColumn = sourceOption.getPartitionColumn();
-        Integer numPartitions = sourceOption.getNumPartitions();
-        String lowerBound = sourceOption.getLowerBound();
-        String upperBound = sourceOption.getUpperBound();
-        sourceOption.setPartitionColumn(null);
-        sourceOption.setNumPartitions(null);
-        sourceOption.setLowerBound(null);
-        sourceOption.setUpperBound(null);
-
-        String table = StringUtils.isNotBlank(schema) ? schema + "." + tables[0] : databaseName + "." + tables[0];
-        JDBCOptions options = buildJDBCOptions(url, table, sourceOption);
+        JDBCOptions options = buildJDBCOptions(url, "table", sourceOption);
         Connection connection = buildConnection(url, options);
-        //自动创建hive table。如果source 是多个表，以第一个表scheme 创建hive table
-        if (DataSourceType.HIVE == context.getSinkOption().getDataSourceType()) {
-            createHiveTable(context, options, connection);
+        DatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, dataSourceType.name());
+
+        List<String> schemaNames = getSchemaNames(schemaName, dialect);
+        if (schemaNames.size() == 0) {
+            throw new DataTunnelException("没有找到匹配的schema: " + schemaName);
+        }
+        List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dialect);
+        if (tableNames.size() == 0) {
+            throw new DataTunnelException("没有找到匹配的表, schemaName: " + schemaName + ", tableName: " + tableName);
         }
 
-        sourceOption.setPartitionColumn(partitionColumn);
-        sourceOption.setNumPartitions(numPartitions);
-        sourceOption.setLowerBound(lowerBound);
-        sourceOption.setUpperBound(upperBound);
+        //自动创建hive table。如果source 是多个表，以第一个表scheme 创建hive table
+        if (DataSourceType.HIVE == context.getSinkOption().getDataSourceType()) {
+            Pair<String, String> pair = tableNames.get(0);
+            String table = pair.getLeft() + "." + pair.getRight();
+            options = buildJDBCOptions(url, table, sourceOption);
+            connection = buildConnection(url, options);
+            createHiveTable(sourceOption, context, options, connection, pair.getLeft(), pair.getRight());
+        }
 
         Dataset<Row> dataset = null;
-        for (int i = 0, len = tables.length; i < len; i++) {
-            String fullTableName = databaseName + "." + tables[i];
-            if (StringUtils.isNotBlank(schema)) {
-                fullTableName = databaseName + "." + schema + "." + tables[i];
-            }
-
+        for (int i = 0, len = tableNames.size(); i < len; i++) {
+            Pair<String, String> pair = tableNames.get(i);
+            String fullTableName = pair.getLeft() + "." + pair.getRight();
             statTable(connection, sourceOption, fullTableName);
 
             if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
-                fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") AS tdl_datatunnel";
+                fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
             }
+
+            int fetchSize = sourceOption.getFetchSize();
+            int queryTimeout = sourceOption.getQueryTimeout();
+            String username = sourceOption.getUsername();
+            String password = sourceOption.getPassword();
             DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")
                     .option("url", url)
@@ -147,35 +149,83 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
     }
 
-    private void createHiveTable(DataTunnelContext context, JDBCOptions options, Connection connection) {
-        HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
-        String databaseName = sinkOption.getDatabaseName();
-        String tableName = sinkOption.getTableName();
-        boolean exists = context.getSparkSession().catalog()
-                .tableExists(sinkOption.getDatabaseName(), sinkOption.getTableName());
+    private List<String> getSchemaNames(String schemaName, DatabaseDialect dialect) {
+        String[] names = StringUtils.split(schemaName, ",");
+        List<String> schemaNames = dialect.getSchemaNames();
 
-        if (exists) {
-            return;
+        List<String> list = Lists.newArrayList();
+        for (String name : schemaNames) {
+            for (String pattern : names) {
+                if (name.equals(pattern) || name.matches(pattern)) {
+                    list.add(name);
+                    break;
+                }
+            }
         }
+        return list;
+    }
 
-        StructType structType = org.apache.spark.sql.execution.datasources.jdbc
-                .JdbcUtils.getSchemaOption(connection, options).get();
+    private List<Pair<String, String>> getTablesNames(List<String> schemaNames, String tableName, DatabaseDialect dialect) {
+        String[] names = StringUtils.split(tableName, ",");
+        List<Pair<String, String>> list = Lists.newArrayList();
+        for (String schemaName : schemaNames) {
+            List<String> tableNames = dialect.getTableNames(schemaName);
+            for (String name : tableNames) {
+                for (String pattern : names) {
+                    if (name.equals(pattern) || name.matches(pattern)) {
+                        list.add(Pair.of(schemaName, name));
+                        break;
+                    }
+                }
+            }
+        }
+        return list;
+    }
 
-        String colums = Arrays.stream(structType.fields()).map(field -> {
-            String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
-                    .getOrElse(() -> field.dataType().catalogString());
+    private void createHiveTable(
+            JdbcDataTunnelSourceOption sourceOption,
+            DataTunnelContext context,
+            JDBCOptions options,
+            Connection connection,
+            String databaseName,
+            String tableName) {
 
-            return field.name() + " " + typeString + " " + field.getComment().getOrElse(() -> "");
-        }).collect(Collectors.joining(",\n"));
+        String partitionColumn = sourceOption.getPartitionColumn();
+        Integer numPartitions = sourceOption.getNumPartitions();
+        String lowerBound = sourceOption.getLowerBound();
+        String upperBound = sourceOption.getUpperBound();
+        try {
+            sourceOption.setPartitionColumn(null);
+            sourceOption.setNumPartitions(null);
+            sourceOption.setLowerBound(null);
+            sourceOption.setUpperBound(null);
 
-        String sql = "create table " + sinkOption.getFullTableName() + "(\n";
-        sql += colums;
-        sql += "\n)";
-        sql += "USING parquet";
-        context.getSparkSession().sql(sql);
+            HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
 
-        LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
-        syncTableMeta(databaseName, tableName);
+            StructType structType = org.apache.spark.sql.execution.datasources.jdbc
+                    .JdbcUtils.getSchemaOption(connection, options).get();
+
+            String colums = Arrays.stream(structType.fields()).map(field -> {
+                String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
+                        .getOrElse(() -> field.dataType().catalogString());
+
+                return field.name() + " " + typeString + " " + field.getComment().getOrElse(() -> "");
+            }).collect(Collectors.joining(",\n"));
+
+            String sql = "create table " + sinkOption.getFullTableName() + "(\n";
+            sql += colums;
+            sql += "\n)";
+            sql += "USING parquet";
+            context.getSparkSession().sql(sql);
+
+            LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
+            syncTableMeta(databaseName, tableName);
+        } finally {
+            sourceOption.setPartitionColumn(partitionColumn);
+            sourceOption.setNumPartitions(numPartitions);
+            sourceOption.setLowerBound(lowerBound);
+            sourceOption.setUpperBound(upperBound);
+        }
     }
 
     private void syncTableMeta(String databaseName, String tableName) {

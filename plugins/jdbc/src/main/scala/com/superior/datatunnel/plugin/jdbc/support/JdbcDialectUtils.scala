@@ -11,7 +11,7 @@ import org.apache.spark.sql.types.{StructField, StructType}
 
 import java.sql.Connection
 
-object JdbcUtils {
+object JdbcDialectUtils {
 
   def saveTable(
        conn: Connection,
@@ -48,7 +48,7 @@ object JdbcUtils {
     }
   }
 
-  private def getDatabaseDialect(conn: Connection, dataSourceType: String): DatabaseDialect = {
+  def getDatabaseDialect(conn: Connection, dataSourceType: String): DatabaseDialect = {
     if (StringUtils.equalsIgnoreCase("mysql", dataSourceType)) {
       new MySqlDatabaseDialect(conn, dataSourceType)
     } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
