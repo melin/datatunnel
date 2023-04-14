@@ -47,16 +47,20 @@ singleStatement
     ;
 
 statement
-    : ctes? DATATUNNEL SOURCE LEFT_PAREN sourceName=STRING RIGHT_PAREN
+    : ctes? DATATUNNEL SOURCE LEFT_PAREN sourceName=stringLit RIGHT_PAREN
         sourceOpts=sparkOptions (TRANSFORM EQ transfromSql=STRING)?
-        SINK LEFT_PAREN sinkName=STRING RIGHT_PAREN (sinkOpts=sparkOptions)? #dtunnelExpr
+        SINK LEFT_PAREN sinkName=stringLit RIGHT_PAREN (sinkOpts=sparkOptions)? #dtunnelExpr
     ;
 sparkOptions
-    : OPTIONS LEFT_PAREN optionVal (COMMA optionVal)* RIGHT_PAREN
+    : OPTIONS LEFT_PAREN optionVal (COMMA optionVal)*  RIGHT_PAREN
     ;
 
 optionVal
     : optionKey EQ optionValue
+    ;
+
+colOptionVal
+    : optionKey COLON optionValue
     ;
 
 optionKey
@@ -70,6 +74,11 @@ optionValue
     | booleanValue
     | STRING
     | LEFT_BRACKET optionValue (COMMA optionValue)* RIGHT_BRACKET
+    | LEFT_BRACKET columnDef (COMMA columnDef)* RIGHT_BRACKET
+    ;
+
+columnDef
+    : LEFT_BRACE colOptionVal (COMMA colOptionVal)* RIGHT_BRACE
     ;
 
 timezone

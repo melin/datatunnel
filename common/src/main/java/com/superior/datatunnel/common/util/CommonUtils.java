@@ -65,7 +65,7 @@ public class CommonUtils {
     public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz, String msg) throws Exception {
         T beanInstance = clazz.getConstructor().newInstance();
         for (String fieldName : map.keySet()) {
-            String value = map.get(fieldName);
+            Object value = map.get(fieldName);
             Field field = ReflectionUtils.findField(clazz, fieldName);
             if (field == null) {
                 throw new DataTunnelException(msg + fieldName);
@@ -74,17 +74,17 @@ public class CommonUtils {
             if (field.getType() == String.class) {
                 field.set(beanInstance, value);
             } else if (field.getType() == Integer.class || field.getType() == int.class) {
-                field.set(beanInstance, Integer.parseInt(value));
+                field.set(beanInstance, Integer.parseInt(value.toString()));
             } else if (field.getType() == Long.class || field.getType() == long.class) {
-                field.set(beanInstance, Long.parseLong(value));
+                field.set(beanInstance, Long.parseLong(value.toString()));
             } else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-                field.set(beanInstance, Boolean.valueOf(value));
+                field.set(beanInstance, Boolean.valueOf(value.toString()));
             } else if (field.getType() == Float.class || field.getType() == float.class) {
-                field.set(beanInstance, Float.parseFloat(value));
+                field.set(beanInstance, Float.parseFloat(value.toString()));
             } else if (field.getType() == Double.class || field.getType() == double.class) {
-                field.set(beanInstance, Double.parseDouble(value));
+                field.set(beanInstance, Double.parseDouble(value.toString()));
             } else if (field.getType() == String[].class) {
-                field.set(beanInstance, JsonUtils.toJavaObject(value, new TypeReference<String[]>() {}));
+                field.set(beanInstance, JsonUtils.toJavaObject(value.toString(), new TypeReference<String[]>() {}));
             } else {
                 throw new DataTunnelException(fieldName + " not support data type: " + field.getType());
             }
