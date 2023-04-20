@@ -48,7 +48,7 @@ singleStatement
 
 statement
     : ctes? DATATUNNEL SOURCE LEFT_PAREN sourceName=stringLit RIGHT_PAREN
-        sourceOpts=sparkOptions (TRANSFORM EQ transfromSql=STRING)?
+        sourceOpts=sparkOptions (TRANSFORM EQ transfromSql=stringLit)?
         SINK LEFT_PAREN sinkName=stringLit RIGHT_PAREN (sinkOpts=sparkOptions)? #dtunnelExpr
     ;
 sparkOptions
