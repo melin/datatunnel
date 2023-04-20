@@ -46,7 +46,11 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
 
-            String table = sinkOption.getFullTableName();
+            String schemaName = sinkOption.getSchemaName();
+            if (StringUtils.isBlank(schemaName)) {
+                schemaName = sinkOption.getDatabaseName();
+            }
+            String fullTableName = schemaName + "." + sinkOption.getTableName();
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();
@@ -68,7 +72,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String preSql = sinkOption.getPreSql();
             String postSql = sinkOption.getPostSql();
             if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
-                connection = buildConnection(url, table, sinkOption);
+                connection = buildConnection(url, fullTableName, sinkOption);
             }
 
             if (StringUtils.isNotBlank(preSql)) {
@@ -78,11 +82,17 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
             dataset = context.getSparkSession().sql(sql);
-            dataset.write()
-                    .format("datatunnel-jdbc")
+
+            String format = "datatunnel-jdbc";
+            if (dataSourceType == DataSourceType.TIDB &&
+                    context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
+                format = "tidb";
+            }
+            DataFrameWriter dataFrameWriter = dataset.write()
+                    .format(format)
                     .mode(mode)
                     .option("url", url)
-                    .option("dbtable", table)
+                    .option("dbtable", fullTableName)
                     .option("batchsize", batchsize)
                     .option("queryTimeout", queryTimeout)
                     .option("truncate", truncate)
@@ -90,8 +100,15 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("password", password)
                     .option("writeMode", writeMode)
                     .option("dataSourceType", dataSourceType.name())
-                    .option("isolationLevel", sinkOption.getIsolationLevel())
-                    .save();
+                    .option("isolationLevel", sinkOption.getIsolationLevel());
+
+            if (dataSourceType == DataSourceType.TIDB &&
+                    context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
+                dataFrameWriter.option("database", schemaName);
+                dataFrameWriter.option("table", sinkOption.getTableName());
+            }
+
+            dataFrameWriter.save();
 
             if (StringUtils.isNotBlank(postSql)) {
                 LOG.info("exec postSql: " + postSql);
