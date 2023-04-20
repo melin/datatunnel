@@ -59,6 +59,10 @@ class MySqlDatabaseDialect(connection: Connection, dataSourceType: String)
     val items = StringUtils.split(table, ".")
     val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(dialect.quoteIdentifier)
 
+    if (primaryKeys.length == 0) {
+      throw new IllegalArgumentException("not primary key, not support upsert")
+    }
+
     sql = columns.filter(!primaryKeys.contains(_))
       .map(col => s"\t$col = VALUES($col)").mkString(",\n")
     builder.append(sql);

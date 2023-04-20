@@ -49,7 +49,8 @@ object JdbcDialectUtils {
   }
 
   def getDatabaseDialect(conn: Connection, dataSourceType: String): DatabaseDialect = {
-    if (StringUtils.equalsIgnoreCase("mysql", dataSourceType)) {
+    if (StringUtils.equalsIgnoreCase("mysql", dataSourceType) ||
+      StringUtils.equalsIgnoreCase("tidb", dataSourceType)) {
       new MySqlDatabaseDialect(conn, dataSourceType)
     } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
       throw new IllegalArgumentException("not support type: " + dataSourceType)

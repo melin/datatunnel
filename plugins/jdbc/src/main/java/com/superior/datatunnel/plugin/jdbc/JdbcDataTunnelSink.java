@@ -90,6 +90,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("password", password)
                     .option("writeMode", writeMode)
                     .option("dataSourceType", dataSourceType.name())
+                    .option("isolationLevel", sinkOption.getIsolationLevel())
                     .save();
 
             if (StringUtils.isNotBlank(postSql)) {

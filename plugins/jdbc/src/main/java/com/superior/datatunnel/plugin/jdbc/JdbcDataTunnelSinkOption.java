@@ -29,7 +29,6 @@ public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
     @NotBlank(message = "username can not blank")
     private String username;
 
-    @NotBlank(message = "password can not blank")
     private String password;
 
     @NotBlank(message = "host can not blank")
@@ -51,6 +50,8 @@ public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
     private String preSql;
 
     private String postSql;
+
+    private String isolationLevel = "READ_UNCOMMITTED";
 
     public String getFullTableName() {
         return databaseName + "." + tableName;

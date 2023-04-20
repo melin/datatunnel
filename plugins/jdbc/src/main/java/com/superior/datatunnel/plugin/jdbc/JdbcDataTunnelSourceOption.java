@@ -29,7 +29,6 @@ public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
     @NotBlank(message = "username can not blank")
     private String username;
 
-    @NotBlank(message = "password can not blank")
     private String password;
 
     @NotBlank(message = "host can not blank")

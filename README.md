@@ -26,21 +26,20 @@ datatunnel source('数据类型名称') options(键值对参数)
 
 ### 支持数据源
 
-| 数据源           | Reader(读) | Writer(写)    | 文档                                                                                         |
-|:--------------|:----------| :------      |:-------------------------------------------------------------------------------------------|
-| file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv 文件                                                     |
-| sftp          | √         | √            | [读写](doc/sftp.md)                                                                          |
-| hdfs          | √         |              | [读](doc/hdfs.md)                                                                           |
-| jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，tidb，guass，postgresql                |
-| tispark       |           | √            | [读](doc/tispark.md) 基于TiSpark读取数据                                                          |
-| hive          | √         | √            | [读写](doc/hive.md)                                                                          |
-| hbase         |           | √            | [写](doc/hbase.md)                                                                          |
-| clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                                   |
-| elasticsearch |           | √            | 开发中                                                                                        |
-| log           |           | √            | [写](doc/log.md)                                                                            |
-| kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                                        |
-| doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                                |
-| starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                                        |
+| 数据源           | Reader(读) | Writer(写)    | 文档                                                                               |
+|:--------------|:----------| :------      |:---------------------------------------------------------------------------------|
+| file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv 文件                                           |
+| sftp          | √         | √            | [读写](doc/sftp.md)                                                                |
+| hdfs          | √         |              | [读](doc/hdfs.md)                                                                 |
+| jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，tidb，guass，postgresql,tidb |
+| hive          | √         | √            | [读写](doc/hive.md)                                                                |
+| hbase         |           | √            | [写](doc/hbase.md)                                                                |
+| clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                         |
+| elasticsearch |           | √            | 开发中                                                                              |
+| log           |           | √            | [写](doc/log.md)                                                                  |
+| kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                              |
+| doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                      |
+| starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                              |
 
 ### example
 ```sql

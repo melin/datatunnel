@@ -24,7 +24,7 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider {
 
     val dialect = JdbcDialects.get(options.url)
     val conn = dialect.createConnectionFactory(options)(-1)
-    val writeMode = parameters.getOrElse("writeMode", "insert")
+    val writeMode = parameters.getOrElse("writeMode", "upsert")
     val dataSourceType = parameters.getOrElse("dataSourceType", "UNKNOW")
     try {
       val tableExists = SparkJdbcUtils.tableExists(conn, options)

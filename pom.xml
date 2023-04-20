@@ -21,7 +21,6 @@
         <module>plugins/hdfs</module>
         <module>plugins/hive</module>
         <module>plugins/jdbc</module>
-        <module>plugins/tidb</module>
         <module>plugins/kafka</module>
         <module>plugins/doris</module>
         <module>examples</module>
