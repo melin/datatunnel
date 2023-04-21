@@ -122,7 +122,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     .option("pushDownAggregate", sourceOption.isPushDownAggregate())
                     .option("pushDownLimit", sourceOption.isPushDownLimit());
 
-
             if (dataSourceType == DataSourceType.TIDB &&
                     context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
                 reader.option("database", schemaName);

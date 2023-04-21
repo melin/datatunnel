@@ -14,9 +14,6 @@ import xenon.clickhouse.ClickHouseCatalog;
 
 import java.io.IOException;
 
-/**
- * @author melin 2021/7/27 11:06 上午
- */
 public class ClickhouseDataTunnelSink implements DataTunnelSink {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseDataTunnelSink.class);

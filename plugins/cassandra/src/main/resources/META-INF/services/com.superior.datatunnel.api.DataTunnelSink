@@ -1,0 +1,1 @@
+cassandra=com.superior.datatunnel.plugin.cassandra.CassandraDataTunnelSink
