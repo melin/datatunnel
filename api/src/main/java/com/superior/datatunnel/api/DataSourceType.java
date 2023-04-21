@@ -18,6 +18,7 @@ public enum DataSourceType {
     HIVE,
     KAFKA,
     CLICKHOUSE,
+    CASSANDRA,
     HBASE,
     LOG,
     EXCEL,

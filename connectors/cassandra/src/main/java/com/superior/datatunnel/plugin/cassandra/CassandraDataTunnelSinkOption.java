@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class CassandraDataTunnelSinkOption extends DataTunnelSinkOption {
 
-    @NotBlank(message = "databaseName can not blank")
-    private String databaseName;
+    @NotBlank(message = "keyspace can not blank")
+    private String keyspace;
 
     @NotBlank(message = "tableName can not blank")
     private String tableName;
@@ -22,61 +22,54 @@ public class CassandraDataTunnelSinkOption extends DataTunnelSinkOption {
     private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
-    @SparkConfKey("spark.sql.catalog.clickhouse.user")
+    @SparkConfKey("spark.cassandra.auth.username")
     private String username;
 
-    @SparkConfKey("spark.sql.catalog.clickhouse.password")
+    @SparkConfKey("spark.cassandra.auth.password")
     private String password = "";
 
     @NotBlank(message = "host can not blank")
-    @SparkConfKey("spark.sql.catalog.clickhouse.host")
+    @SparkConfKey("spark.cassandra.connection.host")
     private String host;
 
     @NotNull(message = "port can not blank")
-    private Integer port;
+    @SparkConfKey("spark.cassandra.connection.port")
+    private Integer port = 9402;
 
-    @ValidConst({"http", "grpc"})
-    private String protocol = "http";
+    //sink
+    @SparkConfKey("spark.cassandra.output.batch.grouping.buffer.size")
+    private Integer batchGroupingBufferSize = 1000;
 
-    @SparkConfKey("spark.clickhouse.ignoreUnsupportedTransform")
-    private boolean ignoreUnsupportedTransform;
+    @SparkConfKey("spark.cassandra.output.batch.grouping.key")
+    private String batchGroupingKey = "partition";
 
-    @SparkConfKey("spark.clickhouse.write.batchSize")
-    private int batchSize = 10000;
+    @SparkConfKey("spark.cassandra.output.batch.size.bytes")
+    private Integer batchSizeBytes = 1024;
 
-    @SparkConfKey("spark.clickhouse.write.compression.codec")
-    private String compressionCodec = "lz4";
+    @SparkConfKey("spark.cassandra.output.batch.size.rows")
+    private Integer batchSizeRows;
 
-    @SparkConfKey("spark.clickhouse.write.distributed.convertLocal")
-    private boolean distributedConvertLocal = false;
+    @SparkConfKey("spark.cassandra.output.concurrent.writes")
+    private Integer concurrentWrites = 5;
 
-    @SparkConfKey("spark.clickhouse.write.distributed.useClusterNodes")
-    private boolean distributedUseClusterNodes = true;
+    @SparkConfKey("spark.cassandra.output.consistency.level")
+    private String concurrentLevel = "LOCAL_QUORUM";
 
-    @SparkConfKey("spark.clickhouse.write.format")
-    private String format = "arrow";
+    @SparkConfKey("spark.cassandra.output.ifNotExists")
+    private Boolean ifNotExists = false;
 
-    @SparkConfKey("spark.clickhouse.write.localSortByKey")
-    private boolean localSortByKey = true;
+    @SparkConfKey("spark.cassandra.output.ignoreNulls")
+    private Boolean ignoreNulls = false;
 
-    @SparkConfKey("spark.clickhouse.write.localSortByPartition")
-    private Boolean localSortByPartition;
+    @SparkConfKey("spark.cassandra.output.metrics")
+    private Boolean metrics = true;
 
-    @SparkConfKey("spark.clickhouse.write.maxRetry")
-    private int maxRetry = 3;
+    @SparkConfKey("spark.cassandra.output.throughputMBPerSec")
+    private Integer throughputMBPerSec;
 
-    @SparkConfKey("spark.clickhouse.write.repartitionByPartition")
-    private boolean repartitionByPartition = true;
+    @SparkConfKey("spark.cassandra.output.timestamp")
+    private Integer timestamp = 0;
 
-    @SparkConfKey("spark.clickhouse.write.repartitionNum")
-    private int repartitionNum = 0;
-
-    @SparkConfKey("spark.clickhouse.write.repartitionStrictly")
-    private boolean repartitionStrictly = false;
-
-    @SparkConfKey("spark.clickhouse.write.retryInterval")
-    private String retryInterval = "10s";
-
-    @SparkConfKey("spark.clickhouse.write.batchSize")
-    private String retryableErrorCodes = "retryableErrorCodes";
+    @SparkConfKey("spark.cassandra.output.timestamp")
+    private Integer ttl = 0;
 }

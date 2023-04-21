@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-plugin-cassandra</artifactId>
+    <artifactId>datatunnel-connector-cassandra</artifactId>
 
     <dependencies>
         <dependency>
@@ -23,6 +23,12 @@
             <groupId>com.datastax.spark</groupId>
             <artifactId>spark-cassandra-connector_2.12</artifactId>
             <version>3.3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.datastax.oss</groupId>
+            <artifactId>java-driver-core-shaded</artifactId>
+            <version>4.15.0</version>
         </dependency>
 
         <dependency>

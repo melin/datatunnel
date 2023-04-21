@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-plugin-elasticsearch</artifactId>
+    <artifactId>datatunnel-connector-elasticsearch</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

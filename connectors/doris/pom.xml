@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-plugin-doris</artifactId>
+    <artifactId>datatunnel-connector-doris</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

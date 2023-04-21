@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-plugin-jdbc</artifactId>
+    <artifactId>datatunnel-connector-jdbc</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -30,7 +30,7 @@
         </dependency>
 
         <dependency>
-            <artifactId>datatunnel-plugin-hive</artifactId>
+            <artifactId>datatunnel-connector-hive</artifactId>
             <groupId>com.superior.datatunnel</groupId>
             <version>${project.version}</version>
         </dependency>

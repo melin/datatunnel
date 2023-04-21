@@ -21,9 +21,11 @@ public class DataTunnelMysql2LogDemo {
                 "    port=3306,\n" +
                 "    resultTableName='temp_meta_job',\n" +
                 "    condition=\"type='spark_sql' and 1=1\", \n" +
-                "    databaseName='superior', tableName='meta_job', columns=['*'])\n" +
+                "    databaseName='superior'," +
+                "    tableName='meta_job', " +
+                "    columns=['*'])\n" +
                 //"    TRANSFORM = 'select * from temp_meta_job where type=\"spark_sql\"'\n" +
-                "    SINK('log') OPTIONS(numRows = 10)";
+                "SINK('log') OPTIONS(numRows = 10)";
 
         spark.sql(sql);
     }

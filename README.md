@@ -35,6 +35,7 @@ datatunnel source('数据类型名称') options(键值对参数)
 | hive          | √         | √            | [读写](doc/hive.md)                                                                |
 | hbase         |           | √            | [写](doc/hbase.md)                                                                |
 | clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                         |
+| cassandra    | √         | √            | [读写](doc/cassandra.md)                          |
 | elasticsearch |           | √            | 开发中                                                                              |
 | log           |           | √            | [写](doc/log.md)                                                                  |
 | kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                              |

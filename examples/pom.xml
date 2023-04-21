@@ -63,25 +63,31 @@
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-hive</artifactId>
+            <artifactId>datatunnel-connector-hive</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-clickhouse</artifactId>
+            <artifactId>datatunnel-connector-clickhouse</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-jdbc</artifactId>
+            <artifactId>datatunnel-connector-cassandra</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-log</artifactId>
+            <artifactId>datatunnel-connector-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-log</artifactId>
             <version>${project.version}</version>
         </dependency>
 

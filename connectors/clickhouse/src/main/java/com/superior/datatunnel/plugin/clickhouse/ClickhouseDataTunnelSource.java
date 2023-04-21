@@ -26,18 +26,18 @@ public class ClickhouseDataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         SparkSession sparkSession = context.getSparkSession();
         ClickhouseDataTunnelSourceOption option = (ClickhouseDataTunnelSourceOption) context.getSourceOption();
-        sparkSession.conf().set("spark.sql.catalog.clickhouse", ClickHouseCatalog.class.getName());
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.protocol", option.getProtocol());
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse", ClickHouseCatalog.class.getName());
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.protocol", option.getProtocol());
         if ("http".equals(option.getProtocol())) {
-            sparkSession.conf().set("spark.sql.catalog.clickhouse.http_port", option.getPort());
+            sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.http_port", option.getPort());
         } else {
-            sparkSession.conf().set("spark.sql.catalog.clickhouse.grpc_port", option.getPort());
+            sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.grpc_port", option.getPort());
         }
-        sparkSession.conf().set("spark.sql.catalog.clickhouse.database", "default");
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.database", "default");
         CommonUtils.convertOptionToSparkConf(sparkSession, option);
 
         try {
-            String ckTableName = "clickhouse." + option.getDatabaseName() + "." + option.getTableName();
+            String ckTableName = "datatunnel_clickhouse." + option.getDatabaseName() + "." + option.getTableName();
             String sql = "select " + StringUtils.join(option.getColumns(), ", ") + " from " + ckTableName;
             String condition = option.getCondition();
             if (StringUtils.isNotBlank(condition)) {

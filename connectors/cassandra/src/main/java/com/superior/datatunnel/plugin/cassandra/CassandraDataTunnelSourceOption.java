@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.cassandra;
 
-import com.gitee.melin.bee.core.hibernate5.validation.ValidConst;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import lombok.Data;
@@ -12,8 +11,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class CassandraDataTunnelSourceOption extends DataTunnelSourceOption {
 
-    @NotBlank(message = "databaseName can not blank")
-    private String databaseName;
+    @NotBlank(message = "keyspace can not blank")
+    private String keyspace;
 
     @NotBlank(message = "tableName can not blank")
     private String tableName;
@@ -22,36 +21,41 @@ public class CassandraDataTunnelSourceOption extends DataTunnelSourceOption {
     private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
-    @SparkConfKey("spark.sql.catalog.clickhouse.user")
+    @SparkConfKey("spark.cassandra.auth.username")
     private String username;
 
-    @SparkConfKey("spark.sql.catalog.clickhouse.password")
+    @SparkConfKey("spark.cassandra.auth.password")
     private String password = "";
 
     @NotBlank(message = "host can not blank")
-    @SparkConfKey("spark.sql.catalog.clickhouse.host")
+    @SparkConfKey("spark.cassandra.connection.host")
     private String host;
 
     @NotNull(message = "port can not blank")
-    private Integer port;
-
-    @ValidConst({"http", "grpc"})
-    private String protocol = "http";
+    @SparkConfKey("spark.cassandra.connection.port")
+    private Integer port = 9402;
 
     private String condition;
 
-    @SparkConfKey("spark.clickhouse.ignoreUnsupportedTransform")
-    private boolean ignoreUnsupportedTransform;
+    // read
+    @SparkConfKey("spark.cassandra.concurrent.reads")
+    private Integer concurrentReads = 512;
 
-    @SparkConfKey("spark.clickhouse.read.compression.codec")
-    private String compressionCodec = "lz4";
+    @SparkConfKey("spark.cassandra.input.consistency.level")
+    private String consistencyLevel = "LOCAL_ONE";
 
-    @SparkConfKey("spark.clickhouse.read.distributed.convertLocal")
-    private boolean distributedConvertLocal = true;
+    @SparkConfKey("spark.cassandra.input.fetch.sizeInRows")
+    private Integer fetchSizeInRows = 1000;
 
-    @SparkConfKey("spark.clickhouse.read.format")
-    private String format = "json";
+    @SparkConfKey("spark.cassandra.input.metrics")
+    private Boolean metrics = true;
 
-    @SparkConfKey("spark.clickhouse.read.splitByPartitionId")
-    private boolean splitByPartitionId = true;
+    @SparkConfKey("spark.cassandra.input.readsPerSec")
+    private Integer readsPerSec;
+
+    @SparkConfKey("spark.cassandra.input.split.sizeInMB")
+    private Integer splitSizeInMB = 512;
+
+    @SparkConfKey("spark.cassandra.input.throughputMBPerSec")
+    private Integer throughputMBPerSec;
 }

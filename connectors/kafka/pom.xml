@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-plugin-kafka</artifactId>
+    <artifactId>datatunnel-connector-kafka</artifactId>
 
     <dependencies>
         <dependency>
@@ -40,13 +40,13 @@
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-hive</artifactId>
+            <artifactId>datatunnel-connector-hive</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-jdbc</artifactId>
+            <artifactId>datatunnel-connector-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -30,52 +30,52 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-clickhouse</artifactId>
+            <artifactId>datatunnel-connector-clickhouse</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-hbase</artifactId>
+            <artifactId>datatunnel-connector-hbase</artifactId>
             <version>${project.version}</version>
         </dependency>-->
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-hive</artifactId>
+            <artifactId>datatunnel-connector-hive</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-jdbc</artifactId>
+            <artifactId>datatunnel-connector-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-elasticsearch</artifactId>
+            <artifactId>datatunnel-connector-elasticsearch</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-files</artifactId>
+            <artifactId>datatunnel-connector-files</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-sftp</artifactId>
+            <artifactId>datatunnel-connector-sftp</artifactId>
             <version>${project.version}</version>
         </dependency>-->
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-hdfs</artifactId>
+            <artifactId>datatunnel-connector-hdfs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-log</artifactId>
+            <artifactId>datatunnel-connector-log</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-plugin-kafka</artifactId>
+            <artifactId>datatunnel-connector-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
