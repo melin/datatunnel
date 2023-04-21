@@ -107,3 +107,4 @@ SINK("mysql") OPTIONS (
 2. https://github.com/housepower/spark-clickhouse-connector
 3. https://github.com/apache/incubator-seatunnel
 4. https://www.oudeis.co/blog/2020/spark-jdbc-throttling-writes/
+5. https://sparkbyexamples.com/spark/add-multiple-jars-to-spark-submit-classpath/
