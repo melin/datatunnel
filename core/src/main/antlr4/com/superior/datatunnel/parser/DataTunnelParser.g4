@@ -49,7 +49,9 @@ singleStatement
 statement
     : ctes? DATATUNNEL SOURCE LEFT_PAREN sourceName=stringLit RIGHT_PAREN
         sourceOpts=sparkOptions (TRANSFORM EQ transfromSql=stringLit)?
-        SINK LEFT_PAREN sinkName=stringLit RIGHT_PAREN (sinkOpts=sparkOptions)? #dtunnelExpr
+        SINK LEFT_PAREN sinkName=stringLit RIGHT_PAREN (sinkOpts=sparkOptions)?     #datatunnelExpr
+
+    | DATATUNNEL HELP (SOURCE | SINK) LEFT_PAREN sourceName=stringLit RIGHT_PAREN   #datatunnelHelp
     ;
 sparkOptions
     : OPTIONS LEFT_PAREN optionVal (COMMA optionVal)*  RIGHT_PAREN
@@ -1066,6 +1068,7 @@ ansiNonReserved
     | GROUPING
     | HOUR
     | HOURS
+    | HELP
     | IF
     | IGNORE
     | IMPORT
@@ -1352,6 +1355,7 @@ nonReserved
     | HAVING
     | HOUR
     | HOURS
+    | HELP
     | IF
     | IGNORE
     | IMPORT

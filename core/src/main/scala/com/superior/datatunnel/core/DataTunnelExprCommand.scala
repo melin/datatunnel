@@ -10,7 +10,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
-import com.superior.datatunnel.parser.DataTunnelParser.{DtunnelExprContext, SparkOptionsContext}
+import com.superior.datatunnel.parser.DataTunnelParser.{DatatunnelExprContext, SparkOptionsContext}
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
 
@@ -21,7 +21,7 @@ import scala.collection.JavaConverters._
  *
  * @author melin 2021/6/28 2:23 下午
  */
-case class DataTunnelExprCommand(sqlText: String, ctx: DtunnelExprContext) extends LeafRunnableCommand with Logging{
+case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
