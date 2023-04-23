@@ -1,7 +1,7 @@
 package com.superior.datatunnel.core
 
 import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.parser.DataTunnelParser.{DtunnelExprContext, SingleStatementContext}
+import com.superior.datatunnel.parser.DataTunnelParser.{DatatunnelExprContext, DatatunnelHelpContext, SingleStatementContext}
 import com.superior.datatunnel.parser.{DataTunnelLexer, DataTunnelParser, DataTunnelParserBaseVisitor}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
@@ -15,6 +15,7 @@ import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException,
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
+import org.apache.spark.sql.datatunnel.sql.{DataTunnelExprCommand, DataTunnelHelpCommand}
 import org.apache.spark.sql.types.{DataType, StructType}
 
 /**
@@ -120,8 +121,12 @@ class DataTunnelSqlParser (spark: SparkSession,
 
 class DtunnelAstBuilder(val sqlText: String) extends DataTunnelParserBaseVisitor[AnyRef] {
 
-  override def visitDtunnelExpr(ctx: DataTunnelParser.DtunnelExprContext): LogicalPlan = withOrigin(ctx) {
-    DataTunnelExprCommand(sqlText, ctx: DtunnelExprContext)
+  override def visitDatatunnelExpr(ctx: DataTunnelParser.DatatunnelExprContext): LogicalPlan = withOrigin(ctx) {
+    DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
+  }
+
+  override def visitDatatunnelHelp(ctx: DataTunnelParser.DatatunnelHelpContext): LogicalPlan = withOrigin(ctx) {
+    DataTunnelHelpCommand(sqlText, ctx: DatatunnelHelpContext)
   }
 
   override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan = withOrigin(ctx) {

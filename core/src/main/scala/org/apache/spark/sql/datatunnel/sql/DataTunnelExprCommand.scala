@@ -1,18 +1,18 @@
-package com.superior.datatunnel.core
+package org.apache.spark.sql.datatunnel.sql
 
-import com.gitee.melin.bee.core.extension.ExtensionLoader
 import com.gitee.melin.bee.util.JsonUtils
 import com.google.common.collect.Maps
-import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
-import com.superior.datatunnel.api._
-import com.superior.datatunnel.common.util.CommonUtils
-import org.apache.spark.internal.Logging
-import org.apache.spark.sql.execution.command.LeafRunnableCommand
-import org.apache.spark.sql.{Row, SparkSession}
 import com.superior.datatunnel.api.DataSourceType._
+import com.superior.datatunnel.api._
+import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
+import com.superior.datatunnel.common.util.CommonUtils
+import com.superior.datatunnel.core.{DataTunnelMetrics, Utils}
 import com.superior.datatunnel.parser.DataTunnelParser.{DatatunnelExprContext, SparkOptionsContext}
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.execution.command.LeafRunnableCommand
+import org.apache.spark.sql.{Row, SparkSession}
 
 import java.util
 import scala.collection.JavaConverters._
@@ -37,31 +37,17 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 
-    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSource])
-    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DataTunnelSink])
-
-    var source: DataTunnelSource = null;
-    var sink: DataTunnelSink = null
-    try {
-      source = readLoader.getExtension(sourceName)
-      if (KAFKA != sourceType) {
-        sink = writeLoader.getExtension(sinkName)
-      }
-    } catch {
-      case e: IllegalStateException => throw new RuntimeException(e.getMessage, e)
-    }
-
+    val (sourceConnector, sinkConnector) = Utils.getDatasourceConnector(sourceType, sinkType)
     var errorMsg = s"source $sourceName has no parameter: "
-    val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, source.getOptionClass, errorMsg)
+    val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, sourceConnector.getOptionClass, errorMsg)
     sourceOption.setDataSourceType(sourceType)
     if (ctx.ctes() != null) {
       val cteSql = StringUtils.substring(sqlText, ctx.ctes().start.getStartIndex, ctx.ctes().stop.getStopIndex + 1)
       sourceOption.setCteSql(cteSql)
     }
 
-
     errorMsg = s"sink $sourceName has no parameter: "
-    val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sink.getOptionClass, errorMsg)
+    val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sinkConnector.getOptionClass, errorMsg)
     sinkOption.setDataSourceType(sinkType)
 
     // 校验 Option
@@ -81,7 +67,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     context.setSinkOption(sinkOption)
 
     if (sourceOption.getCteSql != null) {
-      if (source.supportCte()) {
+      if (sourceConnector.supportCte()) {
         val tableName = FieldUtils.readField(sourceOption, "tableName", true).asInstanceOf[String]
         val sql = sourceOption.getCteSql + " select * from " + tableName;
         val tdlName = "tdl_datatunnel_cte_" + System.currentTimeMillis
@@ -91,7 +77,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
         throw new DataTunnelException("source " + sourceName + " not support cte")
       }
     }
-    var df = source.read(context)
+    var df = sourceConnector.read(context)
 
     if (StringUtils.isBlank(sourceOption.getResultTableName)
       && StringUtils.isNotBlank(transfromSql)) {
@@ -104,7 +90,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     if (KAFKA != sourceType) {
       try {
         DataTunnelMetrics.logEnabled = true;
-        sink.sink(df, context)
+        sinkConnector.sink(df, context)
       } finally {
         DataTunnelMetrics.logEnabled = false;
       }

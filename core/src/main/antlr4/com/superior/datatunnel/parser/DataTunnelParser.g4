@@ -51,7 +51,7 @@ statement
         sourceOpts=sparkOptions (TRANSFORM EQ transfromSql=stringLit)?
         SINK LEFT_PAREN sinkName=stringLit RIGHT_PAREN (sinkOpts=sparkOptions)?     #datatunnelExpr
 
-    | DATATUNNEL HELP (SOURCE | SINK) LEFT_PAREN value=stringLit RIGHT_PAREN   #datatunnelHelp
+    | DATATUNNEL HELP (SOURCE | SINK | ALL) LEFT_PAREN value=stringLit RIGHT_PAREN  #datatunnelHelp
     ;
 
 sparkOptions

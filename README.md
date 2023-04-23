@@ -19,9 +19,15 @@ WITH t AS (
     WITH t2 AS (SELECT 1)
     SELECT * FROM t2
 )
-datatunnel source('数据类型名称') options(键值对参数) 
+datatunnel source('数据源类型名称') options(键值对参数) 
     transform(数据加工SQL，可以对数据处理后输出)
-    sink('数据类型名称') options(键值对参数)
+    sink('数据源类型名称') options(键值对参数)
+```
+
+```sql
+-- 查看不同数据源 options 参数，如果指定SOURCE，只输出数据source options参数，如果指定SINK，只输出数据sink options参数。如果输出为空，说明不支持source或者sink
+DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
+
 ```
 
 ### 支持数据源
