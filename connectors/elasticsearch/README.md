@@ -1,0 +1,1 @@
+1. [2万字详解，吃透 Elasticsearch](https://zhuanlan.zhihu.com/p/529387057)
