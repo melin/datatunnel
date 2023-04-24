@@ -20,6 +20,7 @@ import java.util
 case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) extends LeafRunnableCommand with Logging{
 
   private val OUTPUT_TYPE = new StructType(Array[StructField](
+    StructField("type", DataTypes.StringType, nullable = true, Metadata.empty),
     StructField("key", DataTypes.StringType, nullable = true, Metadata.empty),
     StructField("notBlank", DataTypes.BooleanType, nullable = true, Metadata.empty),
     StructField("default", DataTypes.StringType, nullable = true, Metadata.empty),
@@ -36,19 +37,19 @@ case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) ex
       if (sourceConnector == null) {
         return Seq.empty[Row]
       }
-      DataTunnelUtils.getConnectorDoc(sourceConnector.getOptionClass)
+      DataTunnelUtils.getConnectorDoc("Source", sourceConnector.getOptionClass)
     } else if (ctx.SINK() != null) {
       if (sinkConnector == null) {
         return Seq.empty[Row]
       }
-      DataTunnelUtils.getConnectorDoc(sinkConnector.getOptionClass)
+      DataTunnelUtils.getConnectorDoc("Sink", sinkConnector.getOptionClass)
     } else {
       val list: util.ArrayList[Row] = Lists.newArrayList()
       if (sourceConnector != null) {
-        list.addAll(DataTunnelUtils.getConnectorDoc(sourceConnector.getOptionClass))
+        list.addAll(DataTunnelUtils.getConnectorDoc("Source", sourceConnector.getOptionClass))
       }
       if (sinkConnector != null) {
-        list.addAll(DataTunnelUtils.getConnectorDoc(sinkConnector.getOptionClass))
+        list.addAll(DataTunnelUtils.getConnectorDoc("Sink", sinkConnector.getOptionClass))
       }
 
       list

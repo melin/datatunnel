@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.help;
 import com.superior.datatunnel.core.DataTunnelExtensions;
 import org.apache.spark.sql.SparkSession;
 
-public class HelpDemo {
+public class MysqlHelpDemo {
 
     public static void main(String[] args) {
         SparkSession spark = SparkSession
@@ -13,8 +13,8 @@ public class HelpDemo {
                 .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
                 .getOrCreate();
 
-        String sql = "datatunnel help SOURCE('mysql')";
+        String sql = "datatunnel help all('mysql')";
 
-        spark.sql(sql).show();
+        spark.sql(sql).show(100, false);
     }
 }

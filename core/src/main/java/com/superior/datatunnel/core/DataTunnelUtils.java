@@ -1,7 +1,9 @@
 package com.superior.datatunnel.core;
 
+import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.superior.datatunnel.common.annotation.SparkConfDesc;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -12,7 +14,7 @@ import java.util.List;
 
 public class DataTunnelUtils {
 
-    public static List<Row> getConnectorDoc(Class<?> clazz) throws Exception {
+    public static List<Row> getConnectorDoc(String type, Class<?> clazz) throws Exception {
         List<Row> options = Lists.newArrayList();
         Field[] fields = FieldUtils.getAllFields(clazz);
 
@@ -23,10 +25,14 @@ public class DataTunnelUtils {
             Object value = field.get(obj);
             String defaultValue = "";
             if (value != null) {
-                defaultValue = value.toString();
+                if (ClassUtils.isPrimitiveOrWrapper(value.getClass())) {
+                    defaultValue = value.toString();
+                } else {
+                    defaultValue = JsonUtils.toJSONString(value);
+                }
             }
 
-            boolean notBlank = false;
+            Boolean notBlank = null;
             NotBlank annotation = field.getAnnotation(NotBlank.class);
             if (annotation != null) {
                 notBlank = true;
@@ -38,7 +44,7 @@ public class DataTunnelUtils {
                 desc = sparkConfDesc.value();
             }
 
-            Row row = RowFactory.create(key, notBlank, defaultValue, desc);
+            Row row = RowFactory.create(type, key, notBlank, defaultValue, desc);
             options.add(row);
         }
         return options;

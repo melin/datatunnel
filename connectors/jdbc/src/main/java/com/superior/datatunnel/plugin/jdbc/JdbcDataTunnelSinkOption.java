@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc;
 
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.annotation.SparkConfDesc;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -10,20 +11,24 @@ import javax.validation.constraints.NotNull;
 @Data
 public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
 
+    @SparkConfDesc("数据库名")
     private String databaseName;
 
+    @SparkConfDesc("数据库 schema 名，如果是mysql或者oracle，databaseName和schemaName 任意填写一个")
     private String schemaName;
 
+    @SparkConfDesc("数据库表名")
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
-    //oracle
+    @SparkConfDesc("oracle sid。sid和serviceName，只能选择填写一个")
     private String sid;
 
-    //oracle
+    @SparkConfDesc("oracle serviceName。sid和serviceName，只能选择填写一个")
     private String serviceName;
 
     @NotEmpty(message = "columns can not empty")
+
     private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
@@ -37,7 +42,7 @@ public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
     @NotNull(message = "port can not blank")
     private Integer port;
 
-    // overwrite/insert/upsert
+    @NotBlank(message = "数据写入模式，支持：overwrite、insert、upsert")
     @NotBlank
     private String writeMode = "insert";
 
