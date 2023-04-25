@@ -61,7 +61,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             int batchsize = sinkOption.getBatchsize();
             int queryTimeout = sinkOption.getQueryTimeout();
 
-            String writeMode = sinkOption.getWriteMode();
+            final String writeMode = sinkOption.getWriteMode();
             SaveMode mode = SaveMode.Append;
             if ("overwrite".equals(writeMode)) {
                 mode = SaveMode.Overwrite;
@@ -106,6 +106,10 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
                 dataFrameWriter.option("database", schemaName);
                 dataFrameWriter.option("table", sinkOption.getTableName());
+
+                if ("upsert".equals(writeMode)) {
+                    dataFrameWriter.option("replace", true);
+                }
             }
 
             dataFrameWriter.save();

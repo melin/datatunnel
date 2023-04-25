@@ -12,10 +12,11 @@ public class DataTunnelMysql2TidbDemo {
                 .master("local")
                 .appName("Datatunnel spark example")
                 //  + ",org.apache.spark.sql.TiExtensions"
-                .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
-                //.config("spark.tispark.pd.addresses", "172.18.5.45:2379")
-                //.config("spark.sql.catalog.tidb_catalog", "org.apache.spark.sql.catalyst.catalog.TiCatalog")
-                //.config("spark.sql.catalog.tidb_catalog.pd.addresses", "172.18.5.45:2379")
+                .config("spark.sql.extensions", DataTunnelExtensions.class.getName() + ",org.apache.spark.sql.TiExtensions")
+                .config("spark.tispark.pd.addresses", "172.18.5.45:2379")
+                .config("spark.tispark.load_tables", false)
+                .config("spark.sql.catalog.tidb_catalog", "org.apache.spark.sql.catalyst.catalog.TiCatalog")
+                .config("spark.sql.catalog.tidb_catalog.pd.addresses", "172.18.5.45:2379")
                 .getOrCreate();
 
         String sql = "datatunnel SOURCE('mysql') OPTIONS(\n" +
