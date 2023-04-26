@@ -3,11 +3,16 @@ package com.superior.datatunnel.api.model;
 import com.superior.datatunnel.api.DataSourceType;
 import lombok.Data;
 
-@Data
-public abstract class DataTunnelSourceOption extends DataTunnelOption {
-    private DataSourceType dataSourceType;
+public interface DataTunnelSourceOption extends DataTunnelOption {
+    DataSourceType getDataSourceType();
 
-    private String resultTableName;
+    void setDataSourceType(DataSourceType dataSourceType);
 
-    private String cteSql;
+    String getResultTableName();
+
+    void setResultTableName(String resultTableName);
+
+    String getCteSql();
+
+    void setCteSql(String cteSql);
 }

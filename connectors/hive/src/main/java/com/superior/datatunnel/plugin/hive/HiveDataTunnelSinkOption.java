@@ -1,13 +1,13 @@
 package com.superior.datatunnel.plugin.hive;
 
-import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.api.model.BaseSinkOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 @Data
-public class HiveDataTunnelSinkOption extends DataTunnelSinkOption {
+public class HiveDataTunnelSinkOption extends BaseSinkOption {
 
     @NotBlank(message = "databaseName can not blank")
     private String databaseName;

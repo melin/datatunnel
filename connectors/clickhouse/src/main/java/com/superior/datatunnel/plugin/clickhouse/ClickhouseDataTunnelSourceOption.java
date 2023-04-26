@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.clickhouse;
 
 import com.gitee.melin.bee.core.hibernate5.validation.ValidConst;
-import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class ClickhouseDataTunnelSourceOption extends DataTunnelSourceOption {
+public class ClickhouseDataTunnelSourceOption extends BaseSourceOption {
 
     @NotBlank(message = "databaseName can not blank")
     private String databaseName;

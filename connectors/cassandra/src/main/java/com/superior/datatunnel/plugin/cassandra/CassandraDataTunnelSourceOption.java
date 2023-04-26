@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.cassandra;
 
-import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class CassandraDataTunnelSourceOption extends DataTunnelSourceOption {
+public class CassandraDataTunnelSourceOption extends BaseSourceOption {
 
     @NotBlank(message = "keyspace can not blank")
     private String keyspace;

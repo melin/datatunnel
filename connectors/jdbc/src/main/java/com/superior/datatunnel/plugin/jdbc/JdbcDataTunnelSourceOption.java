@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc;
 
-import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.api.model.BaseSourceOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class JdbcDataTunnelSourceOption extends DataTunnelSourceOption {
+public class JdbcDataTunnelSourceOption extends BaseSourceOption {
 
     private String databaseName;
 

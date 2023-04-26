@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.sftp.spark
+package com.superior.datatunnel.plugin.s3.spark
 
 import org.apache.commons.io.FileUtils
 import org.apache.log4j.Logger

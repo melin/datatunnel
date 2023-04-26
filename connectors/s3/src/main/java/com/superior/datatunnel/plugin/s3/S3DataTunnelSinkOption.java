@@ -1,13 +1,13 @@
-package com.superior.datatunnel.plugin.sftp;
+package com.superior.datatunnel.plugin.s3;
 
-import com.superior.datatunnel.api.model.BaseSourceOption;
+import com.superior.datatunnel.api.model.BaseSinkOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class SftpDataTunnelSourceOption extends BaseSourceOption {
+public class S3DataTunnelSinkOption extends BaseSinkOption {
 
     @NotBlank(message = "path can not blank")
     private String path;
@@ -28,4 +28,5 @@ public class SftpDataTunnelSourceOption extends BaseSourceOption {
 
     private String passPhrase;
 
+    private boolean overwrite;
 }

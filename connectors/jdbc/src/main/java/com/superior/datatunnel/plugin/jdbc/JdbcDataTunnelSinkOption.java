@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc;
 
-import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.SparkConfDesc;
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class JdbcDataTunnelSinkOption extends DataTunnelSinkOption {
+public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
     @SparkConfDesc("数据库名")
     private String databaseName;

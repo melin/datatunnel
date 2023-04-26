@@ -1,7 +1,6 @@
 package com.superior.datatunnel.plugin.cassandra;
 
-import com.gitee.melin.bee.core.hibernate5.validation.ValidConst;
-import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import lombok.Data;
 
@@ -10,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class CassandraDataTunnelSinkOption extends DataTunnelSinkOption {
+public class CassandraDataTunnelSinkOption extends BaseSinkOption {
 
     @NotBlank(message = "keyspace can not blank")
     private String keyspace;

@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.sftp.spark
+package com.superior.datatunnel.plugin.s3.spark
 
 import com.springml.sftp.client.SFTPClient
 import Constants.ImplicitDataFrameWriter

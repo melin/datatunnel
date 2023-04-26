@@ -1,12 +1,13 @@
 package com.superior.datatunnel.plugin.files.sink;
 
+import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class JsonDataTunnelSinkOption extends DataTunnelSinkOption {
+public class JsonDataTunnelSinkOption extends BaseSinkOption {
 
     @NotBlank(message = "path can not blank")
     private String path;
