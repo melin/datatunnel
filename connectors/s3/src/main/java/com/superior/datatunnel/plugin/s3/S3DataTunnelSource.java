@@ -7,6 +7,7 @@ import lombok.val;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 
 import java.io.IOException;
 
@@ -21,14 +22,15 @@ public class S3DataTunnelSource implements DataTunnelSource {
 
         System.setProperty(S3Configs.awsServicesEnableV4, "true");
 
-        /*sparkSession.conf.set(S3Configs.accessId, conf.accessId);
-        sparkSession.conf.set(S3Configs.secretKey, conf.secretKey);
-        sparkSession.conf.set(S3Configs.s3aClientImpl, conf.s3aImpl);
-        sparkSession.conf.set(S3Configs.sslEnabled, conf.sslEnabled);
-        sparkSession.conf.set(S3Configs.endPoint, conf.endPoint);
-        sparkSession.conf.set(S3Configs.pathStyleAccess, conf.pathStyleAccess);
+        SparkSession sparkSession = context.getSparkSession();
+        sparkSession.conf().set(S3Configs.accessKey, sourceOption.getAccessKey());
+        sparkSession.conf().set(S3Configs.secretKey, sourceOption.getSecretKey());
+        sparkSession.conf().set(S3Configs.s3aClientImpl, sourceOption.getS3aClientImpl());
+        sparkSession.conf().set(S3Configs.sslEnabled, sourceOption.isSslEnabled());
+        sparkSession.conf().set(S3Configs.endPoint, sourceOption.getEndpoint());
+        sparkSession.conf().set(S3Configs.pathStyleAccess, sourceOption.isPathStyleAccess());
 
-        val dataframe = conf.objectFormat match {
+        /* val dataframe = conf.objectFormat match {
             case S3Constants.csvFileFormat =>
                 sparkSession.read.format("csv")
                         .option(S3Constants.delimiter, conf.delimiter)

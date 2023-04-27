@@ -29,7 +29,6 @@ public class S3DataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         validateOptions(context);
 
-
     }
 
     @Override

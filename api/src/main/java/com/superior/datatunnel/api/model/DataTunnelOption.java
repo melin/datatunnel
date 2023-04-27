@@ -23,4 +23,12 @@ public interface DataTunnelOption {
         }
     }
 
+    default String getCteSql() {
+        return null;
+    }
+
+    default void setCteSql(String cteSql) {
+    }
+
+    Map<String, String> getProperties();
 }
