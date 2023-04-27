@@ -1,6 +1,6 @@
-package com.superior.datatunnel.plugin.s3;
+package com.superior.datatunnel.plugin.redis;
 
-abstract public class S3Configs {
+abstract public class RedisConfigs {
     public static final String awsServicesEnableV4 = "com.amazonaws.services.s3.enableV4";
     public static final String accessKey = "fs.s3a.access.key";
     public static final String secretKey = "fs.s3a.secret.key";

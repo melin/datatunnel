@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.s3;
+package com.superior.datatunnel.plugin.redis;
 
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;
@@ -12,21 +12,21 @@ import java.io.IOException;
 /**
  * @author melin 2021/7/27 11:06 上午
  */
-public class S3DataTunnelSource implements DataTunnelSource {
+public class RedisDataTunnelSource implements DataTunnelSource {
 
     @Override
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
-        S3DataTunnelSourceOption sourceOption = (S3DataTunnelSourceOption) context.getSourceOption();
+        RedisDataTunnelSourceOption sourceOption = (RedisDataTunnelSourceOption) context.getSourceOption();
 
-        System.setProperty(S3Configs.awsServicesEnableV4, "true");
+        System.setProperty(RedisConfigs.awsServicesEnableV4, "true");
 
         SparkSession sparkSession = context.getSparkSession();
-        sparkSession.conf().set(S3Configs.accessKey, sourceOption.getAccessKey());
-        sparkSession.conf().set(S3Configs.secretKey, sourceOption.getSecretKey());
-        sparkSession.conf().set(S3Configs.s3aClientImpl, sourceOption.getS3aClientImpl());
-        sparkSession.conf().set(S3Configs.sslEnabled, sourceOption.isSslEnabled());
-        sparkSession.conf().set(S3Configs.endPoint, sourceOption.getEndpoint());
-        sparkSession.conf().set(S3Configs.pathStyleAccess, sourceOption.isPathStyleAccess());
+        sparkSession.conf().set(RedisConfigs.accessKey, sourceOption.getAccessKey());
+        sparkSession.conf().set(RedisConfigs.secretKey, sourceOption.getSecretKey());
+        sparkSession.conf().set(RedisConfigs.s3aClientImpl, sourceOption.getS3aClientImpl());
+        sparkSession.conf().set(RedisConfigs.sslEnabled, sourceOption.isSslEnabled());
+        sparkSession.conf().set(RedisConfigs.endPoint, sourceOption.getEndpoint());
+        sparkSession.conf().set(RedisConfigs.pathStyleAccess, sourceOption.isPathStyleAccess());
 
         /* val dataframe = conf.objectFormat match {
             case S3Constants.csvFileFormat =>
@@ -50,6 +50,6 @@ public class S3DataTunnelSource implements DataTunnelSource {
 
     @Override
     public Class<? extends DataTunnelSourceOption> getOptionClass() {
-        return S3DataTunnelSourceOption.class;
+        return RedisDataTunnelSourceOption.class;
     }
 }

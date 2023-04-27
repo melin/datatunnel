@@ -25,6 +25,7 @@
         <module>connectors/doris</module>
         <module>connectors/cassandra</module>
         <module>connectors/s3</module>
+        <module>connectors/redis</module>
         <module>examples</module>
     </modules>
 
