@@ -45,6 +45,7 @@
         <kafka.version>3.4.0</kafka.version>
 
         <aws.java.sdk.version>1.12.455</aws.java.sdk.version>
+        <spark-redis.version>3.1.0</spark-redis.version>
         <hadoop.verison>3.3.5</hadoop.verison>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
