@@ -1,1 +1,1 @@
-s3=com.superior.datatunnel.plugin.s3.RedisDataTunnelSource
+s3=com.superior.datatunnel.plugin.s3.S3DataTunnelSource

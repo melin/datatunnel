@@ -1,11 +1,11 @@
-package com.superior.datatunnel.examples;
+package com.superior.datatunnel.examples.jdbc;
 
 import com.superior.datatunnel.core.DataTunnelExtensions;
 import org.apache.spark.sql.SparkSession;
 
 import java.sql.SQLException;
 
-public class DataTunnelOracle2LogDemo {
+public class DataTunnelPostgres2LogDemo {
 
     public static void main(String[] args) throws SQLException {
         SparkSession spark = SparkSession
@@ -16,14 +16,14 @@ public class DataTunnelOracle2LogDemo {
                 .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
                 .getOrCreate();
 
-        String sql = "datatunnel SOURCE('oracle') OPTIONS(\n" +
-                "    username='flinkuser',\n" +
-                "    password='flinkpw',\n" +
+        String sql = "datatunnel SOURCE('gauss') OPTIONS(\n" +
+                "    username='postgres',\n" +
+                "    password='postgres2023',\n" +
                 "    host='172.18.1.56',\n" +
-                "    port=1521,\n" +
-                "    serviceName='XE',\n" +
-                "    databaseName='FLINKUSER'," +
-                "    tableName='ORDERS', columns=['ORDER_ID', 'CUSTOMER_NAME', 'PRICE', 'PRODUCT_ID', 'ORDER_STATUS'])\n" +
+                "    port=15432,\n" +
+                "    databaseName='postgres'," +
+                "    schemaName='public'," +
+                "    tableName='ORDERS', columns=['*'])\n" +
                 "    SINK('log') OPTIONS(numRows = 10)";
 
         spark.sql(sql);

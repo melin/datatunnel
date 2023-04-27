@@ -85,6 +85,8 @@ public class CommonUtils {
                 field.set(beanInstance, Double.parseDouble(value.toString()));
             } else if (field.getType() == String[].class) {
                 field.set(beanInstance, JsonUtils.toJavaObject(value.toString(), new TypeReference<String[]>() {}));
+            } else if (field.getType().isEnum()) {
+                field.set(beanInstance, Enum.valueOf((Class<Enum>) field.getType(), String.valueOf(value).toUpperCase()));
             } else {
                 throw new DataTunnelException(fieldName + " not support data type: " + field.getType());
             }

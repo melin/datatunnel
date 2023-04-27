@@ -23,6 +23,7 @@ public enum DataSourceType {
     LOG,
     EXCEL,
     SFTP,
+    S3,
     HDFS,
     ELASTICSEARCH;
 

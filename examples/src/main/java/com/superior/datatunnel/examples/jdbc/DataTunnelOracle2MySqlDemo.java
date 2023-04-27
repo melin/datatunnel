@@ -1,4 +1,4 @@
-package com.superior.datatunnel.examples;
+package com.superior.datatunnel.examples.jdbc;
 
 import com.superior.datatunnel.core.DataTunnelExtensions;
 import org.apache.spark.sql.SparkSession;
