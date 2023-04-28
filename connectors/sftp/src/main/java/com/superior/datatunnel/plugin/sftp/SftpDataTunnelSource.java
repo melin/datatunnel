@@ -19,7 +19,7 @@ public class SftpDataTunnelSource implements DataTunnelSource {
         SftpDataTunnelSourceOption sourceOption = (SftpDataTunnelSourceOption) context.getSourceOption();
         DataFrameReader dfReader = context.getSparkSession().read()
                 .format("com.superior.datatunnel.sftp.spark");
-        String path = sourceOption.getPath();
+        String path = sourceOption.getFilePath();
         dfReader.options(context.getSourceOption().getParams());
         return dfReader.load(path);
     }

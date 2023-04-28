@@ -36,12 +36,14 @@ DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
 |:--------------|:----------| :------      |:---------------------------------------------------------------------------------|
 | file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv 文件                                           |
 | sftp          | √         | √            | [读写](doc/sftp.md)                                                                |
+| ftp           | √         | √            | [读写](doc/ftp.md)                                                                 |
+| s3            | √         | √            | [读写](doc/s3.md)                                                                  |
 | hdfs          | √         |              | [读](doc/hdfs.md)                                                                 |
 | jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，tidb，guass，postgresql,tidb |
 | hive          | √         | √            | [读写](doc/hive.md)                                                                |
 | hbase         |           | √            | [写](doc/hbase.md)                                                                |
 | clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                         |
-| cassandra    | √         | √            | [读写](doc/cassandra.md)                          |
+| cassandra     | √         | √            | [读写](doc/cassandra.md)                                                           |
 | elasticsearch |           | √            | 开发中                                                                              |
 | log           |           | √            | [写](doc/log.md)                                                                  |
 | kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                              |

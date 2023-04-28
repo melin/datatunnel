@@ -17,7 +17,6 @@
         <module>connectors/clickhouse</module>
         <module>connectors/files</module>
         <module>connectors/elasticsearch</module>
-        <module>connectors/sftp</module>
         <module>connectors/hdfs</module>
         <module>connectors/hive</module>
         <module>connectors/jdbc</module>
@@ -26,6 +25,8 @@
         <module>connectors/cassandra</module>
         <module>connectors/s3</module>
         <module>connectors/redis</module>
+        <module>connectors/sftp</module>
+        <module>connectors/ftp</module>
         <module>examples</module>
     </modules>
 
