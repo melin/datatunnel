@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.s3
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object S3Csv2LogDemo {
+object Mysql2S3JsonDemo {
     @JvmStatic
     fun main(args: Array<String>) {
         val spark = SparkSession
@@ -14,15 +14,20 @@ object S3Csv2LogDemo {
             .getOrCreate()
 
         val sql = """
-datatunnel SOURCE('s3') OPTIONS(
+datatunnel source('mysql') OPTIONS(
+    username='root',
+    password='root2023',
+    host='172.18.5.44',
+    port=3306,
+    databaseName='superior',
+    tableName='meta_job',
+    columns=['*'])
+Sink('s3') OPTIONS(
     endpoint='http://172.18.5.45:9300',
     accessKey='BxiljVd5YZa3mRUn',
     secretKey='3Mq9dsmdMbN1JipE1TlOF7OuDkuYBYpe',
-    format="csv",
-    filePath="s3a://demo-bucket/demo.csv",
-    'properties.header' = true,
-    'properties.inferSchema' = true)
-SINK('log')
+    format="json",
+    filePath="s3a://demo-bucket/meta_job.json")
 """
         spark.sql(sql)
     }

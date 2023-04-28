@@ -45,8 +45,10 @@
         <kafka.version>3.4.0</kafka.version>
 
         <aws.java.sdk.version>1.12.455</aws.java.sdk.version>
-        <spark-redis.version>3.1.0</spark-redis.version>
         <hadoop.verison>3.3.5</hadoop.verison>
+
+        <spark-redis.version>3.1.0</spark-redis.version>
+        <spark-excel.version>3.3.1_0.18.7</spark-excel.version>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
     </properties>
@@ -134,7 +136,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <version>3.3.5</version>
+            <version>${hadoop.verison}</version>
             <scope>${libScope}</scope>
         </dependency>
     </dependencies>
@@ -146,6 +148,26 @@
                 <artifactId>lombok</artifactId>
                 <version>1.18.26</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.crealytics</groupId>
+                <artifactId>spark-excel_2.12</artifactId>
+                <version>${spark-excel.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-compress</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.scala-lang</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

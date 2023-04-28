@@ -1,9 +1,11 @@
 package com.superior.datatunnel.plugin.s3;
 
+import com.amazonaws.SDKGlobalConfiguration;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import com.superior.datatunnel.common.enums.FileFormat;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,32 @@ public class S3DataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         validateOptions(context);
 
+        S3DataTunnelSinkOption sinkOption = (S3DataTunnelSinkOption) context.getSinkOption();
+
+        System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
+        System.setProperty(SDKGlobalConfiguration.DEFAULT_METRICS_SYSTEM_PROPERTY, "false");
+
+        SparkSession sparkSession = context.getSparkSession();
+        Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
+        hadoopConf.set(S3Configs.accessKey, sinkOption.getAccessKey());
+        hadoopConf.set(S3Configs.secretKey, sinkOption.getSecretKey());
+        hadoopConf.set(S3Configs.s3aClientImpl, sinkOption.getS3aClientImpl());
+        hadoopConf.set(S3Configs.sslEnabled, String.valueOf(sinkOption.isSslEnabled()));
+        hadoopConf.set(S3Configs.endPoint, sinkOption.getEndpoint());
+        hadoopConf.set(S3Configs.pathStyleAccess, String.valueOf(sinkOption.isPathStyleAccess()));
+        hadoopConf.set(S3Configs.connectionTimeout, String.valueOf(sinkOption.getConnectionTimeout()));
+
+        String format = sinkOption.getFormat().name().toLowerCase();
+        if (FileFormat.EXCEL == sinkOption.getFormat()) {
+            format = "com.crealytics.spark.excel";
+        }
+
+        DataFrameWriter writer = dataset.write()
+                .format(format)
+                .mode(sinkOption.getSaveMode().name().toLowerCase());
+
+        sinkOption.getProperties().forEach(writer::option);
+        writer.save(sinkOption.getFilePath());
     }
 
     @Override

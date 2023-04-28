@@ -2,7 +2,7 @@ package com.superior.datatunnel.core;
 
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
-import com.superior.datatunnel.common.annotation.SparkConfDesc;
+import com.superior.datatunnel.common.annotation.OptionDesc;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.spark.sql.Row;
@@ -39,9 +39,9 @@ public class DataTunnelUtils {
             }
 
             String desc = "";
-            SparkConfDesc sparkConfDesc = field.getAnnotation(SparkConfDesc.class);
-            if (sparkConfDesc != null) {
-                desc = sparkConfDesc.value();
+            OptionDesc optionDesc = field.getAnnotation(OptionDesc.class);
+            if (optionDesc != null) {
+                desc = optionDesc.value();
             }
 
             Row row = RowFactory.create(type, key, notBlank, defaultValue, desc);

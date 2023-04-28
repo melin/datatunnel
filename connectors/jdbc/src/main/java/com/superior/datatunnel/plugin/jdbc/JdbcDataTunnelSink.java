@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.jdbc;
 
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,9 +62,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             int batchsize = sinkOption.getBatchsize();
             int queryTimeout = sinkOption.getQueryTimeout();
 
-            final String writeMode = sinkOption.getWriteMode();
+            final WriteMode writeMode = sinkOption.getWriteMode();
             SaveMode mode = SaveMode.Append;
-            if ("overwrite".equals(writeMode)) {
+            if (WriteMode.OVERWRITE == writeMode) {
                 mode = SaveMode.Overwrite;
             }
 
@@ -98,7 +99,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("truncate", truncate)
                     .option("user", username)
                     .option("password", password)
-                    .option("writeMode", writeMode)
+                    .option("writeMode", writeMode.name().toLowerCase())
                     .option("dataSourceType", dataSourceType.name())
                     .option("isolationLevel", sinkOption.getIsolationLevel());
 

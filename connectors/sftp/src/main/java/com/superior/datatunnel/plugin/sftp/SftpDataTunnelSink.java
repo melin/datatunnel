@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.sftp;
 
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.SaveMode;
 import com.superior.datatunnel.plugin.sftp.util.SftpUtils;
 import com.github.melin.superior.jobserver.api.LogUtils;
 import com.jcraft.jsch.ChannelSftp;
@@ -40,8 +41,8 @@ public class SftpDataTunnelSink implements DataTunnelSink {
         SftpDataTunnelSinkOption sinkOption = (SftpDataTunnelSinkOption) context.getSinkOption();
         try {
             FileSystem fileSystem = FileSystem.get(context.getSparkSession().sparkContext().hadoopConfiguration());
-            String remotePath = sinkOption.getPath();
-            boolean overwrite = sinkOption.isOverwrite();
+            String remotePath = sinkOption.getFilePath();
+            SaveMode saveMode = sinkOption.getSaveMode();
             boolean result = SftpUtils.checkFileExists(channelSftp, remotePath);
             if (!result) {
                 SftpUtils.mkdir(channelSftp, remotePath);
@@ -56,7 +57,7 @@ public class SftpDataTunnelSink implements DataTunnelSink {
                     String filename = remotePath + "/" + path.getName();
 
                     boolean exist = SftpUtils.checkFileExists(channelSftp, filename);
-                    if (!overwrite && exist) {
+                    if (exist && saveMode == SaveMode.APPEND) {
                         LogUtils.error(path.getName() + " 文件已经存在 不重复上传");
                     } else {
                         Stopwatch stopWatch = new Stopwatch();

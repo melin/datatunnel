@@ -4,6 +4,9 @@ import com.amazonaws.SDKGlobalConfiguration;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.common.enums.FileFormat;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -19,21 +22,27 @@ public class S3DataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         S3DataTunnelSourceOption sourceOption = (S3DataTunnelSourceOption) context.getSourceOption();
 
-        System.setProperty(S3Configs.awsServicesEnableV4, "true");
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
+        System.setProperty(SDKGlobalConfiguration.DEFAULT_METRICS_SYSTEM_PROPERTY, "false");
 
         SparkSession sparkSession = context.getSparkSession();
-        sparkSession.sparkContext().hadoopConfiguration().set(S3Configs.accessKey, sourceOption.getAccessKey());
-        sparkSession.sparkContext().hadoopConfiguration().set(S3Configs.secretKey, sourceOption.getSecretKey());
-        sparkSession.sparkContext().hadoopConfiguration().set(S3Configs.s3aClientImpl, sourceOption.getS3aClientImpl());
-        sparkSession.sparkContext().hadoopConfiguration().set(S3Configs.sslEnabled, "true");
-        sparkSession.sparkContext().hadoopConfiguration().set(S3Configs.endPoint, sourceOption.getEndpoint());
-        sparkSession.sparkContext().hadoopConfiguration().set(S3Configs.pathStyleAccess, "true");
+        Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
+        hadoopConf.set(S3Configs.accessKey, sourceOption.getAccessKey());
+        hadoopConf.set(S3Configs.secretKey, sourceOption.getSecretKey());
+        hadoopConf.set(S3Configs.s3aClientImpl, sourceOption.getS3aClientImpl());
+        hadoopConf.set(S3Configs.sslEnabled, String.valueOf(sourceOption.isSslEnabled()));
+        hadoopConf.set(S3Configs.endPoint, sourceOption.getEndpoint());
+        hadoopConf.set(S3Configs.pathStyleAccess, String.valueOf(sourceOption.isPathStyleAccess()));
+        hadoopConf.set(S3Configs.connectionTimeout, String.valueOf(sourceOption.getConnectionTimeout()));
 
-        return sparkSession.read().format(sourceOption.getFormat().name().toLowerCase())
-                .option("header", "true")
-                .option("inferSchema", "true")
-                .load(sourceOption.getFilePath());
+        String format = sourceOption.getFormat().name().toLowerCase();
+        if (FileFormat.EXCEL == sourceOption.getFormat()) {
+            format = "com.crealytics.spark.excel";
+        }
+        DataFrameReader reader = sparkSession.read().format(format);
+        sourceOption.getProperties().forEach(reader::option);
+
+        return reader.load(sourceOption.getFilePath());
     }
 
     @Override

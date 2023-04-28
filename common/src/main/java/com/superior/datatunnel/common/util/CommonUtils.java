@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.superior.datatunnel.api.DataTunnelException;
+import com.superior.datatunnel.api.model.BaseCommonOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -64,29 +66,42 @@ public class CommonUtils {
 
     public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz, String msg) throws Exception {
         T beanInstance = clazz.getConstructor().newInstance();
+
+        Map<String, String> properties = null;
+        if (beanInstance instanceof BaseCommonOption) {
+            properties = ((BaseCommonOption) beanInstance).getProperties();
+        }
+
         for (String fieldName : map.keySet()) {
-            Object value = map.get(fieldName);
+            String value = map.get(fieldName);
+            if (properties != null && StringUtils.startsWith(fieldName, "properties.")) {
+                String key = StringUtils.substringAfter(fieldName, "properties.");
+                properties.put(key, value);
+                continue;
+            }
+
             Field field = ReflectionUtils.findField(clazz, fieldName);
             if (field == null) {
                 throw new DataTunnelException(msg + fieldName);
             }
+
             field.setAccessible(true);
             if (field.getType() == String.class) {
                 field.set(beanInstance, value);
             } else if (field.getType() == Integer.class || field.getType() == int.class) {
-                field.set(beanInstance, Integer.parseInt(value.toString()));
+                field.set(beanInstance, Integer.parseInt(value));
             } else if (field.getType() == Long.class || field.getType() == long.class) {
-                field.set(beanInstance, Long.parseLong(value.toString()));
+                field.set(beanInstance, Long.parseLong(value));
             } else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-                field.set(beanInstance, Boolean.valueOf(value.toString()));
+                field.set(beanInstance, Boolean.valueOf(value));
             } else if (field.getType() == Float.class || field.getType() == float.class) {
-                field.set(beanInstance, Float.parseFloat(value.toString()));
+                field.set(beanInstance, Float.parseFloat(value));
             } else if (field.getType() == Double.class || field.getType() == double.class) {
-                field.set(beanInstance, Double.parseDouble(value.toString()));
+                field.set(beanInstance, Double.parseDouble(value));
             } else if (field.getType() == String[].class) {
-                field.set(beanInstance, JsonUtils.toJavaObject(value.toString(), new TypeReference<String[]>() {}));
+                field.set(beanInstance, JsonUtils.toJavaObject(value, new TypeReference<String[]>() {}));
             } else if (field.getType().isEnum()) {
-                field.set(beanInstance, Enum.valueOf((Class<Enum>) field.getType(), String.valueOf(value).toUpperCase()));
+                field.set(beanInstance, Enum.valueOf((Class<Enum>) field.getType(), value.toUpperCase()));
             } else {
                 throw new DataTunnelException(fieldName + " not support data type: " + field.getType());
             }

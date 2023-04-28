@@ -1,32 +1,17 @@
 package com.superior.datatunnel.plugin.sftp;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
+import com.superior.datatunnel.common.annotation.OptionDesc;
+import com.superior.datatunnel.common.enums.SaveMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class SftpDataTunnelSinkOption extends BaseSinkOption {
+public class SftpDataTunnelSinkOption extends SftpCommonOption {
 
-    @NotBlank(message = "path can not blank")
-    private String path;
-
-    @NotBlank(message = "username can not blank")
-    private String username;
-
-    @NotBlank(message = "password can not blank")
-    private String password;
-
-    @NotBlank(message = "host can not blank")
-    private String host;
-
-    @NotNull(message = "port can not blank")
-    private Integer port;
-
-    private String keyFilePath;
-
-    private String passPhrase;
-
-    private boolean overwrite;
+    @OptionDesc("数据写入模式")
+    @NotNull(message = "saveMode can not null")
+    private SaveMode saveMode = SaveMode.APPEND;
 }

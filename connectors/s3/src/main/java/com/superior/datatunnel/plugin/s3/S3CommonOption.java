@@ -28,6 +28,8 @@ public class S3CommonOption extends BaseCommonOption
 
     private boolean sslEnabled = false;
 
+    private int connectionTimeout = 600000;
+
     @NotNull(message = "format can not null")
     private FileFormat format;
 

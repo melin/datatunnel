@@ -39,22 +39,7 @@
 
         <dependency>
             <groupId>com.crealytics</groupId>
-            <artifactId>spark-excel_2.13</artifactId>
-            <version>3.3.1_0.18.6-beta1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-compress</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-io</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spark-excel_2.12</artifactId>
         </dependency>
     </dependencies>
 </project>

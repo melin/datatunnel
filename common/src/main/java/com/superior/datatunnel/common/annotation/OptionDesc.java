@@ -10,6 +10,6 @@ import static java.lang.annotation.ElementType.FIELD;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({FIELD})
-public @interface SparkConfDesc {
+public @interface OptionDesc {
     String value();
 }

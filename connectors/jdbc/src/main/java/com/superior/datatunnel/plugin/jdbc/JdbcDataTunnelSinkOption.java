@@ -1,7 +1,8 @@
 package com.superior.datatunnel.plugin.jdbc;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
-import com.superior.datatunnel.common.annotation.SparkConfDesc;
+import com.superior.datatunnel.common.annotation.OptionDesc;
+import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -11,20 +12,20 @@ import javax.validation.constraints.NotNull;
 @Data
 public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
-    @SparkConfDesc("数据库名")
+    @OptionDesc("数据库名")
     private String databaseName;
 
-    @SparkConfDesc("数据库 schema 名，如果是mysql或者oracle，databaseName和schemaName 任意填写一个")
+    @OptionDesc("数据库 schema 名，如果是mysql或者oracle，databaseName和schemaName 任意填写一个")
     private String schemaName;
 
-    @SparkConfDesc("数据库表名")
+    @OptionDesc("数据库表名")
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
-    @SparkConfDesc("oracle sid。sid和serviceName，只能选择填写一个")
+    @OptionDesc("oracle sid。sid和serviceName，只能选择填写一个")
     private String sid;
 
-    @SparkConfDesc("oracle serviceName。sid和serviceName，只能选择填写一个")
+    @OptionDesc("oracle serviceName。sid和serviceName，只能选择填写一个")
     private String serviceName;
 
     @NotEmpty(message = "columns can not empty")
@@ -42,9 +43,9 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "port can not blank")
     private Integer port;
 
-    @NotBlank(message = "数据写入模式，支持：overwrite、insert、upsert")
-    @NotBlank
-    private String writeMode = "insert";
+    @OptionDesc("数据写入模式")
+    @NotNull(message = "writeMode can not null")
+    private WriteMode writeMode = WriteMode.INSERT;
 
     private int batchsize = 1000;
 
