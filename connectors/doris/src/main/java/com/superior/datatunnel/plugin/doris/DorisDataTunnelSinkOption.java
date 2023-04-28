@@ -1,13 +1,13 @@
 package com.superior.datatunnel.plugin.doris;
 
 import com.superior.datatunnel.api.ParamKey;
-import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.api.model.BaseSinkOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class DorisDataTunnelSinkOption extends DataTunnelSinkOption {
+public class DorisDataTunnelSinkOption extends BaseSinkOption {
 
     @NotBlank(message = "topic can not blank")
     private String topic;
