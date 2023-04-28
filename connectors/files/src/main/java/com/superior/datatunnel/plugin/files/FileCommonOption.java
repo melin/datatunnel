@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.sftp;
+package com.superior.datatunnel.plugin.files;
 
 import com.superior.datatunnel.api.model.BaseCommonOption;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
@@ -10,28 +10,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class SftpCommonOption extends BaseCommonOption
+public class FileCommonOption extends BaseCommonOption
         implements DataTunnelSourceOption, DataTunnelSinkOption {
-
-    @NotBlank(message = "username can not blank")
-    private String username;
-
-    @NotBlank(message = "password can not blank")
-    private String password;
-
-    @NotBlank(message = "host can not blank")
-    private String host;
-
-    @NotNull(message = "port can not blank")
-    private Integer port;
-
-    private String keyFilePath;
-
-    private String passPhrase;
 
     @NotNull(message = "format can not null")
     private FileFormat format;
 
     @NotBlank(message = "filePath can not blank")
     private String filePath;
+
 }
