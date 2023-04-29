@@ -26,6 +26,7 @@ public enum DataSourceType {
     FTP,
     S3,
     HDFS,
+    REDIS,
     ELASTICSEARCH;
 
     public static boolean isJdbcDataSource(DataSourceType dsType) {

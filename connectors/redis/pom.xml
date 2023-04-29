@@ -25,9 +25,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.redislabs</groupId>
-            <artifactId>spark-redis_2.12</artifactId>
-            <version>${spark-redis.version}</version>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
         </dependency>
 
     </dependencies>
