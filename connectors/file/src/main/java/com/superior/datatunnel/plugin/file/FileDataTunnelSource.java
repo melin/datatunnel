@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.files;
+package com.superior.datatunnel.plugin.file;
 
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;
@@ -25,7 +25,6 @@ public class FileDataTunnelSource implements DataTunnelSource {
         SparkSession sparkSession = context.getSparkSession();
         DataFrameReader reader = sparkSession.read().format(format);
         sourceOption.getProperties().forEach(reader::option);
-        reader.option("wholetext", "true");
 
         return reader.load(sourceOption.getFilePath());
     }

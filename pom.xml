@@ -15,7 +15,7 @@
         <module>assembly</module>
         <module>connectors/log</module>
         <module>connectors/clickhouse</module>
-        <module>connectors/files</module>
+        <module>connectors/file</module>
         <module>connectors/elasticsearch</module>
         <module>connectors/hdfs</module>
         <module>connectors/hive</module>

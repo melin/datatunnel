@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.files;
+package com.superior.datatunnel.plugin.file;
 
 import com.superior.datatunnel.api.model.BaseCommonOption;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;

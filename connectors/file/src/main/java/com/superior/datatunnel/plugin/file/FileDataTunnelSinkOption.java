@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.files;
+package com.superior.datatunnel.plugin.file;
 
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.SaveMode;

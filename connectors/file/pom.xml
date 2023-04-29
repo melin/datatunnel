@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-connector-files</artifactId>
+    <artifactId>datatunnel-connector-file</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
