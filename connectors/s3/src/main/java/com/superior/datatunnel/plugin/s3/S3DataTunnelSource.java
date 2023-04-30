@@ -27,13 +27,13 @@ public class S3DataTunnelSource implements DataTunnelSource {
 
         SparkSession sparkSession = context.getSparkSession();
         Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
-        hadoopConf.set(S3Configs.accessKey, sourceOption.getAccessKey());
-        hadoopConf.set(S3Configs.secretKey, sourceOption.getSecretKey());
-        hadoopConf.set(S3Configs.s3aClientImpl, sourceOption.getS3aClientImpl());
-        hadoopConf.set(S3Configs.sslEnabled, String.valueOf(sourceOption.isSslEnabled()));
-        hadoopConf.set(S3Configs.endPoint, sourceOption.getEndpoint());
-        hadoopConf.set(S3Configs.pathStyleAccess, String.valueOf(sourceOption.isPathStyleAccess()));
-        hadoopConf.set(S3Configs.connectionTimeout, String.valueOf(sourceOption.getConnectionTimeout()));
+        hadoopConf.set(S3Configs.ACCESS_KEY, sourceOption.getAccessKey());
+        hadoopConf.set(S3Configs.SECRET_KEY, sourceOption.getSecretKey());
+        hadoopConf.set(S3Configs.S3A_CLIENT_IMPL, sourceOption.getS3aClientImpl());
+        hadoopConf.set(S3Configs.SSL_ENABLED, String.valueOf(sourceOption.isSslEnabled()));
+        hadoopConf.set(S3Configs.END_POINT, sourceOption.getEndpoint());
+        hadoopConf.set(S3Configs.PATH_STYLE_ACCESS, String.valueOf(sourceOption.isPathStyleAccess()));
+        hadoopConf.set(S3Configs.CONNECTION_TIMEOUT, String.valueOf(sourceOption.getConnectionTimeout()));
 
         String format = sourceOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sourceOption.getFormat()) {

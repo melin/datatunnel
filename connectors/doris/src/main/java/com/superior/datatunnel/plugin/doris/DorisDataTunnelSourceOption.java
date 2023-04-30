@@ -2,7 +2,6 @@ package com.superior.datatunnel.plugin.doris;
 
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseSourceOption;
-import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 
 import javax.validation.constraints.NotBlank;
 

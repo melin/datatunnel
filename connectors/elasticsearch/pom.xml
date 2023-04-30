@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-spark-30_2.12</artifactId>
-            <version>8.6.2</version>
+            <version>7.17.9</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>

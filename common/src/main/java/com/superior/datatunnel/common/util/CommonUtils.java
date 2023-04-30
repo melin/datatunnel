@@ -7,7 +7,6 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.model.BaseCommonOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;

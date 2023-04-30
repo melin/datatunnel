@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface DataTunnelOption {
 
-    default public Map<String, String> getParams() {
+    default Map<String, String> getParams() {
         try {
             Map<String, String> params = new HashMap<String, String>();
             Field[] fields = this.getClass().getDeclaredFields();

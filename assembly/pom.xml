@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-files</artifactId>
+            <artifactId>datatunnel-connector-file</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>

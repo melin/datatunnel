@@ -38,13 +38,13 @@ public class S3DataTunnelSink implements DataTunnelSink {
 
         SparkSession sparkSession = context.getSparkSession();
         Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
-        hadoopConf.set(S3Configs.accessKey, sinkOption.getAccessKey());
-        hadoopConf.set(S3Configs.secretKey, sinkOption.getSecretKey());
-        hadoopConf.set(S3Configs.s3aClientImpl, sinkOption.getS3aClientImpl());
-        hadoopConf.set(S3Configs.sslEnabled, String.valueOf(sinkOption.isSslEnabled()));
-        hadoopConf.set(S3Configs.endPoint, sinkOption.getEndpoint());
-        hadoopConf.set(S3Configs.pathStyleAccess, String.valueOf(sinkOption.isPathStyleAccess()));
-        hadoopConf.set(S3Configs.connectionTimeout, String.valueOf(sinkOption.getConnectionTimeout()));
+        hadoopConf.set(S3Configs.ACCESS_KEY, sinkOption.getAccessKey());
+        hadoopConf.set(S3Configs.SECRET_KEY, sinkOption.getSecretKey());
+        hadoopConf.set(S3Configs.S3A_CLIENT_IMPL, sinkOption.getS3aClientImpl());
+        hadoopConf.set(S3Configs.SSL_ENABLED, String.valueOf(sinkOption.isSslEnabled()));
+        hadoopConf.set(S3Configs.END_POINT, sinkOption.getEndpoint());
+        hadoopConf.set(S3Configs.PATH_STYLE_ACCESS, String.valueOf(sinkOption.isPathStyleAccess()));
+        hadoopConf.set(S3Configs.CONNECTION_TIMEOUT, String.valueOf(sinkOption.getConnectionTimeout()));
 
         String format = sinkOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sinkOption.getFormat()) {
