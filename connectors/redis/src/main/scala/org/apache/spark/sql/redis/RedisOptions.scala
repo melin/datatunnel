@@ -11,6 +11,7 @@ object RedisOptions {
 
   val REDIS_TABLE = "table"
   val REDIS_KEY_COLUMN = "keyColumn"
+  val REDIS_VALUE_COLUMN = "valueColumn"
   val REDIS_TTL = "ttl"
   val REDIS_ITERATOR_GROUPING_SIZE = "iteratorGroupingSize"
   val REDIS_MAX_PIPELINE_SIZE = "maxPipelineSize"

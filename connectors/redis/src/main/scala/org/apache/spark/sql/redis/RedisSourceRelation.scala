@@ -29,6 +29,7 @@ class RedisSourceRelation(override val sqlContext: SQLContext,
 
   private val iteratorGroupingSize = parameters.get(REDIS_ITERATOR_GROUPING_SIZE).map(_.toInt).getOrElse(100)
   private val keyColumn = parameters.get(REDIS_KEY_COLUMN)
+  private val valueColumn = parameters.get(REDIS_VALUE_COLUMN)
   private val tableNameOpt: Option[String] = parameters.get(REDIS_TABLE)
   private val maxPipelineSize: Int = parameters.get(REDIS_MAX_PIPELINE_SIZE).map(_.toInt).getOrElse(100)
   private val ttl = parameters.get(REDIS_TTL).map(_.toInt).getOrElse(0)
@@ -49,7 +50,11 @@ class RedisSourceRelation(override val sqlContext: SQLContext,
           val conn = node.connect()
           foreachWithPipeline(conn, maxPipelineSize, keys) { (pipeline, key) =>
             val row = rowsWithKey(key)
-            val encodedRow = row.json
+            val encodedRow = if (valueColumn.isDefined) {
+              row.json
+            } else {
+              row.getAs(valueColumn.get).toString
+            }
             save(pipeline, key, encodedRow, ttl)
           }
           conn.close()
@@ -83,7 +88,8 @@ class RedisSourceRelation(override val sqlContext: SQLContext,
    * @return redis key for the row
    */
   private def dataKeyId(row: Row): String = {
-    val id = keyColumn.map(id => row.getAs[Any](id)).map(_.toString).getOrElse(uuid())
+    val id = keyColumn.map(id => row.getAs[Any](id)).map(_.toString)
+      .getOrElse(throw new IllegalArgumentException(s"key column ${keyColumn.get} not exists"))
     dataKey(tableName(), id)
   }
 }

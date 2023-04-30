@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.redis;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
+import com.superior.datatunnel.common.annotation.OptionDesc;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -26,6 +27,9 @@ public class RedisDataTunnelSinkOption extends BaseSinkOption {
 
     @NotNull(message = "keyColumn can not blank")
     private String keyColumn;
+
+    @OptionDesc("指定 redis value 列值，如果valueColumn不设置，value 等于 Row json 字符串")
+    private String valueColumn;
 
     private int timeout = 2000; //ms
 

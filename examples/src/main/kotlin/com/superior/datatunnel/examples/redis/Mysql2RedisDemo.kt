@@ -1,4 +1,4 @@
-package redis
+package com.superior.datatunnel.examples.redis
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
