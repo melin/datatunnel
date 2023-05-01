@@ -35,27 +35,29 @@ public class FTPFileSystem extends FileSystem {
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
 
     public static final int DEFAULT_BLOCK_SIZE = 4 * 1024;
+
     public static final long DEFAULT_TIMEOUT = 0;
+
     public static final String FS_FTP_HOST = "fs.ftp.host";
+
     public static final String FS_FTP_PORT = "fs.ftp.port";
 
     public static final String FS_FTP_USERNAME = "fs.ftp.username";
+
     public static final String FS_FTP_PASSWORD = "fs.ftp.password";
 
-    public static final String FS_FTP_DATA_CONNECTION_MODE =
-            "fs.ftp.data.connection.mode";
+    public static final String FS_FTP_DATA_CONNECTION_MODE = "fs.ftp.data.connection.mode";
+
     public static final String FS_FTP_TRANSFER_MODE = "fs.ftp.transfer.mode";
-    public static final String E_SAME_DIRECTORY_ONLY =
-            "only same directory renames are supported";
+
+    public static final String E_SAME_DIRECTORY_ONLY = "only same directory renames are supported";
+
     public static final String FS_FTP_TIMEOUT = "fs.ftp.timeout";
 
     private URI uri;
 
     /**
      * Return the protocol scheme for the FileSystem.
-     * <p>
-     *
-     * @return <code>ftp</code>
      */
     @Override
     public String getScheme() {
@@ -64,8 +66,6 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Get the default port for this FTPFileSystem.
-     *
-     * @return the default port
      */
     @Override
     protected int getDefaultPort() {
@@ -96,9 +96,6 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Connect to the FTP server using configuration parameters *
-     *
-     * @return An FTPClient instance
-     * @throws IOException
      */
     private FTPClient connect() throws IOException {
         Configuration conf = getConf();
@@ -139,11 +136,6 @@ public class FTPFileSystem extends FileSystem {
     /**
      * Set FTP's transfer mode based on configuration. Valid values are
      * STREAM_TRANSFER_MODE, BLOCK_TRANSFER_MODE and COMPRESSED_TRANSFER_MODE.
-     * <p>
-     * Defaults to BLOCK_TRANSFER_MODE.
-     *
-     * @param conf
-     * @return
      */
     int getTransferMode(Configuration conf) {
         final String mode = conf.get(FS_FTP_TRANSFER_MODE);
@@ -171,12 +163,7 @@ public class FTPFileSystem extends FileSystem {
      * Set the FTPClient's data connection mode based on configuration. Valid
      * values are ACTIVE_LOCAL_DATA_CONNECTION_MODE,
      * PASSIVE_LOCAL_DATA_CONNECTION_MODE and PASSIVE_REMOTE_DATA_CONNECTION_MODE.
-     * <p>
      * Defaults to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
-     *
-     * @param client
-     * @param conf
-     * @throws IOException
      */
     void setDataConnectionMode(FTPClient client, Configuration conf)
             throws IOException {
@@ -199,9 +186,6 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Logout and disconnect the given FTPClient. *
-     *
-     * @param client
-     * @throws IOException
      */
     private void disconnect(FTPClient client) throws IOException {
         if (client != null) {
@@ -219,10 +203,6 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Resolve against given working directory. *
-     *
-     * @param workDir
-     * @param path
-     * @return
      */
     private Path makeAbsolute(Path workDir, Path path) {
         if (path.isAbsolute()) {
@@ -623,12 +603,6 @@ public class FTPFileSystem extends FileSystem {
      * Convenience method, so that we don't open a new connection when using this
      * method from within another method. Otherwise every API invocation incurs
      * the overhead of opening/closing a TCP connection.
-     *
-     * @param client
-     * @param src
-     * @param dst
-     * @return
-     * @throws IOException
      */
     @SuppressWarnings("deprecation")
     private boolean rename(FTPClient client, Path src, Path dst)
@@ -652,19 +626,18 @@ public class FTPFileSystem extends FileSystem {
         String parentDst = absoluteDst.getParent().toUri().toString();
         if (isParentOf(absoluteSrc, absoluteDst)) {
             throw new IOException("Cannot rename " + absoluteSrc + " under itself"
-                    + " : "+ absoluteDst);
+                    + " : " + absoluteDst);
         }
 
         if (!parentSrc.equals(parentDst)) {
             throw new IOException("Cannot rename source: " + absoluteSrc
                     + " to " + absoluteDst
-                    + " -"+ E_SAME_DIRECTORY_ONLY);
+                    + " -" + E_SAME_DIRECTORY_ONLY);
         }
         String from = absoluteSrc.getName();
         String to = absoluteDst.getName();
         client.changeWorkingDirectory(parentSrc);
-        boolean renamed = client.rename(from, to);
-        return renamed;
+        return client.rename(from, to);
     }
 
     @Override

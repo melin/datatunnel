@@ -9,11 +9,15 @@ import org.apache.hadoop.fs.FileSystem;
 
 public class FTPInputStream extends FSInputStream {
 
-    InputStream wrappedStream;
-    FTPClient client;
-    FileSystem.Statistics stats;
-    boolean closed;
-    long pos;
+    private InputStream wrappedStream;
+
+    private FTPClient client;
+
+    private FileSystem.Statistics stats;
+
+    private boolean closed;
+
+    private long pos;
 
     public FTPInputStream(InputStream stream, FTPClient client,
                           FileSystem.Statistics stats) {
@@ -63,7 +67,7 @@ public class FTPInputStream extends FSInputStream {
     }
 
     @Override
-    public synchronized int read(byte buf[], int off, int len) throws IOException {
+    public synchronized int read(byte[] buf, int off, int len) throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
