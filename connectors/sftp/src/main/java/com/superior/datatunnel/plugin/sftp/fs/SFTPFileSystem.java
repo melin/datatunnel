@@ -30,36 +30,65 @@ public class SFTPFileSystem extends FileSystem {
     public static final Logger LOG = LoggerFactory.getLogger(SFTPFileSystem.class);
 
     private SFTPConnectionPool connectionPool;
+
     private URI uri;
+
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private static final int DEFAULT_SFTP_PORT = 22;
+
     private static final int DEFAULT_MAX_CONNECTION = 5;
+
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
+
     public static final int DEFAULT_BLOCK_SIZE = 4 * 1024;
+
     public static final String FS_SFTP_USERNAME = "fs.sftp.username";
+
     public static final String FS_SFTP_PASSWORD = "fs.sftp.password";
+
     public static final String FS_SFTP_HOST = "fs.sftp.host";
+
     public static final String FS_SFTP_PORT = "fs.sftp.port";
+
     public static final String FS_SFTP_KEYFILE = "fs.sftp.keyfile";
+
     public static final String FS_SFTP_PASSPHRASE = "fs.sftp.passphrase";
+
     public static final String FS_SFTP_CONNECTION_MAX = "fs.sftp.connection.max";
+
     public static final String E_SAME_DIRECTORY_ONLY = "only same directory renames are supported";
+
     public static final String E_HOST_NULL = "Invalid host specified";
+
     public static final String E_USER_NULL = "No user specified for sftp connection. Expand URI or credential file.";
+
     public static final String E_PATH_DIR = "Path %s is a directory.";
+
     public static final String E_FILE_STATUS = "Failed to get file status";
+
     public static final String E_FILE_NOTFOUND = "File %s does not exist.";
+
     public static final String E_FILE_EXIST = "File already exists: %s";
+
     public static final String E_CREATE_DIR = "create(): Mkdirs failed to create: %s";
+
     public static final String E_DIR_CREATE_FROMFILE = "Can't make directory for path %s since it is a file.";
+
     public static final String E_MAKE_DIR_FORPATH = "Can't make directory for path \"%s\" under \"%s\".";
+
     public static final String E_DIR_NOTEMPTY = "Directory: %s is not empty.";
+
     public static final String E_FILE_CHECK_FAILED = "File check failed";
+
     public static final String E_SPATH_NOTEXIST = "Source path %s does not exist";
+
     public static final String E_DPATH_EXIST = "Destination path %s already exist, cannot rename!";
+
     public static final String E_FAILED_GETHOME = "Failed to get home directory";
+
     public static final String E_FAILED_DISCONNECT = "Failed to disconnect";
+
     public static final String E_FS_CLOSED = "FileSystem is closed!";
 
     /**

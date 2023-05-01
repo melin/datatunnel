@@ -16,21 +16,17 @@ import com.jcraft.jsch.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Concurrent/Multiple Connections. */
 class SFTPConnectionPool {
 
-    public static final Logger LOG =
-            LoggerFactory.getLogger(SFTPFileSystem.class);
-    // Maximum number of allowed live connections. This doesn't mean we cannot
-    // have more live connections. It means that when we have more
-    // live connections than this threshold, any unused connection will be
-    // closed.
+    public static final Logger LOG = LoggerFactory.getLogger(SFTPFileSystem.class);
+
     private int maxConnection;
+
     private int liveConnectionCount = 0;
-    private HashMap<ConnectionInfo, HashSet<ChannelSftp>> idleConnections =
-            new HashMap<ConnectionInfo, HashSet<ChannelSftp>>();
-    private HashMap<ChannelSftp, ConnectionInfo> con2infoMap =
-            new HashMap<ChannelSftp, ConnectionInfo>();
+
+    private HashMap<ConnectionInfo, HashSet<ChannelSftp>> idleConnections = new HashMap<ConnectionInfo, HashSet<ChannelSftp>>();
+
+    private HashMap<ChannelSftp, ConnectionInfo> con2infoMap = new HashMap<ChannelSftp, ConnectionInfo>();
 
     SFTPConnectionPool(int maxConnection) {
         this.maxConnection = maxConnection;
@@ -216,7 +212,9 @@ class SFTPConnectionPool {
      */
     static class ConnectionInfo {
         private String host = "";
+
         private int port;
+
         private String user = "";
 
         ConnectionInfo(String hst, int prt, String usr) {

@@ -1,11 +1,9 @@
 package com.superior.datatunnel.plugin.sftp;
 
-import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.SaveMode;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data

@@ -34,7 +34,7 @@ DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
 
 | 数据源              | Reader(读) | Writer(写)    | 文档                                                                               |
 |:-----------------|:----------| :------      |:---------------------------------------------------------------------------------|
-| file             | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                         |
+| file             | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                          |
 | sftp             | √         | √            | [读写](doc/sftp.md) 支持excel, json，csv, parquet、orc、text 文件                         |                       
 | ftp              | √         | √            | [读写](doc/ftp.md)  支持excel, json，csv, parquet、orc、text 文件                         |
 | s3               | √         | √            | [读写](doc/s3.md)  支持excel, json，csv, parquet、orc、text 文件                          |

@@ -17,12 +17,19 @@ import org.apache.hadoop.fs.Path;
 class SFTPInputStream extends FSInputStream {
 
     private final ChannelSftp channel;
+
     private final Path path;
+
     private InputStream wrappedStream;
+
     private FileSystem.Statistics stats;
+
     private boolean closed;
+
     private long pos;
+
     private long nextPos;
+
     private long contentLength;
 
     SFTPInputStream(ChannelSftp channel, Path path, FileSystem.Statistics stats)

@@ -2,7 +2,6 @@ package com.superior.datatunnel.plugin.redis;
 
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
-import lombok.val;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
@@ -41,7 +40,6 @@ public class RedisDataTunnelSink implements DataTunnelSink {
                 !ArrayUtils.contains(fieldNames, sinkOption.getValueColumn())) {
             throw new IllegalArgumentException("value column " + sinkOption.getValueColumn() + " not exists");
         }
-
 
         DataFrameWriter writer = dataset.write().format(format);
         writer.option(RedisOptions.REDIS_HOST(), sinkOption.getHost());
