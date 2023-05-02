@@ -69,7 +69,7 @@
         <dependency>
             <groupId>com.pingcap.tispark</groupId>
             <artifactId>tispark-assembly-3.3_2.12</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.spark</groupId>
@@ -81,24 +81,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.pingcap.tikv</groupId>
-            <artifactId>tikv-client</artifactId>
-            <version>3.2.1-RC1</version>
-        </dependency>
     </dependencies>
 
     <repositories>
-        <!-- 使用 DM 的镜像仓库来下载驱动包-->
-        <repository>
-            <id>dc</id>
-            <name>dc Repository</name>
-            <url>http://119.96.92.173:8181/repository/maven-releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
