@@ -4,7 +4,7 @@ import com.google.common.collect.Lists
 import com.superior.datatunnel.api.DataSourceType
 import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
-import com.superior.datatunnel.parser.DataTunnelParser.DatatunnelHelpContext
+import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelHelpContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.execution.command.LeafRunnableCommand

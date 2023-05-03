@@ -7,7 +7,8 @@ import com.superior.datatunnel.api._
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.core.{DataTunnelMetrics, Utils}
-import com.superior.datatunnel.parser.DataTunnelParser.{DatatunnelExprContext, SparkOptionsContext}
+import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser
+import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelExprContext
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.apache.spark.internal.Logging
@@ -24,10 +25,10 @@ import scala.collection.JavaConverters._
 case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
-    val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
-    val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
-    val sourceOpts = convertOptions(sparkSession, ctx.sourceOpts)
-    val sinkOpts = convertOptions(sparkSession, ctx.sinkOpts)
+    val sourceName = CommonUtils.cleanQuote(ctx.srcName.getText)
+    val sinkName = CommonUtils.cleanQuote(ctx.distName.getText)
+    val sourceOpts = convertOptions(sparkSession, ctx.readOpts)
+    val sinkOpts = convertOptions(sparkSession, ctx.writeOpts)
     val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null
 
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
@@ -98,12 +99,12 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     Seq.empty[Row]
   }
 
-  def convertOptions(sparkSession: SparkSession, ctx: SparkOptionsContext): util.HashMap[String, String] = {
+  def convertOptions(sparkSession: SparkSession, ctx: SparkSqlParser.DtPropertyListContext): util.HashMap[String, String] = {
     val options: util.HashMap[String, String] = Maps.newHashMap()
     if (ctx != null) {
-      for (entry <- ctx.optionVal().asScala) {
-        val key = CommonUtils.cleanQuote(entry.optionKey().getText)
-        val value = CommonUtils.cleanQuote(entry.optionValue().getText)
+      for (entry <- ctx.dtProperty().asScala) {
+        val key = CommonUtils.cleanQuote(entry.key.getText)
+        val value = CommonUtils.cleanQuote(entry.value.getText)
         options.put(key, value);
       }
     }

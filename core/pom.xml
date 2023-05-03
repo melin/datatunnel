@@ -11,14 +11,14 @@
 
     <artifactId>datatunnel-core</artifactId>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-
-        <antlr4.version>4.8</antlr4.version>
-    </properties>
-
     <dependencies>
+        <dependency>
+            <groupId>io.github.melin.superior</groupId>
+            <artifactId>spark-sql-parser</artifactId>
+            <version>${sql-parser.version}</version>
+            <scope>${libScope}</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-common</artifactId>
@@ -35,42 +35,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${antlr4.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <visitor>true</visitor>
-                    <treatWarningsAsErrors>true</treatWarningsAsErrors>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/antlr4</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

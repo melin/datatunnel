@@ -42,15 +42,17 @@
         <log4j.version>2.20.0</log4j.version>
         <bee.version>1.6.0</bee.version>
         <hudi.version>0.13.0</hudi.version>
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.version>2.15.0</jackson.version>
         <kafka.version>3.4.0</kafka.version>
         <jedis.version>4.3.2</jedis.version>
+        <antlr4.version>4.9.3</antlr4.version>
 
         <aws.java.sdk.version>1.12.455</aws.java.sdk.version>
         <hadoop.verison>3.3.5</hadoop.verison>
 
         <spark-redis.version>3.1.0</spark-redis.version>
         <spark-excel.version>3.3.1_0.18.7</spark-excel.version>
+        <sql-parser.version>3.4.0-SNAPSHOT</sql-parser.version>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
     </properties>

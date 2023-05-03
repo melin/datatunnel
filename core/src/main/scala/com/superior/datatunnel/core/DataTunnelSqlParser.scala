@@ -1,8 +1,9 @@
 package com.superior.datatunnel.core
 
 import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.parser.DataTunnelParser.{DatatunnelExprContext, DatatunnelHelpContext, SingleStatementContext}
-import com.superior.datatunnel.parser.{DataTunnelLexer, DataTunnelParser, DataTunnelParserBaseVisitor}
+import io.github.melin.superior.parser.spark.SparkSqlPostProcessor
+import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.{DatatunnelExprContext, DatatunnelHelpContext, SingleStatementContext}
+import io.github.melin.superior.parser.spark.antlr4.{SparkSqlLexer, SparkSqlParser, SparkSqlParserBaseVisitor}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}
@@ -24,31 +25,25 @@ import org.apache.spark.sql.types.{DataType, StructType}
 class DataTunnelSqlParser (spark: SparkSession,
                       val delegate: ParserInterface) extends ParserInterface with Logging {
 
-  override def parsePlan(sqlText: String): LogicalPlan = {
+  override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
     val sql = StringUtils.trim(CommonUtils.cleanSqlComment(sqlText))
-    try {
-      val builder = new DtunnelAstBuilder(sql)
-      parse(sql) { parser => builder.visit(parser.singleStatement()) }.asInstanceOf[LogicalPlan]
-    } catch {
-      case _: Throwable =>
-        val parsedPlan = delegate.parsePlan(sqlText)
-        parsedPlan match {
-          case plan: LogicalPlan => plan
-          case _ => delegate.parsePlan(sql)
-        }
+    val builder = new DtunnelAstBuilder(sql)
+    builder.visit(parser.singleStatement()) match {
+      case plan: LogicalPlan => plan
+      case _ => delegate.parsePlan(sqlText)
     }
   }
 
-  protected def parse[T](command: String)(toResult: DataTunnelParser => T): T = {
+  protected def parse[T](command: String)(toResult: SparkSqlParser => T): T = {
     logInfo(s"Parsing command: $command")
 
-    val lexer = new DataTunnelLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
+    val lexer = new SparkSqlLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
     lexer.removeErrorListeners()
     lexer.addErrorListener(ParseErrorListener)
 
     val tokenStream = new CommonTokenStream(lexer)
-    val parser = new DataTunnelParser(tokenStream)
-    parser.addParseListener(PostProcessor)
+    val parser = new SparkSqlParser(tokenStream)
+    parser.addParseListener(new SparkSqlPostProcessor())
     parser.removeErrorListeners()
     parser.addErrorListener(ParseErrorListener)
 
@@ -119,13 +114,13 @@ class DataTunnelSqlParser (spark: SparkSession,
   }
 }
 
-class DtunnelAstBuilder(val sqlText: String) extends DataTunnelParserBaseVisitor[AnyRef] {
+class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[AnyRef] {
 
-  override def visitDatatunnelExpr(ctx: DataTunnelParser.DatatunnelExprContext): LogicalPlan = withOrigin(ctx) {
+  override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan = withOrigin(ctx) {
     DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
   }
 
-  override def visitDatatunnelHelp(ctx: DataTunnelParser.DatatunnelHelpContext): LogicalPlan = withOrigin(ctx) {
+  override def visitDatatunnelHelp(ctx: DatatunnelHelpContext): LogicalPlan = withOrigin(ctx) {
     DataTunnelHelpCommand(sqlText, ctx: DatatunnelHelpContext)
   }
 
