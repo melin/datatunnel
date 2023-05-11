@@ -22,7 +22,7 @@ public class DataTunnelSqlServer2LogDemo {
                 "    databaseName='master'," +
                 "    schemaName='dbo'," +
                 "    tableName='userinfo', columns=['*'])\n" +
-                "    SINK('log') OPTIONS(numRows = 10)";
+                "    SINK('log') OPTIONS(numRows = 10, truncate=0)";
 
         spark.sql(sql);
     }
