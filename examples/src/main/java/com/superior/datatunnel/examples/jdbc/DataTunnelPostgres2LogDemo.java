@@ -18,12 +18,12 @@ public class DataTunnelPostgres2LogDemo {
 
         String sql = "datatunnel SOURCE('gauss') OPTIONS(\n" +
                 "    username='postgres',\n" +
-                "    password='postgres2023',\n" +
+                "    password='postgres',\n" +
                 "    host='172.18.1.56',\n" +
-                "    port=15432,\n" +
+                "    port=5432,\n" +
                 "    databaseName='postgres'," +
                 "    schemaName='public'," +
-                "    tableName='ORDERS', columns=['*'])\n" +
+                "    tableName='orders', columns=['*'])\n" +
                 "    SINK('log') OPTIONS(numRows = 10)";
 
         spark.sql(sql);

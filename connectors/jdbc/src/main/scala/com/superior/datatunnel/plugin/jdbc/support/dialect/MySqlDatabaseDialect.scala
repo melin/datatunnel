@@ -1,47 +1,12 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
-import com.google.common.collect.Lists
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
-import java.util
 
 class MySqlDatabaseDialect(connection: Connection, dataSourceType: String)
   extends DatabaseDialect(connection, dataSourceType) {
-
-  override def getSchemaNames: util.ArrayList[String] = {
-    val resultSet = connection.getMetaData.getCatalogs
-    try {
-      val schemaNames = Lists.newArrayList[String]()
-      while (resultSet.next) {
-        val schemaName = resultSet.getString("TABLE_CAT")
-        // skip internal schemas
-        if (filterSchema(schemaName)) {
-          schemaNames.add(schemaName)
-        }
-      }
-      schemaNames
-    } finally {
-      if (resultSet != null) resultSet.close()
-    }
-  }
-
-  override def getTableNames(schemaName: String): util.ArrayList[String] = {
-    val metadata = connection.getMetaData
-    val resultSet = metadata.getTables(schemaName, null, null, Array("TABLE"))
-    try {
-      val tableNames = Lists.newArrayList[String]()
-      while (resultSet.next) {
-        val tableName = resultSet.getString("TABLE_NAME")
-        tableNames.add(tableName)
-      }
-
-      tableNames
-    } finally {
-      if (resultSet != null) resultSet.close()
-    }
-  }
 
   override def getUpsertStatement(
       table: String,

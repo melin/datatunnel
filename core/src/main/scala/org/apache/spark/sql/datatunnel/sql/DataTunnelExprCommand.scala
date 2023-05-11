@@ -25,8 +25,8 @@ import scala.collection.JavaConverters._
 case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
-    val sourceName = CommonUtils.cleanQuote(ctx.srcName.getText)
-    val sinkName = CommonUtils.cleanQuote(ctx.distName.getText)
+    val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
+    val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
     val sourceOpts = convertOptions(sparkSession, ctx.readOpts)
     val sinkOpts = convertOptions(sparkSession, ctx.writeOpts)
     val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null

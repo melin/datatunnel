@@ -1,1 +1,1 @@
-kafka=com.superior.datatunnel.plugin.doris.writer.DataTunnelSink
+doris=com.superior.datatunnel.plugin.doris.writer.DataTunnelSink

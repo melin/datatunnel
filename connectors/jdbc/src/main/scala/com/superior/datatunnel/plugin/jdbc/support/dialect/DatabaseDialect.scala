@@ -1,5 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
+import com.gitee.melin.bee.core.jdbc.JdbcDialectHolder
+import com.gitee.melin.bee.core.jdbc.enums.DataSourceType
 import com.google.common.collect.Lists
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.columnNotFoundInSchemaError
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.conf
@@ -11,41 +13,20 @@ import java.util
 
 abstract class DatabaseDialect(connection: Connection, dataSourceType: String) {
 
+  private val dsType = DataSourceType.valueOf(dataSourceType.toUpperCase)
+  private val jdbcDialect = JdbcDialectHolder.getJdbcDialect(dsType, connection)
+
   def getSchemaNames: util.ArrayList[String] = {
-    val resultSet = connection.getMetaData.getSchemas(connection.getCatalog, null)
-    try {
-      val schemaNames = Lists.newArrayList[String]()
-      while (resultSet.next) {
-        val schemaName = resultSet.getString("TABLE_SCHEM")
-        // skip internal schemas
-        if (filterSchema(schemaName)) {
-          schemaNames.add(schemaName)
-        }
-      }
-      schemaNames
-    } finally {
-      if (resultSet != null) resultSet.close()
-    }
+    val schemaNames = Lists.newArrayList[String]()
+    jdbcDialect.getSchemas.forEach(schema => schemaNames.add(schema.getSchemaName))
+    schemaNames
   }
 
-  protected def filterSchema(schemaName: String): Boolean = {
-    !schemaName.equalsIgnoreCase("information_schema")
-  }
 
   def getTableNames(schemaName: String): util.ArrayList[String] = {
-    val metadata = connection.getMetaData
-    val resultSet = metadata.getTables(connection.getCatalog, schemaName, null, Array("TABLE"))
-    try {
-      val tableNames = Lists.newArrayList[String]()
-      while (resultSet.next) {
-        val tableName = resultSet.getString("TABLE_NAME")
-        tableNames.add(tableName)
-      }
-
-      tableNames
-    } finally {
-      if (resultSet != null) resultSet.close()
-    }
+    val tableNames = Lists.newArrayList[String]()
+    jdbcDialect.getSchemaTables(schemaName).forEach(table => tableNames.add(table.getTableName))
+    tableNames
   }
 
   protected def getColumns(
@@ -72,14 +53,12 @@ abstract class DatabaseDialect(connection: Connection, dataSourceType: String) {
 
   def getKeyFieldNames(schema: String, tableName: String): Array[String] = {
     var keyFieldNames = new Array[String](0)
-    try {
-      val rs: ResultSet = connection.getMetaData.getPrimaryKeys(schema, null, tableName)
-      try while (rs.next()) {
-        val columnName: String = rs.getString(4)
-        keyFieldNames = keyFieldNames :+ columnName
-      }
-      finally if (rs != null) rs.close()
+    val rs: ResultSet = connection.getMetaData.getPrimaryKeys(schema, null, tableName)
+    try while (rs.next()) {
+      val columnName: String = rs.getString(4)
+      keyFieldNames = keyFieldNames :+ columnName
     }
+    finally if (rs != null) rs.close()
 
     keyFieldNames
   }
