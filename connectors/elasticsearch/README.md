@@ -3,4 +3,4 @@
 3. [ElasticSerach 7 教程](https://github.com/xr2117/ElasticSearch7)
 4. [Spring Boot整合Elasticsearch](https://blog.csdn.net/gybshen/article/details/111469217)
 5. https://github.com/elastic/elasticsearch-hadoop
-6. https://www.elastic.co/guide/en/elasticsearch/hadoop/current/spark.html
+6. https://www.elastic.co/guide/en/elasticsearch/hadoop/7.17/configuration.html

@@ -11,18 +11,22 @@ import scala.collection.JavaConverters;
 import java.io.IOException;
 import java.util.Map;
 
-public class EsDataTunnelSink implements DataTunnelSink {
+public class ElasticsearchDataTunnelSink implements DataTunnelSink {
 
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
-        EsDataTunnelSinkOption sinkOption = (EsDataTunnelSinkOption) context.getSinkOption();
+        ElasticsearchDataTunnelSinkOption sinkOption = (ElasticsearchDataTunnelSinkOption) context.getSinkOption();
         String index = sinkOption.getResource();
         Map<String, String> esCfg = sinkOption.getParams();
+        esCfg.put("es.nodes", sinkOption.getNodes());
+        esCfg.put("es.port", sinkOption.getPort().toString());
+        esCfg.put("es.mapping.id", sinkOption.getIndexKey());
+
         EsSparkSQL.saveToEs(dataset, index, JavaConverters.mapAsScalaMap(esCfg));
     }
 
     @Override
     public Class<? extends DataTunnelSinkOption> getOptionClass() {
-        return EsDataTunnelSinkOption.class;
+        return ElasticsearchDataTunnelSinkOption.class;
     }
 }

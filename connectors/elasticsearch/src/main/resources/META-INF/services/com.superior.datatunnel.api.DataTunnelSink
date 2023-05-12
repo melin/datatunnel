@@ -1,1 +1,1 @@
-elasticsearch=com.superior.datatunnel.plugin.elasticsearch.EsDataTunnelSink
+elasticsearch=com.superior.datatunnel.plugin.elasticsearch.ElasticsearchDataTunnelSink

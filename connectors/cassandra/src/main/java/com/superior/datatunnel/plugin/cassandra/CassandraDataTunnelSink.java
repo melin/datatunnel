@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 public class CassandraDataTunnelSink implements DataTunnelSink {
 
-    private static final Logger logger = LoggerFactory.getLogger(CassandraDataTunnelSink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraDataTunnelSink.class);
 
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {

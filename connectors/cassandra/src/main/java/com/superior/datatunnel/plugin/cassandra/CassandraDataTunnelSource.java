@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public class CassandraDataTunnelSource implements DataTunnelSource {
 
-    private static final Logger logger = LoggerFactory.getLogger(CassandraDataTunnelSource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraDataTunnelSource.class);
 
     @Override
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
