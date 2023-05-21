@@ -15,7 +15,7 @@ object S3Csv2LogDemo {
 
         val sql = """
 datatunnel SOURCE('s3') OPTIONS(
-    endpoint='http://172.18.5.45:9300',
+    endpoint='http://172.18.5.44:9300',
     accessKey='BxiljVd5YZa3mRUn',
     secretKey='3Mq9dsmdMbN1JipE1TlOF7OuDkuYBYpe',
     format="csv",
