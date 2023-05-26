@@ -34,6 +34,7 @@ public class S3DataTunnelSource implements DataTunnelSource {
         hadoopConf.set(S3Configs.END_POINT, sourceOption.getEndpoint());
         hadoopConf.set(S3Configs.PATH_STYLE_ACCESS, String.valueOf(sourceOption.isPathStyleAccess()));
         hadoopConf.set(S3Configs.CONNECTION_TIMEOUT, String.valueOf(sourceOption.getConnectionTimeout()));
+        hadoopConf.set(S3Configs.REGION, String.valueOf(sourceOption.getConnectionTimeout()));
 
         String format = sourceOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sourceOption.getFormat()) {

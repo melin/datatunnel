@@ -14,4 +14,6 @@ public abstract class S3Configs {
     public static final String SSL_ENABLED = "fs.s3a.connection.ssl.enabled";
 
     public static final String CONNECTION_TIMEOUT = "fs.s3a.connection.timeout";
+
+    public static final String REGION = "fs.s3a.endpoint.region";
 }

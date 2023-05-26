@@ -30,6 +30,8 @@ public class S3CommonOption extends BaseCommonOption
 
     private int connectionTimeout = 600000;
 
+    private String region = "us-east-1";
+
     @NotNull(message = "format can not null")
     private FileFormat format;
 

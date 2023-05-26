@@ -45,6 +45,7 @@ public class S3DataTunnelSink implements DataTunnelSink {
         hadoopConf.set(S3Configs.END_POINT, sinkOption.getEndpoint());
         hadoopConf.set(S3Configs.PATH_STYLE_ACCESS, String.valueOf(sinkOption.isPathStyleAccess()));
         hadoopConf.set(S3Configs.CONNECTION_TIMEOUT, String.valueOf(sinkOption.getConnectionTimeout()));
+        hadoopConf.set(S3Configs.REGION, String.valueOf(sinkOption.getConnectionTimeout()));
 
         String format = sinkOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sinkOption.getFormat()) {
