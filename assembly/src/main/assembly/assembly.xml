@@ -27,6 +27,9 @@
                 <exclude>org.hibernate:hibernate-validator:jar</exclude>
                 <exclude>org.apache.httpcomponents:*:jar</exclude>
                 <exclude>io.netty:*:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:*:jar</exclude>
+                <exclude>com.fasterxml.jackson.datatype:*:jar</exclude>
+                <exclude>com.fasterxml.jackson.dataformat:*:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
