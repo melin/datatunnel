@@ -13,7 +13,7 @@ public class MysqlHelpDemo {
                 .config("spark.sql.extensions", DataTunnelExtensions.class.getName())
                 .getOrCreate();
 
-        String sql = "datatunnel help all('mysql')";
+        String sql = "datatunnel help all('sftp')";
 
         spark.sql(sql).show(100, false);
     }
