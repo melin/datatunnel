@@ -39,7 +39,7 @@
         <scala.bin.version>2.12</scala.bin.version>
         <spark.version>3.3.2</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <log4j.version>2.20.0</log4j.version>
+        <log4j.version>2.17.2</log4j.version> <!-- spark 中版本一致 -->
         <bee.version>1.6.0</bee.version>
         <hudi.version>0.13.0</hudi.version>
         <jackson.version>2.15.0</jackson.version>

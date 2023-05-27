@@ -30,6 +30,7 @@
                 <exclude>com.fasterxml.jackson.core:*:jar</exclude>
                 <exclude>com.fasterxml.jackson.datatype:*:jar</exclude>
                 <exclude>com.fasterxml.jackson.dataformat:*:jar</exclude>
+                <exclude>org.apache.logging.log4j:*:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
