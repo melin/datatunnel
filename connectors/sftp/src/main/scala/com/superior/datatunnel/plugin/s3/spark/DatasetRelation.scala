@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.s3.spark
 
-import org.apache.log4j.Logger
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.StructType
@@ -23,9 +22,7 @@ case class DatasetRelation(
                             customSchema: StructType,
                             sqlContext: SQLContext) extends BaseRelation with TableScan {
 
-  private val logger = Logger.getLogger(classOf[DatasetRelation])
-
-  val df = read()
+  val df: DataFrame = read()
 
   private def read(): DataFrame = {
     var dataframeReader = sqlContext.read

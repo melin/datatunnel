@@ -4,10 +4,10 @@ import com.springml.sftp.client.SFTPClient
 import Constants.ImplicitDataFrameWriter
 import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.log4j.Logger
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, RelationProvider, SchemaRelationProvider}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
+import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.File
 import java.util.UUID
@@ -16,7 +16,7 @@ import java.util.UUID
  * Datasource to construct dataframe from a sftp url
  */
 class DefaultSource extends RelationProvider with SchemaRelationProvider with CreatableRelationProvider  {
-  @transient val logger = Logger.getLogger(classOf[DefaultSource])
+  @transient val logger: Logger = LoggerFactory.getLogger(classOf[DefaultSource])
 
   /**
    * Copy the file from SFTP to local location and then create dataframe using local file

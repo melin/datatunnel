@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.s3.spark
 
 import org.apache.commons.io.FileUtils
-import org.apache.log4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.io.File
 
@@ -11,7 +11,7 @@ import java.io.File
 class DeleteTempFileShutdownHook(
                                   fileLocation: String) extends Thread {
 
-  private val logger = Logger.getLogger(classOf[DatasetRelation])
+  private val logger = LoggerFactory.getLogger(classOf[DatasetRelation])
 
   override def run(): Unit = {
     logger.info("Deleting " + fileLocation )
