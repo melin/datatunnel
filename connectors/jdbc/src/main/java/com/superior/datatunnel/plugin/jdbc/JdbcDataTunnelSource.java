@@ -203,6 +203,13 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String databaseName,
             String tableName) {
 
+        HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
+        boolean tableExists = context.getSparkSession().catalog()
+                .tableExists(sinkOption.getDatabaseName(), sinkOption.getTableName());
+        if (tableExists) {
+            return;
+        }
+
         String partitionColumn = sourceOption.getPartitionColumn();
         Integer numPartitions = sourceOption.getNumPartitions();
         String lowerBound = sourceOption.getLowerBound();
@@ -212,8 +219,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             sourceOption.setNumPartitions(null);
             sourceOption.setLowerBound(null);
             sourceOption.setUpperBound(null);
-
-            HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
 
             StructType structType = org.apache.spark.sql.execution.datasources.jdbc
                     .JdbcUtils.getSchemaOption(connection, options).get();
