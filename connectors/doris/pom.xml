@@ -12,11 +12,6 @@
 
     <artifactId>datatunnel-connector-doris</artifactId>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
-
     <dependencies>
         <dependency>
             <artifactId>datatunnel-common</artifactId>
@@ -32,7 +27,7 @@
         <dependency>
             <groupId>org.apache.doris</groupId>
             <artifactId>spark-doris-connector-3.2_2.12</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 </project>

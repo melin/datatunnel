@@ -47,7 +47,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       sourceOption.setCteSql(cteSql)
     }
 
-    errorMsg = s"sink $sourceName has no parameter: "
+    errorMsg = s"sink $sinkName has no parameter: "
     val sinkOption: DataTunnelSinkOption = CommonUtils.toJavaBean(sinkOpts, sinkConnector.getOptionClass, errorMsg)
     sinkOption.setDataSourceType(sinkType)
 

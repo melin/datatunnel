@@ -146,6 +146,8 @@ public class CommonUtils {
             result = StringUtils.substring(value, 1, -1);
         } else if (StringUtils.startsWith(value, "\"") && StringUtils.endsWith(value, "\"")) {
             result = StringUtils.substring(value, 1, -1);
+        } else if (StringUtils.startsWith(value, "`") && StringUtils.endsWith(value, "`")) {
+            result = StringUtils.substring(value, 1, -1);
         } else {
             result = value;
         }

@@ -40,6 +40,7 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aws</artifactId>
             <version>${hadoop.verison}</version>
+            <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -64,6 +65,7 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
             <version>1.12.261</version>
+            <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-codec</artifactId>
@@ -92,6 +94,7 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
             <version>${aws.java.sdk.version}</version>
+            <scope>${libScope}</scope>
         </dependency>
 
         <dependency>

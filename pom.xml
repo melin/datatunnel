@@ -34,6 +34,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <libScope>compile</libScope>
+        <superior.libScope>compile</superior.libScope>
 
         <scala.version>2.12.15</scala.version>
         <scala.bin.version>2.12</scala.bin.version>
@@ -41,9 +42,9 @@
         <spotbugs.version>4.7.3</spotbugs.version>
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.17.2</log4j.version> <!-- spark 中版本一致 -->
-        <bee.version>1.6.0</bee.version>
-        <hudi.version>0.13.0</hudi.version>
-        <jackson.version>2.15.0</jackson.version>
+        <bee.version>1.6.1</bee.version>
+        <hudi.version>0.13.1</hudi.version>
+        <jackson.version>2.15.2</jackson.version>
         <kafka.version>3.4.0</kafka.version>
         <jedis.version>4.3.2</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
@@ -191,7 +192,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
@@ -319,15 +320,15 @@
         </profile>
 
         <profile>
-            <id>hadoop-3</id>
+            <id>hadoop3</id>
             <properties>
-                <hadoop.verison>3.3.5</hadoop.verison>
+                <hadoop.verison>3.3.2</hadoop.verison>
                 <hive.version>2.3.9</hive.version>
             </properties>
         </profile>
 
         <profile>
-            <id>hadoop-2</id>
+            <id>hadoop2</id>
             <properties>
                 <hadoop.version>2.7.7</hadoop.version>
                 <hive.version>2.3.9</hive.version>
@@ -337,5 +338,6 @@
         <profile>
             <id>cdh6</id>
         </profile>
+
     </profiles>
 </project>

@@ -4,6 +4,7 @@ import com.clearspring.analytics.util.Lists;
 import com.github.melin.superior.jobserver.api.LogUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.HttpClientUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption;
@@ -72,9 +73,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         DatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, dataSourceType.name());
 
         List<String> schemaNames = getSchemaNames(schemaName, dialect);
-        if (schemaNames.size() == 0) {
-            throw new DataTunnelException("没有找到匹配的schema: " + schemaName);
-        }
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dialect);
         if (tableNames.size() == 0) {
             throw new DataTunnelException("没有找到匹配的表, schemaName: " + schemaName + ", tableName: " + tableName);
@@ -169,11 +167,15 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         List<String> list = Lists.newArrayList();
         for (String name : schemaNames) {
             for (String pattern : names) {
-                if (name.equals(pattern) || name.matches(pattern)) {
-                    list.add(name);
+                String newPattern = CommonUtils.cleanQuote(pattern);
+                if (name.equals(newPattern) || name.matches(newPattern)) {
+                    list.add(pattern);
                     break;
                 }
             }
+        }
+        if (list.size() == 0) {
+            throw new DataTunnelException("没有找到匹配的schema: " + schemaName + ", schemas: " + StringUtils.join(schemaNames, ","));
         }
         return list;
     }
@@ -182,7 +184,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         String[] names = StringUtils.split(tableName, ",");
         List<Pair<String, String>> list = Lists.newArrayList();
         for (String schemaName : schemaNames) {
-            List<String> tableNames = dialect.getTableNames(schemaName);
+            String schema = CommonUtils.cleanQuote(schemaName);
+            List<String> tableNames = dialect.getTableNames(schema);
             for (String name : tableNames) {
                 for (String pattern : names) {
                     if (name.equals(pattern) || name.matches(pattern)) {
@@ -220,9 +223,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             sourceOption.setLowerBound(null);
             sourceOption.setUpperBound(null);
 
-            StructType structType = org.apache.spark.sql.execution.datasources.jdbc
-                    .JdbcUtils.getSchemaOption(connection, options).get();
-
+            StructType structType = getSchemaOption(connection, options);
             String colums = Arrays.stream(structType.fields()).map(field -> {
                 String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
                         .getOrElse(() -> field.dataType().catalogString());
@@ -232,8 +233,13 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             String sql = "create table " + sinkOption.getFullTableName() + "(\n";
             sql += colums;
-            sql += "\n)";
-            sql += "USING parquet";
+            sql += "\n)\n";
+            sql += "USING " + sinkOption.getFormat();
+
+            String partitonColumn = sinkOption.getPartitionColumn();
+            if (StringUtils.isNotBlank(partitonColumn)) {
+                sql += "\nPARTITIONED BY (" + partitonColumn + " string)";
+            }
             context.getSparkSession().sql(sql);
 
             LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
@@ -243,6 +249,24 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             sourceOption.setNumPartitions(numPartitions);
             sourceOption.setLowerBound(lowerBound);
             sourceOption.setUpperBound(upperBound);
+        }
+    }
+
+    private StructType getSchemaOption(Connection conn, JDBCOptions options) {
+        JdbcDialect dialect = JdbcDialects.get(options.url());
+
+        try {
+            PreparedStatement statement = conn.prepareStatement(dialect.getSchemaQuery(options.tableOrQuery()));
+            try {
+                statement.setQueryTimeout(options.queryTimeout());
+                return org.apache.spark.sql.execution.datasources.jdbc
+                        .JdbcUtils.getSchema(statement.executeQuery(), dialect, false);
+            } finally {
+                JdbcUtils.close(statement);
+            }
+        } catch (Throwable e) {
+            String msg = options.url() + " read schema failure: " + e.getMessage();
+            throw new DataTunnelException(msg);
         }
     }
 

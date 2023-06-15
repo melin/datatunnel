@@ -40,13 +40,14 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>6.2.5.Final</version>
-            <scope>${libScope}</scope>
+            <scope>${superior.libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.gitee.melin.bee</groupId>
             <artifactId>bee</artifactId>
             <version>${bee.version}</version>
+            <scope>${superior.libScope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

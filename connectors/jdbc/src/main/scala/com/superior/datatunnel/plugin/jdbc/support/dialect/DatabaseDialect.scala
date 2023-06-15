@@ -16,12 +16,9 @@ abstract class DatabaseDialect(connection: Connection, dataSourceType: String) {
   private val dsType = DataSourceType.valueOf(dataSourceType.toUpperCase)
   private val jdbcDialect = JdbcDialectHolder.getJdbcDialect(dsType, connection)
 
-  def getSchemaNames: util.ArrayList[String] = {
-    val schemaNames = Lists.newArrayList[String]()
-    jdbcDialect.getSchemas.forEach(schema => schemaNames.add(schema.getSchemaName))
-    schemaNames
+  def getSchemaNames: util.List[String] = {
+    jdbcDialect.getSchemas
   }
-
 
   def getTableNames(schemaName: String): util.ArrayList[String] = {
     val tableNames = Lists.newArrayList[String]()

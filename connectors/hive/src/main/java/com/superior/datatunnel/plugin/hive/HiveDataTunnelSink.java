@@ -29,11 +29,11 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             String databaseName = sinkOption.getDatabaseName();
             String tableName = sinkOption.getTableName();
-            String partition = sinkOption.getPartition();
+            String partitionColumn = sinkOption.getPartitionColumn();
             String writeMode = sinkOption.getWriteMode();
 
             boolean isPartition = HiveUtils.checkPartition(context.getSparkSession(), databaseName, tableName);
-            if (isPartition && StringUtils.isBlank(partition)) {
+            if (isPartition && StringUtils.isBlank(partitionColumn)) {
                 throw new DataTunnelException("写入表为分区表，请指定写入分区");
             }
 
@@ -44,13 +44,13 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             if ("append".equals(writeMode)) {
                 if (isPartition) {
-                    sql = "insert into table " + table + " partition(" + partition + ") select * from " + tdlName;
+                    sql = "insert into table " + table + " partition(" + partitionColumn + ") select * from " + tdlName;
                 } else {
                     sql = "insert into table " + table + " select * from " + tdlName;
                 }
             } else {
                 if (isPartition) {
-                    sql = "insert overwrite table " + table + " partition(" + partition + ") select * from " + tdlName;
+                    sql = "insert overwrite table " + table + " partition(" + partitionColumn + ") select * from " + tdlName;
                 } else {
                     sql = "insert overwrite table " + table + " select * from " + tdlName;
                 }

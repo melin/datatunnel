@@ -1,14 +1,25 @@
-### 发布打包
+## 发布打包
+
+#### 独立集成spark 打包
 ```
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Dantlr4.version=4.8 -Pcdh6
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Dantlr4.version=4.8 -Phadoop3
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Dantlr4.version=4.8 -Phadoop2
 ```
 
-### 部署
+#### superior 平台打包，排除一些平台已经有的jar
+```
+mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Pcdh6
+mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Phadoop3
+mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Phadoop2
+```
+
+## 部署
 
 解压 assembly/target/ 目录下生成可用包 datatunnel-[version].tar.gz。复制所有jar 到 spark_home/jars 
 在conf/spark-default.conf 添加配置: spark.sql.extensions com.github.melin.datatunnel.core.DataxExtensions
 
-### datatunnel sql 语法
+## datatunnel sql 语法
 
 启动 ./bin/spark-sql，可以直接执行如下SQL 语法
 
@@ -30,7 +41,7 @@ DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
 
 ```
 
-### 支持数据源
+## 支持数据源
 
 | 数据源              | Reader(读) | Writer(写)    | 文档                                                                               |
 |:-----------------|:----------| :------      |:---------------------------------------------------------------------------------|
@@ -52,7 +63,7 @@ DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
 | redis            |           | √            | [写](doc/redis.md)                                                                |
 | aerospike        | √         | √            | [读写](doc/aerospike.md) 相比redis 性能更好                                              |
 
-### example
+## example
 ```sql
 -- support cte
 WITH tmp_demo_test2 AS (SELECT * FROM bigdata.test_demo_test2 where name is not null)
@@ -112,7 +123,7 @@ SINK("mysql") OPTIONS (
 )
 ```
 
-### 参考
+## 参考
 
 1. [Bucket4j 限流库](https://github.com/vladimir-bukhtoyarov/bucket4j)
 2. https://github.com/housepower/spark-clickhouse-connector

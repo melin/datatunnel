@@ -16,7 +16,7 @@
             <groupId>io.github.melin.superior</groupId>
             <artifactId>spark-sql-parser</artifactId>
             <version>${sql-parser.version}</version>
-            <scope>${libScope}</scope>
+            <scope>${superior.libScope}</scope>
         </dependency>
 
         <dependency>
