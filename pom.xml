@@ -27,6 +27,7 @@
         <module>connectors/redis</module>
         <module>connectors/sftp</module>
         <module>connectors/ftp</module>
+        <module>connectors/maxcompute</module>
         <module>examples</module>
     </modules>
 
