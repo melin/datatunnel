@@ -1,11 +1,15 @@
 package com.superior.datatunnel.plugin.maxcompute;
 
-import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelContext;
+import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.WriteMode;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SaveMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,20 +22,31 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaxcomputeDataTunnelSink.class);
 
-    public void validateOptions(DataTunnelContext context) {
-        DataSourceType dsType = context.getSinkOption().getDataSourceType();
-
-        if (!DataSourceType.isJdbcDataSource(dsType)) {
-            throw new IllegalArgumentException("不支持数据源类型: " + dsType);
-        }
-    }
+    private static final String ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource.DefaultSource";
 
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
-        validateOptions(context);
-
         MaxcomputeDataTunnelSinkOption sinkOption = (MaxcomputeDataTunnelSinkOption) context.getSinkOption();
-        DataSourceType dataSourceType = sinkOption.getDataSourceType();
+        WriteMode writeMode = sinkOption.getWriteMode();
+
+        if (WriteMode.UPSERT == writeMode) {
+            throw new DataTunnelException("不支持的写入模式：" + writeMode);
+        }
+
+        DataFrameWriter dataFrameWriter = dataset.write()
+                .format(ODPS_DATA_SOURCE)
+                .option("spark.hadoop.odps.project.name", sinkOption.getProjectName())
+                .option("spark.hadoop.odps.access.id", sinkOption.getAccessKeyId())
+                .option("spark.hadoop.odps.access.key", sinkOption.getSecretAccessKey())
+                .option("spark.hadoop.odps.end.point", sinkOption.getEndpoint())
+                .option("spark.hadoop.odps.table.name", sinkOption.getTableName())
+                .option("spark.sql.odps.dynamic.partition", true);
+
+        if (StringUtils.isNotBlank(sinkOption.getPartitionSpec())) {
+            dataFrameWriter.option("spark.sql.odps.partition.spec", sinkOption.getPartitionSpec());
+        }
+        dataFrameWriter.mode(writeMode == WriteMode.APPEND ? SaveMode.Append : SaveMode.Overwrite);
+        dataFrameWriter.save();
     }
 
     @Override

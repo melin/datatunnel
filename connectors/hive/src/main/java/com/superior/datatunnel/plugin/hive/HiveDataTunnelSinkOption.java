@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.hive;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
+import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -22,7 +23,8 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("hive 表分区字段, 数据类型：String，只支持单分区表")
     private String partitionColumn;
 
-    private String writeMode = "append";
+    @OptionDesc("写入模式, 仅支持：append、overwrite，不支持 upsert")
+    private WriteMode writeMode = WriteMode.OVERWRITE;
 
     @OptionDesc("hive 表文件格式")
     private String format = "parquet";

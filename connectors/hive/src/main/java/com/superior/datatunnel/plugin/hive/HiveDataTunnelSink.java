@@ -4,12 +4,16 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.io.IOException;
+
+import static com.superior.datatunnel.common.enums.WriteMode.APPEND;
+import static com.superior.datatunnel.common.enums.WriteMode.OVERWRITE;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -30,7 +34,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             String databaseName = sinkOption.getDatabaseName();
             String tableName = sinkOption.getTableName();
             String partitionColumn = sinkOption.getPartitionColumn();
-            String writeMode = sinkOption.getWriteMode();
+            WriteMode writeMode = sinkOption.getWriteMode();
 
             boolean isPartition = HiveUtils.checkPartition(context.getSparkSession(), databaseName, tableName);
             if (isPartition && StringUtils.isBlank(partitionColumn)) {
@@ -42,18 +46,20 @@ public class HiveDataTunnelSink implements DataTunnelSink {
                 table = databaseName + "." + tableName;
             }
 
-            if ("append".equals(writeMode)) {
+            if (APPEND == writeMode) {
                 if (isPartition) {
                     sql = "insert into table " + table + " partition(" + partitionColumn + ") select * from " + tdlName;
                 } else {
                     sql = "insert into table " + table + " select * from " + tdlName;
                 }
-            } else {
+            } else if (OVERWRITE == writeMode) {
                 if (isPartition) {
                     sql = "insert overwrite table " + table + " partition(" + partitionColumn + ") select * from " + tdlName;
                 } else {
                     sql = "insert overwrite table " + table + " select * from " + tdlName;
                 }
+            } else {
+                throw new DataTunnelException("不支持的写入模式：" + writeMode);
             }
 
             context.getSparkSession().sql(sql);

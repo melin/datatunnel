@@ -25,5 +25,5 @@ public class ElasticsearchDataTunnelSinkOption extends BaseSinkOption {
 
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")
-    private WriteMode writeMode = WriteMode.INSERT;
+    private WriteMode writeMode = WriteMode.APPEND;
 }

@@ -14,6 +14,7 @@ public enum DataSourceType {
     HANA,
     DAMENG,
     OCEANBASE,
+    MAXCOMPUTE,
 
     HIVE,
     KAFKA,

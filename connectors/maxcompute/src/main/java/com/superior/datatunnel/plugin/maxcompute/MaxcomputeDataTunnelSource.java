@@ -1,9 +1,10 @@
 package com.superior.datatunnel.plugin.maxcompute;
 
-import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelContext;
+import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +18,35 @@ public class MaxcomputeDataTunnelSource implements DataTunnelSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaxcomputeDataTunnelSource.class);
 
-    public void validateOptions(DataTunnelContext context) {
-        DataSourceType dsType = context.getSourceOption().getDataSourceType();
-
-        if (!DataSourceType.isJdbcDataSource(dsType)) {
-            throw new IllegalArgumentException("不支持数据源类型: " + dsType);
-        }
-    }
+    private static final String ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource.DefaultSource";
 
     @Override
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
-        return null;
+        MaxcomputeDataTunnelSourceOption sourceOption = (MaxcomputeDataTunnelSourceOption) context.getSourceOption();
+
+        Dataset<Row> dataset = context.getSparkSession().read().format(ODPS_DATA_SOURCE)
+                .option("spark.hadoop.odps.project.name", sourceOption.getProjectName())
+                .option("spark.hadoop.odps.access.id", sourceOption.getAccessKeyId())
+                .option("spark.hadoop.odps.access.key", sourceOption.getSecretAccessKey())
+                .option("spark.hadoop.odps.end.point", sourceOption.getEndpoint())
+                .option("spark.hadoop.odps.table.name", sourceOption.getTableName())
+                .load();
+
+        try {
+            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
+            dataset.createTempView(tdlName);
+            String[] columns = sourceOption.getColumns();
+            String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
+
+            String condition = sourceOption.getCondition();
+            if (StringUtils.isNotBlank(condition)) {
+                sql = sql + " where " + condition;
+            }
+
+            return context.getSparkSession().sql(sql);
+        } catch (AnalysisException e) {
+            throw new DataTunnelException(e.message(), e);
+        }
     }
 
     @Override
