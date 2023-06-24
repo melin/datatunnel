@@ -1,7 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc;
 
 import com.clearspring.analytics.util.Lists;
-import com.github.melin.superior.jobserver.api.LogUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.util.CommonUtils;
@@ -10,6 +9,7 @@ import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import com.superior.datatunnel.plugin.jdbc.support.dialect.DatabaseDialect;
+import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;

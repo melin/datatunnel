@@ -26,6 +26,7 @@ import java.util.Objects;
 
 public class Options implements Serializable {
     private final OdpsConf odpsConf;
+
     private final Map<String, String> configs;
 
     public Options() {
@@ -105,6 +106,7 @@ public class Options implements Serializable {
 
     public static class OptionsBuilder {
         private final OdpsConf odpsConf;
+
         private final Map<String, String> configs;
 
         public OptionsBuilder() {

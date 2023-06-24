@@ -3,7 +3,9 @@ package com.aliyun.odps.cupid.table.v1.writer;
 public final class WriteCapabilities {
 
     private final boolean supportOverwrite;
+
     private final boolean supportBuckets;
+
     private final boolean supportDynamicPartition;
 
     public WriteCapabilities(boolean supportOverwrite, boolean supportBuckets) {

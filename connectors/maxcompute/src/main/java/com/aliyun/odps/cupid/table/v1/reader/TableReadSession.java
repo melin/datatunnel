@@ -33,15 +33,21 @@ import java.util.stream.Collectors;
 public abstract class TableReadSession {
 
     protected final String project;
+
     protected final String table;
+
     protected Options options;
 
     protected TableSchema tableSchema;
+
     protected final RequiredSchema readDataColumns;
+
     protected final List<Map<String, String>> partitionSpecs;
 
     protected int splitSizeInMB;
+
     protected int splitParallelism;
+
     protected boolean splitAtBucketLevel;
 
     protected TableReadSession(String project,

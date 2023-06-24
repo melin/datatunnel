@@ -28,7 +28,7 @@ import java.util.List;
 public final class RequiredSchema extends Schema {
 
     public static RequiredSchema all() {
-        return ALL;
+        return schema;
     }
 
     public static RequiredSchema columns(List<Attribute> columns) {
@@ -52,5 +52,5 @@ public final class RequiredSchema extends Schema {
         this.type = type;
     }
 
-    private static RequiredSchema ALL = new RequiredSchema(Type.ALL, new Attribute[0]);
+    private static RequiredSchema schema = new RequiredSchema(Type.ALL, new Attribute[0]);
 }

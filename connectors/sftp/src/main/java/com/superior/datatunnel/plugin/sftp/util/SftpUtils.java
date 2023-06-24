@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.sftp.util;
 
-import com.github.melin.superior.jobserver.api.LogUtils;
 import com.jcraft.jsch.*;
+import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;

@@ -10,6 +10,8 @@ import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
 import com.aliyun.odps.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,13 +19,19 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Util {
-    public static final String WRITER_STREAM_ENABLE = "odps.cupid.writer.stream.enable";
-    public static final String WRITER_COMPRESS_ENABLE = "odps.cupid.writer.compress.enable";
-    public static final String WRITER_BUFFER_ENABLE = "odps.cupid.writer.buffer.enable";
-    public static final String WRITER_BUFFER_SHARES = "odps.cupid.writer.buffer.shares";
-    public static final String WRITER_BUFFER_SIZE = "odps.cupid.writer.buffer.size";
-    public static final int DEFAULT_WRITER_BUFFER_SIZE = 67108864;
+    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
+    public static final String WRITER_STREAM_ENABLE = "odps.cupid.writer.stream.enable";
+
+    public static final String WRITER_COMPRESS_ENABLE = "odps.cupid.writer.compress.enable";
+
+    public static final String WRITER_BUFFER_ENABLE = "odps.cupid.writer.buffer.enable";
+
+    public static final String WRITER_BUFFER_SHARES = "odps.cupid.writer.buffer.shares";
+
+    public static final String WRITER_BUFFER_SIZE = "odps.cupid.writer.buffer.size";
+
+    public static final int DEFAULT_WRITER_BUFFER_SIZE = 67108864;
 
     public static PartitionSpec toOdpsPartitionSpec(Map<String, String> partitionSpec) {
         if (partitionSpec == null || partitionSpec.isEmpty()) {
@@ -91,7 +99,7 @@ public class Util {
                 try {
                     Thread.sleep(sleep + ThreadLocalRandom.current().nextLong(3000));
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+
                 }
                 sleep = sleep * 2;
             }
@@ -124,7 +132,7 @@ public class Util {
                 try {
                     Thread.sleep(sleep + ThreadLocalRandom.current().nextLong(3000));
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                    LOG.error(ex.getMessage(), ex);
                 }
                 sleep = sleep * 2;
             }
@@ -161,7 +169,7 @@ public class Util {
                 try {
                     Thread.sleep(sleep + ThreadLocalRandom.current().nextLong(3000));
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                    LOG.error(ex.getMessage(), ex);
                 }
                 sleep = sleep * 2;
             }
@@ -196,7 +204,7 @@ public class Util {
                 try {
                     Thread.sleep(sleep + ThreadLocalRandom.current().nextLong(3000));
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                    LOG.error(ex.getMessage(), ex);
                 }
                 sleep = sleep * 2;
             }

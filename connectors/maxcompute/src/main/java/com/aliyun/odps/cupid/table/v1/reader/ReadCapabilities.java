@@ -22,7 +22,9 @@ package com.aliyun.odps.cupid.table.v1.reader;
 public final class ReadCapabilities {
 
     private final boolean supportBuckets;
+
     private final boolean supportPushDownFilters;
+
     private final boolean supportPushDownFunctionCalls;
 
     public ReadCapabilities(boolean supportBuckets,

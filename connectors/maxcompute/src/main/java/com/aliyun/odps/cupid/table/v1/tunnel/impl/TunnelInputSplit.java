@@ -29,8 +29,11 @@ import java.util.Map;
 public class TunnelInputSplit extends InputSplit {
 
     private String downloadId;
+
     private long startIndex;
+
     private long numRecord;
+
     private Options options;
 
     protected TunnelInputSplit(String project,

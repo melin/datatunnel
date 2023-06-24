@@ -45,6 +45,7 @@ public abstract class Schema implements Iterable<Attribute> {
     }
 
     private Attribute[] columns;
+
     private List<Attribute> listView;
 
     protected Schema(Attribute[] columns) {

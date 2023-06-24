@@ -28,6 +28,7 @@ import java.util.Map;
 public final class BucketFileInfo {
 
     private Map<Integer, List<Integer>> bucketFileIndices;
+
     private Map<String, String> partitionSpec;
 
     public BucketFileInfo(Map<Integer, List<Integer>> bucketFileIndices) {

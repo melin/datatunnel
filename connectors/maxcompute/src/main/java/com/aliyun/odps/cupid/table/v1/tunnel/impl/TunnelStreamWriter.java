@@ -35,10 +35,15 @@ public class TunnelStreamWriter implements FileWriter<ArrayRecord> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelStreamWriter.class);
 
     protected TunnelWriteSessionInfo sessionInfo;
+
     protected TableTunnel.StreamUploadSession session;
+
     protected TableTunnel.StreamRecordPack pack;
+
     private long rowsWritten;
+
     private long bytesWritten;
+
     private PartitionSpec partition;
 
     TunnelStreamWriter(TunnelWriteSessionInfo sessionInfo,

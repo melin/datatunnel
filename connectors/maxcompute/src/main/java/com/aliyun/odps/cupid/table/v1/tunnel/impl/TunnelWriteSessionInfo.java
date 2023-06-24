@@ -29,7 +29,9 @@ import java.util.Map;
 public class TunnelWriteSessionInfo extends WriteSessionInfo {
 
     private final String uploadId;
+
     private final boolean isStream;
+
     private final boolean isDynamicPartition;
 
     TunnelWriteSessionInfo(String project,
@@ -57,7 +59,9 @@ public class TunnelWriteSessionInfo extends WriteSessionInfo {
         return uploadId;
     }
 
-    public boolean isStream() { return isStream; }
+    public boolean isStream() {
+        return isStream;
+    }
 
     public boolean isDynamicPartition() {
         return isDynamicPartition;

@@ -19,8 +19,6 @@
 
 package com.aliyun.odps.cupid.table.v1.reader;
 
-import com.aliyun.odps.data.ArrayRecord;
-
 import java.io.IOException;
 import java.util.Iterator;
 

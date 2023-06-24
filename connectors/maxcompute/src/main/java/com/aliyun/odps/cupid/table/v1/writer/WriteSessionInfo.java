@@ -29,11 +29,17 @@ import java.util.Map;
 public abstract class WriteSessionInfo implements Serializable {
 
     private final String project;
+
     private final String table;
+
     private final List<Attribute> dataColumns;
+
     private final List<Attribute> partitionColumns;
+
     private final Map<String, String> partitionSpec;
+
     private final boolean overwrite;
+
     private final Options options;
 
     protected WriteSessionInfo(String project,
@@ -103,7 +109,9 @@ public abstract class WriteSessionInfo implements Serializable {
         return false;
     }
 
-    public boolean isOverwrite() { return overwrite; }
+    public boolean isOverwrite() {
+        return overwrite;
+    }
 
     public Options getOptions() {
         return options;

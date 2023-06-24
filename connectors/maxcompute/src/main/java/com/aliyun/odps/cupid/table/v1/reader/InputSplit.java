@@ -29,11 +29,15 @@ import java.util.Map;
 public abstract class InputSplit implements Serializable {
 
     private final String project;
+
     private final String table;
 
     private final List<Attribute> dataColumns;
+
     private final List<Attribute> partitionColumns;
+
     private final List<Attribute> readDataColumns;
+
     private final Map<String, String> partitionSpec;
 
     protected InputSplit(String project,

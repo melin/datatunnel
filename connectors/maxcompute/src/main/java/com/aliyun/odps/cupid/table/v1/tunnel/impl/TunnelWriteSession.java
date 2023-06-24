@@ -44,9 +44,13 @@ import static com.aliyun.odps.cupid.table.v1.tunnel.impl.Util.WRITER_STREAM_ENAB
 public class TunnelWriteSession extends TableWriteSession {
 
     private WriteSessionInfo sessionInfo;
+
     private List<Attribute> dataColumns;
+
     private List<Attribute> partitionColumns;
+
     private TableTunnel.UploadSession session;
+
     private Odps odps;
 
     TunnelWriteSession(String project,

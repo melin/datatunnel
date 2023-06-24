@@ -24,6 +24,7 @@ import java.io.Serializable;
 public class Attribute implements Serializable {
 
     private final String name;
+
     private final String type;
 
     public Attribute(String name, String type) {

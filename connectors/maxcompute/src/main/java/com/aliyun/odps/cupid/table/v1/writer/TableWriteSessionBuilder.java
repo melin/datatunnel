@@ -30,12 +30,19 @@ import java.util.*;
 public final class TableWriteSessionBuilder extends Builder {
 
     private String provider;
+
     private String project;
+
     private String table;
+
     private boolean overwrite;
+
     private TableSchema tableSchema;
+
     private Map<String, String> partitionSpec;
+
     private WriteSessionInfo writeSessionInfo;
+
     private Options options;
 
     public TableWriteSessionBuilder(String provider, String project, String table) {

@@ -42,16 +42,23 @@ import java.util.Map;
 public class ColDataRowWriter {
 
     private FileWriter<ColDataBatch> writer;
+
     private Column[] cols;
 
     private int batchSize;
+
     private int rowCount;
 
     private Map<Integer, Integer> stringColSizeMap = new HashMap<>(4);
+
     private byte[][] dataBuf;
+
     private int[] dataBufSize;
+
     private byte[][] nulls;
+
     private byte[][] deepBuf;
+
     private ColDataVector[] vectors;
 
     ColDataBatch colDataBatch;

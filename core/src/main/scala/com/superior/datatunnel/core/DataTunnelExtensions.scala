@@ -1,6 +1,6 @@
 package com.superior.datatunnel.core
 
-import com.github.melin.superior.jobserver.api.LogUtils
+import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.{SparkListener, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions

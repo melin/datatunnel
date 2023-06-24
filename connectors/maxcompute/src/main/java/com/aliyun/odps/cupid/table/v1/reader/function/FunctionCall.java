@@ -29,7 +29,9 @@ public abstract class FunctionCall {
     }
 
     private final String functionName;
+
     private final String attribute;
+
     private final String[] literalArgs;
 
     protected FunctionCall(String functionName, String attribute, String[] literalArgs) {

@@ -26,8 +26,11 @@ import java.util.Objects;
 public class TunnelDynamicWriteMsg implements WriterCommitMessage {
 
     private final String project;
+
     private final String table;
+
     private final Map<String, String> partitionSpec;
+
     private final String uploadId;
 
     public TunnelDynamicWriteMsg(String project,

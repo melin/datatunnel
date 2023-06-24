@@ -30,10 +30,15 @@ import java.util.Map;
 public abstract class TableWriteSession {
 
     protected final String project;
+
     protected final String table;
+
     protected final Map<String, String> partitionSpec;
+
     protected final boolean overwrite;
+
     protected TableSchema tableSchema;
+
     protected Options options;
 
     protected TableWriteSession(String project,
@@ -43,7 +48,7 @@ public abstract class TableWriteSession {
                                 boolean overwrite) {
         this.project = project;
         this.table = table;
-        this.tableSchema = tableSchema == null? getTableSchema() : tableSchema;
+        this.tableSchema = tableSchema == null ? getTableSchema() : tableSchema;
         this.partitionSpec = TableUtils.getOrderedPartitionSpec(this.tableSchema, partitionSpec);
         this.overwrite = overwrite;
     }
@@ -57,7 +62,7 @@ public abstract class TableWriteSession {
         this.project = project;
         this.table = table;
         this.options = options;
-        this.tableSchema = tableSchema == null? getTableSchema() : tableSchema;
+        this.tableSchema = tableSchema == null ? getTableSchema() : tableSchema;
         this.partitionSpec = TableUtils.getOrderedPartitionSpec(this.tableSchema, partitionSpec);
         this.overwrite = overwrite;
     }

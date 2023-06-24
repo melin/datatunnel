@@ -34,21 +34,24 @@ import java.util.Map;
 public final class FileWriterBuilder extends Builder {
 
     private final WriteSessionInfo sessionInfo;
+
     private Map<String, String> partitionSpec;
+
     private int fileIndex = -1;
+
     private int attemptNumber = -1;
 
     private boolean built;
 
     public FileWriterBuilder(WriteSessionInfo sessionInfo, int fileIndex) {
         Validator.checkNotNull(sessionInfo, "sessionInfo");
-        Validator.checkInteger(fileIndex, 0,"fileIndex");
+        Validator.checkInteger(fileIndex, 0, "fileIndex");
         this.sessionInfo = sessionInfo;
         this.fileIndex = fileIndex;
     }
 
     public FileWriterBuilder attemptNumber(int attemptNumber) {
-        Validator.checkInteger(fileIndex, 0,"attemptNumber");
+        Validator.checkInteger(fileIndex, 0, "attemptNumber");
         this.attemptNumber = attemptNumber;
         return this;
     }
@@ -89,8 +92,8 @@ public final class FileWriterBuilder extends Builder {
             partitionSpec = Collections.emptyMap();
         } else {
             Validator.checkMap(partitionSpec, "partitionSpec");
-            Map<String,String>  orderedPartSpec = new LinkedHashMap<>();
-            for(Attribute partAttr : sessionInfo.getPartitionColumns()) {
+            Map<String, String> orderedPartSpec = new LinkedHashMap<>();
+            for (Attribute partAttr : sessionInfo.getPartitionColumns()) {
                 if (!partitionSpec.containsKey(partAttr.getName())) {
                     throw new RuntimeException("invalid partitionSpec for file writer: " + partitionSpec + ", expected: " + partAttr.getName());
                 }

@@ -2,7 +2,7 @@ package com.superior.datatunnel.plugin.log;
 
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
-import com.github.melin.superior.jobserver.api.LogUtils;
+import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;

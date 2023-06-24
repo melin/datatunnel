@@ -81,7 +81,6 @@ public class TunnelProvider implements TableProvider {
         return new WriteCapabilities(true, false, true);
     }
 
-
     @Override
     public TableWriteSession createWriteSession(String project,
                                                 String table,

@@ -37,14 +37,23 @@ import java.util.Map;
 public class TunnelWriter implements FileWriter<ArrayRecord> {
 
     protected TunnelWriteSessionInfo sessionInfo;
+
     protected long blockId;
+
     protected TableTunnel.UploadSession session;
+
     protected RecordWriter writer;
+
     private long rowsWritten;
+
     private boolean isClosed;
+
     private String uploadId;
+
     private boolean isBufferWriter;
+
     private final Map<String, String> partitionSpec;
+
     private final Odps odps;
 
     TunnelWriter(TunnelWriteSessionInfo sessionInfo, long blockId, Map<String, String> partitionSpec) {
@@ -142,10 +151,10 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
         }
         if (isBufferWriter) {
             writer = session.openBufferedWriter(true);
-            ((TunnelBufferedWriter)writer).setBufferSize(
+            ((TunnelBufferedWriter) writer).setBufferSize(
                     sessionInfo.getOptions().getOrDefault(Util.WRITER_BUFFER_SIZE, Util.DEFAULT_WRITER_BUFFER_SIZE));
         } else {
-            writer = session.openRecordWriter(0,true);
+            writer = session.openRecordWriter(0, true);
         }
     }
 
@@ -163,7 +172,7 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
                 this.session = tunnel.getUploadSession(project, table, odpsPartitionSpec, uploadId, shares, blockId);
             }
             writer = session.openBufferedWriter(true);
-            ((TunnelBufferedWriter)writer).setBufferSize(
+            ((TunnelBufferedWriter) writer).setBufferSize(
                     sessionInfo.getOptions().getOrDefault(Util.WRITER_BUFFER_SIZE, Util.DEFAULT_WRITER_BUFFER_SIZE));
 
         } else {
@@ -173,7 +182,7 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
                 PartitionSpec odpsPartitionSpec = Util.toOdpsPartitionSpec(partitionSpec);
                 session = tunnel.getUploadSession(project, table, odpsPartitionSpec, uploadId);
             }
-            writer = session.openRecordWriter(blockId,true);
+            writer = session.openRecordWriter(blockId, true);
         }
     }
 }

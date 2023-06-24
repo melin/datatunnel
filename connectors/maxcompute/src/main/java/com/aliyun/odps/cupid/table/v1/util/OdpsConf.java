@@ -24,9 +24,13 @@ import java.util.Objects;
 
 public class OdpsConf implements Serializable {
     private String accessId;
+
     private String accessKey;
+
     private String endpoint;
+
     private String project;
+
     private String tunnelEndpoint;
 
     public OdpsConf() {

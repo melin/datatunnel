@@ -32,20 +32,33 @@ import java.util.*;
 public final class TableReadSessionBuilder extends Builder {
 
     private String provider;
+
     private String project;
+
     private String table;
+
     private TableSchema tableSchema;
+
     private RequiredSchema readDataColumns;
+
     private List<PartitionSpecWithBucketFilter> readPartitions;
+
     private List<Integer> bucketFilter;
+
     private boolean splitAtBucketLevel;
+
     private int splitSizeInMB;
+
     private int splitParallelism;
+
     private Options options;
+
     private List<FilterExpression> filterExpressions;
+
     private List<FunctionCall> functionCalls;
 
     private List<Map<String, String>> partitionSpecs;
+
     private List<List<Integer>> partitionBucketFilters;
 
     public static ReadCapabilities getProviderCapabilities(String provider)
@@ -88,13 +101,13 @@ public final class TableReadSessionBuilder extends Builder {
     }
 
     public TableReadSessionBuilder splitBySize(int splitSizeInMB) {
-        Validator.checkInteger(splitSizeInMB, 1,"splitSizeInMB");
+        Validator.checkInteger(splitSizeInMB, 1, "splitSizeInMB");
         this.splitSizeInMB = splitSizeInMB;
         return this;
     }
 
     public TableReadSessionBuilder splitByParallelism(int splitParallelism) {
-        Validator.checkInteger(splitParallelism, 1,"splitParallelism");
+        Validator.checkInteger(splitParallelism, 1, "splitParallelism");
         this.splitParallelism = splitParallelism;
         return this;
     }

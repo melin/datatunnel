@@ -37,17 +37,25 @@ import static com.aliyun.odps.cupid.table.v1.util.TableUtils.getTypeInfoFromStri
 public final class ColDataVector {
 
     private Attribute column;
+
     private byte[] dataBuf;
+
     private int dataBufSize;
+
     private byte[] nulls;
+
     private byte[] deepBuf;
 
     private final OdpsType odpsType;
+
     private final TypeInfo odpsTypeInfo;
 
     private int numRows;
+
     private int numNulls;
+
     private int[] binaryOffsets;
+
     private boolean isOldDecimal;
 
     public ColDataVector(Attribute column,

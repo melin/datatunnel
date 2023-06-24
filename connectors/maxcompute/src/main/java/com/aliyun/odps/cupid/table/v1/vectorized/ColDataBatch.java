@@ -26,6 +26,7 @@ import java.util.Arrays;
 public final class ColDataBatch {
 
     private int rowCount;
+
     private ColDataVector[] vectors;
 
     public ColDataBatch(ColDataVector[] vectors) {

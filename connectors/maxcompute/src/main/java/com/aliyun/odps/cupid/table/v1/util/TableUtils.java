@@ -46,11 +46,11 @@ public class TableUtils {
         return result;
     }
 
-    public static Map<String,String> getOrderedPartitionSpec(TableSchema tableSchema, Map<String, String> partitionSpec) {
+    public static Map<String, String> getOrderedPartitionSpec(TableSchema tableSchema, Map<String, String> partitionSpec) {
         if (tableSchema == null) {
             throw new RuntimeException("tableSchema cannot be null");
         }
-        Map<String,String>  orderedPartSpec = new LinkedHashMap<>();
+        Map<String, String> orderedPartSpec = new LinkedHashMap<>();
         tableSchema.getPartitionColumns().stream().forEach(column -> {
             orderedPartSpec.put(column.getName(), partitionSpec.get(column.getName()));
         });
@@ -62,7 +62,7 @@ public class TableUtils {
         if (writeSessionInfo.getDataColumns() != null) {
             ArrayList<Column> dataColumns = new ArrayList<>(writeSessionInfo.getDataColumns().size());
             writeSessionInfo.getDataColumns().forEach(dataCol->{
-                Column column = new Column(dataCol.getName(),getTypeInfoFromString(dataCol.getType()));
+                Column column = new Column(dataCol.getName(), getTypeInfoFromString(dataCol.getType()));
                 dataColumns.add(column);
             });
             tableSchema.setColumns(dataColumns);
@@ -71,7 +71,7 @@ public class TableUtils {
         if (writeSessionInfo.getPartitionColumns() != null) {
             ArrayList<Column> partitionColumns = new ArrayList<>(writeSessionInfo.getPartitionColumns().size());
             writeSessionInfo.getPartitionColumns().forEach(partiCol ->{
-                Column column = new Column(partiCol.getName(),getTypeInfoFromString(partiCol.getType()));
+                Column column = new Column(partiCol.getName(), getTypeInfoFromString(partiCol.getType()));
                 partitionColumns.add(column);
             });
             tableSchema.setPartitionColumns(partitionColumns);

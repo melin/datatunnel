@@ -41,13 +41,18 @@ import java.util.stream.Collectors;
 
 public class TunnelReadSession extends TableReadSession {
 
-    private final static long DEFAULT_AVERAGE_RECORD_SIZE = 1024;
-    private final static long MIN_AVERAGE_RECORD_SIZE = 256;
+    private static final long DEFAULT_AVERAGE_RECORD_SIZE = 1024;
+
+    private static final long MIN_AVERAGE_RECORD_SIZE = 256;
 
     private InputSplit[] inputSplits = null;
+
     private List<Attribute> dataColumns;
+
     private List<Attribute> partitionColumns;
+
     private List<Attribute> requiredColumns;
+
     private Odps odps;
 
     TunnelReadSession(String project,

@@ -27,8 +27,11 @@ import java.util.Arrays;
 public final class FilterExpression implements Serializable {
 
     private final FilterType type;
+
     private String attribute;
+
     private FilterExpression[] children;
+
     private Object literal;
 
     public FilterExpression(FilterType type) {
@@ -51,7 +54,7 @@ public final class FilterExpression implements Serializable {
         return literal;
     }
 
-    public static FilterExpression EqualTo(String attribute, Object value) {
+    public static FilterExpression equalTo(String attribute, Object value) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.EQUAL_TO);
         expr.attribute = attribute;
@@ -59,7 +62,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression EqualNullSafe(String attribute, Object value) {
+    public static FilterExpression equalNullSafe(String attribute, Object value) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.EQUAL_NULL_SAFE);
         expr.attribute = attribute;
@@ -67,7 +70,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression GreaterThan(String attribute, Object value) {
+    public static FilterExpression greaterThan(String attribute, Object value) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.GREATER_THAN);
         expr.attribute = attribute;
@@ -75,7 +78,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression GreaterThanOrEqual(String attribute, Object value) {
+    public static FilterExpression greaterThanOrEqual(String attribute, Object value) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.GREATER_THAN_OR_EQUAL);
         expr.attribute = attribute;
@@ -83,7 +86,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression LessThan(String attribute, Object value) {
+    public static FilterExpression lessThan(String attribute, Object value) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.LESS_THAN);
         expr.attribute = attribute;
@@ -91,7 +94,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression LessThanOrEqual(String attribute, Object value) {
+    public static FilterExpression lessThanOrEqual(String attribute, Object value) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.LESS_THAN_OR_EQUAL);
         expr.attribute = attribute;
@@ -99,7 +102,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression In(String attribute, Object[] values) {
+    public static FilterExpression in(String attribute, Object[] values) {
         Validator.checkString(attribute, "attribute");
         Validator.checkNotNull(values, "values");
         FilterExpression expr = new FilterExpression(FilterType.IN);
@@ -108,21 +111,21 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression IsNull(String attribute) {
+    public static FilterExpression isNull(String attribute) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.IS_NULL);
         expr.attribute = attribute;
         return expr;
     }
 
-    public static FilterExpression IsNotNull(String attribute) {
+    public static FilterExpression isNotNull(String attribute) {
         Validator.checkString(attribute, "attribute");
         FilterExpression expr = new FilterExpression(FilterType.IS_NOT_NULL);
         expr.attribute = attribute;
         return expr;
     }
 
-    public static FilterExpression And(FilterExpression left, FilterExpression right) {
+    public static FilterExpression and(FilterExpression left, FilterExpression right) {
         Validator.checkNotNull(left, "left");
         Validator.checkNotNull(right, "right");
         FilterExpression expr = new FilterExpression(FilterType.AND);
@@ -132,14 +135,14 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression And(FilterExpression[] children) {
+    public static FilterExpression and(FilterExpression[] children) {
         Validator.checkArray(children, 2, "children");
         FilterExpression expr = new FilterExpression(FilterType.AND);
         expr.children = children;
         return expr;
     }
 
-    public static FilterExpression Or(FilterExpression left, FilterExpression right) {
+    public static FilterExpression or(FilterExpression left, FilterExpression right) {
         Validator.checkNotNull(left, "left");
         Validator.checkNotNull(right, "right");
         FilterExpression expr = new FilterExpression(FilterType.OR);
@@ -149,14 +152,14 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression Or(FilterExpression[] children) {
+    public static FilterExpression or(FilterExpression[] children) {
         Validator.checkArray(children, 2, "children");
         FilterExpression expr = new FilterExpression(FilterType.OR);
         expr.children = children;
         return expr;
     }
 
-    public static FilterExpression Not(FilterExpression child) {
+    public static FilterExpression not(FilterExpression child) {
         Validator.checkNotNull(child, "child");
         FilterExpression expr = new FilterExpression(FilterType.NOT);
         expr.children = new FilterExpression[1];
@@ -164,7 +167,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression StringStartsWith(String attribute, String value) {
+    public static FilterExpression stringStartsWith(String attribute, String value) {
         Validator.checkString(attribute, "attribute");
         Validator.checkString(value, "value");
         FilterExpression expr = new FilterExpression(FilterType.STRING_STARTS_WITH);
@@ -173,7 +176,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression StringEndsWith(String attribute, String value) {
+    public static FilterExpression stringEndsWith(String attribute, String value) {
         Validator.checkString(attribute, "attribute");
         Validator.checkString(value, "value");
         FilterExpression expr = new FilterExpression(FilterType.STRING_ENDS_WITH);
@@ -182,7 +185,7 @@ public final class FilterExpression implements Serializable {
         return expr;
     }
 
-    public static FilterExpression StringContains(String attribute, String value) {
+    public static FilterExpression stringContains(String attribute, String value) {
         Validator.checkString(attribute, "attribute");
         Validator.checkString(value, "value");
         FilterExpression expr = new FilterExpression(FilterType.STRING_CONTAINS);

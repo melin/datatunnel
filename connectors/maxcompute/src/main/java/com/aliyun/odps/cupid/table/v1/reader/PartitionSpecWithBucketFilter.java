@@ -26,6 +26,7 @@ import java.util.*;
 public final class PartitionSpecWithBucketFilter {
 
     private final Map<String, String> partitionSpec;
+
     private List<Integer> bucketFilter;
 
     public PartitionSpecWithBucketFilter(Map<String, String> partitionSpec) {
