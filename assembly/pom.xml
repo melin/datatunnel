@@ -64,6 +64,11 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-maxcompute</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-log</artifactId>
             <version>${project.version}</version>
         </dependency>
