@@ -15,6 +15,8 @@ public enum DataSourceType {
     DAMENG,
     OCEANBASE,
     MAXCOMPUTE,
+    DORIS,
+    STARROCKS,
 
     HIVE,
     KAFKA,

@@ -1,1 +1,1 @@
-doris=com.superior.datatunnel.plugin.doris.reader.KafkaDataTunnelSource
+doris=com.superior.datatunnel.plugin.doris.DorisDataTunnelSource

@@ -1,0 +1,1 @@
+1. https://docs.starrocks.io/zh-cn/latest/loading/Spark-connector-starrocks#batch

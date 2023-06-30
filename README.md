@@ -53,7 +53,6 @@ DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
 | hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                          |
 | jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，tidb，guass，postgresql,tidb |
 | hive          | √         | √            | [读写](doc/hive.md)                                                                |
-| hbase         |           | √            | [写](doc/hbase.md)                                                                |
 | clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                         |
 | cassandra     | √         | √            | [读写](doc/cassandra.md)                                                           |
 | elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                    |

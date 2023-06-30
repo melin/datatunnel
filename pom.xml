@@ -22,6 +22,7 @@
         <module>connectors/jdbc</module>
         <module>connectors/kafka</module>
         <module>connectors/doris</module>
+        <module>connectors/starrocks</module>
         <module>connectors/cassandra</module>
         <module>connectors/s3</module>
         <module>connectors/redis</module>
