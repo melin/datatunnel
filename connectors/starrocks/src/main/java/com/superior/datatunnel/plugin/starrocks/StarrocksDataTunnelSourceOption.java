@@ -3,9 +3,12 @@ package com.superior.datatunnel.plugin.starrocks;
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
+@Data
 public class StarrocksDataTunnelSourceOption extends BaseSourceOption {
 
     @ParamKey("table.identifier")
@@ -75,7 +78,9 @@ public class StarrocksDataTunnelSourceOption extends BaseSourceOption {
 
     @ParamKey("filter.query.in.max.count")
     @OptionDesc("谓词下推中，IN 表达式支持的取值数量上限。如果 IN 表达式中指定的取值数量超过该上限，则 IN 表达式中指定的条件过滤在 Spark 侧处理")
-    private Integer filterQueryInMaxCount = 10;
+    private Integer filterQueryInMaxCount = 100;
 
+    @NotEmpty(message = "columns can not empty")
+    private String[] columns = new String[]{"*"};
 
 }
