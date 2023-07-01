@@ -63,7 +63,4 @@ public class StarrocksDataTunnelSinkOption extends BaseSinkOption {
     @ParamKey("write.partition.columns")
     @OptionDesc("用于Spark分区的列，只有指定 starrocks.write.num.partitions 后才有效，如果不指定则使用所有写入的列进行分区")
     private String writePartitionColumns;
-
-    @OptionDesc("写入模式, 仅支持：append、overwrite，不支持 upsert")
-    private WriteMode writeMode = WriteMode.OVERWRITE;
 }

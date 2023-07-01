@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.starrocks
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Starrocks2LogDemo {
+object Mysql2StarrocksDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -18,14 +18,24 @@ object Starrocks2LogDemo {
             .getOrCreate()
 
         val sql = """
-            DATATUNNEL SOURCE("starrocks") OPTIONS (
+            DATATUNNEL SOURCE("mysql") OPTIONS (
+                username = "root",
+                password = "root2023",
+                host = '172.18.5.44',
+                port = 3306,
+                databaseName = 'demos',
+                tableName = 'users',
+                columns = ["*"],
+                resultTableName='tdl_users'
+            ) 
+            transform = "select id, userid as username, age from tdl_users"
+            SINK("starrocks") OPTIONS (
                 "fe.http.url" = "172.18.1.190:8030",
                 "fe.jdbc.url" = "jdbc:mysql://172.18.1.190:9030",
-                tableName = 'test.score_board',
+                tableName = 'test.mysql_users',
                 user = 'root',
                 password = "123456"
             ) 
-            SINK("log")
         """.trimIndent()
 
         spark.sql(sql)

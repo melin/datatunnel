@@ -1,10 +1,8 @@
 package com.superior.datatunnel.plugin.starrocks;
 
 import com.superior.datatunnel.api.DataTunnelContext;
-import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
-import com.superior.datatunnel.common.enums.WriteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
@@ -22,11 +20,6 @@ public class StarrocksDataTunnelSink implements DataTunnelSink {
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         StarrocksDataTunnelSinkOption sinkOption = (StarrocksDataTunnelSinkOption) context.getSinkOption();
-        WriteMode writeMode = sinkOption.getWriteMode();
-
-        if (WriteMode.UPSERT == writeMode) {
-            throw new DataTunnelException("不支持的写入模式：" + writeMode);
-        }
 
         DataFrameWriter dataFrameWriter = dataset.write().format("starrocks")
                 .option("starrocks.fe.http.url", sinkOption.getFeHttpUrl())
@@ -53,7 +46,7 @@ public class StarrocksDataTunnelSink implements DataTunnelSink {
             dataFrameWriter.option("starrocks.write.properties." + key, value);
         });
 
-        dataFrameWriter.mode(writeMode == WriteMode.APPEND ? SaveMode.Append : SaveMode.Overwrite);
+        dataFrameWriter.mode( SaveMode.Append);
         dataFrameWriter.save();
     }
 
