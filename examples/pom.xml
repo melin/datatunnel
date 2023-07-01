@@ -79,6 +79,12 @@
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-starrocks</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-clickhouse</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-connector-doris</artifactId>
+    <artifactId>datatunnel-connector-starrocks</artifactId>
 
     <dependencies>
         <dependency>

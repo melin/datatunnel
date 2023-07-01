@@ -3,7 +3,9 @@ package com.superior.datatunnel.common.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.superior.datatunnel.api.DataTunnelException;
+import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseCommonOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +73,16 @@ public class CommonUtils {
             properties = ((BaseCommonOption) beanInstance).getProperties();
         }
 
+        Map<String, String> keyAliasMap = Maps.newHashMap();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            ParamKey paramKey = field.getAnnotation(ParamKey.class);
+            if (paramKey == null) {
+                continue;
+            }
+            keyAliasMap.put(paramKey.value(), field.getName());
+        }
+
         for (String fieldName : map.keySet()) {
             String value = map.get(fieldName);
             if (properties != null && StringUtils.startsWith(fieldName, "properties.")) {
@@ -79,6 +91,9 @@ public class CommonUtils {
                 continue;
             }
 
+            if (keyAliasMap.containsKey(fieldName)) {
+                fieldName = keyAliasMap.get(fieldName);
+            }
             Field field = ReflectionUtils.findField(clazz, fieldName);
             if (field == null) {
                 throw new DataTunnelException(msg + fieldName);
