@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.kafka.reader
 
 import com.superior.datatunnel.api.DataTunnelException
+import com.superior.datatunnel.plugin.kafka.KafkaDataTunnelSourceOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
@@ -14,16 +15,53 @@ import scala.collection.JavaConverters._
  */
 object KafkaSupport {
 
-  def createStreamTempTable(tableName: String, options: util.Map[String, String]) {
-    checkKafkaStatus(options)
-    options.put("includeHeaders", "true")
-    val lineRow = createDataSet(options)
+  def createStreamTempTable(tableName: String, sourceOption: KafkaDataTunnelSourceOption): Unit = {
+    checkKafkaStatus(sourceOption)
+
+    val params = new util.HashMap[String, String]
+    params.putAll(sourceOption.getProperties)
+
+    params.put("includeHeaders", "true")
+    if (StringUtils.isNotBlank(sourceOption.getAssign)) {
+      params.put("assign", sourceOption.getAssign())
+    }
+    if (StringUtils.isNotBlank(sourceOption.getSubscribe)) {
+      params.put("subscribe", sourceOption.getSubscribe())
+    }
+    if (StringUtils.isNotBlank(sourceOption.getSubscribePattern)) {
+      params.put("subscribePattern", sourceOption.getSubscribePattern())
+    }
+
+    if (StringUtils.isNotBlank(sourceOption.getGroupIdPrefix)) {
+      params.put("groupIdPrefix", sourceOption.getSubscribePattern())
+    }
+    if (StringUtils.isNotBlank(sourceOption.getKafkaGroupId)) {
+      params.put("kafka.group.id", sourceOption.getKafkaGroupId)
+    }
+    if (StringUtils.isNotBlank(sourceOption.getStartingOffsetsByTimestampStrategy)) {
+      params.put("startingOffsetsByTimestampStrategy", sourceOption.getStartingOffsetsByTimestampStrategy)
+    }
+    if (sourceOption.getMinPartitions != null) {
+      params.put("minPartitions", sourceOption.getMinPartitions.toString)
+    }
+    if (StringUtils.isNotBlank(sourceOption.getMaxTriggerDelay)) {
+      params.put("maxTriggerDelay", sourceOption.getMaxTriggerDelay)
+    }
+
+    params.put("kafka.bootstrap.servers", sourceOption.getServers)
+    params.put("startingOffsets", sourceOption.getStartingOffsets)
+    params.put("failOnDataLoss", sourceOption.isFailOnDataLoss.toString)
+    val lineRow = createDataSet(params, sourceOption)
     lineRow.createOrReplaceTempView(tableName);
   }
 
-  private def checkKafkaStatus(options: util.Map[String, String]): Unit = {
-    val servers = options.get("kafka.bootstrap.servers")
-    val subscribe = options.get("subscribe")
+  private def checkKafkaStatus(sourceOption: KafkaDataTunnelSourceOption): Unit = {
+    val servers = sourceOption.getServers
+    val subscribe = sourceOption.getSubscribe
+
+    if (StringUtils.isBlank(subscribe)) {
+      return
+    }
 
     val props = new Properties()
     props.put("bootstrap.servers", servers)
@@ -47,13 +85,16 @@ object KafkaSupport {
     } finally if (adminClient != null) adminClient.close()
   }
 
-  private def createDataSet(options: util.Map[String, String]): Dataset[Row] = {
-    val lines = SparkSession.active.readStream.format("kafka").options(options)
-      .option("failOnDataLoss", "false")
-      .option("auto.offset.reset", "earliest")
-      .load
+  private def createDataSet(options: util.Map[String, String],
+                            sourceOption: KafkaDataTunnelSourceOption): Dataset[Row] = {
+    val lines = SparkSession.active.readStream.format("kafka")
+      .options(options).load
 
-    lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message",
-      "topic as kafka_topic", "timestamp", "unix_millis(timestamp) as kafka_timestamp")
+    if (sourceOption.isIncludeHeaders) {
+      lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message",
+        "topic as kafka_topic", "timestamp", "unix_millis(timestamp) as kafka_timestamp")
+    } else {
+      lines.selectExpr("CAST(value AS STRING) as message")
+    }
   }
 }

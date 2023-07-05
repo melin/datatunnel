@@ -7,12 +7,55 @@ import javax.validation.constraints.NotBlank;
 
 public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
-    @NotBlank(message = "subscribe can not blank")
+    @NotBlank(message = "如果是json 格式，解析第一层")
+    private String format = "text";
+
+    private String assign;
+
     private String subscribe;
+
+    private String subscribePattern;
 
     @ParamKey("kafka.bootstrap.servers")
     @NotBlank(message = "kafka.bootstrap.servers can not blank")
     private String servers;
+
+    private boolean failOnDataLoss = false;
+
+    @NotBlank(message = "startingOffsets")
+    private String startingOffsets = "latest";
+
+    private String maxTriggerDelay = "15";
+
+    private Integer minPartitions;
+
+    private String groupIdPrefix;
+
+    @ParamKey("kafka.group.id")
+    private String kafkaGroupId;
+
+    private boolean includeHeaders = false;
+
+    private String startingOffsetsByTimestampStrategy = "error";
+
+    @ParamKey("format=json，生效")
+    private String[] columns = new String[]{"*"};
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getAssign() {
+        return assign;
+    }
+
+    public void setAssign(String assign) {
+        this.assign = assign;
+    }
 
     public String getSubscribe() {
         return subscribe;
@@ -22,11 +65,91 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
         this.subscribe = subscribe;
     }
 
+    public String getSubscribePattern() {
+        return subscribePattern;
+    }
+
+    public void setSubscribePattern(String subscribePattern) {
+        this.subscribePattern = subscribePattern;
+    }
+
     public String getServers() {
         return servers;
     }
 
     public void setServers(String servers) {
         this.servers = servers;
+    }
+
+    public boolean isFailOnDataLoss() {
+        return failOnDataLoss;
+    }
+
+    public void setFailOnDataLoss(boolean failOnDataLoss) {
+        this.failOnDataLoss = failOnDataLoss;
+    }
+
+    public String getStartingOffsets() {
+        return startingOffsets;
+    }
+
+    public void setStartingOffsets(String startingOffsets) {
+        this.startingOffsets = startingOffsets;
+    }
+
+    public String getMaxTriggerDelay() {
+        return maxTriggerDelay;
+    }
+
+    public void setMaxTriggerDelay(String maxTriggerDelay) {
+        this.maxTriggerDelay = maxTriggerDelay;
+    }
+
+    public Integer getMinPartitions() {
+        return minPartitions;
+    }
+
+    public void setMinPartitions(Integer minPartitions) {
+        this.minPartitions = minPartitions;
+    }
+
+    public String getGroupIdPrefix() {
+        return groupIdPrefix;
+    }
+
+    public void setGroupIdPrefix(String groupIdPrefix) {
+        this.groupIdPrefix = groupIdPrefix;
+    }
+
+    public String getKafkaGroupId() {
+        return kafkaGroupId;
+    }
+
+    public void setKafkaGroupId(String kafkaGroupId) {
+        this.kafkaGroupId = kafkaGroupId;
+    }
+
+    public boolean isIncludeHeaders() {
+        return includeHeaders;
+    }
+
+    public void setIncludeHeaders(boolean includeHeaders) {
+        this.includeHeaders = includeHeaders;
+    }
+
+    public String getStartingOffsetsByTimestampStrategy() {
+        return startingOffsetsByTimestampStrategy;
+    }
+
+    public void setStartingOffsetsByTimestampStrategy(String startingOffsetsByTimestampStrategy) {
+        this.startingOffsetsByTimestampStrategy = startingOffsetsByTimestampStrategy;
+    }
+
+    public String[] getColumns() {
+        return columns;
+    }
+
+    public void setColumns(String[] columns) {
+        this.columns = columns;
     }
 }

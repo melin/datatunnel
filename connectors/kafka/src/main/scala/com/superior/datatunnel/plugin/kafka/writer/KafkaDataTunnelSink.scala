@@ -22,6 +22,7 @@ class KafkaDataTunnelSink extends DataTunnelSink {
 
     options.put("key.serializer", classOf[StringSerializer].getName)
     options.put("value.serializer", classOf[StringSerializer].getName)
+    options.put("bootstrap.servers", sinkOption.getServers)
 
     val map = options.asScala.filter{ case (key, _) => !key.startsWith("__") && key != "topic" }
     val config = collection.immutable.Map(map.toSeq: _*)

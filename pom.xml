@@ -47,7 +47,7 @@
         <bee.version>1.6.1</bee.version>
         <hudi.version>0.13.1</hudi.version>
         <jackson.version>2.15.2</jackson.version>
-        <kafka.version>3.4.0</kafka.version>
+        <kafka.version>3.4.1</kafka.version>
         <jedis.version>4.3.2</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
 

@@ -33,6 +33,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql-kafka-0-10_${scala.bin.version}</artifactId>
+            <version>${spark.version}</version>
+            <scope>${libScope}</scope>
+        </dependency>
+
+        <dependency>
             <artifactId>datatunnel-common</artifactId>
             <groupId>com.superior.datatunnel</groupId>
             <version>${project.version}</version>

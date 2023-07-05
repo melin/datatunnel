@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.kafka.reader
 
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
+import com.superior.datatunnel.common.enums.WriteMode
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
 import com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSinkOption
@@ -28,92 +29,118 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
   override def read(context: DataTunnelContext): Dataset[Row] = {
     val sparkSession = context.getSparkSession
     val tmpTable = "tdl_datatunnel_kafka_" + System.currentTimeMillis()
-    KafkaSupport.createStreamTempTable(tmpTable, context.getSourceOption.getParams)
+    val sourceOption = context.getSourceOption.asInstanceOf[KafkaDataTunnelSourceOption];
+    KafkaSupport.createStreamTempTable(tmpTable, sourceOption)
 
     val sinkType = context.getSinkOption.getDataSourceType
     if (DataSourceType.HIVE == sinkType) {
-      val hiveSinkOption = context.getSinkOption.asInstanceOf[HiveDataTunnelSinkOption]
-      val sinkDatabaseName = hiveSinkOption.getDatabaseName
-      val sinkTableName = hiveSinkOption.getTableName
-
-      if (!HudiUtils.isHudiTable(sinkTableName, sinkDatabaseName)) {
-        throw new DataTunnelException(s"${sinkDatabaseName}.${sinkTableName} 不是hudi类型表")
-      }
-      val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
-        "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
-      HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, querySql)
+      writeHive(context, tmpTable)
     } else if (DataSourceType.isJdbcDataSource(sinkType)) {
-      var connection: Connection = null
-      try {
-        val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
-          "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
-
-        var dataset = context.getSparkSession.sql(querySql)
-        val tdlName = "tdl_datatunnel_" + System.currentTimeMillis
-        dataset.createTempView(tdlName)
-
-        val jdbcSinkOption = context.getSinkOption.asInstanceOf[JdbcDataTunnelSinkOption]
-        val sinkDatabaseName = jdbcSinkOption.getDatabaseName
-        val sinkTableName = jdbcSinkOption.getTableName
-        val table = sinkDatabaseName + "." + sinkTableName
-
-        val url = JdbcUtils.buildJdbcUrl(jdbcSinkOption.getDataSourceType, jdbcSinkOption.getHost,
-          jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName, jdbcSinkOption.getSid, jdbcSinkOption.getServiceName)
-
-        var batchsize = jdbcSinkOption.getBatchsize
-        var queryTimeout = jdbcSinkOption.getQueryTimeout
-
-        val writeMode = jdbcSinkOption.getWriteMode
-        var mode = SaveMode.Append
-        if ("overwrite" == writeMode) mode = SaveMode.Overwrite
-
-        var truncate = jdbcSinkOption.isTruncate
-
-        val sql = CommonUtils.genOutputSql(dataset, jdbcSinkOption.getColumns, jdbcSinkOption.getTableName)
-        dataset = sparkSession.sql(sql)
-
-        val preSql = jdbcSinkOption.getPreSql
-        val postSql = jdbcSinkOption.getPostSql
-        if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
-          val options = jdbcSinkOption.getParams
-          options.put("user", jdbcSinkOption.getUsername)
-          connection = buildConnection(url, table, options)
-        }
-
-        if (StringUtils.isNotBlank(preSql)) {
-          logInfo("exec preSql: " + preSql)
-          JdbcUtils.execute(connection, preSql)
-        }
-
-        val checkpointLocation = s"/user/superior/stream_checkpoint/$sinkDatabaseName.db/$sinkTableName"
-        mkCheckpointDir(sparkSession, checkpointLocation)
-        val query = dataset.writeStream
-          .trigger(Trigger.ProcessingTime(1.seconds))
-          .outputMode(OutputMode.Update)
-          .option("checkpointLocation", "")
-          .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
-            batchDF.write
-              .format("jdbc")
-              .mode(mode)
-              .option("url", url)
-              .option("dbtable", table)
-              .option("batchsize", batchsize)
-              .option("queryTimeout", queryTimeout)
-              .option("truncate", truncate)
-              .option("user", jdbcSinkOption.getUsername)
-              .option("password", jdbcSinkOption.getPassword)
-              .save
-          }.start()
-
-        query.awaitTermination()
-      } finally {
-        JdbcUtils.close(connection)
-      }
+      writeJdbc(context, tmpTable)
+    } else if (DataSourceType.LOG == sinkType) {
+      writeLog(sparkSession, tmpTable)
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
 
     null
+  }
+
+  private def writeLog(sparkSession: SparkSession, tmpTable: String): Unit = {
+    val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
+      "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
+
+    val dataset = sparkSession.sql(querySql)
+
+    val query = dataset.writeStream
+      .outputMode("append")
+      .format("console")
+      .start()
+    query.awaitTermination()
+  }
+
+  private def writeHive(context: DataTunnelContext, tmpTable: String): Unit = {
+    val sparkSession = context.getSparkSession
+    val hiveSinkOption = context.getSinkOption.asInstanceOf[HiveDataTunnelSinkOption]
+    val sinkDatabaseName = hiveSinkOption.getDatabaseName
+    val sinkTableName = hiveSinkOption.getTableName
+
+    if (!HudiUtils.isHudiTable(sinkTableName, sinkDatabaseName)) {
+      throw new DataTunnelException(s"${sinkDatabaseName}.${sinkTableName} 不是hudi类型表")
+    }
+    val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
+      "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
+    HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, querySql)
+  }
+
+  def writeJdbc(context: DataTunnelContext, tmpTable: String): Unit = {
+    val sparkSession = context.getSparkSession
+    var connection: Connection = null
+    try {
+      val querySql = "select if(kafka_key is not null, kafka_key, cast(kafka_timestamp as string)) as id, " +
+        "message, kafka_timestamp, date_format(timestamp, 'yyyyMMddHH') ds, kafka_topic from " + tmpTable
+
+      var dataset = sparkSession.sql(querySql)
+      val tdlName = "tdl_datatunnel_" + System.currentTimeMillis
+      dataset.createTempView(tdlName)
+
+      val jdbcSinkOption = context.getSinkOption.asInstanceOf[JdbcDataTunnelSinkOption]
+      val sinkDatabaseName = jdbcSinkOption.getDatabaseName
+      val sinkTableName = jdbcSinkOption.getTableName
+      val table = sinkDatabaseName + "." + sinkTableName
+
+      val url = JdbcUtils.buildJdbcUrl(jdbcSinkOption.getDataSourceType, jdbcSinkOption.getHost,
+        jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName, jdbcSinkOption.getSid, jdbcSinkOption.getServiceName)
+
+      val batchsize = jdbcSinkOption.getBatchsize
+      val queryTimeout = jdbcSinkOption.getQueryTimeout
+
+      val writeMode = jdbcSinkOption.getWriteMode
+      var mode = SaveMode.Append
+      if (WriteMode.OVERWRITE == writeMode) mode = SaveMode.Overwrite
+
+      val truncate = jdbcSinkOption.isTruncate
+
+      val sql = CommonUtils.genOutputSql(dataset, jdbcSinkOption.getColumns, jdbcSinkOption.getTableName)
+      dataset = sparkSession.sql(sql)
+
+      val preSql = jdbcSinkOption.getPreSql
+      val postSql = jdbcSinkOption.getPostSql
+      if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
+        val options = jdbcSinkOption.getParams
+        options.put("user", jdbcSinkOption.getUsername)
+        connection = buildConnection(url, table, options)
+      }
+
+      if (StringUtils.isNotBlank(preSql)) {
+        logInfo("exec preSql: " + preSql)
+        JdbcUtils.execute(connection, preSql)
+      }
+
+      val checkpointLocation = s"/user/superior/stream_checkpoint/$sinkDatabaseName.db/$sinkTableName"
+      mkCheckpointDir(sparkSession, checkpointLocation)
+      val query = dataset.writeStream
+        .trigger(Trigger.ProcessingTime(1.seconds))
+        .outputMode(OutputMode.Update)
+        .option("checkpointLocation", "")
+        .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
+          batchDF.write
+            .format("jdbc")
+            .mode(mode)
+            .option("url", url)
+            .option("dbtable", table)
+            .option("batchsize", batchsize)
+            .option("queryTimeout", queryTimeout)
+            .option("truncate", truncate)
+            .option("user", jdbcSinkOption.getUsername)
+            .option("password", jdbcSinkOption.getPassword)
+            .save
+        }.start()
+
+      query.awaitTermination()
+    } finally {
+      JdbcUtils.close(connection)
+    }
   }
 
   override def getOptionClass: Class[_ <: DataTunnelSourceOption] = classOf[KafkaDataTunnelSourceOption]
