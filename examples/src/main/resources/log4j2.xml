@@ -4,6 +4,18 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
                     pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
+
+            <ScriptFilter onMatch="DENY" onMisMatch="NEUTRAL">
+                <Script name="TimerLogFilter" language="javascript">
+                    <![CDATA[
+                    if (logEvent.getMessage().getFormattedMessage().contains("Streaming query made progress")){
+                        true
+                    } else{
+                        false
+                    }
+                 ]]>
+                </Script>
+            </ScriptFilter>
         </Console>
     </Appenders>
 

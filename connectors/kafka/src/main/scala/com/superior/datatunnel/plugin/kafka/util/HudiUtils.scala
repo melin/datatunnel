@@ -100,7 +100,9 @@ object HudiUtils extends Logging{
       .option(DataSourceWriteOptions.HIVE_PARTITION_FIELDS.key, PARTITION_COL_NAME)
       .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS.key, classOf[MultiPartKeysValueExtractor].getCanonicalName)
 
-    writer.trigger(Trigger.ProcessingTime(100)).start(catalogTable.location.toString).awaitTermination()
+    writer.trigger(Trigger.ProcessingTime(100))
+      .start(catalogTable.location.toString)
+      .awaitTermination()
   }
 
   private def mkCheckpointDir(sparkSession: SparkSession, path: String): Unit = {

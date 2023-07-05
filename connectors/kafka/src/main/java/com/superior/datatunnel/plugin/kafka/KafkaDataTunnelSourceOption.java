@@ -38,7 +38,7 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
     private String startingOffsetsByTimestampStrategy = "error";
 
-    @ParamKey("format=json，生效")
+    @ParamKey("format=json，生效, 如果数组为空，不解析json")
     private String[] columns = new String[]{"*"};
 
     public String getFormat() {
