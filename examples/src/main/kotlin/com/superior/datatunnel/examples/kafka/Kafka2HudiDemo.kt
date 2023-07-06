@@ -15,6 +15,7 @@ object Kafka2HudiDemo {
             .master("local")
             .enableHiveSupport()
             .appName("Datatunnel spark example")
+            .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
             .config("spark.sql.extensions", DataTunnelExtensions::class.java.name
                     + "," + HoodieSparkSessionExtension::class.java.name)
             .getOrCreate()
@@ -40,5 +41,22 @@ object Kafka2HudiDemo {
         """.trimIndent()
 
         spark.sql(sql)
+
+        // 测试create table
+        """
+            CREATE TABLE bigdata.hudi_orders_mor (
+                id String, 
+                message String, 
+                kafka_timestamp bigint,
+                ds string)
+            using hudi
+            partitioned by (ds) 
+            tblproperties (
+              type = 'mor',
+              primaryKey = 'id',
+              preCombineField = 'kafka_timestamp'
+             )
+            lifeCycle 300
+        """.trimIndent()
     }
 }
