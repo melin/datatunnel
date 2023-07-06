@@ -12,7 +12,7 @@
     <artifactId>examples</artifactId>
 
     <properties>
-        <kotlin.version>1.8.21</kotlin.version>
+        <kotlin.version>1.9.0</kotlin.version>
     </properties>
 
     <dependencies>
@@ -69,6 +69,10 @@
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-kafka</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hudi</groupId>
+            <artifactId>hudi-spark3.3-bundle_2.12</artifactId>
         </dependency>
 
         <dependency>

@@ -91,8 +91,7 @@ object KafkaSupport {
       .options(options).load
 
     if (sourceOption.isIncludeHeaders) {
-      lines.selectExpr("CAST(key AS STRING) as kafka_key", "CAST(value AS STRING) as message",
-        "topic as kafka_topic", "timestamp", "unix_millis(timestamp) as kafka_timestamp")
+      lines.selectExpr("key", "value", "topic", "timestamp", "timestampType", "partition", "offset")
     } else {
       lines.selectExpr("CAST(value AS STRING) as message")
     }

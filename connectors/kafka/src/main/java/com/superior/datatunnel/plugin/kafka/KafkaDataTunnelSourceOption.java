@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.kafka;
 
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseSourceOption;
+import com.superior.datatunnel.common.annotation.OptionDesc;
 
 import javax.validation.constraints.NotBlank;
 
@@ -38,7 +39,11 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
     private String startingOffsetsByTimestampStrategy = "error";
 
-    @ParamKey("format=json，生效, 如果数组为空，不解析json")
+    @NotBlank(message = "checkpointLocation can not blank")
+    @OptionDesc("checkpoint 存储位置")
+    private String checkpointLocation;
+
+    @OptionDesc("format=json，生效, 如果数组为空，不解析json")
     private String[] columns = new String[]{"*"};
 
     public String getFormat() {
@@ -143,6 +148,14 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
     public void setStartingOffsetsByTimestampStrategy(String startingOffsetsByTimestampStrategy) {
         this.startingOffsetsByTimestampStrategy = startingOffsetsByTimestampStrategy;
+    }
+
+    public String getCheckpointLocation() {
+        return checkpointLocation;
+    }
+
+    public void setCheckpointLocation(String checkpointLocation) {
+        this.checkpointLocation = checkpointLocation;
     }
 
     public String[] getColumns() {

@@ -66,6 +66,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     val context = new DataTunnelContext
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
+    context.setTransfromSql(transfromSql)
 
     if (sourceOption.getCteSql != null) {
       if (sourceConnector.supportCte()) {
@@ -84,8 +85,10 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       && StringUtils.isNotBlank(transfromSql)) {
       throw new IllegalArgumentException("transfrom 存在，source 必须指定 resultTableName")
     } else if (StringUtils.isNotBlank(transfromSql)) {
-      df.createTempView(sourceOption.getResultTableName)
-      df = sparkSession.sql(transfromSql)
+      if (KAFKA != sourceType) {
+        df.createTempView(sourceOption.getResultTableName)
+        df = sparkSession.sql(transfromSql)
+      }
     }
 
     if (KAFKA != sourceType) {

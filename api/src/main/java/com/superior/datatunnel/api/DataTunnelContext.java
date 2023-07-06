@@ -12,5 +12,7 @@ public class DataTunnelContext {
 
     private DataTunnelSinkOption sinkOption;
 
+    private String transfromSql;
+
     private SparkSession sparkSession = SparkSession.active();
 }

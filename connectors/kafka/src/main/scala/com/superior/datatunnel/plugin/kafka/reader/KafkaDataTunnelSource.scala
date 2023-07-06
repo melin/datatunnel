@@ -27,9 +27,8 @@ import scala.collection.JavaConverters._
 class KafkaDataTunnelSource extends DataTunnelSource with Logging {
 
   override def read(context: DataTunnelContext): Dataset[Row] = {
-    val sparkSession = context.getSparkSession
     val tmpTable = "tdl_datatunnel_kafka_" + System.currentTimeMillis()
-    val sourceOption = context.getSourceOption.asInstanceOf[KafkaDataTunnelSourceOption];
+    val sourceOption = context.getSourceOption.asInstanceOf[KafkaDataTunnelSourceOption]
     KafkaSupport.createStreamTempTable(tmpTable, sourceOption)
 
     val sinkType = context.getSinkOption.getDataSourceType
@@ -38,7 +37,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     } else if (DataSourceType.isJdbcDataSource(sinkType)) {
       writeJdbc(context, sourceOption, tmpTable)
     } else if (DataSourceType.LOG == sinkType) {
-      writeLog(sparkSession, sourceOption, tmpTable)
+      writeLog(context, sourceOption, tmpTable)
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
@@ -46,10 +45,9 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     null
   }
 
-  private def writeLog(sparkSession: SparkSession, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
-    val querySql: String = buildQuerySql(tmpTable, sourceOption)
-
-    val dataset = sparkSession.sql(querySql)
+  private def writeLog(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    val dataset = context.getSparkSession.sql(querySql)
 
     val query = dataset.writeStream
       .outputMode("append")
@@ -63,19 +61,20 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     val hiveSinkOption = context.getSinkOption.asInstanceOf[HiveDataTunnelSinkOption]
     val sinkDatabaseName = hiveSinkOption.getDatabaseName
     val sinkTableName = hiveSinkOption.getTableName
+    val checkpointLocation = sourceOption.getCheckpointLocation
 
     if (!HudiUtils.isHudiTable(sinkTableName, sinkDatabaseName)) {
       throw new DataTunnelException(s"${sinkDatabaseName}.${sinkTableName} 不是hudi类型表")
     }
-    val querySql: String = buildQuerySql(tmpTable, sourceOption)
-    HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, querySql)
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, checkpointLocation, querySql)
   }
 
   def writeJdbc(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
     val sparkSession = context.getSparkSession
     var connection: Connection = null
     try {
-      val querySql: String = buildQuerySql(tmpTable, sourceOption)
+      val querySql = buildQuerySql(context, sourceOption, tmpTable)
 
       var dataset = sparkSession.sql(querySql)
       val tdlName = "tdl_datatunnel_" + System.currentTimeMillis
@@ -140,11 +139,16 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     }
   }
 
-  private def buildQuerySql(tmpTable: String, sourceOption: KafkaDataTunnelSourceOption): String = {
-    if (sourceOption.isIncludeHeaders) {
-      "select kafka_key, message, kafka_timestamp, kafka_topic from " + tmpTable
+  private def buildQuerySql(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): String = {
+    val sql = "select * from " + tmpTable
+
+    val transfromSql = context.getTransfromSql
+    if (StringUtils.isNotBlank(transfromSql)) {
+      val df = context.getSparkSession.sql(sql)
+      df.createTempView(sourceOption.getResultTableName)
+      transfromSql
     } else {
-      "select message from " + tmpTable
+      sql
     }
   }
 
