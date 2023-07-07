@@ -19,8 +19,9 @@ object Kafka2LogDemo {
 
         val sql = """
             DATATUNNEL SOURCE("kafka") OPTIONS (
-                subscribe = "orders",
-                "kafka.bootstrap.servers" = "3.208.89.140:9092"
+                subscribe = "orders_dwd",
+                "kafka.bootstrap.servers" = "3.208.89.140:9092",
+                startingOffsets="earliest"
             ) 
             SINK("log")
         """.trimIndent()

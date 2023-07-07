@@ -34,7 +34,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
     val sinkType = DataSourceType.valueOf(sinkName.toUpperCase)
 
-    if (KAFKA == sourceType && !(HIVE == sinkType || LOG == sinkType || DataSourceType.isJdbcDataSource(sinkType))) {
+    if (KAFKA == sourceType && !(HIVE == sinkType || LOG == sinkType || KAFKA == sinkType
+      || DataSourceType.isJdbcDataSource(sinkType))) {
       throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 

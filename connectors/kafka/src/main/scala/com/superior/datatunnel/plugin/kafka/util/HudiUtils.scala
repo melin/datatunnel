@@ -110,8 +110,7 @@ object HudiUtils extends Logging{
       .option(HoodieSyncConfig.META_SYNC_PARTITION_FIELDS.key, PARTITION_COL_NAME)
       .option(HoodieSyncConfig.META_SYNC_PARTITION_EXTRACTOR_CLASS.key, classOf[MultiPartKeysValueExtractor].getCanonicalName)
 
-    writer.trigger(Trigger.ProcessingTime(100))
-      .start(catalogTable.location.toString)
+    writer.start(catalogTable.location.toString)
       .awaitTermination()
   }
 

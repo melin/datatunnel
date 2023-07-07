@@ -20,7 +20,7 @@
     </Appenders>
 
     <Loggers>
-        <logger name="org.apache.kafka.clients.consumer.internals" level="warn" />
+        <logger name="org.apache.kafka.clients" level="warn" />
         <!-- LOG everything at INFO level -->
         <Root level="INFO">
             <AppenderRef ref="Console" />

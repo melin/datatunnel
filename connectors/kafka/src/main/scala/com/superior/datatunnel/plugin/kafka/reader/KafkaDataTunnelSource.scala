@@ -6,7 +6,7 @@ import com.superior.datatunnel.common.enums.WriteMode
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
 import com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSinkOption
-import com.superior.datatunnel.plugin.kafka.KafkaDataTunnelSourceOption
+import com.superior.datatunnel.plugin.kafka.{KafkaDataTunnelSinkOption, KafkaDataTunnelSourceOption}
 import com.superior.datatunnel.plugin.kafka.util.HudiUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -38,6 +38,8 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       writeJdbc(context, sourceOption, tmpTable)
     } else if (DataSourceType.LOG == sinkType) {
       writeLog(context, sourceOption, tmpTable)
+    } else if (DataSourceType.KAFKA == sinkType) {
+      writeKafka(context, sourceOption, tmpTable)
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
@@ -52,6 +54,20 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     val query = dataset.writeStream
       .outputMode("append")
       .format("console")
+      .start()
+    query.awaitTermination()
+  }
+
+  private def writeKafka(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    val dataset = context.getSparkSession.sql(querySql)
+    val kafkaSinkOption = context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
+
+    val query = dataset.writeStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", kafkaSinkOption.getServers)
+      .option("topic", kafkaSinkOption.getTopic)
+      .option("checkpointLocation", kafkaSinkOption.getCheckpointLocation)
       .start()
     query.awaitTermination()
   }

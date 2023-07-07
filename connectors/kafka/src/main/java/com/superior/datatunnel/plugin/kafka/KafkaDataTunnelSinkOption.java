@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.kafka;
 
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseSinkOption;
+import com.superior.datatunnel.common.annotation.OptionDesc;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -15,6 +16,10 @@ public class KafkaDataTunnelSinkOption extends BaseSinkOption {
     @ParamKey("kafka.bootstrap.servers")
     @NotBlank(message = "kafka.bootstrap.servers can not blank")
     private String servers;
+
+    @NotBlank(message = "checkpointLocation can not blank")
+    @OptionDesc("checkpoint 存储位置")
+    private String checkpointLocation;
 
     public String getTopic() {
         return topic;
@@ -30,5 +35,13 @@ public class KafkaDataTunnelSinkOption extends BaseSinkOption {
 
     public void setServers(String servers) {
         this.servers = servers;
+    }
+
+    public String getCheckpointLocation() {
+        return checkpointLocation;
+    }
+
+    public void setCheckpointLocation(String checkpointLocation) {
+        this.checkpointLocation = checkpointLocation;
     }
 }

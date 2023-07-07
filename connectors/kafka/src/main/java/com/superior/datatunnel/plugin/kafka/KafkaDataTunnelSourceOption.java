@@ -24,6 +24,7 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
     private boolean failOnDataLoss = false;
 
     @NotBlank(message = "startingOffsets")
+    @NotBlank(message = "可选值：earliest, latest")
     private String startingOffsets = "latest";
 
     private String maxTriggerDelay = "15";
@@ -39,7 +40,6 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
     private String startingOffsetsByTimestampStrategy = "error";
 
-    @NotBlank(message = "checkpointLocation can not blank")
     @OptionDesc("checkpoint 存储位置")
     private String checkpointLocation;
 
