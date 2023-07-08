@@ -46,7 +46,7 @@ public class StarrocksDataTunnelSink implements DataTunnelSink {
             dataFrameWriter.option("starrocks.write.properties." + key, value);
         });
 
-        dataFrameWriter.mode( SaveMode.Append);
+        dataFrameWriter.mode(SaveMode.Append);
         dataFrameWriter.save();
     }
 

@@ -40,7 +40,7 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
                 .option("starrocks.exec.mem.limit", sourceOption.getMemLimit())
                 .option("starrocks.deserialize.arrow.async", sourceOption.isArrowAsync())
                 .option("starrocks.deserialize.queue.size", sourceOption.getDeserializeQueueSize())
-                .option("starrocks.filter.query.in.max.count", sourceOption.getFilterQueryInMaxCount());;
+                .option("starrocks.filter.query.in.max.count", sourceOption.getFilterQueryInMaxCount());
 
         if (StringUtils.isNotBlank(sourceOption.getFilterQuery())) {
             reader.option("starrocks.filter.query", sourceOption.getFilterQuery());

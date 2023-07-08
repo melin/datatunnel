@@ -15,6 +15,14 @@ mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.
 mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Phadoop2
 ```
 
+### 构建AWS EMR镜像
+```
+docker buildx build --platform linux/amd64 -t emr6.9-serverless-spark .
+docker tag emr6.9-serverless-spark:latest public.ecr.aws/w6m0k7l2/emr6.9-serverless-spark:latest
+docker push public.ecr.aws/w6m0k7l2/emr6.9-serverless-spark:latest
+```
+
+
 ## 部署
 
 解压 assembly/target/ 目录下生成可用包 datatunnel-[version].tar.gz。复制所有jar 到 spark_home/jars 
