@@ -17,4 +17,7 @@ public interface DataTunnelSink extends Serializable {
     void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException;
 
     Class<? extends DataTunnelSinkOption> getOptionClass();
+
+    default void createTable(Dataset<Row> dataset, DataTunnelContext context) {
+    }
 }

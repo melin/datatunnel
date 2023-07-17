@@ -44,7 +44,7 @@
         <spotbugs.version>4.7.3</spotbugs.version>
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.17.2</log4j.version> <!-- spark 中版本一致 -->
-        <bee.version>1.6.1</bee.version>
+        <bee.version>1.6.2</bee.version>
         <hudi.version>0.13.1</hudi.version>
         <jackson.version>2.15.2</jackson.version>
         <kafka.version>3.4.1</kafka.version>

@@ -6,11 +6,22 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.CommonUtils;
+import com.superior.datatunnel.common.util.HttpClientUtils;
+import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalyst.util.CharVarcharUtils;
+import org.apache.spark.sql.types.StructType;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.superior.datatunnel.common.enums.WriteMode.APPEND;
 import static com.superior.datatunnel.common.enums.WriteMode.OVERWRITE;
@@ -65,6 +76,60 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             context.getSparkSession().sql(sql);
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void createTable(Dataset<Row> dataset, DataTunnelContext context) {
+        HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
+        boolean tableExists = context.getSparkSession().catalog()
+                .tableExists(sinkOption.getDatabaseName(), sinkOption.getTableName());
+        if (tableExists) {
+            return;
+        }
+
+        StructType structType = dataset.schema();
+        String colums = Arrays.stream(structType.fields()).map(field -> {
+            String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
+                    .getOrElse(() -> field.dataType().catalogString());
+
+            return field.name() + " " + typeString + " " + field.getComment().getOrElse(() -> "");
+        }).collect(Collectors.joining(",\n"));
+
+        String sql = "create table " + sinkOption.getFullTableName() + "(\n";
+        sql += colums;
+        sql += "\n)\n";
+        sql += "USING " + sinkOption.getFormat();
+
+        String partitonColumn = sinkOption.getPartitionColumn();
+        if (StringUtils.isNotBlank(partitonColumn)) {
+            sql += "\nPARTITIONED BY (" + partitonColumn + " string)";
+        }
+        context.getSparkSession().sql(sql);
+
+        LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
+        syncTableMeta(sinkOption.getDatabaseName(), sinkOption.getTableName());
+    }
+
+    private void syncTableMeta(String databaseName, String tableName) {
+        SparkSession sparkSession = SparkSession.active();
+        String superiorUrl = sparkSession.conf().get("spark.jobserver.superior.url", null);
+        String appKey = sparkSession.conf().get("spark.jobserver.superior.appKey", null);
+        String appSecret = sparkSession.conf().get("spark.jobserver.superior.appSecret", null);
+        String tenantId = sparkSession.conf().get("spark.jobserver.superior.tenantId", null);
+        if (StringUtils.isNotBlank(superiorUrl) && appKey != null && appSecret != null) {
+            superiorUrl += "/innerApi/v1/importHiveTable";
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("tenantId", tenantId));
+            params.add(new BasicNameValuePair("databaseName", databaseName));
+            params.add(new BasicNameValuePair("tableName", tableName));
+            params.add(new BasicNameValuePair("appKey", appKey));
+            params.add(new BasicNameValuePair("appSecret", appSecret));
+
+            HttpClientUtils.postRequet(superiorUrl, params);
+        } else {
+            LogUtils.warn("请求同步失败: superiorUrl: {}, appKey: {}, appSecret: {}",
+                    superiorUrl, appKey, appSecret);
         }
     }
 
