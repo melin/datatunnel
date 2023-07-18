@@ -110,7 +110,6 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             sql += "\nPARTITIONED BY (" + partitonColumn + " string)";
         }
 
-        LogUtils.info("create table sql:\n {}", sql);
         context.getSparkSession().sql(sql);
 
         LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());

@@ -1,11 +1,14 @@
 package com.superior.datatunnel.core
 
+import com.google.common.collect.Maps
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.{SparkListener, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions
 
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.ConcurrentMap
+
+import scala.collection.JavaConverters._
 
 /**
  * huaixin 2021/12/27 2:47 PM
@@ -18,10 +21,10 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
         override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
           val metrics = taskEnd.taskMetrics
           if (metrics.inputMetrics != None) {
-            DataTunnelMetrics.inputRecords.addAndGet(metrics.inputMetrics.recordsRead)
+            DataTunnelMetrics.inputTaskRecords.put(taskEnd.taskInfo.taskId, metrics.inputMetrics.recordsRead)
           }
           if (metrics.outputMetrics != None) {
-            DataTunnelMetrics.outputRecords.addAndGet(metrics.outputMetrics.recordsWritten)
+            DataTunnelMetrics.outputTaskRecords.put(taskEnd.taskInfo.taskId, metrics.outputMetrics.recordsWritten)
           }
 
           if (DataTunnelMetrics.logEnabled) {
@@ -42,11 +45,19 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
 object DataTunnelMetrics {
   var logEnabled = false;
 
-  val inputRecords = new AtomicLong(0)
-  val outputRecords = new AtomicLong(0)
+  val inputTaskRecords: ConcurrentMap[Long, Long] = Maps.newConcurrentMap()
+  val outputTaskRecords: ConcurrentMap[Long, Long] = Maps.newConcurrentMap()
+
+  def inputRecords(): Long = {
+    inputTaskRecords.keySet().asScala.sum
+  }
+
+  def outputRecords(): Long = {
+    outputTaskRecords.keySet().asScala.sum
+  }
 
   def resetMetrics(): Unit = {
-    inputRecords.set(0)
-    outputRecords.set(0)
+    inputTaskRecords.clear()
+    outputTaskRecords.clear()
   }
 }
