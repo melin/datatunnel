@@ -16,6 +16,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.catalyst.util.CharVarcharUtils;
 import org.apache.spark.sql.types.StructType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ import static com.superior.datatunnel.common.enums.WriteMode.OVERWRITE;
  * @author melin 2021/7/27 11:06 上午
  */
 public class HiveDataTunnelSink implements DataTunnelSink {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HiveDataTunnelSink.class);
 
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
@@ -105,6 +109,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         if (StringUtils.isNotBlank(partitonColumn)) {
             sql += "\nPARTITIONED BY (" + partitonColumn + " string)";
         }
+
+        LogUtils.info("create table sql:\n {}", sql);
         context.getSparkSession().sql(sql);
 
         LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
@@ -128,6 +134,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             HttpClientUtils.postRequet(superiorUrl, params);
         } else {
+            LOG.warn("请求同步失败: superiorUrl: {}, appKey: {}, appSecret: {}",
+                    superiorUrl, appKey, appSecret);
             LogUtils.warn("请求同步失败: superiorUrl: {}, appKey: {}, appSecret: {}",
                     superiorUrl, appKey, appSecret);
         }
