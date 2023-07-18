@@ -32,8 +32,8 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
               s"write records: ${DataTunnelMetrics.outputRecords}")
 
             LogUtils.info("datatunnel read records: {}, write records: {}",
-              DataTunnelMetrics.inputRecords,
-              DataTunnelMetrics.outputRecords)
+              DataTunnelMetrics.inputRecords(),
+              DataTunnelMetrics.outputRecords())
           }
         }
       })
