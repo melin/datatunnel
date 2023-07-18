@@ -7,7 +7,6 @@ import org.apache.spark.scheduler.{SparkListener, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions
 
 import java.util.concurrent.ConcurrentMap
-
 import scala.collection.JavaConverters._
 
 /**
@@ -28,12 +27,19 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
           }
 
           if (DataTunnelMetrics.logEnabled) {
-            logInfo(s"datatunnel read records: ${DataTunnelMetrics.inputRecords}," +
-              s"write records: ${DataTunnelMetrics.outputRecords}")
+            val inputRecords: Long = DataTunnelMetrics.inputRecords()
+            val outputRecords: Long = DataTunnelMetrics.outputRecords()
 
-            LogUtils.info("datatunnel read records: {}, write records: {}",
-              DataTunnelMetrics.inputRecords(),
-              DataTunnelMetrics.outputRecords())
+            var msg = "datatunnel"
+            if (inputRecords > 0) {
+              msg += s" read records: ${inputRecords}."
+            }
+            if (outputRecords > 0) {
+              msg += s" write records: ${outputRecords}."
+            }
+
+            logInfo(msg)
+            LogUtils.info(msg)
           }
         }
       })
@@ -49,11 +55,11 @@ object DataTunnelMetrics {
   val outputTaskRecords: ConcurrentMap[Long, Long] = Maps.newConcurrentMap()
 
   def inputRecords(): Long = {
-    inputTaskRecords.keySet().asScala.sum
+    inputTaskRecords.values().asScala.sum
   }
 
   def outputRecords(): Long = {
-    outputTaskRecords.keySet().asScala.sum
+    outputTaskRecords.values().asScala.sum
   }
 
   def resetMetrics(): Unit = {
