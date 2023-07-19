@@ -19,10 +19,14 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
       session.sparkContext.addSparkListener(new SparkListener() {
         override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
           val metrics = taskEnd.taskMetrics
-          if (metrics.inputMetrics != None) {
+          if (metrics == null) {
+            return
+          }
+
+          if (metrics.inputMetrics != null) {
             DataTunnelMetrics.inputTaskRecords.put(taskEnd.taskInfo.taskId, metrics.inputMetrics.recordsRead)
           }
-          if (metrics.outputMetrics != None) {
+          if (metrics.outputMetrics != null) {
             DataTunnelMetrics.outputTaskRecords.put(taskEnd.taskInfo.taskId, metrics.outputMetrics.recordsWritten)
           }
 
