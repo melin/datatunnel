@@ -182,6 +182,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
     private JDBCOptions buildJDBCOptions(String url, String dbtable, JdbcDataTunnelSourceOption sourceOption) {
         Map<String, String> params = sourceOption.getParams();
+        params.remove("partitionColumn");
+        params.remove("lowerBound");
+        params.remove("upperBound");
+        params.remove("numPartitions");
         params.put("user", sourceOption.getUsername());
         return new JDBCOptions(url, dbtable, JavaConverters.mapAsScalaMapConverter(params).asScala()
                         .toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
@@ -201,9 +205,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         PreparedStatement stmt = null;
         try {
             String partitionColumn = sourceOption.getPartitionColumn();
-            Integer numPartitions = sourceOption.getNumPartitions();
-            String lowerBound = sourceOption.getLowerBound();
-            String upperBound = sourceOption.getUpperBound();
 
             String sql;
             if (StringUtils.isNotBlank(partitionColumn)) {
@@ -223,8 +224,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             resultSet.next();
             long count = Long.parseLong(resultSet.getString("num"));
 
-            if ((StringUtils.isBlank(partitionColumn) || numPartitions == null)
-                    && count > 500000) {
+            if (StringUtils.isBlank(partitionColumn)) {
                 LOG.info("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
                 LogUtils.warn("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
             } else {
@@ -232,16 +232,32 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 LogUtils.info("table {} record count: {}", table, count);
             }
 
-            if (StringUtils.isNotBlank(partitionColumn) && StringUtils.isNotBlank(lowerBound)
-                    && StringUtils.isNotBlank(upperBound)) {
-
-                String maxValue = String.valueOf(resultSet.getObject("max_value"));
-                String minValue = String.valueOf(resultSet.getObject("min_value"));
-                LogUtils.info("table {} max value: {}, min value: {}", table, maxValue, minValue);
-                LogUtils.info("auto compute lowerBound: {}, upperBound: {}", lowerBound, upperBound);
-                sourceOption.setUpperBound(maxValue);
-                sourceOption.setLowerBound(minValue);
+            String lowerBound = sourceOption.getLowerBound();
+            String upperBound = sourceOption.getUpperBound();
+            if (StringUtils.isNotBlank(partitionColumn)) {
+                if (StringUtils.isBlank(lowerBound)) {
+                    String minValue = String.valueOf(resultSet.getObject("min_value"));
+                    LogUtils.info("table {} min value: {}", table, minValue);
+                    sourceOption.setLowerBound(minValue);
+                }
+                if (StringUtils.isBlank(upperBound)) {
+                    String maxValue = String.valueOf(resultSet.getObject("max_value"));
+                    LogUtils.info("table {} max value: {}", table, maxValue);
+                    sourceOption.setUpperBound(maxValue);
+                }
             }
+
+            Integer numPartitions = sourceOption.getNumPartitions();
+            if (numPartitions == null) {
+                numPartitions = (int) Math.ceil(count / 50000.0d);
+            }
+            if (numPartitions == 0) {
+                numPartitions = 1;
+            }
+
+            sourceOption.setNumPartitions(numPartitions);
+            LogUtils.info("lowerBound: {}, upperBound: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), numPartitions);
         } catch (SQLException e) {
             throw new DataTunnelException(e.getMessage(), e);
         } finally {
