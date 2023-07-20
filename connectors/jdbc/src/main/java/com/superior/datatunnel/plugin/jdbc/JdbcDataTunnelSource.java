@@ -9,6 +9,7 @@ import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import com.superior.datatunnel.plugin.jdbc.support.dialect.DatabaseDialect;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
@@ -234,17 +235,22 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 sql = sql + " where " + condition;
             }
 
+            StopWatch stopWatch = StopWatch.createStarted();
             stmt = conn.prepareStatement(sql);
             ResultSet resultSet = stmt.executeQuery();
             resultSet.next();
             long count = Long.parseLong(resultSet.getString("num"));
+            stopWatch.stop();
+            String execTimes = stopWatch.formatTime();
 
             if (StringUtils.isBlank(partitionColumn)) {
-                LOG.info("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
-                LogUtils.warn("table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n", table, count);
+                LOG.info("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
+                        execTimes, table, count);
+                LogUtils.warn("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
+                        execTimes, table, count);
             } else {
-                LOG.info("table {} record count: {}", table, count);
-                LogUtils.info("table {} record count: {}", table, count);
+                LOG.info("ExecTimes: {}, table {} record count: {}", execTimes, table, count);
+                LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, table, count);
             }
 
             if (StringUtils.isNotBlank(partitionColumn)) {
