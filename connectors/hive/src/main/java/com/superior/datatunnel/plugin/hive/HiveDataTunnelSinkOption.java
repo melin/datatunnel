@@ -37,6 +37,12 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "compression can not null")
     private Compression compression = Compression.ZSTD;
 
+    @OptionDesc("hudi 表属性，自动建表时必须指定")
+    private String primaryKey;
+
+    @OptionDesc("hudi 表属性，自动建表时必须指定")
+    private String preCombineField;
+
     public String getFullTableName() {
         return databaseName + "." + tableName;
     }

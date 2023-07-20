@@ -112,6 +112,13 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             return;
         }
 
+        if (FileFormat.HUDI == sinkOption.getFileFormat()) {
+            if (StringUtils.isBlank(sinkOption.getPrimaryKey())
+                    || StringUtils.isBlank(sinkOption.getPreCombineField())) {
+                throw new DataTunnelException("自动创建 hudi 表需要 primaryKey 和 preCombineField");
+            }
+        }
+
         StructType structType = dataset.schema();
         String colums = Arrays.stream(structType.fields()).map(field -> {
             String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
@@ -124,7 +131,12 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         sql += colums;
         sql += "\n)\n";
         sql += "USING " + sinkOption.getFileFormat().name().toLowerCase() + "\n";
-        sql += "TBLPROPERTIES (compression='" + sinkOption.getCompression().name().toLowerCase() + "')";
+        sql += "TBLPROPERTIES (compression='" + sinkOption.getCompression().name().toLowerCase() + "'";
+        if (FileFormat.HUDI == sinkOption.getFileFormat()) {
+            sql += ",\n    primaryKey='" + sinkOption.getPrimaryKey() + "'";
+            sql += ",\n    preCombineField='" + sinkOption.getPreCombineField() + "'";
+        }
+        sql += (")");
 
         String partitonColumn = sinkOption.getPartitionColumn();
         if (StringUtils.isNotBlank(partitonColumn)) {
