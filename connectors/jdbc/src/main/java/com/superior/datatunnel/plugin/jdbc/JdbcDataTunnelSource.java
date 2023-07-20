@@ -237,11 +237,13 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             if (StringUtils.isNotBlank(partitionColumn)) {
                 if (StringUtils.isBlank(lowerBound)) {
                     String minValue = String.valueOf(resultSet.getObject("min_value"));
+                    LOG.info("table {} min value: {}", table, minValue);
                     LogUtils.info("table {} min value: {}", table, minValue);
                     sourceOption.setLowerBound(minValue);
                 }
                 if (StringUtils.isBlank(upperBound)) {
                     String maxValue = String.valueOf(resultSet.getObject("max_value"));
+                    LOG.info("table {} max value: {}", table, maxValue);
                     LogUtils.info("table {} max value: {}", table, maxValue);
                     sourceOption.setUpperBound(maxValue);
                 }

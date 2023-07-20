@@ -20,8 +20,8 @@ object DataTunnelAwsMysql2LogDemo {
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
               username = "admin",
-              password = "cider123456!",
-              host = 'database-1.c8vfm34zprv8.us-east-1.rds.amazonaws.com',
+              password = "xx",
+              host = 'mysql.c8vfm34zprv8.us-east-1.rds.amazonaws.com',
               port = 3306,
               databaseName = 'wordpress',
               tableName = 'customer_address',
