@@ -25,10 +25,10 @@ public class MaxcomputeDataTunnelSource implements DataTunnelSource {
         MaxcomputeDataTunnelSourceOption sourceOption = (MaxcomputeDataTunnelSourceOption) context.getSourceOption();
 
         Dataset<Row> dataset = context.getSparkSession().read().format(ODPS_DATA_SOURCE)
-                .option("spark.hadoop.odps.project.name", sourceOption.getProjectName())
                 .option("spark.hadoop.odps.access.id", sourceOption.getAccessKeyId())
                 .option("spark.hadoop.odps.access.key", sourceOption.getSecretAccessKey())
                 .option("spark.hadoop.odps.end.point", sourceOption.getEndpoint())
+                .option("spark.hadoop.odps.project.name", sourceOption.getProjectName())
                 .option("spark.hadoop.odps.table.name", sourceOption.getTableName())
                 .load();
 

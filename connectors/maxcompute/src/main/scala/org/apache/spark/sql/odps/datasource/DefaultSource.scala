@@ -54,6 +54,7 @@ class DefaultSource extends TableProvider {
       val retOdps = new Odps(account)
       retOdps.setEndpoint(endpoint)
       retOdps.setDefaultProject(project)
+      retOdps.setUserAgent("DataTunnel");
       retOdps
     }
 
