@@ -4,10 +4,12 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.HttpClientUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -35,9 +37,19 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(HiveDataTunnelSink.class);
 
+    private static final FileFormat[] SUPPORT_FORMAT =
+            new FileFormat[] {FileFormat.ORC, FileFormat.PARQUET, FileFormat.HUDI};
+
+    private void validate(HiveDataTunnelSinkOption sinkOption) {
+        if (!ArrayUtils.contains(SUPPORT_FORMAT, sinkOption.getFileFormat())) {
+            throw new DataTunnelException("FileFormat 仅支持：orc、parquet、hudi");
+        }
+    }
+
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
+        validate(sinkOption);
 
         try {
             String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
@@ -77,6 +89,13 @@ public class HiveDataTunnelSink implements DataTunnelSink {
                 throw new DataTunnelException("不支持的写入模式：" + writeMode);
             }
 
+            if (FileFormat.ORC == sinkOption.getFileFormat()) {
+                context.getSparkSession().sql("set spark.sql.orc.compression.codec=" + sinkOption.getCompression());
+            } else if (FileFormat.PARQUET == sinkOption.getFileFormat()
+                    || FileFormat.HUDI == sinkOption.getFileFormat()) { //hudi 默认parquet 格式
+                context.getSparkSession().sql("set spark.sql.parquet.compression.codec=" + sinkOption.getCompression());
+            }
+
             context.getSparkSession().sql(sql);
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);
@@ -103,7 +122,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         String sql = "create table " + sinkOption.getFullTableName() + "(\n";
         sql += colums;
         sql += "\n)\n";
-        sql += "USING " + sinkOption.getFormat();
+        sql += "USING " + sinkOption.getFileFormat().name().toLowerCase() + "\n";
+        sql += "TBLPROPERTIES (compression='" + sinkOption.getCompression().name().toLowerCase() + "')";
 
         String partitonColumn = sinkOption.getPartitionColumn();
         if (StringUtils.isNotBlank(partitonColumn)) {

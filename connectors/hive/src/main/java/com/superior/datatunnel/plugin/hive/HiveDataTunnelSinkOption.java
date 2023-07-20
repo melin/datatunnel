@@ -2,11 +2,14 @@ package com.superior.datatunnel.plugin.hive;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
+import com.superior.datatunnel.common.enums.Compression;
+import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class HiveDataTunnelSinkOption extends BaseSinkOption {
@@ -26,8 +29,13 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("写入模式, 仅支持：append、overwrite，不支持 upsert")
     private WriteMode writeMode = WriteMode.OVERWRITE;
 
-    @OptionDesc("hive 表文件格式")
-    private String format = "parquet";
+    @OptionDesc("hive 表文件格式，仅支持：orc、parquet、hudi")
+    @NotBlank(message = "format can not blank")
+    private FileFormat fileFormat = FileFormat.PARQUET;
+
+    @OptionDesc("写入文件压缩算法, 仅支持：SNAPPY, ZLIB, LZO, ZSTD, LZ4")
+    @NotNull(message = "compression can not null")
+    private Compression compression = Compression.ZSTD;
 
     public String getFullTableName() {
         return databaseName + "." + tableName;
