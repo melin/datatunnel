@@ -74,17 +74,25 @@ public class HiveDataTunnelSink implements DataTunnelSink {
                 table = databaseName + "." + tableName;
             }
 
+            // 控制文件数量
+            String querySql = "";
+            if (sinkOption.getRebalance() != null && sinkOption.getRebalance() > 1) {
+                querySql = "select /*+ REBALANCE(" + sinkOption.getRebalance() + ") */ * from " + tdlName;
+            } else {
+                querySql = "select * from " + tdlName;
+            }
+
             if (APPEND == writeMode) {
                 if (isPartition) {
-                    sql = "insert into table " + table + " partition(" + partitionColumn + ") select * from " + tdlName;
+                    sql = "insert into table " + table + " partition(" + partitionColumn + ") " + querySql;
                 } else {
-                    sql = "insert into table " + table + " select * from " + tdlName;
+                    sql = "insert into table " + table + " " + querySql;
                 }
             } else if (OVERWRITE == writeMode) {
                 if (isPartition) {
-                    sql = "insert overwrite table " + table + " partition(" + partitionColumn + ") select * from " + tdlName;
+                    sql = "insert overwrite table " + table + " partition(" + partitionColumn + ") " + querySql;
                 } else {
-                    sql = "insert overwrite table " + table + " select * from " + tdlName;
+                    sql = "insert overwrite table " + table + " " + querySql;
                 }
             } else {
                 throw new DataTunnelException("不支持的写入模式：" + writeMode);

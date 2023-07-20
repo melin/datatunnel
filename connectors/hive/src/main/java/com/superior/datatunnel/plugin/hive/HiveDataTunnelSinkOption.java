@@ -43,6 +43,9 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("hudi 表属性，自动建表时必须指定")
     private String preCombineField;
 
+    @OptionDesc("主要控制输出文件数量。具体参考：https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html")
+    private Integer rebalance;
+
     public String getFullTableName() {
         return databaseName + "." + tableName;
     }
