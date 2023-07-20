@@ -205,6 +205,21 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         PreparedStatement stmt = null;
         try {
             String partitionColumn = sourceOption.getPartitionColumn();
+            String lowerBound = sourceOption.getLowerBound();
+            String upperBound = sourceOption.getUpperBound();
+            Integer numPartitions = sourceOption.getNumPartitions();
+
+            // 如果用户指定分区参数，不需要再统计，大表统计比较耗时
+            if (StringUtils.isNotBlank(partitionColumn)
+                    && StringUtils.isNotBlank(lowerBound)
+                    && StringUtils.isNotBlank(upperBound)) {
+
+                if (numPartitions == null) {
+                    throw new IllegalArgumentException("numPartitions can not null");
+                }
+
+                return;
+            }
 
             String sql;
             if (StringUtils.isNotBlank(partitionColumn)) {
@@ -232,8 +247,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 LogUtils.info("table {} record count: {}", table, count);
             }
 
-            String lowerBound = sourceOption.getLowerBound();
-            String upperBound = sourceOption.getUpperBound();
             if (StringUtils.isNotBlank(partitionColumn)) {
                 if (StringUtils.isBlank(lowerBound)) {
                     String minValue = String.valueOf(resultSet.getObject("min_value"));
@@ -249,7 +262,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 }
             }
 
-            Integer numPartitions = sourceOption.getNumPartitions();
             if (numPartitions == null) {
                 numPartitions = (int) Math.ceil(count / 50000.0d);
             }
