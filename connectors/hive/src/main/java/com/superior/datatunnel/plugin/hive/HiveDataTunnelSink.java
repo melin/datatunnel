@@ -38,11 +38,12 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     private static final Logger LOG = LoggerFactory.getLogger(HiveDataTunnelSink.class);
 
     private static final FileFormat[] SUPPORT_FORMAT =
-            new FileFormat[] {FileFormat.ORC, FileFormat.PARQUET, FileFormat.HUDI};
+            new FileFormat[] {FileFormat.ORC, FileFormat.PARQUET,
+                    FileFormat.HUDI, FileFormat.ICEBERG};
 
     private void validate(HiveDataTunnelSinkOption sinkOption) {
         if (!ArrayUtils.contains(SUPPORT_FORMAT, sinkOption.getFileFormat())) {
-            throw new DataTunnelException("FileFormat 仅支持：orc、parquet、hudi");
+            throw new DataTunnelException("FileFormat 仅支持：orc、parquet、hudi、iceberg");
         }
     }
 

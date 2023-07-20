@@ -29,7 +29,7 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("写入模式, 仅支持：append、overwrite，不支持 upsert")
     private WriteMode writeMode = WriteMode.OVERWRITE;
 
-    @OptionDesc("hive 表文件格式，仅支持：orc、parquet、hudi")
+    @OptionDesc("hive 表文件格式，仅支持：orc、parquet、hudi、iceberg")
     @NotBlank(message = "format can not blank")
     private FileFormat fileFormat = FileFormat.PARQUET;
 

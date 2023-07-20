@@ -6,6 +6,7 @@ public enum FileFormat {
     PARQUET,
     ORC,
     HUDI,
+    ICEBERG,
     AVRO,
     EXCEL,
     TEXT
