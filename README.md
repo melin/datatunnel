@@ -18,9 +18,9 @@ mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.
 ### 构建AWS EMR镜像
 ```
 docker logout public.ecr.aws
-docker buildx build --platform linux/amd64 -t emr6.11-serverless-spark .
-docker tag emr6.11-serverless-spark:latest 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.11-serverless-spark:latest
-docker push 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.11-serverless-spark:latest
+docker buildx build --platform linux/amd64 -t emr6.9-serverless-spark .
+docker tag emr6.9-serverless-spark:latest 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.9-serverless-spark:latest
+docker push 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.9-serverless-spark:latest
 ```
 
 

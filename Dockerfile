@@ -1,4 +1,4 @@
-FROM public.ecr.aws/emr-serverless/spark/emr-6.11.0:latest
+FROM public.ecr.aws/emr-serverless/spark/emr-6.9.0:latest
 
 USER root
 # MODIFICATIONS GO HERE

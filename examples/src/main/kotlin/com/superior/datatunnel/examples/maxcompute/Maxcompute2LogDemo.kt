@@ -21,24 +21,24 @@ object Maxcompute2LogDemo {
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
                 projectName = "aloudata",
                 tableName = "orders",
-                accessKeyId = '0rHycgWdKrPkIZpO',
-                secretAccessKey = 'eAQR7Y4nJTViOarwiDRLHVJl78qs8M',
+                accessKeyId = 'LTAI5tHbjxR138YK5rQPq8kh',
+                secretAccessKey = 'iW6U2iNbHSQPpIdYWYXSDcfGi5mPRM',
                 columns = ["*"]
             ) 
             SINK("log")
         """.trimIndent()
 
-        spark.sql(sql)
+        // spark.sql(sql)
 
         val sql1 = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
-                projectName = "aloudata",
-                tableName = "users",
-                accessKeyId = '0rHycgWdKrPkIZpO',
-                secretAccessKey = 'eAQR7Y4nJTViOarwiDRLHVJl78qs8M',
-                columns = ["*"],
-                condition = "pt='20230605'"
-            ) 
+              projectName = "superior",
+              tableName = "orders",
+              accessKeyId = 'LTAI5tHbjxR138YK5rQPq8kh',
+              secretAccessKey = 'iW6U2iNbHSQPpIdYWYXSDcfGi5mPRM',
+              endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
+              columns = ["*"]
+            )
             SINK("log")
         """.trimIndent()
 
