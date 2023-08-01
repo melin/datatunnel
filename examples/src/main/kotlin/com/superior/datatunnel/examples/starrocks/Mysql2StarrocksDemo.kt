@@ -34,7 +34,8 @@ object Mysql2StarrocksDemo {
                 "fe.jdbc.url" = "jdbc:mysql://172.18.1.190:9030",
                 tableName = 'test.mysql_users',
                 user = 'root',
-                password = "123456"
+                password = "123456",
+                "properties.partial_update" = "true" // starrocks.write.properties.*
             ) 
         """.trimIndent()
 
