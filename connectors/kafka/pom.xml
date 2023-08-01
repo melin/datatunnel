@@ -57,6 +57,18 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-starrocks</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-doris</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- hudi -->
         <dependency>
             <groupId>org.apache.hudi</groupId>

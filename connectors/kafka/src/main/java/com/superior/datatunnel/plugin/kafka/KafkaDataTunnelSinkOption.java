@@ -17,10 +17,6 @@ public class KafkaDataTunnelSinkOption extends BaseSinkOption {
     @NotBlank(message = "kafka.bootstrap.servers can not blank")
     private String servers;
 
-    @NotBlank(message = "checkpointLocation can not blank")
-    @OptionDesc("checkpoint 存储位置")
-    private String checkpointLocation;
-
     public String getTopic() {
         return topic;
     }
@@ -37,11 +33,4 @@ public class KafkaDataTunnelSinkOption extends BaseSinkOption {
         this.servers = servers;
     }
 
-    public String getCheckpointLocation() {
-        return checkpointLocation;
-    }
-
-    public void setCheckpointLocation(String checkpointLocation) {
-        this.checkpointLocation = checkpointLocation;
-    }
 }

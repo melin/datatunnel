@@ -33,7 +33,6 @@ object Kafka2KafkaDemo {
                     concat(cast(value as string), '-2023') as value from tdl_users"
             SINK("kafka") OPTIONS (
               topic = "orders_dwd",
-              checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/tdl_orders_dwd",
               "kafka.bootstrap.servers" = "3.208.89.140:9092"
             )
         """.trimIndent()

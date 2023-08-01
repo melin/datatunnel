@@ -41,6 +41,7 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
     private String startingOffsetsByTimestampStrategy = "error";
 
     @OptionDesc("checkpoint 存储位置")
+    @NotBlank(message = "checkpointLocation can not blank")
     private String checkpointLocation;
 
     @OptionDesc("format=json，生效, 如果数组为空，不解析json")

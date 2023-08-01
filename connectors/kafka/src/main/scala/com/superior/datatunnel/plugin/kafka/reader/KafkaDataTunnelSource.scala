@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.enums.WriteMode
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
+import com.superior.datatunnel.plugin.doris.DorisDataTunnelSinkOption
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
 import com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSinkOption
 import com.superior.datatunnel.plugin.kafka.{KafkaDataTunnelSinkOption, KafkaDataTunnelSourceOption}
@@ -40,6 +41,10 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       writeLog(context, sourceOption, tmpTable)
     } else if (DataSourceType.KAFKA == sinkType) {
       writeKafka(context, sourceOption, tmpTable)
+    } else if (DataSourceType.DORIS == sinkType) {
+      writeDoris(context, sourceOption, tmpTable)
+    } else if (DataSourceType.STARROCKS == sinkType) {
+      writeStarRocks(context, sourceOption, tmpTable)
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
@@ -67,7 +72,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaSinkOption.getServers)
       .option("topic", kafkaSinkOption.getTopic)
-      .option("checkpointLocation", kafkaSinkOption.getCheckpointLocation)
+      .option("checkpointLocation", sourceOption.getCheckpointLocation)
       .start()
     query.awaitTermination()
   }
@@ -84,6 +89,43 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     }
     val querySql = buildQuerySql(context, sourceOption, tmpTable)
     HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, checkpointLocation, querySql)
+  }
+
+  private def writeDoris(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    val dataset = context.getSparkSession.sql(querySql)
+    val sinkOption = context.getSinkOption.asInstanceOf[DorisDataTunnelSinkOption]
+
+    val dataFrameWriter = dataset.writeStream
+      .format("doris")
+      .option("checkpointLocation", sourceOption.getCheckpointLocation)
+      .option("doris.fenodes", sinkOption.getFenodes)
+      .option("user", sinkOption.getUser)
+      .option("password", sinkOption.getPassword)
+      .option("doris.table.identifier", sinkOption.getTableName)
+
+      .option("sink.batch.size", sinkOption.getBatchSize)
+      .option("doris.sink.task.use.repartition", sinkOption.isRepartition)
+      .option("doris.sink.batch.interval.ms", sinkOption.getIntervalTimes)
+      .option("doris.ignore-type", sinkOption.getIgnoreType)
+
+    if (StringUtils.isNotBlank(sinkOption.getColumns)) {
+      dataFrameWriter.option("doris.write.fields", sinkOption.getColumns)
+    }
+    if (sinkOption.getPartitionSize != null) {
+      dataFrameWriter.option("doris.sink.task.partition.size", sinkOption.getPartitionSize.toLong)
+    }
+
+    sinkOption.getProperties.asScala.foreach(entry => {
+      dataFrameWriter.option("sink.properties." + entry._1, entry._2)
+    });
+
+    dataFrameWriter.start()
+      .awaitTermination()
+  }
+
+  private def writeStarRocks(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
+    throw new IllegalAccessException("not support")
   }
 
   def writeJdbc(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
@@ -129,12 +171,11 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
         JdbcUtils.execute(connection, preSql)
       }
 
-      val checkpointLocation = s"/user/superior/stream_checkpoint/$sinkDatabaseName.db/$sinkTableName"
-      mkCheckpointDir(sparkSession, checkpointLocation)
+      val checkpointLocation = sourceOption.getCheckpointLocation
       val query = dataset.writeStream
         .trigger(Trigger.ProcessingTime(1.seconds))
         .outputMode(OutputMode.Update)
-        .option("checkpointLocation", "")
+        .option("checkpointLocation", checkpointLocation)
         .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
           batchDF.write
             .format("jdbc")
