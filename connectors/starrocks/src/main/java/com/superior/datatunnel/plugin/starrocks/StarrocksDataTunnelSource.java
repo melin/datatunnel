@@ -38,7 +38,7 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
                 .option("starrocks.request.tablet.size", sourceOption.getTableSize())
                 .option("starrocks.batch.size", sourceOption.getBatchSize())
                 .option("starrocks.exec.mem.limit", sourceOption.getMemLimit())
-                .option("starrocks.deserialize.arrow.async", sourceOption.isArrowAsync())
+                .option("starrocks.deserialize.arrow.async", sourceOption.isDeserializeArrowAsync())
                 .option("starrocks.deserialize.queue.size", sourceOption.getDeserializeQueueSize())
                 .option("starrocks.filter.query.in.max.count", sourceOption.getFilterQueryInMaxCount());
 
@@ -50,8 +50,8 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
         try {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
-            String[] columns = sourceOption.getColumns();
-            String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
+            String columns = sourceOption.getColumns();
+            String sql = "select " + columns + " from " + tdlName;
             return context.getSparkSession().sql(sql);
         } catch (AnalysisException e) {
             throw new DataTunnelException(e.message(), e);

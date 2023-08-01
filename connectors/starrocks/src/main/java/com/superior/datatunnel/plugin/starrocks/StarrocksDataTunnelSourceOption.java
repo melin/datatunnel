@@ -66,7 +66,7 @@ public class StarrocksDataTunnelSourceOption extends BaseSourceOption {
 
     @ParamKey("deserialize.arrow.async")
     @OptionDesc("是否支持把 Arrow 格式异步转换为 Spark Connector 迭代所需的 RowBatch")
-    private boolean arrowAsync = false;
+    private boolean deserializeArrowAsync = false;
 
     @ParamKey("deserialize.queue.size")
     @OptionDesc("异步转换 Arrow 格式时内部处理队列的大小，当 deserialize.arrow.async 为 true 时生效")
@@ -81,6 +81,6 @@ public class StarrocksDataTunnelSourceOption extends BaseSourceOption {
     private Integer filterQueryInMaxCount = 100;
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String columns = "*";
 
 }
