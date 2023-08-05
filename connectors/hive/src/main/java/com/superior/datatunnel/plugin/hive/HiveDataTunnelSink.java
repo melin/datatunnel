@@ -160,25 +160,20 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     private void syncTableMeta(String databaseName, String tableName) {
         SparkSession sparkSession = SparkSession.active();
         String superiorUrl = sparkSession.conf().get("spark.jobserver.superior.url", null);
-        String appKey = sparkSession.conf().get("spark.jobserver.superior.user", null);
-        String appSecret = sparkSession.conf().get("spark.jobserver.superior.appSec" +
-                "ret", null);
+        String userId = sparkSession.conf().get("spark.jobserver.superior.user", null);
         String tenantId = sparkSession.conf().get("spark.jobserver.superior.tenantId", null);
-        if (StringUtils.isNotBlank(superiorUrl) && appKey != null && appSecret != null) {
+        if (StringUtils.isNotBlank(superiorUrl) && userId != null) {
             superiorUrl += "/innerApi/v1/importHiveTable";
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("tenantId", tenantId));
             params.add(new BasicNameValuePair("databaseName", databaseName));
             params.add(new BasicNameValuePair("tableName", tableName));
-            params.add(new BasicNameValuePair("appKey", appKey));
-            params.add(new BasicNameValuePair("appSecret", appSecret));
+            params.add(new BasicNameValuePair("userId", userId));
 
             HttpClientUtils.postRequet(superiorUrl, params);
         } else {
-            LOG.warn("请求同步失败: superiorUrl: {}, appKey: {}, appSecret: {}",
-                    superiorUrl, appKey, appSecret);
-            LogUtils.warn("请求同步失败: superiorUrl: {}, appKey: {}, appSecret: {}",
-                    superiorUrl, appKey, appSecret);
+            LOG.warn("请求同步失败: superiorUrl: {}, userId: {}", superiorUrl, userId);
+            LogUtils.warn("请求同步失败: superiorUrl: {}, userId: {}", superiorUrl, userId);
         }
     }
 
