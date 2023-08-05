@@ -12,6 +12,7 @@
             <excludes>
                 <exclude>com.superior.datatunnel:datatunnel-assembly:jar</exclude>
                 <exclude>*:commons-*:jar</exclude>
+                <exclude>*:superior-*-parser-*:jar</exclude>
                 <exclude>com.alibaba:fastjson:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java:jar</exclude>
                 <exclude>org.apache.zookeeper:zookeeper:jar</exclude>
