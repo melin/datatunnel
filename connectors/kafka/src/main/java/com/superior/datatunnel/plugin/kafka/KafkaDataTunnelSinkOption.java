@@ -2,12 +2,9 @@ package com.superior.datatunnel.plugin.kafka;
 
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseSinkOption;
-import com.superior.datatunnel.common.annotation.OptionDesc;
-import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
-@Data
 public class KafkaDataTunnelSinkOption extends BaseSinkOption {
 
     @NotBlank(message = "topic can not blank")
@@ -32,5 +29,4 @@ public class KafkaDataTunnelSinkOption extends BaseSinkOption {
     public void setServers(String servers) {
         this.servers = servers;
     }
-
 }

@@ -160,7 +160,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     private void syncTableMeta(String databaseName, String tableName) {
         SparkSession sparkSession = SparkSession.active();
         String superiorUrl = sparkSession.conf().get("spark.jobserver.superior.url", null);
-        String userId = sparkSession.conf().get("spark.jobserver.superior.user", null);
+        String userId = sparkSession.conf().get("spark.jobserver.superior.userId", null);
         String tenantId = sparkSession.conf().get("spark.jobserver.superior.tenantId", null);
         if (StringUtils.isNotBlank(superiorUrl) && userId != null) {
             superiorUrl += "/innerApi/v1/importHiveTable";
