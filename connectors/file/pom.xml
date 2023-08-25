@@ -3,31 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>datatunnel</artifactId>
+        <artifactId>datatunnel-connectors</artifactId>
         <groupId>com.superior.datatunnel</groupId>
         <version>3.3.0-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>datatunnel-connector-file</artifactId>
-
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <name>Datatunnel : Connectors : File</name>
 
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <artifactId>datatunnel-common</artifactId>
-            <groupId>com.superior.datatunnel</groupId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>

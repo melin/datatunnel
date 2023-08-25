@@ -3,14 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>datatunnel</artifactId>
+        <artifactId>datatunnel-connectors</artifactId>
         <groupId>com.superior.datatunnel</groupId>
         <version>3.3.0-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>datatunnel-connector-kafka</artifactId>
+    <name>Datatunnel : Connectors : Kafka</name>
 
     <dependencies>
         <dependency>
@@ -37,12 +37,6 @@
             <artifactId>spark-sql-kafka-0-10_${scala.bin.version}</artifactId>
             <version>${spark.version}</version>
             <scope>${libScope}</scope>
-        </dependency>
-
-        <dependency>
-            <artifactId>datatunnel-common</artifactId>
-            <groupId>com.superior.datatunnel</groupId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>

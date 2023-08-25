@@ -3,25 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>datatunnel-connectors</artifactId>
+        <artifactId>datatunnel</artifactId>
         <groupId>com.superior.datatunnel</groupId>
         <version>3.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-connector-doris</artifactId>
-    <name>Datatunnel : Connectors : Doris</name>
+    <artifactId>datatunnel-connectors</artifactId>
+    <name>Datatunnel : Connectors : </name>
+    <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.doris</groupId>
-            <artifactId>spark-doris-connector-3.2_2.12</artifactId>
-            <version>1.2.0</version>
+            <artifactId>datatunnel-common</artifactId>
+            <groupId>com.superior.datatunnel</groupId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 </project>
