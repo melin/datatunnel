@@ -61,7 +61,7 @@
         <spark-redis.version>3.1.0</spark-redis.version>
         <spark-excel.version>3.3.1_0.18.7</spark-excel.version>
         <spark-elasticsearch.version>7.17.10</spark-elasticsearch.version>
-        <sql-parser.version>4.0.0</sql-parser.version>
+        <sql-parser.version>4.0.1-SNAPSHOT</sql-parser.version>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
     </properties>
