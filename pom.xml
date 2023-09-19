@@ -7,7 +7,7 @@
     <groupId>com.superior.datatunnel</groupId>
     <artifactId>datatunnel</artifactId>
     <packaging>pom</packaging>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
 
     <name>Datatunnel : Parent</name>
 
@@ -43,7 +43,7 @@
 
         <scala.version>2.12.15</scala.version>
         <scala.bin.version>2.12</scala.bin.version>
-        <spark.version>3.3.2</spark.version>
+        <spark.version>3.4.1</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.17.2</log4j.version> <!-- spark 中版本一致 -->
@@ -59,7 +59,7 @@
         <hive.version>2.1.1-cdh6.3.2</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
-        <spark-excel.version>3.3.1_0.18.7</spark-excel.version>
+        <spark-excel.version>3.4.1_0.19.0</spark-excel.version>
         <spark-elasticsearch.version>7.17.10</spark-elasticsearch.version>
         <sql-parser.version>4.0.0-SNAPSHOT</sql-parser.version>
 
