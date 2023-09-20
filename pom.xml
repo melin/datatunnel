@@ -41,7 +41,7 @@
         <libScope>compile</libScope>
         <superior.libScope>compile</superior.libScope>
 
-        <scala.version>2.12.15</scala.version>
+        <scala.version>2.12.17</scala.version>
         <scala.bin.version>2.12</scala.bin.version>
         <spark.version>3.4.1</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
