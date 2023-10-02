@@ -162,10 +162,12 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         String superiorUrl = sparkSession.conf().get("spark.jobserver.superior.url", null);
         String userId = sparkSession.conf().get("spark.jobserver.superior.userId", null);
         String tenantId = sparkSession.conf().get("spark.jobserver.superior.tenantId", null);
+        String catalogName = System.getProperty("session.catalog.name", "spark_catalog");
         if (StringUtils.isNotBlank(superiorUrl) && userId != null) {
             superiorUrl += "/innerApi/v1/importHiveTable";
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("tenantId", tenantId));
+            params.add(new BasicNameValuePair("catalogName", catalogName));
             params.add(new BasicNameValuePair("databaseName", databaseName));
             params.add(new BasicNameValuePair("tableName", tableName));
             params.add(new BasicNameValuePair("userId", userId));
