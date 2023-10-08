@@ -160,6 +160,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     private void syncTableMeta(String databaseName, String tableName) {
         SparkSession sparkSession = SparkSession.active();
         String superiorUrl = sparkSession.conf().get("spark.jobserver.superior.url", null);
+        String regionCode = sparkSession.conf().get("spark.jobserver.superior.region", null);
         String userId = sparkSession.conf().get("spark.jobserver.superior.userId", null);
         String tenantId = sparkSession.conf().get("spark.jobserver.superior.tenantId", null);
         String catalogName = System.getProperty("session.catalog.name", "spark_catalog");
@@ -167,6 +168,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             superiorUrl += "/innerApi/v1/importHiveTable";
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("tenantId", tenantId));
+            params.add(new BasicNameValuePair("regionCode", regionCode));
             params.add(new BasicNameValuePair("catalogName", catalogName));
             params.add(new BasicNameValuePair("databaseName", databaseName));
             params.add(new BasicNameValuePair("tableName", tableName));
