@@ -47,8 +47,8 @@
         <spotbugs.version>4.7.3</spotbugs.version>
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.17.2</log4j.version> <!-- spark 中版本一致 -->
-        <bee.version>1.6.2</bee.version>
-        <hudi.version>0.13.1</hudi.version>
+        <bee.version>1.6.4</bee.version>
+        <hudi.version>0.14.0</hudi.version>
         <jackson.version>2.15.2</jackson.version>
         <kafka.version>3.4.1</kafka.version>
         <jedis.version>4.3.2</jedis.version>
@@ -185,7 +185,7 @@
 
             <dependency>
                 <groupId>org.apache.hudi</groupId>
-                <artifactId>hudi-spark3.3-bundle_2.12</artifactId>
+                <artifactId>hudi-spark3.4-bundle_2.12</artifactId>
                 <version>${hudi.version}</version>
                 <exclusions>
                     <exclusion>

@@ -73,7 +73,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hudi</groupId>
-            <artifactId>hudi-spark3.3-bundle_2.12</artifactId>
+            <artifactId>hudi-spark3.4-bundle_2.12</artifactId>
         </dependency>
 
         <dependency>
