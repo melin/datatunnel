@@ -188,12 +188,11 @@ public class Util {
         while (true) {
             try {
                 if (partitionSpec == null || partitionSpec.isEmpty()) {
-                    uploadSession = tunnel.createStreamUploadSession(project, table);
+                    uploadSession = tunnel.buildStreamUploadSession(project, table).build();
                 } else {
-                    uploadSession = tunnel.createStreamUploadSession(project,
-                            table,
-                            partitionSpec,
-                            createParitition);
+                    uploadSession = tunnel.buildStreamUploadSession(project, table)
+                            .setPartitionSpec(partitionSpec)
+                            .setCreatePartition(createParitition).build();
                 }
                 break;
             } catch (TunnelException e) {

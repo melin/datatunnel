@@ -48,7 +48,6 @@
             <groupId>com.gitee.melin.bee</groupId>
             <artifactId>bee</artifactId>
             <version>${bee.version}</version>
-            <scope>${superior.libScope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
