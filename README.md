@@ -100,6 +100,7 @@ SINK("hive") OPTIONS (
   columns = ["*"]
 );
 
+-- mysql to hive，数据过滤处理
 DATATUNNEL SOURCE('mysql') OPTIONS (
   username = 'dataworks',
   password = 'dataworks2021',
@@ -115,6 +116,7 @@ SINK('log') OPTIONS (
   numRows = 10
 );
 
+-- hive to mysql，字段映射
 DATATUNNEL SOURCE("hive") OPTIONS (
   databaseName = 'bigdata',
   tableName = 'hive_dtunnel_datasource',
@@ -130,6 +132,22 @@ SINK("mysql") OPTIONS (
   writeMode = 'overwrite',
   truncate = true,
   columns = ['id', 'code', 'dstype', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
+)
+    
+-- maxcompute 同步 hive
+DATATUNNEL SOURCE("maxcompute") OPTIONS (
+    projectName = "datac_test2",
+    tableName = "my_table_struct",
+    accessKeyId = 'xxx',
+    secretAccessKey = 'xxxxx',
+    endpoint='http://service.cn-hangzhou.maxcompute.aliyun.com/api',
+    columns = ["*"]
+)
+SINK("hive") OPTIONS (
+  databaseName = "default",
+  tableName = 'my_table_struct',
+  writeMode = 'overwrite',
+  columns = ["*"]
 )
 ```
 
