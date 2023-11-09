@@ -209,15 +209,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String lowerBound = sourceOption.getLowerBound();
             String upperBound = sourceOption.getUpperBound();
             Integer numPartitions = sourceOption.getNumPartitions();
+            Integer partitionRecordCount = sourceOption.getPartitionRecordCount();
 
             // 如果用户指定分区参数，不需要再统计，大表统计比较耗时
             if (StringUtils.isNotBlank(partitionColumn)
                     && StringUtils.isNotBlank(lowerBound)
                     && StringUtils.isNotBlank(upperBound)) {
-
-                if (numPartitions == null) {
-                    throw new IllegalArgumentException("numPartitions can not null");
-                }
 
                 return;
             }
@@ -269,7 +266,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             }
 
             if (numPartitions == null) {
-                numPartitions = (int) Math.ceil(count / 50000.0d);
+                numPartitions = (int) Math.ceil((double) count / partitionRecordCount);
             }
             if (numPartitions == 0) {
                 numPartitions = 1;

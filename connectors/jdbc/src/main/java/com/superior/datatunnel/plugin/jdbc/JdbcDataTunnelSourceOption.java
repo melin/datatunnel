@@ -40,13 +40,18 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
     @NotNull(message = "port can not blank")
     private Integer port;
 
-    private int fetchSize = 1000;
+    private int fetchSize = 1024;
 
     private int queryTimeout = 0;
 
+    @OptionDesc("数据过滤条件")
     private String condition;
 
+    @OptionDesc("切片字段")
     private String partitionColumn;
+
+    @OptionDesc("每切片记录数量，用于计算切片数量，如果指定numPartitions，该值不生效, 默认：100000")
+    private Integer partitionRecordCount = 100000;
 
     private Integer numPartitions;
 
