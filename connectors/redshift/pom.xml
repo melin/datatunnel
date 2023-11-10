@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>datatunnel-connector-clickhouse</artifactId>
-    <name>Datatunnel : Connectors : Clickhouse</name>
+    <artifactId>datatunnel-connector-Redshift</artifactId>
+    <name>Datatunnel : Connectors : Redshift</name>
 
     <dependencies>
         <dependency>
@@ -19,22 +19,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.housepower</groupId>
-            <artifactId>clickhouse-spark-runtime-3.4_2.12</artifactId>
-            <version>0.7.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-            <classifier>all</classifier>
-            <version>0.4.6</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>io.github.spark-redshift-community</groupId>
+            <artifactId>spark-redshift_2.12</artifactId>
+            <version>6.1.0-spark_3.4</version>
         </dependency>
     </dependencies>
 

@@ -30,6 +30,7 @@
         <module>sftp</module>
         <module>ftp</module>
         <module>maxcompute</module>
+        <module>redshift</module>
     </modules>
 
     <dependencies>

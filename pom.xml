@@ -21,6 +21,7 @@
     </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <libScope>compile</libScope>
@@ -34,7 +35,7 @@
         <log4j.version>2.17.2</log4j.version> <!-- spark 中版本一致 -->
         <bee.version>1.6.4</bee.version>
         <hudi.version>0.14.0</hudi.version>
-        <jackson.version>2.15.2</jackson.version>
+        <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>
         <jedis.version>4.3.2</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
