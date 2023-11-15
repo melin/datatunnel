@@ -16,6 +16,7 @@ import scala.collection.JavaConverters;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 
 import static com.superior.datatunnel.common.util.JdbcUtils.*;
@@ -70,15 +71,18 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             boolean truncate = sinkOption.isTruncate();
 
-            String preSql = sinkOption.getPreSql();
-            String postSql = sinkOption.getPostSql();
-            if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
+            String preactions = sinkOption.getPreactions();
+            String postactions = sinkOption.getPostactions();
+            if (StringUtils.isNotBlank(preactions) || StringUtils.isNotBlank(postactions)) {
                 connection = buildConnection(url, fullTableName, sinkOption);
             }
 
-            if (StringUtils.isNotBlank(preSql)) {
-                LOG.info("exec preSql: " + preSql);
-                execute(connection, preSql);
+            if (StringUtils.isNotBlank(preactions)) {
+                List<String> sqls = CommonUtils.splitMultiSql(preactions);
+                for (String presql : sqls) {
+                    LOG.info("exec pre sql: " + presql);
+                    execute(connection, presql);
+                }
             }
 
             String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
@@ -115,9 +119,12 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             dataFrameWriter.save();
 
-            if (StringUtils.isNotBlank(postSql)) {
-                LOG.info("exec postSql: " + postSql);
-                execute(connection, postSql);
+            if (StringUtils.isNotBlank(postactions)) {
+                List<String> sqls = CommonUtils.splitMultiSql(postactions);
+                for (String postsql : sqls) {
+                    LOG.info("exec post sql: " + postsql);
+                    execute(connection, postsql);
+                }
             }
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);

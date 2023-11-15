@@ -239,4 +239,45 @@ public class CommonUtils {
 
         return StringUtils.join(chars, "");
     }
+
+    public static List<String> splitMultiSql(String sql) {
+        List<String> sqls = Lists.newArrayList();
+
+        Character quote = null;
+        Character lastChar = null;
+        int lastIndex = 0;
+        for (int i = 0, len = sql.length(); i < len; i++) {
+            char ch = sql.charAt(i);
+            if (i != 0) {
+                lastChar = sql.charAt(i - 1);
+            }
+
+            if (ch == '\'') {
+                if (quote == null) {
+                    quote = ch;
+                } else if (quote == '\'' && lastChar != '\\') {
+                    quote = null;
+                }
+            } else if (ch == '"') {
+                if (quote == null) {
+                    quote = ch;
+                } else if (quote == '"' && lastChar != '\\') {
+                    quote = null;
+                }
+            } else if (ch == ';' && quote == null) {
+                String content = StringUtils.substring(sql, lastIndex, i).trim();
+                if (StringUtils.isNotBlank(content)) {
+                    sqls.add(content);
+                }
+                lastIndex = i + 1;
+            }
+        }
+
+        String content = StringUtils.substring(sql, lastIndex).trim();
+        if (StringUtils.isNotBlank(content)) {
+            sqls.add(content);
+        }
+
+        return sqls;
+    }
 }

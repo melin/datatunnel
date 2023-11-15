@@ -22,6 +22,12 @@
             <groupId>io.github.spark-redshift-community</groupId>
             <artifactId>spark-redshift_2.12</artifactId>
             <version>6.1.0-spark_3.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

@@ -3,6 +3,7 @@ package com.superior.datatunnel.plugin.kafka.reader
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.enums.WriteMode
+import com.superior.datatunnel.common.util.JdbcUtils.execute
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
 import com.superior.datatunnel.plugin.doris.DorisDataTunnelSinkOption
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
@@ -158,17 +159,19 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       val sql = CommonUtils.genOutputSql(dataset, jdbcSinkOption.getColumns, jdbcSinkOption.getTableName)
       dataset = sparkSession.sql(sql)
 
-      val preSql = jdbcSinkOption.getPreSql
-      val postSql = jdbcSinkOption.getPostSql
-      if (StringUtils.isNotBlank(preSql) || StringUtils.isNotBlank(postSql)) {
+      val preactions = jdbcSinkOption.getPreactions
+      if (StringUtils.isNotBlank(preactions)) {
         val options = jdbcSinkOption.getParams
         options.put("user", jdbcSinkOption.getUsername)
         connection = buildConnection(url, table, options)
       }
 
-      if (StringUtils.isNotBlank(preSql)) {
-        logInfo("exec preSql: " + preSql)
-        JdbcUtils.execute(connection, preSql)
+      if (StringUtils.isNotBlank(preactions)) {
+        val sqls = CommonUtils.splitMultiSql(preactions)
+        for (presql <- sqls.asScala) {
+          logInfo("exec pre sql: " + presql)
+          execute(connection, presql)
+        }
       }
 
       val checkpointLocation = sourceOption.getCheckpointLocation
