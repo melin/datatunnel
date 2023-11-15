@@ -37,7 +37,7 @@
         <hudi.version>0.14.0</hudi.version>
         <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>
-        <jedis.version>4.3.2</jedis.version>
+        <jedis.version>4.4.6</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
 
         <awssdk.version>2.21.20</awssdk.version>
