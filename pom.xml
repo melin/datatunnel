@@ -40,8 +40,9 @@
         <jedis.version>4.3.2</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
 
-        <aws.java.sdk.version>1.12.472</aws.java.sdk.version>
-        <hadoop.verison>3.0.0-cdh6.3.2</hadoop.verison>
+        <awssdk.version>2.21.20</awssdk.version>
+        <aws.java.sdk.version>1.12.586</aws.java.sdk.version>
+        <hadoop.version>3.0.0-cdh6.3.2</hadoop.version>
         <hive.version>2.1.1-cdh6.3.2</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
@@ -357,7 +358,7 @@
         <profile>
             <id>hadoop3</id>
             <properties>
-                <hadoop.verison>3.3.2</hadoop.verison>
+                <hadoop.version>3.3.6</hadoop.version>
                 <hive.version>2.3.9</hive.version>
             </properties>
         </profile>

@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.verison}</version>
+            <version>${hadoop.version}</version>
             <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aws</artifactId>
-            <version>${hadoop.verison}</version>
+            <version>${hadoop.version}</version>
             <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.261</version>
+            <version>${aws.java.sdk.version}</version>
             <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
