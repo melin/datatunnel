@@ -2,15 +2,8 @@ package com.superior.datatunnel.examples.redshift
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
-import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient
-import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.sts.StsClient
-import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
-import software.amazon.awssdk.services.sts.model.GetSessionTokenRequest
 
-object Redshift2LogDemo {
+object Mysql2RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -27,14 +20,24 @@ object Redshift2LogDemo {
                 .getOrCreate()
 
         val sql = """
-            DATATUNNEL SOURCE("redshift") OPTIONS (
+            DATATUNNEL SOURCE("mysql") OPTIONS (
+                username = "root",
+                password = "root2023",
+                host = '172.18.5.44',
+                port = 3306,
+                databaseName = 'demos',
+                tableName = 'users',
+                columns = ["*"],
+                resultTableName='tdl_users'
+            ) 
+            SINK("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2023",
                 host = '',
                 port = 5439,
                 databaseName = 'dev',
                 schemaName = 'public',
-                tableName = 'category',
+                tableName = 'users',
                 tempdir = 's3a://datacyber/redshift_temp/',
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
@@ -42,7 +45,6 @@ object Redshift2LogDemo {
                 redshiftRoleArn = '${redshiftRoleArn}',
                 columns = ["*"]
             ) 
-            SINK("log")
         """.trimIndent()
 
         spark.sql(sql)

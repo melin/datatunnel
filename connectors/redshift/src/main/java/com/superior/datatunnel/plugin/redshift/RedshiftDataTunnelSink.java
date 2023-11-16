@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.WriteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
 
         DataFrameWriter dataFrameWriter = dataset.write()
                 .format("io.github.spark_redshift_community.spark.redshift")
-                .options(option.getParams())
+                .options(option.getProperties())
                 .option("url", jdbcURL)
                 .option("user", option.getUsername())
                 .option("password", option.getPassword())
@@ -57,7 +58,14 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
             throw new DataTunnelException("tableName can not blank");
         }
 
+        final WriteMode writeMode = option.getWriteMode();
+        SaveMode mode = SaveMode.Append;
+        if (WriteMode.OVERWRITE == writeMode) {
+            mode = SaveMode.Overwrite;
+        }
+
         dataFrameWriter.option("dbtable", option.getSchemaName() + "." + option.getTableName());
+        dataFrameWriter.mode(mode).save();
     }
 
     @Override

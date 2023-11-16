@@ -40,7 +40,7 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
         DataFrameReader reader = sparkSession
                 .read()
                 .format("io.github.spark_redshift_community.spark.redshift")
-                .options(option.getParams())
+                .options(option.getProperties())
                 .option("url", jdbcURL)
                 .option("user", option.getUsername())
                 .option("password", option.getPassword())

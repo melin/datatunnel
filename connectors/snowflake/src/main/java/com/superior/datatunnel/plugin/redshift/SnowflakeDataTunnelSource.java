@@ -29,7 +29,7 @@ public class SnowflakeDataTunnelSource implements DataTunnelSource {
         DataFrameReader reader = sparkSession
                 .read()
                 .format("snowflake")
-                .options(option.getParams())
+                .options(option.getProperties())
                 .option("sfURL", option.getHost())
                 .option("sfUser", option.getUsername())
                 .option("sfPassword", option.getPassword())
@@ -50,7 +50,7 @@ public class SnowflakeDataTunnelSource implements DataTunnelSource {
                 throw new DataTunnelException("tableName can not blank");
             }
 
-            reader.option("dbtable", option.getTableName());
+            reader.option("dbtable", option.getSchemaName() + "." + option.getTableName());
         }
 
         return reader.load();

@@ -3,6 +3,7 @@ package com.superior.datatunnel.plugin.redshift;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import com.superior.datatunnel.common.enums.WriteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ public class SnowflakeDataTunnelSink implements DataTunnelSink {
 
         DataFrameWriter dataFrameWriter = dataset.write()
                 .format("snowflake")
-                .options(option.getParams())
+                .options(option.getProperties())
                 .option("sfURL", option.getHost())
                 .option("sfUser", option.getUsername())
                 .option("sfPassword", option.getPassword())
@@ -31,7 +32,14 @@ public class SnowflakeDataTunnelSink implements DataTunnelSink {
         if (StringUtils.isNotBlank(option.getWarehouse())) {
             dataFrameWriter.option("sfWarehouse", option.getWarehouse());
         }
-        dataFrameWriter.option("dbtable", option.getTableName());
+
+        final WriteMode writeMode = option.getWriteMode();
+        SaveMode mode = SaveMode.Append;
+        if (WriteMode.OVERWRITE == writeMode) {
+            mode = SaveMode.Overwrite;
+        }
+        dataFrameWriter.option("dbtable", option.getSchemaName() + "." + option.getTableName());
+        dataFrameWriter.mode(mode).save();
     }
 
     @Override
