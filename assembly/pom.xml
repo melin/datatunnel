@@ -65,7 +65,12 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-Redshift</artifactId>
+            <artifactId>datatunnel-connector-redshift</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-snowflake</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

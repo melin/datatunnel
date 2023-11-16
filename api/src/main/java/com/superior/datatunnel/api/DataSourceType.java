@@ -16,6 +16,7 @@ public enum DataSourceType {
     OCEANBASE,
     MAXCOMPUTE,
     REDSHIFT,
+    SNOWFLAKE,
     DORIS,
     STARROCKS,
 

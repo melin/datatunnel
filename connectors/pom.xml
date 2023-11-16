@@ -31,6 +31,7 @@
         <module>ftp</module>
         <module>maxcompute</module>
         <module>redshift</module>
+        <module>snowflake</module>
     </modules>
 
     <dependencies>

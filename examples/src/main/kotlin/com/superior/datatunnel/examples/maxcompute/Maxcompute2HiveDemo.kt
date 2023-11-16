@@ -48,7 +48,7 @@ object Maxcompute2HiveDemo {
 
             spark.sql(sql)
 
-            val sql1 = """
+            val sql1 = """f
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
                 projectName = "datac_test2",
                 tableName = "my_table_struct",
