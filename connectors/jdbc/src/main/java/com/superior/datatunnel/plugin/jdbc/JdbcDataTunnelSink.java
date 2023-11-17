@@ -45,9 +45,6 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
         Connection connection = null;
         try {
-            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
-            dataset.createTempView(tdlName);
-
             String schemaName = sinkOption.getSchemaName();
             if (StringUtils.isBlank(schemaName)) {
                 schemaName = sinkOption.getDatabaseName();
@@ -84,9 +81,6 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     execute(connection, presql);
                 }
             }
-
-            String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
-            dataset = context.getSparkSession().sql(sql);
 
             String format = "datatunnel-jdbc";
             if (dataSourceType == DataSourceType.TIDB &&

@@ -84,6 +84,9 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     }
     var df = sourceConnector.read(context)
 
+    val sql = CommonUtils.genOutputSql(df, sinkOption.getColumns, sinkOption.getDataSourceType)
+    df = context.getSparkSession.sql(sql)
+
     if (StringUtils.isBlank(sourceOption.getResultTableName)
       && StringUtils.isNotBlank(transfromSql)) {
       throw new IllegalArgumentException("transfrom 存在，source 必须指定 resultTableName")

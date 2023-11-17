@@ -53,12 +53,6 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         validate(sinkOption);
 
         try {
-            String sql = CommonUtils.genOutputSql(dataset, sinkOption.getColumns(), sinkOption.getTableName());
-            dataset = context.getSparkSession().sql(sql);
-
-            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
-            dataset.createTempView(tdlName);
-
             String databaseName = sinkOption.getDatabaseName();
             String tableName = sinkOption.getTableName();
             String partitionColumn = sinkOption.getPartitionColumn();
@@ -76,12 +70,15 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             // 控制文件数量
             String querySql = "";
+            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
+            dataset.createTempView(tdlName);
             if (sinkOption.getRebalance() != null && sinkOption.getRebalance() > 1) {
                 querySql = "select /*+ REBALANCE(" + sinkOption.getRebalance() + ") */ * from " + tdlName;
             } else {
                 querySql = "select * from " + tdlName;
             }
 
+            String sql = "";
             if (APPEND == writeMode) {
                 if (isPartition) {
                     sql = "insert into table " + table + " partition(" + partitionColumn + ") " + querySql;

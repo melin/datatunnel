@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.BaseCommonOption;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -126,8 +126,8 @@ public class CommonUtils {
     }
 
     @NotNull
-    public static String genOutputSql(Dataset<Row> dataset, String[] columns, String tableName) throws AnalysisException, IOException {
-        String tdlName = "tdl_" + tableName + "_" + System.currentTimeMillis();
+    public static String genOutputSql(Dataset<Row> dataset, String[] columns, DataSourceType dataSourceType) throws AnalysisException {
+        String tdlName = "tdl_" + dataSourceType.name().toLowerCase() + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);
 
         int inputColCount = dataset.schema().fieldNames().length;
