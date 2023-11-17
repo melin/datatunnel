@@ -3,6 +3,7 @@ package com.superior.datatunnel.plugin.doris;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
@@ -28,9 +29,11 @@ public class DorisDataTunnelSink implements DataTunnelSink {
                 .option("doris.sink.batch.interval.ms", sinkOption.getIntervalTimes())
                 .option("doris.ignore-type", sinkOption.getIgnoreType());
 
-        if (StringUtils.isNotBlank(sinkOption.getColumns())) {
-            dataFrameWriter.option("doris.write.fields", sinkOption.getColumns());
+        String[] columns = sinkOption.getColumns();
+        if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
+            dataFrameWriter.option("doris.write.fields", StringUtils.join(columns, ","));
         }
+
         if (sinkOption.getPartitionSize() != null) {
             dataFrameWriter.option("doris.sink.task.partition.size", sinkOption.getPartitionSize());
         }

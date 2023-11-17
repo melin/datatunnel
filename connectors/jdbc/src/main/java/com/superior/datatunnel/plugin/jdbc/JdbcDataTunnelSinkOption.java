@@ -6,7 +6,6 @@ import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -27,10 +26,6 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
     @OptionDesc("oracle serviceName。sid和serviceName，只能选择填写一个")
     private String serviceName;
-
-    @NotEmpty(message = "columns can not empty")
-
-    private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
     private String username;

@@ -6,7 +6,6 @@ import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -25,9 +24,6 @@ public class SnowflakeDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("数据库表名")
     @NotBlank(message = "tableName can not blank")
     private String tableName;
-
-    @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
 
     private String username;
 

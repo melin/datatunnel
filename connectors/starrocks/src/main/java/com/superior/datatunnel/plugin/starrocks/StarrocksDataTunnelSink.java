@@ -3,6 +3,7 @@ package com.superior.datatunnel.plugin.starrocks;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
@@ -32,8 +33,9 @@ public class StarrocksDataTunnelSink implements DataTunnelSink {
                 .option("starrocks.write.buffer.size", sinkOption.getWriteBufferSize())
                 .option("starrocks.write.flush.interval.ms", sinkOption.getWriteFlushInterval());
 
-        if (StringUtils.isNotBlank(sinkOption.getColumns())) {
-            dataFrameWriter.option("starrocks.columns", sinkOption.getColumns());
+        String[] columns = sinkOption.getColumns();
+        if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
+            dataFrameWriter.option("starrocks.columns", StringUtils.join(columns, ","));
         }
         if (sinkOption.getWritePartitionNum() != null) {
             dataFrameWriter.option("starrocks.write.num.partitions", sinkOption.getWritePartitionNum());

@@ -110,8 +110,9 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       .option("doris.sink.batch.interval.ms", sinkOption.getIntervalTimes)
       .option("doris.ignore-type", sinkOption.getIgnoreType)
 
-    if (StringUtils.isNotBlank(sinkOption.getColumns)) {
-      dataFrameWriter.option("doris.write.fields", sinkOption.getColumns)
+    val columns: Array[String] = sinkOption.getColumns
+    if (!((columns != null && columns.length == 0)|| (columns.length == 1 && "*".equals(columns(0))))) {
+      dataFrameWriter.option("doris.write.fields", StringUtils.join(columns, ","))
     }
     if (sinkOption.getPartitionSize != null) {
       dataFrameWriter.option("doris.sink.task.partition.size", sinkOption.getPartitionSize.toLong)

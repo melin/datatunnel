@@ -7,6 +7,7 @@ import com.superior.datatunnel.common.enums.FileFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -34,4 +35,12 @@ public class SftpCommonOption extends BaseCommonOption
 
     @NotBlank(message = "filePath can not blank")
     private String filePath;
+
+    @NotEmpty(message = "columns can not empty")
+    private String[] columns = new String[]{"*"};
+
+    @Override
+    public String[] getColumns() {
+        return columns;
+    }
 }

@@ -51,10 +51,6 @@ public class StarrocksDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("数据攒批发送的间隔，用于控制数据写入StarRocks的延迟。")
     private Long writeFlushInterval = 300000L;
 
-    @ParamKey("columns")
-    @OptionDesc("支持向 StarRocks 表中写入部分列，通过该参数指定列名，多个列名之间使用逗号 (,) 分隔，例如\"c0,c1,c2\"")
-    private String columns;
-
     @ParamKey("write.num.partitions")
     @OptionDesc("Spark用于并行写入的分区数，数据量小时可以通过减少分区数降低导入并发和频率，默认分区数由Spark决定。使用该功能可能会引入 Spark Shuffle cost")
     private Integer writePartitionNum;

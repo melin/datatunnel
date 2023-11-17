@@ -28,10 +28,6 @@ public class DorisDataTunnelSinkOption extends BaseSinkOption {
     @NotBlank
     private String tableName;
 
-    @ParamKey("doris.write.fields")
-    @OptionDesc("指定写入Doris表的字段或者字段顺序，多列之间使用逗号分隔。默认写入时要按照Doris表字段顺序写入全部字段。")
-    private String columns;
-
     @ParamKey("sink.batch.size")
     @OptionDesc("单次写BE的最大行数")
     private int batchSize = 10000;
