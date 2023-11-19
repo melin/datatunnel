@@ -17,6 +17,9 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
     extensions.injectParser { (session, parser) =>
 
       session.sparkContext.addSparkListener(new SparkListener() {
+        private var lastInputRecords = 0L
+        private var lastOutputRecords = 0L
+
         override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
           val metrics = taskEnd.taskMetrics
           if (metrics == null) {
@@ -34,16 +37,19 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
             val inputRecords: Long = DataTunnelMetrics.inputRecords()
             val outputRecords: Long = DataTunnelMetrics.outputRecords()
 
-            var msg = "datatunnel"
-            if (inputRecords > 0) {
-              msg += s" read records: ${inputRecords}."
+            var msg = ""
+            if (inputRecords > 0 && lastInputRecords != inputRecords) {
+              msg = s"datatunnel read records: ${inputRecords}."
+              lastInputRecords = inputRecords
+              logInfo(msg)
+              LogUtils.info(msg)
             }
-            if (outputRecords > 0) {
-              msg += s" write records: ${outputRecords}."
+            if (outputRecords > 0 && lastOutputRecords != outputRecords) {
+              msg = s"datatunnel write records: ${outputRecords}."
+              lastOutputRecords = outputRecords
+              logInfo(msg)
+              LogUtils.info(msg)
             }
-
-            logInfo(msg)
-            LogUtils.info(msg)
           }
         }
       })
