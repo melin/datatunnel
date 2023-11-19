@@ -5,7 +5,6 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -25,9 +24,6 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
 
     //oracle
     private String serviceName;
-
-    @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
     private String username;

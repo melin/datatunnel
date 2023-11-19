@@ -44,9 +44,6 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
     @NotBlank(message = "checkpointLocation can not blank")
     private String checkpointLocation;
 
-    @OptionDesc("format=json，生效, 如果数组为空，不解析json")
-    private String[] columns = new String[]{"*"};
-
     public String getFormat() {
         return format;
     }
@@ -159,11 +156,4 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
         this.checkpointLocation = checkpointLocation;
     }
 
-    public String[] getColumns() {
-        return columns;
-    }
-
-    public void setColumns(String[] columns) {
-        this.columns = columns;
-    }
 }

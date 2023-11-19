@@ -6,7 +6,6 @@ import com.superior.datatunnel.common.annotation.SparkConfKey;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -17,9 +16,6 @@ public class ClickhouseDataTunnelSourceOption extends BaseSourceOption {
 
     @NotBlank(message = "tableName can not blank")
     private String tableName;
-
-    @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
 
     @NotBlank(message = "username can not blank")
     @SparkConfKey("spark.sql.catalog.clickhouse.user")

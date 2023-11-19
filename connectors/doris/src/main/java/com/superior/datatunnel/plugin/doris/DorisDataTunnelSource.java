@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
@@ -27,7 +28,7 @@ public class DorisDataTunnelSource implements DataTunnelSource {
                 .option("doris.request.read.timeout.ms", sourceOption.getReadTimeout())
                 .option("doris.request.query.timeout.s", sourceOption.getQueryTimeout())
                 .option("doris.request.tablet.size", sourceOption.getTabletSize())
-                .option("doris.read.field", sourceOption.getColumns())
+                .option("doris.read.field", StringUtils.join(sourceOption.getColumns(), ","))
                 .option("doris.batch.size", sourceOption.getBatchSize())
                 .option("doris.exec.mem.limit", sourceOption.getMemLimit())
                 .option("doris.deserialize.arrow.async", sourceOption.isDeserializeArrowAsync())
@@ -38,7 +39,7 @@ public class DorisDataTunnelSource implements DataTunnelSource {
         try {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
-            String columns = sourceOption.getColumns();
+            String columns = StringUtils.join(sourceOption.getColumns(), ",");
             String sql = "select " + columns + " from " + tdlName;
             return context.getSparkSession().sql(sql);
         } catch (AnalysisException e) {

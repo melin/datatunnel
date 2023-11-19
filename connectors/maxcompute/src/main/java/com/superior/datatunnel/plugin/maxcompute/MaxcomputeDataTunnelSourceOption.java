@@ -4,7 +4,6 @@ import com.superior.datatunnel.api.model.BaseSourceOption;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 
 @Data
 public class MaxcomputeDataTunnelSourceOption extends BaseSourceOption {
@@ -23,9 +22,6 @@ public class MaxcomputeDataTunnelSourceOption extends BaseSourceOption {
 
     @NotBlank(message = "endpoint can not blank")
     private String endpoint = "http://service.cn.maxcompute.aliyun.com/api";
-
-    @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
 
     private String condition;
 }

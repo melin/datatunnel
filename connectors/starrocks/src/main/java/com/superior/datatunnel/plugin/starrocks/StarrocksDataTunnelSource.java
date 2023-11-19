@@ -50,7 +50,7 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
         try {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
-            String columns = sourceOption.getColumns();
+            String columns = StringUtils.join(sourceOption.getColumns(), ", ");
             String sql = "select " + columns + " from " + tdlName;
             return context.getSparkSession().sql(sql);
         } catch (AnalysisException e) {

@@ -48,10 +48,6 @@ public class DorisDataTunnelSourceOption extends BaseSourceOption {
     @OptionDesc("一个RDD Partition对应的Doris Tablet个数。此数值设置越小，则会生成越多的Partition。从而提升Spark侧的并行度，但同时会对Doris造成更大的压力。")
     private int tabletSize = Integer.MAX_VALUE;
 
-    @ParamKey("doris.read.field")
-    @OptionDesc("读取Doris表的列名列表，多列之间使用逗号分隔")
-    private String columns;
-
     @ParamKey("doris.batch.size")
     @OptionDesc("一次从BE读取数据的最大行数。增大此数值可减少Spark与Doris之间建立连接的次数。从而减轻网络延迟所带来的额外时间开销。")
     private int batchSize = 1024;

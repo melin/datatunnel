@@ -12,4 +12,5 @@ public interface DataTunnelSourceOption extends DataTunnelOption {
 
     void setResultTableName(String resultTableName);
 
+    String[] getColumns();
 }

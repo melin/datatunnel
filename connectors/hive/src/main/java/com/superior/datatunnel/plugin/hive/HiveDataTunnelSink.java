@@ -6,7 +6,6 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
-import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.HttpClientUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.ArrayUtils;
