@@ -161,7 +161,6 @@ public class CommonUtils {
             }
         }
 
-
         return sql;
     }
 
