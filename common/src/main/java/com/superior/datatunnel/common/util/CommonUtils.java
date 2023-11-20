@@ -126,28 +126,42 @@ public class CommonUtils {
     }
 
     @NotNull
-    public static String genOutputSql(Dataset<Row> dataset, String[] columns, DataSourceType dataSourceType) throws AnalysisException {
+    public static String genOutputSql(
+            Dataset<Row> dataset,
+            String[] sourceColumns,
+            String[] sinkColumns,
+            DataSourceType dataSourceType) throws AnalysisException {
+
         String tdlName = "tdl_" + dataSourceType.name().toLowerCase() + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);
 
-        int inputColCount = dataset.schema().fieldNames().length;
-
-        if (dataset.schema().fieldNames().length != columns.length) {
-            if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
-                throw new UnsupportedOperationException("输入" + inputColCount + "列, 输出" + columns.length + "列, 不匹配");
-            }
-        }
-
         String sql;
-        if (!"*".equals(columns[0])) {
-            String[] fieldNames = dataset.schema().fieldNames();
-            for (int index = 0; index < columns.length; index++) {
-                columns[index] = fieldNames[index] + " as " + columns[index];
+        if (sourceColumns.length != sinkColumns.length) {
+            if ((sourceColumns.length == 1 && "*".equals(sourceColumns[0])) && sinkColumns.length > 1) {
+                sql = "select " + StringUtils.join(sinkColumns, ",") + " from " + tdlName;
+            } else if ((sinkColumns.length == 1 && "*".equals(sinkColumns[0])) && sourceColumns.length > 1) {
+                sql = "select * from " + tdlName;
+            } else {
+                throw new UnsupportedOperationException("支持列映射, source columns: " + StringUtils.join(sourceColumns, ",")
+                        + ". sink columns: " + StringUtils.join(sinkColumns, ","));
             }
-            sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
         } else {
-            sql = "select * from " + tdlName;
+            if (sourceColumns.length == 1 && "*".equals(sourceColumns[0]) && "*".equals(sinkColumns[0])) {
+                sql = "select * from " + tdlName;
+            } else {
+                String[] projections = new String[sinkColumns.length];
+                for (int index = 0; index < sinkColumns.length; index++) {
+                    if (sourceColumns[index].equals(sinkColumns[index])) {
+                        projections[index] = sourceColumns[index];
+                    } else {
+                        projections[index] = sourceColumns[index] + " as " + sinkColumns[index];
+                    }
+                }
+                sql = "select " + StringUtils.join(projections, ",") + " from " + tdlName;
+            }
         }
+
+
         return sql;
     }
 

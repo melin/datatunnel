@@ -84,7 +84,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     }
     var df = sourceConnector.read(context)
 
-    val sql = CommonUtils.genOutputSql(df, sinkOption.getColumns, sinkOption.getDataSourceType)
+    val sql = CommonUtils.genOutputSql(df, sourceOption.getColumns, sinkOption.getColumns, sinkOption.getDataSourceType)
     df = context.getSparkSession.sql(sql)
 
     if (StringUtils.isBlank(sourceOption.getResultTableName)

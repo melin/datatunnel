@@ -160,7 +160,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
 
       val truncate = jdbcSinkOption.isTruncate
 
-      val sql = CommonUtils.genOutputSql(dataset, jdbcSinkOption.getColumns, jdbcSinkOption.getDataSourceType)
+      val sql = CommonUtils.genOutputSql(dataset, sourceOption.getColumns, jdbcSinkOption.getColumns, jdbcSinkOption.getDataSourceType)
       dataset = sparkSession.sql(sql)
 
       val preactions = jdbcSinkOption.getPreactions
