@@ -6,7 +6,7 @@ import com.superior.datatunnel.api.DataSourceType._
 import com.superior.datatunnel.api._
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.core.{DataTunnelMetrics, Utils}
+import com.superior.datatunnel.core.Utils
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelExprContext
 import org.apache.commons.lang3.StringUtils
@@ -25,8 +25,6 @@ import scala.collection.JavaConverters._
 case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
-    DataTunnelMetrics.resetMetrics()
-
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
     val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
     val sourceOpts = convertOptions(sparkSession, ctx.readOpts)
