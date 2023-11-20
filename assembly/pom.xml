@@ -108,11 +108,6 @@
             <artifactId>datatunnel-connector-redis</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-elasticsearch</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
