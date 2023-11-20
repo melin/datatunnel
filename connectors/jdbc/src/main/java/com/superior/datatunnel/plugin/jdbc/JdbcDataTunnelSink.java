@@ -53,9 +53,13 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();
-            String url = JdbcUtils.buildJdbcUrl(dataSourceType, sinkOption.getHost(),
-                    sinkOption.getPort(), sinkOption.getDatabaseName(),
-                    sinkOption.getSid(), sinkOption.getServiceName());
+
+            String jdbcUrl = sinkOption.getJdbcUrl();
+            if (StringUtils.isBlank(jdbcUrl)) {
+                jdbcUrl = JdbcUtils.buildJdbcUrl(dataSourceType, sinkOption.getHost(),
+                        sinkOption.getPort(), sinkOption.getDatabaseName(),
+                        sinkOption.getSid(), sinkOption.getServiceName());
+            }
 
             int batchsize = sinkOption.getBatchsize();
             int queryTimeout = sinkOption.getQueryTimeout();
@@ -71,7 +75,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String preactions = sinkOption.getPreactions();
             String postactions = sinkOption.getPostactions();
             if (StringUtils.isNotBlank(preactions) || StringUtils.isNotBlank(postactions)) {
-                connection = buildConnection(url, fullTableName, sinkOption);
+                connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
             }
 
             if (StringUtils.isNotBlank(preactions)) {
@@ -90,7 +94,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             DataFrameWriter dataFrameWriter = dataset.write()
                     .format(format)
                     .mode(mode)
-                    .option("url", url)
+                    .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
                     .option("batchsize", batchsize)
                     .option("queryTimeout", queryTimeout)

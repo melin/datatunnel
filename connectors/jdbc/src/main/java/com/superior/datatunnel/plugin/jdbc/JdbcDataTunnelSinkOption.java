@@ -32,11 +32,12 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
     private String password;
 
-    @NotBlank(message = "host can not blank")
     private String host;
 
-    @NotNull(message = "port can not blank")
     private Integer port;
+
+    @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
+    private String jdbcUrl;
 
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")

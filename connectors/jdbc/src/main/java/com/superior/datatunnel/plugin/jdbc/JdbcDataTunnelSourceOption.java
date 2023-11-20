@@ -30,11 +30,12 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
 
     private String password;
 
-    @NotBlank(message = "host can not blank")
     private String host;
 
-    @NotNull(message = "port can not blank")
     private Integer port;
+
+    @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
+    private String jdbcUrl;
 
     private int fetchSize = 1024;
 

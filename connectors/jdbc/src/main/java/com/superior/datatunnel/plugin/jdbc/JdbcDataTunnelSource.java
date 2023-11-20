@@ -56,12 +56,15 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         String tableName = sourceOption.getTableName();
         String[] columns = sourceOption.getColumns();
 
-        String url = JdbcUtils.buildJdbcUrl(dataSourceType, sourceOption.getHost(),
-                sourceOption.getPort(), sourceOption.getDatabaseName(),
-                sourceOption.getSid(), sourceOption.getServiceName());
+        String jdbcUrl = sourceOption.getJdbcUrl();
+        if (StringUtils.isBlank(jdbcUrl)) {
+            jdbcUrl = JdbcUtils.buildJdbcUrl(dataSourceType, sourceOption.getHost(),
+                    sourceOption.getPort(), sourceOption.getDatabaseName(),
+                    sourceOption.getSid(), sourceOption.getServiceName());
+        }
 
-        JDBCOptions options = buildJDBCOptions(url, "table", sourceOption);
-        Connection connection = buildConnection(url, options);
+        JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
+        Connection connection = buildConnection(jdbcUrl, options);
         DatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, dataSourceType.name());
 
         List<String> schemaNames = getSchemaNames(schemaName, dialect);
@@ -93,7 +96,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             DataFrameReader reader = context.getSparkSession().read()
                     .format(format)
-                    .option("url", url)
+                    .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
                     .option("fetchSize", fetchSize)
                     .option("queryTimeout", queryTimeout)

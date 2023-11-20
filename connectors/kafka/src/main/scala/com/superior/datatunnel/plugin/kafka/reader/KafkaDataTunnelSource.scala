@@ -145,8 +145,11 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       val sinkTableName = jdbcSinkOption.getTableName
       val table = sinkDatabaseName + "." + sinkTableName
 
-      val url = JdbcUtils.buildJdbcUrl(jdbcSinkOption.getDataSourceType, jdbcSinkOption.getHost,
-        jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName, jdbcSinkOption.getSid, jdbcSinkOption.getServiceName)
+      var jdbcUrl = jdbcSinkOption.getJdbcUrl
+      if (StringUtils.isBlank(jdbcUrl)) {
+        jdbcUrl = JdbcUtils.buildJdbcUrl(jdbcSinkOption.getDataSourceType, jdbcSinkOption.getHost,
+          jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName, jdbcSinkOption.getSid, jdbcSinkOption.getServiceName)
+      }
 
       val batchsize = jdbcSinkOption.getBatchsize
       val queryTimeout = jdbcSinkOption.getQueryTimeout
@@ -164,7 +167,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       if (StringUtils.isNotBlank(preactions)) {
         val options = jdbcSinkOption.getParams
         options.put("user", jdbcSinkOption.getUsername)
-        connection = buildConnection(url, table, options)
+        connection = buildConnection(jdbcUrl, table, options)
       }
 
       if (StringUtils.isNotBlank(preactions)) {
@@ -184,7 +187,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
           batchDF.write
             .format("jdbc")
             .mode(mode)
-            .option("url", url)
+            .option("url", jdbcUrl)
             .option("dbtable", table)
             .option("batchsize", batchsize)
             .option("queryTimeout", queryTimeout)
