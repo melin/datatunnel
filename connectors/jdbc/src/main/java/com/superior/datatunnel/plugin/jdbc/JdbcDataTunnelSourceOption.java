@@ -5,7 +5,6 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 public class JdbcDataTunnelSourceOption extends BaseSourceOption {
