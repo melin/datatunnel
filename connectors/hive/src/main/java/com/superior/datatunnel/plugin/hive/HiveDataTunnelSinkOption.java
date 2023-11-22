@@ -19,8 +19,8 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
-    @OptionDesc("hive 表分区字段, 数据类型：String，只支持单分区表")
-    private String partitionColumn;
+    @OptionDesc("hive 表分区信息，例如：pt='20231201', type='Login'")
+    private String partitionSpec;
 
     @OptionDesc("写入模式, 仅支持：append、overwrite，不支持 upsert")
     private WriteMode writeMode = WriteMode.OVERWRITE;

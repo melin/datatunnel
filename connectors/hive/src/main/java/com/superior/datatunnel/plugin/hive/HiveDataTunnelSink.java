@@ -55,11 +55,11 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         try {
             String databaseName = sinkOption.getDatabaseName();
             String tableName = sinkOption.getTableName();
-            String partitionColumn = sinkOption.getPartitionColumn();
+            String partitionSpec = sinkOption.getPartitionSpec();
             WriteMode writeMode = sinkOption.getWriteMode();
 
             boolean isPartition = HiveUtils.checkPartition(context.getSparkSession(), databaseName, tableName);
-            if (isPartition && StringUtils.isBlank(partitionColumn)) {
+            if (isPartition && StringUtils.isBlank(partitionSpec)) {
                 throw new DataTunnelException("写入表为分区表，请指定写入分区");
             }
 
@@ -81,13 +81,13 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             String sql = "";
             if (APPEND == writeMode) {
                 if (isPartition) {
-                    sql = "insert into table " + table + " partition(" + partitionColumn + ") " + querySql;
+                    sql = "insert into table " + table + " partition(" + partitionSpec + ") " + querySql;
                 } else {
                     sql = "insert into table " + table + " " + querySql;
                 }
             } else if (OVERWRITE == writeMode) {
                 if (isPartition) {
-                    sql = "insert overwrite table " + table + " partition(" + partitionColumn + ") " + querySql;
+                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + querySql;
                 } else {
                     sql = "insert overwrite table " + table + " " + querySql;
                 }
@@ -132,11 +132,11 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             return field.name() + " " + typeString + " " + field.getComment().getOrElse(() -> "");
         }).collect(Collectors.joining(",\n"));
 
-        String partitonColumn = sinkOption.getPartitionColumn();
+        String partitionSpec = sinkOption.getPartitionSpec();
         List<String> partColumnNames = Lists.newArrayList();
-        if (StringUtils.isNotBlank(partitonColumn)) {
+        if (StringUtils.isNotBlank(partitionSpec)) {
             // 从 ds=20231102, type='Login' 格式中，解析出分区字段。
-            String[] parts = StringUtils.split(partitonColumn, ",");
+            String[] parts = StringUtils.split(partitionSpec, ",");
             for (String partCol : parts) {
                 String colName = StringUtils.split(partCol, "=")[0];
                 colums += (",\n" + colName + " string");

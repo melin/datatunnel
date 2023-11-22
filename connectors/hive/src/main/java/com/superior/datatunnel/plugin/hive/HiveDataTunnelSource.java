@@ -34,8 +34,25 @@ public class HiveDataTunnelSource implements DataTunnelSource {
         StringBuilder sqlBuilder = new StringBuilder("select ");
         sqlBuilder.append(StringUtils.join(columns, ",")).append(" from ").append(table);
 
+        String partitionSpec = sourceOption.getPartitionSpec();
+        if (StringUtils.isNotBlank(partitionSpec)) {
+            // 从 ds=20231102, type='Login' 格式中，解析出分区字段。
+            String[] parts = StringUtils.split(partitionSpec, ",");
+            for (int i = 0; i < parts.length; i++) {
+                if (i == 0) {
+                    sqlBuilder.append(" where ").append(parts[i]);
+                } else {
+                    sqlBuilder.append(" and ").append(parts[i]);
+                }
+            }
+        }
+
         if (StringUtils.isNotBlank(condition)) {
-            sqlBuilder.append(" where ").append(condition);
+            if (StringUtils.isNotBlank(partitionSpec)) {
+                sqlBuilder.append(" and ").append(condition);
+            } else {
+                sqlBuilder.append(" where ").append(condition);
+            }
         }
 
         String sql = sqlBuilder.toString();
