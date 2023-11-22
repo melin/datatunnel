@@ -31,8 +31,8 @@ object Maxcompute2HiveDemo {
 
             val sql = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
-              accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
-	          secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
+              accessKeyId = '',
+	          secretAccessKey = '',
 	          endpoint = 'http://service.us-east-1.maxcompute.aliyun.com/api',
               projectName = "superior",
               tableName = "orders",

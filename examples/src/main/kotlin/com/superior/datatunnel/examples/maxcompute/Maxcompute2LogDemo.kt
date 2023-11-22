@@ -21,8 +21,8 @@ object Maxcompute2LogDemo {
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
               projectName = "superior",
               tableName = "orders",
-              accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
-              secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
+              accessKeyId = '',
+              secretAccessKey = '',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               columns = ["*"]
             )
