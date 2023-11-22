@@ -31,8 +31,8 @@ object Maxcompute2HiveDemo {
 
             val sql = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
-              accessKeyId = '',
-	          secretAccessKey = '',
+              accessKeyId = 'xx',
+	          secretAccessKey = 'xxx',
 	          endpoint = 'http://service.us-east-1.maxcompute.aliyun.com/api',
               projectName = "superior",
               tableName = "orders",
@@ -42,7 +42,7 @@ object Maxcompute2HiveDemo {
               databaseName = "bigdata",
               tableName = 'odps_orders_pt',
               writeMode = 'overwrite',
-              partitionColumn = 'pt=20231102',
+              partitionSpec = 'pt=20231102',
               columns = ["*"]
             )
         """.trimIndent()

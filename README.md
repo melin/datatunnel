@@ -149,6 +149,7 @@ SINK("hive") OPTIONS (
   databaseName = "default",
   tableName = 'my_table_struct',
   writeMode = 'overwrite',
+  partitionSpec = 'pt=20231102',
   columns = ["*"]
 )
 ```
