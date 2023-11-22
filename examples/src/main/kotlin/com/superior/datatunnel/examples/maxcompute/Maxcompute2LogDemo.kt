@@ -17,25 +17,12 @@ object Maxcompute2LogDemo {
             .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
             .getOrCreate()
 
-        val sql = """
-            DATATUNNEL SOURCE("maxcompute") OPTIONS (
-                projectName = "aloudata",
-                tableName = "orders",
-                accessKeyId = 'LTAI5tHbjxR138YK5rQPq8kh',
-                secretAccessKey = 'iW6U2iNbHSQPpIdYWYXSDcfGi5mPRM',
-                columns = ["*"]
-            ) 
-            SINK("log")
-        """.trimIndent()
-
-        // spark.sql(sql)
-
         val sql1 = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
               projectName = "superior",
               tableName = "orders",
-              accessKeyId = 'LTAI5tHbjxR138YK5rQPq8kh',
-              secretAccessKey = 'iW6U2iNbHSQPpIdYWYXSDcfGi5mPRM',
+              accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
+              secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               columns = ["*"]
             )

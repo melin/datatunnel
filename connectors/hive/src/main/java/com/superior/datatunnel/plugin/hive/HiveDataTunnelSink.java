@@ -1,5 +1,6 @@
 package com.superior.datatunnel.plugin.hive;
 
+import com.clearspring.analytics.util.Lists;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.DataTunnelException;
@@ -131,6 +132,18 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             return field.name() + " " + typeString + " " + field.getComment().getOrElse(() -> "");
         }).collect(Collectors.joining(",\n"));
 
+        String partitonColumn = sinkOption.getPartitionColumn();
+        List<String> partColumnNames = Lists.newArrayList();
+        if (StringUtils.isNotBlank(partitonColumn)) {
+            // 从 ds=20231102, type='Login' 格式中，解析出分区字段。
+            String[] parts = StringUtils.split(partitonColumn, ",");
+            for (String partCol : parts) {
+                String colName = StringUtils.split(partCol, "=")[0];
+                colums += (",\n" + colName + " string");
+                partColumnNames.add(colName);
+            }
+        }
+
         String sql = "create table " + sinkOption.getFullTableName() + "(\n";
         sql += colums;
         sql += "\n)\n";
@@ -142,9 +155,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         }
         sql += (")");
 
-        String partitonColumn = sinkOption.getPartitionColumn();
-        if (StringUtils.isNotBlank(partitonColumn)) {
-            sql += "\nPARTITIONED BY (" + partitonColumn + " string)";
+        if (!partColumnNames.isEmpty()) {
+            sql += "\nPARTITIONED BY (" + StringUtils.join(partColumnNames, ",") + ")";
         }
 
         context.getSparkSession().sql(sql);

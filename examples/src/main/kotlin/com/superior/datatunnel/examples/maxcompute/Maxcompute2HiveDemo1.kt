@@ -6,7 +6,7 @@ import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.sql.SparkSession
 import java.security.PrivilegedExceptionAction
 
-object Maxcompute2HiveDemo {
+object Maxcompute2HiveDemo1 {
 
     private val KRB5_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/krb5.conf"
     private val KEYTAB_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/superior.keytab"
@@ -31,23 +31,41 @@ object Maxcompute2HiveDemo {
 
             val sql = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
-              accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
-	          secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
-	          endpoint = 'http://service.us-east-1.maxcompute.aliyun.com/api',
-              projectName = "superior",
-              tableName = "orders",
-              columns = ["*"]
-            )
+                projectName = "datac_test2",
+                tableName = "my_table2",
+                accessKeyId = 'LTAI5tAe6gqRSemVxscVwKWZ',
+                secretAccessKey = 'uwdoHv1PVTasz0agbZ7CZXxqlsUhBL',
+                endpoint='http://service.cn-hangzhou.maxcompute.aliyun.com/api',
+                columns = ["*"]
+            ) 
             SINK("hive") OPTIONS (
-              databaseName = "bigdata",
-              tableName = 'odps_orders_pt',
+              databaseName = "default",
+              tableName = 'my_table2',
               writeMode = 'overwrite',
-              partitionColumn = 'pt=20231102',
               columns = ["*"]
             )
         """.trimIndent()
 
             spark.sql(sql)
+
+            val sql1 = """f
+            DATATUNNEL SOURCE("maxcompute") OPTIONS (
+                projectName = "datac_test2",
+                tableName = "my_table_struct",
+                accessKeyId = 'LTAI5tAe6gqRSemVxscVwKWZ',
+                secretAccessKey = 'uwdoHv1PVTasz0agbZ7CZXxqlsUhBL',
+                endpoint='http://service.cn-hangzhou.maxcompute.aliyun.com/api',
+                columns = ["*"]
+            )
+            SINK("hive") OPTIONS (
+              databaseName = "default",
+              tableName = 'my_table_struct',
+              writeMode = 'overwrite',
+              columns = ["*"]
+            )
+        """.trimIndent()
+
+            spark.sql(sql1)
         })
     }
 
