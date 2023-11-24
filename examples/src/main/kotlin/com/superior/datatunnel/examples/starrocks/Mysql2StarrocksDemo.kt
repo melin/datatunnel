@@ -30,12 +30,13 @@ object Mysql2StarrocksDemo {
             ) 
             transform = "select id, userid as username, age from tdl_users"
             SINK("starrocks") OPTIONS (
-                "fe.http.url" = "172.18.1.190:8030",
-                "fe.jdbc.url" = "jdbc:mysql://172.18.1.190:9030",
-                tableName = 'test.mysql_users',
+                feEnpoints = "172.18.5.44:18030,172.18.5.45:18030,172.18.5.46:18030",
+                jdbcUrl = "jdbc:mysql://172.18.5.44:9030/",
+                databaseName = 'test',
+                tableName = 'mysql_users',
                 user = 'root',
-                password = "123456",
-                "properties.partial_update" = "true" // starrocks.write.properties.*
+                password = "root2023",
+                "properties.starrocks.write.properties.partial_update" = "true"
             ) 
         """.trimIndent()
 

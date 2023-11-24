@@ -19,11 +19,12 @@ object Starrocks2LogDemo {
 
         val sql = """
             DATATUNNEL SOURCE("starrocks") OPTIONS (
-                "fe.http.url" = "172.18.1.190:8030",
-                "fe.jdbc.url" = "jdbc:mysql://172.18.1.190:9030",
-                tableName = 'test.score_board',
+                feEnpoints = "172.18.5.44:18030,172.18.5.45:18030,172.18.5.46:18030",
+                jdbcUrl = "jdbc:mysql://172.18.5.44:9030/",
+                databaseName = 'bigdata',
+                tableName = 'account',
                 user = 'root',
-                password = "123456"
+                password = "root2023"
             ) 
             SINK("log")
         """.trimIndent()

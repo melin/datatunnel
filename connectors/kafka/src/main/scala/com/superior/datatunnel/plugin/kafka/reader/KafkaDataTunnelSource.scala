@@ -5,7 +5,6 @@ import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunne
 import com.superior.datatunnel.common.enums.WriteMode
 import com.superior.datatunnel.common.util.JdbcUtils.execute
 import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
-import com.superior.datatunnel.plugin.doris.DorisDataTunnelSinkOption
 import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
 import com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSinkOption
 import com.superior.datatunnel.plugin.kafka.{KafkaDataTunnelSinkOption, KafkaDataTunnelSourceOption}
@@ -42,10 +41,6 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       writeLog(context, sourceOption, tmpTable)
     } else if (DataSourceType.KAFKA == sinkType) {
       writeKafka(context, sourceOption, tmpTable)
-    } else if (DataSourceType.DORIS == sinkType) {
-      writeDoris(context, sourceOption, tmpTable)
-    } else if (DataSourceType.STARROCKS == sinkType) {
-      writeStarRocks(context, sourceOption, tmpTable)
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
@@ -90,44 +85,6 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     }
     val querySql = buildQuerySql(context, sourceOption, tmpTable)
     HudiUtils.deltaInsertStreamSelectAdapter(sparkSession, sinkDatabaseName, sinkTableName, checkpointLocation, querySql)
-  }
-
-  private def writeDoris(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
-    val querySql = buildQuerySql(context, sourceOption, tmpTable)
-    val dataset = context.getSparkSession.sql(querySql)
-    val sinkOption = context.getSinkOption.asInstanceOf[DorisDataTunnelSinkOption]
-
-    val dataFrameWriter = dataset.writeStream
-      .format("doris")
-      .option("checkpointLocation", sourceOption.getCheckpointLocation)
-      .option("doris.fenodes", sinkOption.getFenodes)
-      .option("user", sinkOption.getUser)
-      .option("password", sinkOption.getPassword)
-      .option("doris.table.identifier", sinkOption.getTableName)
-
-      .option("sink.batch.size", sinkOption.getBatchSize)
-      .option("doris.sink.task.use.repartition", sinkOption.isRepartition)
-      .option("doris.sink.batch.interval.ms", sinkOption.getIntervalTimes)
-      .option("doris.ignore-type", sinkOption.getIgnoreType)
-
-    val columns: Array[String] = sinkOption.getColumns
-    if (!((columns != null && columns.length == 0)|| (columns.length == 1 && "*".equals(columns(0))))) {
-      dataFrameWriter.option("doris.write.fields", StringUtils.join(columns, ","))
-    }
-    if (sinkOption.getPartitionSize != null) {
-      dataFrameWriter.option("doris.sink.task.partition.size", sinkOption.getPartitionSize.toLong)
-    }
-
-    sinkOption.getProperties.asScala.foreach(entry => {
-      dataFrameWriter.option("sink.properties." + entry._1, entry._2)
-    });
-
-    dataFrameWriter.start()
-      .awaitTermination()
-  }
-
-  private def writeStarRocks(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {
-    throw new IllegalAccessException("not support")
   }
 
   def writeJdbc(context: DataTunnelContext, sourceOption: KafkaDataTunnelSourceOption, tmpTable: String): Unit = {

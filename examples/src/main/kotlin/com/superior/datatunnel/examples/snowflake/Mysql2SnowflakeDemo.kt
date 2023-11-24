@@ -17,7 +17,7 @@ object Mysql2SnowflakeDemo {
 
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
-                username = "root",
+                user = "root",
                 password = "root2023",
                 host = '172.18.5.44',
                 port = 3306,

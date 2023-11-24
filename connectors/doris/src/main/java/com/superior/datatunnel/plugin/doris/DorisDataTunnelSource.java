@@ -1,11 +1,10 @@
 package com.superior.datatunnel.plugin.doris;
 
 import com.superior.datatunnel.api.DataTunnelContext;
-import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -18,33 +17,20 @@ public class DorisDataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         DorisDataTunnelSourceOption sourceOption = (DorisDataTunnelSourceOption) context.getSourceOption();
 
+        String fullTableId = sourceOption.getDatabaseName() + "." + sourceOption.getTableName();
         DataFrameReader reader = context.getSparkSession().read().format("doris")
-                .option("doris.fenodes", sourceOption.getFenodes())
+                .options(sourceOption.getProperties())
+                .option("doris.fenodes", sourceOption.getFeEnpoints())
                 .option("user", sourceOption.getUser())
                 .option("password", sourceOption.getPassword())
-                .option("doris.table.identifier", sourceOption.getTableName())
-                .option("doris.request.retries", sourceOption.getRetries())
-                .option("doris.request.connect.timeout.ms", sourceOption.getConnectTimeout())
-                .option("doris.request.read.timeout.ms", sourceOption.getReadTimeout())
-                .option("doris.request.query.timeout.s", sourceOption.getQueryTimeout())
-                .option("doris.request.tablet.size", sourceOption.getTabletSize())
-                .option("doris.read.field", StringUtils.join(sourceOption.getColumns(), ","))
-                .option("doris.batch.size", sourceOption.getBatchSize())
-                .option("doris.exec.mem.limit", sourceOption.getMemLimit())
-                .option("doris.deserialize.arrow.async", sourceOption.isDeserializeArrowAsync())
-                .option("doris.deserialize.queue.size", sourceOption.getDeserializeQueueSize())
-                .option("doris.filter.query.in.max.count", sourceOption.getFilterQueryInMaxCount());
+                .option("doris.table.identifier", fullTableId);
 
-        Dataset<Row> dataset = reader.load();
-        try {
-            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
-            dataset.createTempView(tdlName);
-            String columns = StringUtils.join(sourceOption.getColumns(), ",");
-            String sql = "select " + columns + " from " + tdlName;
-            return context.getSparkSession().sql(sql);
-        } catch (AnalysisException e) {
-            throw new DataTunnelException(e.message(), e);
+        String[] columns = sourceOption.getColumns();
+        if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
+            reader.option("doris.read.field", StringUtils.join(columns, ","));
         }
+
+        return reader.load();
     }
 
     @Override

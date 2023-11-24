@@ -25,26 +25,24 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         StarrocksDataTunnelSourceOption sourceOption = (StarrocksDataTunnelSourceOption) context.getSourceOption();
 
-        DataFrameReader reader = context.getSparkSession().read().format("starrocks")
-                .option("starrocks.fe.http.url", sourceOption.getFeHttpUrl())
-                .option("starrocks.fe.jdbc.url", sourceOption.getFeJdbcUrl())
-                .option("starrocks.table.identifier", sourceOption.getTableName())
-                .option("starrocks.user", sourceOption.getUser())
-                .option("starrocks.password", sourceOption.getPassword())
-                .option("starrocks.request.retries", sourceOption.getRetries())
-                .option("starrocks.request.connect.timeout.ms", sourceOption.getConnectTimeout())
-                .option("starrocks.request.read.timeout.ms", sourceOption.getReadTimeout())
-                .option("starrocks.request.query.timeout.s", sourceOption.getQueryTimeout())
-                .option("starrocks.request.tablet.size", sourceOption.getTableSize())
-                .option("starrocks.batch.size", sourceOption.getBatchSize())
-                .option("starrocks.exec.mem.limit", sourceOption.getMemLimit())
-                .option("starrocks.deserialize.arrow.async", sourceOption.isDeserializeArrowAsync())
-                .option("starrocks.deserialize.queue.size", sourceOption.getDeserializeQueueSize())
-                .option("starrocks.filter.query.in.max.count", sourceOption.getFilterQueryInMaxCount());
-
-        if (StringUtils.isNotBlank(sourceOption.getFilterQuery())) {
-            reader.option("starrocks.filter.query", sourceOption.getFilterQuery());
+        String jdbcUrl = sourceOption.getJdbcUrl();
+        if (StringUtils.isBlank(jdbcUrl)) {
+            if (StringUtils.isNotBlank(sourceOption.getHost())
+                    && sourceOption.getPort() != null) {
+                jdbcUrl = "jdbc:mysql://" + sourceOption.getHost() + ":" + sourceOption.getPort() + "/";
+            } else {
+                throw new IllegalArgumentException("Starrocks 不正确，添加jdbcUrl 或者 host & port");
+            }
         }
+
+        String fullTableId = sourceOption.getDatabaseName() + "." + sourceOption.getTableName();
+        DataFrameReader reader = context.getSparkSession().read().format("starrocks")
+                .options(sourceOption.getProperties())
+                .option("starrocks.fe.http.url", sourceOption.getFeEnpoints())
+                .option("starrocks.fe.jdbc.url", jdbcUrl)
+                .option("starrocks.table.identifier", fullTableId)
+                .option("starrocks.user", sourceOption.getUser())
+                .option("starrocks.password", sourceOption.getPassword());
 
         Dataset<Row> dataset = reader.load();
         try {

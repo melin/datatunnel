@@ -18,29 +18,19 @@ public class DorisDataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         DorisDataTunnelSinkOption sinkOption = (DorisDataTunnelSinkOption) context.getSinkOption();
 
+        String fullTableId = sinkOption.getDatabaseName() + "." + sinkOption.getTableName();
         DataFrameWriter dataFrameWriter = dataset.write().format("doris")
-                .option("doris.fenodes", sinkOption.getFenodes())
+                .options(sinkOption.getProperties())
+                .option("doris.fenodes", sinkOption.getFeEnpoints())
                 .option("user", sinkOption.getUser())
                 .option("password", sinkOption.getPassword())
-                .option("doris.table.identifier", sinkOption.getTableName())
+                .option("doris.table.identifier", fullTableId);
 
-                .option("sink.batch.size", sinkOption.getBatchSize())
-                .option("doris.sink.task.use.repartition", sinkOption.isRepartition())
-                .option("doris.sink.batch.interval.ms", sinkOption.getIntervalTimes())
-                .option("doris.ignore-type", sinkOption.getIgnoreType());
 
         String[] columns = sinkOption.getColumns();
         if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
             dataFrameWriter.option("doris.write.fields", StringUtils.join(columns, ","));
         }
-
-        if (sinkOption.getPartitionSize() != null) {
-            dataFrameWriter.option("doris.sink.task.partition.size", sinkOption.getPartitionSize());
-        }
-
-        sinkOption.getProperties().forEach((key, value) -> {
-            dataFrameWriter.option("sink.properties." + key, value);
-        });
 
         dataFrameWriter.mode(SaveMode.Append);
         dataFrameWriter.save();

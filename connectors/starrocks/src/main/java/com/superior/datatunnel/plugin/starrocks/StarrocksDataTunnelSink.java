@@ -22,32 +22,29 @@ public class StarrocksDataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         StarrocksDataTunnelSinkOption sinkOption = (StarrocksDataTunnelSinkOption) context.getSinkOption();
 
+        String jdbcUrl = sinkOption.getJdbcUrl();
+        if (StringUtils.isBlank(jdbcUrl)) {
+            if (StringUtils.isNotBlank(sinkOption.getHost())
+                    && sinkOption.getPort() != null) {
+                jdbcUrl = "jdbc:mysql://" + sinkOption.getHost() + ":" + sinkOption.getPort() + "/";
+            } else {
+                throw new IllegalArgumentException("Starrocks 不正确，添加jdbcUrl 或者 host & port");
+            }
+        }
+
+        String fullTableId = sinkOption.getDatabaseName() + "." + sinkOption.getTableName();
         DataFrameWriter dataFrameWriter = dataset.write().format("starrocks")
-                .option("starrocks.fe.http.url", sinkOption.getFeHttpUrl())
-                .option("starrocks.fe.jdbc.url", sinkOption.getFeJdbcUrl())
-                .option("starrocks.table.identifier", sinkOption.getTableName())
+                .options(sinkOption.getProperties())
+                .option("starrocks.fe.http.url", sinkOption.getFeEnpoints())
+                .option("starrocks.fe.jdbc.url", jdbcUrl)
+                .option("starrocks.table.identifier", fullTableId)
                 .option("starrocks.user", sinkOption.getUser())
-                .option("starrocks.password", sinkOption.getPassword())
-                .option("starrocks.write.label.prefix", sinkOption.getWriteLabelPrefix())
-                .option("starrocks.write.enable.transaction-stream-load", sinkOption.getTransactionEnabled())
-                .option("starrocks.write.buffer.size", sinkOption.getWriteBufferSize())
-                .option("starrocks.write.flush.interval.ms", sinkOption.getWriteFlushInterval());
+                .option("starrocks.password", sinkOption.getPassword());
 
         String[] columns = sinkOption.getColumns();
         if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
             dataFrameWriter.option("starrocks.columns", StringUtils.join(columns, ","));
         }
-        if (sinkOption.getWritePartitionNum() != null) {
-            dataFrameWriter.option("starrocks.write.num.partitions", sinkOption.getWritePartitionNum());
-        }
-        if (StringUtils.isNotBlank(sinkOption.getWritePartitionColumns())) {
-            dataFrameWriter.option("starrocks.write.partition.columns", sinkOption.getWritePartitionColumns());
-        }
-
-        sinkOption.getProperties().forEach((key, value) -> {
-            dataFrameWriter.option("starrocks.write.properties." + key, value);
-        });
-
         dataFrameWriter.mode(SaveMode.Append);
         dataFrameWriter.save();
     }
