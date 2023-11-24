@@ -26,7 +26,6 @@ public class DorisDataTunnelSink implements DataTunnelSink {
                 .option("password", sinkOption.getPassword())
                 .option("doris.table.identifier", fullTableId);
 
-
         String[] columns = sinkOption.getColumns();
         if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
             dataFrameWriter.option("doris.write.fields", StringUtils.join(columns, ","));
