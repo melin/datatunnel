@@ -33,9 +33,17 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
             throw new DataTunnelException("不支持的写入模式：" + writeMode);
         }
 
+        String projectName = sinkOption.getProjectName();
+        if (StringUtils.isBlank(projectName)) {
+            projectName = sinkOption.getSchemaName();
+        }
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("projectName can not blank");
+        }
+
         DataFrameWriter dataFrameWriter = dataset.write()
                 .format(ODPS_DATA_SOURCE)
-                .option("spark.hadoop.odps.project.name", sinkOption.getProjectName())
+                .option("spark.hadoop.odps.project.name", projectName)
                 .option("spark.hadoop.odps.access.id", sinkOption.getAccessKeyId())
                 .option("spark.hadoop.odps.access.key", sinkOption.getSecretAccessKey())
                 .option("spark.hadoop.odps.end.point", sinkOption.getEndpoint())

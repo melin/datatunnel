@@ -54,6 +54,14 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
         try {
             String databaseName = sinkOption.getDatabaseName();
+            if (StringUtils.isBlank(databaseName)) {
+                databaseName = sinkOption.getSchemaName();
+            }
+
+            if (StringUtils.isBlank(databaseName)) {
+                throw new IllegalArgumentException("databaseName can not blank");
+            }
+
             String tableName = sinkOption.getTableName();
             String partitionSpec = sinkOption.getPartitionSpec();
             WriteMode writeMode = sinkOption.getWriteMode();

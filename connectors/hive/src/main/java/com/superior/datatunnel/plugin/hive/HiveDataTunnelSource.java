@@ -22,6 +22,13 @@ public class HiveDataTunnelSource implements DataTunnelSource {
         HiveDataTunnelSourceOption sourceOption = (HiveDataTunnelSourceOption) context.getSourceOption();
 
         String databaseName = sourceOption.getDatabaseName();
+        if (StringUtils.isBlank(databaseName)) {
+            databaseName = sourceOption.getSchemaName();
+        }
+        if (StringUtils.isBlank(databaseName)) {
+            throw new IllegalArgumentException("databaseName can not blank");
+        }
+
         String tableName = sourceOption.getTableName();
         String[] columns = sourceOption.getColumns();
         String condition = sourceOption.getCondition();

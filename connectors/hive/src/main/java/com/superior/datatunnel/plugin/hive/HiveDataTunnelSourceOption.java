@@ -9,8 +9,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class HiveDataTunnelSourceOption extends BaseSourceOption {
 
-    @NotBlank(message = "databaseName can not blank")
     private String databaseName;
+
+    @OptionDesc("等同 databaseName, databaseName 和 schemaName 只需设置一个")
+    private String schemaName;
 
     @NotBlank(message = "tableName can not blank")
     private String tableName;

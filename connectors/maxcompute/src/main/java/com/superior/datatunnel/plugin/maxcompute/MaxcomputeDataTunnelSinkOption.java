@@ -10,8 +10,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class MaxcomputeDataTunnelSinkOption extends BaseSinkOption {
 
-    @NotBlank(message = "projectName can not blank")
     private String projectName;
+
+    @OptionDesc("等同 projectName, projectName 和 schemaName 只需设置一个")
+    private String schemaName;
 
     @NotBlank(message = "tableName can not blank")
     private String tableName;
