@@ -44,13 +44,34 @@ public class MaxcomputeDataTunnelSource implements DataTunnelSource {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
             String[] columns = sourceOption.getColumns();
-            String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
+
+            StringBuilder sqlBuilder = new StringBuilder("select ");
+            sqlBuilder.append(StringUtils.join(columns, ",")).append(" from ").append(tdlName);
+
+            String partitionSpec = sourceOption.getPartitionSpec();
+            if (StringUtils.isNotBlank(partitionSpec)) {
+                // 从 ds=20231102, type='Login' 格式中，解析出分区字段。
+                String[] parts = StringUtils.split(partitionSpec, ",");
+                for (int i = 0; i < parts.length; i++) {
+                    if (i == 0) {
+                        sqlBuilder.append(" where ").append(parts[i]);
+                    } else {
+                        sqlBuilder.append(" and ").append(parts[i]);
+                    }
+                }
+            }
 
             String condition = sourceOption.getCondition();
             if (StringUtils.isNotBlank(condition)) {
-                sql = sql + " where " + condition;
+                if (StringUtils.isNotBlank(partitionSpec)) {
+                    sqlBuilder.append(" and ").append(condition);
+                } else {
+                    sqlBuilder.append(" where ").append(condition);
+                }
             }
 
+            String sql = sqlBuilder.toString();
+            LOG.info("exec sql: {}", sql);
             return context.getSparkSession().sql(sql);
         } catch (AnalysisException e) {
             throw new DataTunnelException(e.message(), e);
