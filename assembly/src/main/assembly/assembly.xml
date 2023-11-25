@@ -20,6 +20,8 @@
                 <!-- hudi 中包含hadoop-server 不需要打包进去 -->
                 <exclude>org.apache.hbase:hbase-server:jar</exclude>
                 <exclude>com.sun.jersey:*:jar</exclude>
+                <exclude>org.scala-lang:*:jar</exclude>
+                <exclude>org.antlr:*:jar</exclude>
                 <exclude>com.sun.jersey.contribs:*:jar</exclude>
                 <exclude>javax.servlet:servlet-api:jar</exclude>
                 <exclude>com.google.guava:guava:jar</exclude>
