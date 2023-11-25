@@ -12,7 +12,6 @@ import javax.validation.constraints.NotNull;
 public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
 
     @OptionDesc("数据库名")
-    @NotBlank(message = "databaseName can not blank")
     private String databaseName;
 
     @OptionDesc("数据库 schema 名")
@@ -27,11 +26,12 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
 
     private String password = "";
 
-    @NotBlank(message = "host can not blank")
     private String host;
 
-    @NotNull(message = "port can not blank")
     private Integer port = 5439;
+
+    @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
+    private String jdbcUrl;
 
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")

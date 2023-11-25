@@ -27,7 +27,15 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
         SparkSession sparkSession = context.getSparkSession();
         RedshiftDataTunnelSourceOption option = (RedshiftDataTunnelSourceOption) context.getSourceOption();
 
-        String jdbcURL = "jdbc:redshift://" + option.getHost() + ":" + option.getPort() + "/" + option.getDatabaseName();
+        String jdbcUrl = option.getJdbcUrl();
+        if (StringUtils.isBlank(jdbcUrl)) {
+            if (StringUtils.isNotBlank(option.getHost())
+                    && option.getPort() != null && StringUtils.isNotBlank(option.getDatabaseName())) {
+                jdbcUrl = "jdbc:redshift://" + option.getHost() + ":" + option.getPort() + "/" + option.getDatabaseName();
+            } else {
+                throw new IllegalArgumentException("Redshift 不正确，添加jdbcUrl 或者 host & port & databaseName");
+            }
+        }
 
         String accessKeyId = option.getAccessKeyId();
         String secretAccessKey = option.getSecretAccessKey();
@@ -41,7 +49,7 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
                 .read()
                 .format("io.github.spark_redshift_community.spark.redshift")
                 .options(option.getProperties())
-                .option("url", jdbcURL)
+                .option("url", jdbcUrl)
                 .option("user", option.getUsername())
                 .option("password", option.getPassword())
                 .option("tempdir_region", option.getRegion())

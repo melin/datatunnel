@@ -14,8 +14,8 @@ object Redshift2LogDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = ""
-        val secretAccessKey = ""
+        val accessKeyId = "AKIAW77DWNKCQ6EV6AFI"
+        val secretAccessKey = "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"
         val redshiftRoleArn = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
@@ -30,9 +30,7 @@ object Redshift2LogDemo {
             DATATUNNEL SOURCE("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2023",
-                host = '',
-                port = 5439,
-                databaseName = 'dev',
+                jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cr3sb4otm3vp.us-east-1.redshift.amazonaws.com:5439/dev',
                 schemaName = 'public',
                 tableName = 'category',
                 tempdir = 's3a://datacyber/redshift_temp/',
