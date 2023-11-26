@@ -195,7 +195,7 @@ object TypesConverter {
       }
       case OdpsType.DATE => (v: Object) =>
         DateUtils.getDayOffset(v.asInstanceOf[java.sql.Date]).toInt
-      case OdpsType.TIMESTAMP => (v: Object) => v.asInstanceOf[java.time.Instant].toEpochMilli
+      case OdpsType.TIMESTAMP => (v: Object) => v.asInstanceOf[java.time.Instant].toEpochMilli * 1000
       case OdpsType.FLOAT => (v: Object) => v.asInstanceOf[java.lang.Float]
       case OdpsType.INT => (v: Object) => v.asInstanceOf[java.lang.Integer]
       case OdpsType.SMALLINT => (v: Object) => v.asInstanceOf[java.lang.Short]
