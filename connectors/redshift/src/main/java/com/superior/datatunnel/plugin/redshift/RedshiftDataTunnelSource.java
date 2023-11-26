@@ -60,6 +60,7 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
                 throw new DataTunnelException("redshiftRoleArn can not blank");
             }
             Credentials credentials = Utils.queryCredentials(accessKeyId, secretAccessKey, region, redshiftRoleArn);
+            LOGGER.info("aws credentials: " + credentials);
             reader.option("temporary_aws_access_key_id", credentials.accessKeyId())
                     .option("temporary_aws_secret_access_key", credentials.secretAccessKey())
                     .option("temporary_aws_session_token", credentials.sessionToken());
