@@ -21,10 +21,10 @@ object Maxcompute2LogDemo {
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
               projectName = "superior",
               tableName = "orders",
-              accessKeyId = '',
-              secretAccessKey = '',
+              accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
+              secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
-              columns = ["*"]
+              columns = ["id", "name"]
             )
             SINK("log")
         """.trimIndent()

@@ -16,7 +16,7 @@
                 <exclude>com.alibaba:fastjson:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java:jar</exclude>
                 <exclude>org.apache.zookeeper:zookeeper:jar</exclude>
-                <exclude>org.apache.hadoop:*:jar</exclude>
+                <!--<exclude>org.apache.hadoop:*:jar</exclude>-->
                 <!-- hudi 中包含hadoop-server 不需要打包进去 -->
                 <exclude>org.apache.hbase:hbase-server:jar</exclude>
                 <exclude>com.sun.jersey:*:jar</exclude>

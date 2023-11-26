@@ -34,7 +34,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aws</artifactId>
             <version>${hadoop.version}</version>
-            <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -57,9 +56,8 @@
 
         <dependency>
             <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
+            <artifactId>aws-java-sdk-core</artifactId>
             <version>${aws.java.sdk.version}</version>
-            <scope>${libScope}</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-codec</artifactId>
