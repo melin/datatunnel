@@ -17,11 +17,20 @@ public class DorisDataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         DorisDataTunnelSourceOption sourceOption = (DorisDataTunnelSourceOption) context.getSourceOption();
 
-        String fullTableId = sourceOption.getDatabaseName() + "." + sourceOption.getTableName();
+        String databaseName = sourceOption.getDatabaseName();
+        if (StringUtils.isBlank(databaseName)) {
+            databaseName = sourceOption.getSchemaName();
+        }
+
+        if (StringUtils.isBlank(databaseName)) {
+            throw new IllegalArgumentException("databaseName can not blank");
+        }
+
+        String fullTableId = databaseName + "." + sourceOption.getTableName();
         DataFrameReader reader = context.getSparkSession().read().format("doris")
                 .options(sourceOption.getProperties())
                 .option("doris.fenodes", sourceOption.getFeEnpoints())
-                .option("user", sourceOption.getUser())
+                .option("user", sourceOption.getUsername())
                 .option("password", sourceOption.getPassword())
                 .option("doris.table.identifier", fullTableId);
 

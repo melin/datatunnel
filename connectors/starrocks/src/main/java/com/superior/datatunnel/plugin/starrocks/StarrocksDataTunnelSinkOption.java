@@ -9,9 +9,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class StarrocksDataTunnelSinkOption extends BaseSinkOption {
 
-    @OptionDesc("数据库名")
-    @NotBlank
     private String databaseName;
+
+    @OptionDesc("等同 databaseName, databaseName 和 schemaName 只需设置一个")
+    private String schemaName;
 
     @OptionDesc("表名")
     @NotBlank
@@ -19,7 +20,7 @@ public class StarrocksDataTunnelSinkOption extends BaseSinkOption {
 
     @OptionDesc("StarRocks 集群账号的用户名")
     @NotBlank
-    private String user;
+    private String username;
 
     @OptionDesc("StarRocks 集群账号的密码")
     @NotBlank

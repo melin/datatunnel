@@ -34,7 +34,7 @@ object Mysql2StarrocksDemo {
                 jdbcUrl = "jdbc:mysql://172.18.5.44:9030/",
                 databaseName = 'test',
                 tableName = 'mysql_users',
-                user = 'root',
+                username = 'root',
                 password = "root2023",
                 "properties.starrocks.write.properties.partial_update" = "true"
             ) 

@@ -23,7 +23,7 @@ object Starrocks2LogDemo {
                 jdbcUrl = "jdbc:mysql://172.18.5.44:9030/",
                 databaseName = 'bigdata',
                 tableName = 'account',
-                user = 'root',
+                username = 'root',
                 password = "root2023"
             ) 
             SINK("log")

@@ -35,13 +35,21 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
             }
         }
 
-        String fullTableId = sourceOption.getDatabaseName() + "." + sourceOption.getTableName();
+        String databaseName = sourceOption.getDatabaseName();
+        if (StringUtils.isBlank(databaseName)) {
+            databaseName = sourceOption.getSchemaName();
+        }
+
+        if (StringUtils.isBlank(databaseName)) {
+            throw new IllegalArgumentException("databaseName can not blank");
+        }
+        String fullTableId = databaseName + "." + sourceOption.getTableName();
         DataFrameReader reader = context.getSparkSession().read().format("starrocks")
                 .options(sourceOption.getProperties())
                 .option("starrocks.fe.http.url", sourceOption.getFeEnpoints())
                 .option("starrocks.fe.jdbc.url", jdbcUrl)
                 .option("starrocks.table.identifier", fullTableId)
-                .option("starrocks.user", sourceOption.getUser())
+                .option("starrocks.user", sourceOption.getUsername())
                 .option("starrocks.password", sourceOption.getPassword());
 
         Dataset<Row> dataset = reader.load();

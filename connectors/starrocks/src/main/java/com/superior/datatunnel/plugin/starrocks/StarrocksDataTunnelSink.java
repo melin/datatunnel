@@ -32,13 +32,22 @@ public class StarrocksDataTunnelSink implements DataTunnelSink {
             }
         }
 
-        String fullTableId = sinkOption.getDatabaseName() + "." + sinkOption.getTableName();
+        String databaseName = sinkOption.getDatabaseName();
+        if (StringUtils.isBlank(databaseName)) {
+            databaseName = sinkOption.getSchemaName();
+        }
+
+        if (StringUtils.isBlank(databaseName)) {
+            throw new IllegalArgumentException("databaseName can not blank");
+        }
+
+        String fullTableId = databaseName + "." + sinkOption.getTableName();
         DataFrameWriter dataFrameWriter = dataset.write().format("starrocks")
                 .options(sinkOption.getProperties())
                 .option("starrocks.fe.http.url", sinkOption.getFeEnpoints())
                 .option("starrocks.fe.jdbc.url", jdbcUrl)
                 .option("starrocks.table.identifier", fullTableId)
-                .option("starrocks.user", sinkOption.getUser())
+                .option("starrocks.user", sinkOption.getUsername())
                 .option("starrocks.password", sinkOption.getPassword());
 
         String[] columns = sinkOption.getColumns();

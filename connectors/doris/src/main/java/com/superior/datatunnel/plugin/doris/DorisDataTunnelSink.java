@@ -18,11 +18,20 @@ public class DorisDataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         DorisDataTunnelSinkOption sinkOption = (DorisDataTunnelSinkOption) context.getSinkOption();
 
-        String fullTableId = sinkOption.getDatabaseName() + "." + sinkOption.getTableName();
+        String databaseName = sinkOption.getDatabaseName();
+        if (StringUtils.isBlank(databaseName)) {
+            databaseName = sinkOption.getSchemaName();
+        }
+
+        if (StringUtils.isBlank(databaseName)) {
+            throw new IllegalArgumentException("databaseName can not blank");
+        }
+
+        String fullTableId = databaseName + "." + sinkOption.getTableName();
         DataFrameWriter dataFrameWriter = dataset.write().format("doris")
                 .options(sinkOption.getProperties())
                 .option("doris.fenodes", sinkOption.getFeEnpoints())
-                .option("user", sinkOption.getUser())
+                .option("user", sinkOption.getUsername())
                 .option("password", sinkOption.getPassword())
                 .option("doris.table.identifier", fullTableId);
 
