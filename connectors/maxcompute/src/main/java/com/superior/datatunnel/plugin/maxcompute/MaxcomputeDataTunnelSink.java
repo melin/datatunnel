@@ -46,14 +46,17 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
         if (StringUtils.isNotBlank(partitionSpec)) {
             String[] parts = StringUtils.split(partitionSpec, ",");
             String[] columns = sinkOption.getColumns();
-            for (String part : parts) {
-                String[] items = StringUtils.split(part, "=");
+            for (int i = 0; i < parts.length; i++) {
+                parts[i] = parts[i].trim();
+                String[] items = StringUtils.split(parts[i], "=");
                 String columnName = items[0].trim();
                 if (!ArrayUtils.contains(columns, columnName)) {
                     String value = CommonUtils.cleanQuote(items[1]);
                     dataset = dataset.withColumn(columnName, functions.lit(value));
                 }
             }
+
+            partitionSpec = StringUtils.join(parts, ",");
         }
 
         DataFrameWriter dataFrameWriter = dataset.write()
