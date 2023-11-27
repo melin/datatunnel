@@ -1,10 +1,12 @@
 package com.superior.datatunnel.plugin.maxcompute;
 
+import com.clearspring.analytics.util.Lists;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
+import com.superior.datatunnel.common.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -48,10 +51,19 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
                 .option("spark.hadoop.odps.access.key", sinkOption.getSecretAccessKey())
                 .option("spark.hadoop.odps.end.point", sinkOption.getEndpoint())
                 .option("spark.hadoop.odps.table.name", sinkOption.getTableName())
-                .option("spark.sql.odps.dynamic.partition", true);
+                .option("spark.sql.odps.dynamic.partition", false);
 
         if (StringUtils.isNotBlank(sinkOption.getPartitionSpec())) {
-            dataFrameWriter.option("spark.sql.odps.partition.spec", sinkOption.getPartitionSpec());
+            String partitionSpec = sinkOption.getPartitionSpec();
+            String[] parts = StringUtils.split(partitionSpec, ",");
+            List<String> list = Lists.newArrayList();
+            for (int i = 0; i < parts.length; i++) {
+                String[] items = StringUtils.split(parts[i], "=");
+                String columnName = items[0];
+                String value = CommonUtils.cleanQuote(items[1]);
+                list.add(columnName + "=" + value);
+            }
+            dataFrameWriter.option("spark.sql.odps.partition.spec", StringUtils.join(list, ","));
         }
         dataFrameWriter.mode(writeMode == WriteMode.APPEND ? SaveMode.Append : SaveMode.Overwrite);
         dataFrameWriter.save();
