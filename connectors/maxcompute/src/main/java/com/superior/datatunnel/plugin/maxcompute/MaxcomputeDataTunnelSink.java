@@ -7,13 +7,12 @@ import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.CommonUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.spark.sql.DataFrameWriter;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SaveMode;
+import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.spark.sql.functions;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,6 +43,21 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
             throw new IllegalArgumentException("projectName can not blank");
         }
 
+        // 静态分区字段添加到df 上，否则mc 提示缺少字段
+        if (StringUtils.isNotBlank(sinkOption.getPartitionSpec())) {
+            String partitionSpec = sinkOption.getPartitionSpec();
+            String[] parts = StringUtils.split(partitionSpec, ",");
+            String[] columns = sinkOption.getColumns();
+            for (String part : parts) {
+                String[] items = StringUtils.split(part, "=");
+                String columnName = items[0];
+                if (!ArrayUtils.contains(columns, columnName)) {
+                    String value = CommonUtils.cleanQuote(items[1]);
+                    dataset = dataset.withColumn(columnName, functions.lit(value));
+                }
+            }
+        }
+
         DataFrameWriter dataFrameWriter = dataset.write()
                 .format(ODPS_DATA_SOURCE)
                 .option("spark.hadoop.odps.project.name", projectName)
@@ -53,6 +67,7 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
                 .option("spark.hadoop.odps.table.name", sinkOption.getTableName())
                 .option("spark.sql.odps.dynamic.partition", false);
 
+        // spark.sql.odps.partition.spec 分区值不能有引号
         if (StringUtils.isNotBlank(sinkOption.getPartitionSpec())) {
             String partitionSpec = sinkOption.getPartitionSpec();
             String[] parts = StringUtils.split(partitionSpec, ",");

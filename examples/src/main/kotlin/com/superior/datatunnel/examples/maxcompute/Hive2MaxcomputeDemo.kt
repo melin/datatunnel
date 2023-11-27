@@ -39,7 +39,7 @@ object Hive2MaxcomputeDemo {
               databaseName = "bigdata",
               tableName = 'test_hudi_orders_pt',
               partitionSpec = 'pt=20231125,type="redshift"',
-              columns = ['id', 'code', 'username', 'address', 'create_time', 'pt', 'type']
+              columns = ['id', 'code', 'username', 'address', 'create_time']
             )
             SINK("maxcompute") OPTIONS (
               accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
@@ -47,9 +47,9 @@ object Hive2MaxcomputeDemo {
 	          endpoint = 'http://service.us-east-1.maxcompute.aliyun.com/api',
               projectName = "datacyber",
               tableName = "ods_orders_pt",
-              partitionSpec = 'pt="20231125",type="mc"',
+              partitionSpec = 'pt="20231126",type="mc"',
               writeMode = 'append',
-              columns = ['id', 'code', 'username', 'address', 'create_time', 'pt', 'type']
+              columns = ['id', 'code', 'username', 'address', 'create_time']
             )
         """.trimIndent()
 
