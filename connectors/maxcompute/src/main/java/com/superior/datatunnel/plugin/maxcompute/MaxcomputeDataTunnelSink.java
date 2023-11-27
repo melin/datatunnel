@@ -48,7 +48,7 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
             String[] columns = sinkOption.getColumns();
             for (String part : parts) {
                 String[] items = StringUtils.split(part, "=");
-                String columnName = items[0];
+                String columnName = items[0].trim();
                 if (!ArrayUtils.contains(columns, columnName)) {
                     String value = CommonUtils.cleanQuote(items[1]);
                     dataset = dataset.withColumn(columnName, functions.lit(value));
