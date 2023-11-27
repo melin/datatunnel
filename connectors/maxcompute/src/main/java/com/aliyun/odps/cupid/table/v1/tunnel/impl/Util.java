@@ -10,6 +10,7 @@ import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
 import com.aliyun.odps.utils.StringUtils;
+import com.superior.datatunnel.common.util.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,8 @@ public class Util {
         }
         PartitionSpec odpsPartitionSpec = new PartitionSpec();
         for (String key : partitionSpec.keySet()) {
-            odpsPartitionSpec.set(key, partitionSpec.get(key));
+            String value = partitionSpec.get(key);
+            odpsPartitionSpec.set(key.trim(), CommonUtils.cleanQuote(value));
         }
         return odpsPartitionSpec;
     }
