@@ -5,6 +5,7 @@ import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
+import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
@@ -87,9 +88,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             }
 
             String format = "datatunnel-jdbc";
-            if (dataSourceType == DataSourceType.TIDB &&
-                    context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
-                format = "tidb";
+
+            if (truncate) {
+                LogUtils.info("清空表数据");
             }
             DataFrameWriter dataFrameWriter = dataset.write()
                     .format(format)
@@ -104,16 +105,6 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("writeMode", writeMode.name().toLowerCase())
                     .option("dataSourceType", dataSourceType.name())
                     .option("isolationLevel", sinkOption.getIsolationLevel());
-
-            if (dataSourceType == DataSourceType.TIDB &&
-                    context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
-                dataFrameWriter.option("database", schemaName);
-                dataFrameWriter.option("table", sinkOption.getTableName());
-
-                if ("upsert".equals(writeMode)) {
-                    dataFrameWriter.option("replace", true);
-                }
-            }
 
             dataFrameWriter.save();
 

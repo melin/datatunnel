@@ -55,27 +55,27 @@ DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
 
 ## 支持数据源
 
-| 数据源           | Reader(读) | Writer(写)    | 文档                                                                                 |
-|:--------------|:----------| :------      |:-----------------------------------------------------------------------------------|
-| file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                           |
-| sftp          | √         | √            | [读写](doc/sftp.md) 支持excel, json，csv, parquet、orc、text 文件                           |                       
-| ftp           | √         | √            | [读写](doc/ftp.md)  支持excel, json，csv, parquet、orc、text 文件                           |
-| s3            | √         | √            | [读写](doc/s3.md)  支持excel, json，csv, parquet、orc、text 文件                            |
-| hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                            |
-| jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，tidb，guass，postgresql,tidb   |
-| hive          | √         | √            | [读写](doc/hive.md)                                                                  |
-| clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                           |
-| cassandra     | √         | √            | [读写](doc/cassandra.md)                                                             |
-| elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                      |
-| log           |           | √            | [写](doc/log.md)                                                                    |
-| kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                                |
-| doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                        |
-| starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                                |
-| redis         |           | √            | [写](doc/redis.md)                                                                  |
-| aerospike     | √         | √            | [读写](doc/aerospike.md) 相比redis 性能更好                                                |
-| maxcompute    | √         | √            | [读写](doc/maxcompute.md)                                                            |
-| redshift      | √         | √            | [读写](doc/redshift.md)  https://github.com/spark-redshift-community/spark-redshift  |
-| snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake |
+| 数据源           | Reader(读) | Writer(写)    | 文档                                                                                |
+|:--------------|:----------| :------      |:----------------------------------------------------------------------------------|
+| file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                          |
+| sftp          | √         | √            | [读写](doc/sftp.md) 支持excel, json，csv, parquet、orc、text 文件                          |                       
+| ftp           | √         | √            | [读写](doc/ftp.md)  支持excel, json，csv, parquet、orc、text 文件                          |
+| s3            | √         | √            | [读写](doc/s3.md)  支持excel, json，csv, parquet、orc、text 文件                           |
+| hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                           |
+| jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，guass，postgresql            |
+| hive          | √         | √            | [读写](doc/hive.md)                                                                 |
+| clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                          |
+| cassandra     | √         | √            | [读写](doc/cassandra.md)                                                            |
+| elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                     |
+| log           |           | √            | [写](doc/log.md)                                                                   |
+| kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                               |
+| doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                       |
+| starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                               |
+| redis         |           | √            | [写](doc/redis.md)                                                                 |
+| aerospike     | √         | √            | [读写](doc/aerospike.md) 相比redis 性能更好                                               |
+| maxcompute    | √         | √            | [读写](doc/maxcompute.md)                                                           |
+| redshift      | √         | √            | [读写](doc/redshift.md)  https://github.com/spark-redshift-community/spark-redshift |
+| snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake            |
 
 ## example
 ```sql

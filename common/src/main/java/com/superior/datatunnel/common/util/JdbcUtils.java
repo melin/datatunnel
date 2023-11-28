@@ -29,7 +29,7 @@ public class JdbcUtils {
         // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
 
         String url = "";
-        if (MYSQL == dsType || TIDB == dsType) {
+        if (MYSQL == dsType) {
             url = "jdbc:mysql://" + host + ":" + port;
             url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&tinyInt1isBit=false";
         } else if (ORACLE == dsType) {

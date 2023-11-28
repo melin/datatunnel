@@ -88,14 +88,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String username = sourceOption.getUsername();
             String password = sourceOption.getPassword();
 
-            String format = "jdbc";
-            if (dataSourceType == DataSourceType.TIDB &&
-                    context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
-                format = "tidb";
-            }
-
             DataFrameReader reader = context.getSparkSession().read()
-                    .format(format)
+                    .format("jdbc")
                     .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
                     .option("fetchSize", fetchSize)
@@ -105,12 +99,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     .option("pushDownPredicate", sourceOption.isPushDownPredicate())
                     .option("pushDownAggregate", sourceOption.isPushDownAggregate())
                     .option("pushDownLimit", sourceOption.isPushDownLimit());
-
-            if (dataSourceType == DataSourceType.TIDB &&
-                    context.getSparkSession().conf().contains("spark.sql.catalog.tidb_catalog")) {
-                reader.option("database", schemaName);
-                reader.option("table", pair.getRight());
-            }
 
             if (StringUtils.isNotBlank(sourceOption.getPartitionColumn())) {
                 reader.option("partitionColumn", sourceOption.getPartitionColumn())
