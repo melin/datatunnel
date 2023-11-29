@@ -3,7 +3,7 @@ package org.apache.spark.sql.datatunnel.sql
 import com.gitee.melin.bee.util.JsonUtils
 import com.google.common.collect.Maps
 import com.superior.datatunnel.api.DataSourceType._
-import com.superior.datatunnel.api._
+import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.core.Utils
@@ -64,6 +64,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       throw new DataTunnelException("sink param is incorrect: \n" + msg)
     }
 
+    validateOptions(sourceName, sourceConnector, sourceOption, sinkName, sinkConnector, sinkOption)
+
     val context = new DataTunnelContext
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
@@ -100,6 +102,25 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       sinkConnector.sink(df, context)
     }
     Seq.empty[Row]
+  }
+
+  def validateOptions(sourceName: String, source: DataTunnelSource, sourceOption: DataTunnelSourceOption,
+                      sinkName: String, sink: DataTunnelSink, sinkOption: DataTunnelSinkOption): Unit = {
+    if (!source.optionalOptions().isEmpty) {
+      sourceOption.getProperties.asScala.foreach(key => {
+        if (!source.optionalOptions().contains(key)) {
+          throw new DataTunnelException(s"source $sourceName not have param: properties.${key}")
+        }
+      })
+    }
+
+    if (!sink.optionalOptions().isEmpty) {
+      sinkOption.getProperties.asScala.foreach(key => {
+        if (!sink.optionalOptions().contains(key)) {
+          throw new DataTunnelException(s"sink $sinkName not have param: properties.${key}")
+        }
+      })
+    }
   }
 
   def convertOptions(sparkSession: SparkSession, ctx: SparkSqlParser.DtPropertyListContext): util.HashMap[String, String] = {

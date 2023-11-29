@@ -7,6 +7,8 @@ import org.apache.spark.sql.Row;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author melin 2021/7/27 10:47 上午
@@ -20,5 +22,9 @@ public interface DataTunnelSource extends Serializable {
 
     default boolean supportCte()  {
         return false;
+    }
+
+    default Set<String> optionalOptions() {
+        return Collections.emptySet();
     }
 }

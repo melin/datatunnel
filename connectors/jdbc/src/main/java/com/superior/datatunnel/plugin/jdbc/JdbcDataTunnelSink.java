@@ -11,6 +11,7 @@ import org.apache.spark.sql.*;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
 import org.apache.spark.sql.jdbc.JdbcDialect;
 import org.apache.spark.sql.jdbc.JdbcDialects;
+import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.superior.datatunnel.common.util.JdbcUtils.*;
 
@@ -35,6 +37,18 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
         if (!DataSourceType.isJdbcDataSource(dsType)) {
             throw new IllegalArgumentException("不支持数据源类型: " + dsType);
         }
+    }
+
+    @Override
+    public Set<String> optionalOptions() {
+        Set<String> options = Sets.newHashSet();
+        options.add("cascadeTruncate");
+        options.add("createTableOptions");
+        options.add("createTableColumnTypes");
+        options.add("keytab");
+        options.add("principal");
+        options.add("refreshKrb5Config");
+        return options;
     }
 
     @Override
@@ -93,6 +107,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             DataFrameWriter dataFrameWriter = dataset.write()
                     .format(format)
                     .mode(mode)
+                    .options(sinkOption.getProperties())
                     .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
                     .option("batchsize", batchsize)

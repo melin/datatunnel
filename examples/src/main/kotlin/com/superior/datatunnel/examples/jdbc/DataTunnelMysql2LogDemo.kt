@@ -25,7 +25,8 @@ object DataTunnelMysql2LogDemo {
               port = 3306,
               databaseName = 'demos',
               tableName = 'orders',
-              columns = ["id", "name"]
+              columns = ["id", "name"],
+              'properties.test' = 'sd'
             ) 
             SINK("log") OPTIONS (
               columns = ["id", "username"]

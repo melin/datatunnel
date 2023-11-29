@@ -15,6 +15,7 @@ import org.apache.spark.sql.*;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
 import org.apache.spark.sql.jdbc.JdbcDialect;
 import org.apache.spark.sql.jdbc.JdbcDialects;
+import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
@@ -26,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author melin 2021/7/27 11:06 上午O
@@ -40,6 +42,23 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         if (!DataSourceType.isJdbcDataSource(dsType)) {
             throw new IllegalArgumentException("不支持数据源类型: " + dsType);
         }
+    }
+
+    @Override
+    public Set<String> optionalOptions() {
+        Set<String> options = Sets.newHashSet();
+        options.add("sessionInitStatement");
+        options.add("customSchema");
+        options.add("pushDownPredicate");
+        options.add("pushDownAggregate");
+        options.add("pushDownLimit");
+        options.add("pushDownOffset");
+        options.add("pushDownTableSample");
+        options.add("preferTimestampNTZ");
+        options.add("keytab");
+        options.add("principal");
+        options.add("refreshKrb5Config");
+        return options;
     }
 
     @Override
@@ -90,6 +109,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")
+                    .options(sourceOption.getProperties())
                     .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
                     .option("fetchsize", fetchsize)
