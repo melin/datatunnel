@@ -14,7 +14,7 @@ import java.util
 abstract class DatabaseDialect(connection: Connection, dataSourceType: String) {
 
   private val dsType = DataSourceType.valueOf(dataSourceType.toUpperCase)
-  private val jdbcDialect = JdbcDialectHolder.getJdbcDialect(dsType, connection)
+  private val jdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection)
 
   def getSchemaNames: util.List[String] = {
     jdbcDialect.getSchemas
