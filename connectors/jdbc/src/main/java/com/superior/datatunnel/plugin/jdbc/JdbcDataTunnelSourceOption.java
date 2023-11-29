@@ -36,7 +36,7 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
     @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
     private String jdbcUrl;
 
-    private int fetchSize = 1000;
+    private int fetchsize = 1000;
 
     private int queryTimeout = 0;
 

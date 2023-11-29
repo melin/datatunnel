@@ -69,7 +69,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         List<String> schemaNames = getSchemaNames(schemaName, dialect);
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dialect);
-        if (tableNames.size() == 0) {
+        if (tableNames.isEmpty()) {
             throw new DataTunnelException("没有找到匹配的表, schemaName: " + schemaName + ", tableName: " + tableName);
         }
 
@@ -83,7 +83,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
             }
 
-            int fetchSize = sourceOption.getFetchSize();
+            int fetchsize = sourceOption.getFetchsize();
             int queryTimeout = sourceOption.getQueryTimeout();
             String username = sourceOption.getUsername();
             String password = sourceOption.getPassword();
@@ -92,7 +92,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     .format("jdbc")
                     .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
-                    .option("fetchSize", fetchSize)
+                    .option("fetchsize", fetchsize)
                     .option("queryTimeout", queryTimeout)
                     .option("user", username)
                     .option("password", password)
