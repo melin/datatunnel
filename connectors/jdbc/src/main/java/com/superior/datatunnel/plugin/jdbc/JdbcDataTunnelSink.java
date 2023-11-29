@@ -71,8 +71,6 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 mode = SaveMode.Overwrite;
             }
 
-            boolean truncate = sinkOption.isTruncate();
-
             String preactions = sinkOption.getPreactions();
             String postactions = sinkOption.getPostactions();
             if (StringUtils.isNotBlank(preactions) || StringUtils.isNotBlank(postactions)) {
@@ -87,11 +85,11 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 }
             }
 
-            String format = "datatunnel-jdbc";
-
+            boolean truncate = sinkOption.isTruncate();
             if (truncate) {
                 LogUtils.info("清空表数据");
             }
+            String format = "datatunnel-jdbc";
             DataFrameWriter dataFrameWriter = dataset.write()
                     .format(format)
                     .mode(mode)
