@@ -120,7 +120,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       val sql = CommonUtils.genOutputSql(dataset, sourceOption.getColumns, jdbcSinkOption.getColumns, jdbcSinkOption.getDataSourceType)
       dataset = sparkSession.sql(sql)
 
-      val preactions = jdbcSinkOption.getPreactions
+      val preactions = jdbcSinkOption.getPreActions
       if (StringUtils.isNotBlank(preactions)) {
         val options = jdbcSinkOption.getParams
         options.put("user", jdbcSinkOption.getUsername)

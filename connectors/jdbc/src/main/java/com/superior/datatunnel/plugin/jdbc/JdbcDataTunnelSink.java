@@ -71,8 +71,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 mode = SaveMode.Overwrite;
             }
 
-            String preactions = sinkOption.getPreactions();
-            String postactions = sinkOption.getPostactions();
+            String preactions = sinkOption.getPreActions();
+            String postactions = sinkOption.getPostActions();
             if (StringUtils.isNotBlank(preactions) || StringUtils.isNotBlank(postactions)) {
                 connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
             }
