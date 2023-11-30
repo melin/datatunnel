@@ -109,7 +109,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     if (!source.optionalOptions().isEmpty) {
       sourceOption.getProperties.asScala.foreach(key => {
         if (!source.optionalOptions().contains(key)) {
-          throw new DataTunnelException(s"source $sourceName not have param: properties.${key}")
+          var keys = source.optionalOptions().asScala.map(key => "properties." + key).mkString(",")
+          throw new DataTunnelException(s"source $sourceName not have param: properties.${key}, Available options: ${keys}")
         }
       })
     }
@@ -117,7 +118,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     if (!sink.optionalOptions().isEmpty) {
       sinkOption.getProperties.asScala.foreach(key => {
         if (!sink.optionalOptions().contains(key)) {
-          throw new DataTunnelException(s"sink $sinkName not have param: properties.${key}")
+          var keys = sink.optionalOptions().asScala.map(key => "properties." + key).mkString(",")
+          throw new DataTunnelException(s"sink $sinkName not have param: properties.${key}, Available options: ${keys}")
         }
       })
     }

@@ -23,11 +23,11 @@ datatunnel source('mysql') OPTIONS(
     tableName='meta_job',
     columns=['*'])
 Sink('s3') OPTIONS(
-    endpoint='http://172.18.5.45:9300',
-    accessKey='BxiljVd5YZa3mRUn',
-    secretKey='3Mq9dsmdMbN1JipE1TlOF7OuDkuYBYpe',
+    region='us-east-1',
+    accessKey='AKIAW77DWNKCQ6EV6AFI',
+    secretKey='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',
     format="json",
-    filePath="s3a://demo-bucket/meta_job.json")
+    filePath="s3a://superior2023/datatunnel/demos.parquet")
 """
         spark.sql(sql)
     }

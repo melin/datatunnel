@@ -14,8 +14,9 @@ import javax.validation.constraints.NotNull;
 public class S3CommonOption extends BaseCommonOption
         implements DataTunnelSourceOption, DataTunnelSinkOption {
 
-    @NotBlank(message = "endpoint can not blank")
     private String endpoint;
+
+    private String region;
 
     @NotBlank(message = "accessKey can not blank")
     private String accessKey;
@@ -30,8 +31,6 @@ public class S3CommonOption extends BaseCommonOption
     private boolean sslEnabled = false;
 
     private int connectionTimeout = 600000;
-
-    private String region = "us-east-1";
 
     @NotNull(message = "format can not null")
     private FileFormat format;
