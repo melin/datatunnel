@@ -2,7 +2,6 @@ package com.superior.datatunnel.common.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.gitee.melin.bee.util.JsonUtils;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelException;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -181,116 +179,5 @@ public class CommonUtils {
         }
 
         return result.trim();
-    }
-
-    /**
-     * 清除sql中多行和单行注释
-     */
-    public static String cleanSqlComment(String sql) {
-        boolean singleLineComment = false;
-        List<Character> chars = Lists.newArrayList();
-        List<Character> delChars = Lists.newArrayList();
-
-        for (int i = 0, len = sql.length(); i < len; i++) {
-            char ch = sql.charAt(i);
-
-            if ((i + 1) < len) {
-                char nextCh = sql.charAt(i + 1);
-                if (ch == '-' && nextCh == '-' && !singleLineComment) {
-                    singleLineComment = true;
-                }
-            }
-
-            if (!singleLineComment) {
-                chars.add(ch);
-            }
-
-            if (singleLineComment && ch == '\n') {
-                singleLineComment = false;
-                chars.add(ch);
-            }
-        }
-
-        sql = StringUtils.join(chars, "");
-
-        chars = Lists.newArrayList();
-        boolean mutilLineComment = false;
-        for (int i = 0, len = sql.length(); i < len; i++) {
-            char ch = sql.charAt(i);
-
-            if ((i + 2) < len) {
-                char nextCh1 = sql.charAt(i + 1);
-                char nextCh2 = sql.charAt(i + 2);
-                if (ch == '/' && nextCh1 == '*' && nextCh2 != '+' && !mutilLineComment) {
-                    mutilLineComment = true;
-                }
-            }
-
-            if (!mutilLineComment) {
-                chars.add(ch);
-
-                if (delChars.size() > 0) {
-                    delChars.clear();
-                }
-            } else {
-                delChars.add(ch);
-            }
-
-            if ((i + 1) < len) {
-                char nextCh1 = sql.charAt(i + 1);
-                if (mutilLineComment && ch == '*' && nextCh1 == '/') {
-                    mutilLineComment = false;
-                    i++;
-                }
-            }
-        }
-
-        if (mutilLineComment) {
-            chars.addAll(delChars);
-            delChars.clear();
-        }
-
-        return StringUtils.join(chars, "");
-    }
-
-    public static List<String> splitMultiSql(String sql) {
-        List<String> sqls = Lists.newArrayList();
-
-        Character quote = null;
-        Character lastChar = null;
-        int lastIndex = 0;
-        for (int i = 0, len = sql.length(); i < len; i++) {
-            char ch = sql.charAt(i);
-            if (i != 0) {
-                lastChar = sql.charAt(i - 1);
-            }
-
-            if (ch == '\'') {
-                if (quote == null) {
-                    quote = ch;
-                } else if (quote == '\'' && lastChar != '\\') {
-                    quote = null;
-                }
-            } else if (ch == '"') {
-                if (quote == null) {
-                    quote = ch;
-                } else if (quote == '"' && lastChar != '\\') {
-                    quote = null;
-                }
-            } else if (ch == ';' && quote == null) {
-                String content = StringUtils.substring(sql, lastIndex, i).trim();
-                if (StringUtils.isNotBlank(content)) {
-                    sqls.add(content);
-                }
-                lastIndex = i + 1;
-            }
-        }
-
-        String content = StringUtils.substring(sql, lastIndex).trim();
-        if (StringUtils.isNotBlank(content)) {
-            sqls.add(content);
-        }
-
-        return sqls;
     }
 }

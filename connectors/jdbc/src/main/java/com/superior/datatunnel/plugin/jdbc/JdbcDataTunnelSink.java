@@ -1,9 +1,9 @@
 package com.superior.datatunnel.plugin.jdbc;
 
+import com.gitee.melin.bee.util.SqlUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
-import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,7 +92,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             }
 
             if (StringUtils.isNotBlank(preactions)) {
-                List<String> sqls = CommonUtils.splitMultiSql(preactions);
+                List<String> sqls = SqlUtils.splitMultiSql(preactions);
                 for (String presql : sqls) {
                     LOG.info("exec pre sql: " + presql);
                     execute(connection, presql);
@@ -122,7 +122,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             dataFrameWriter.save();
 
             if (StringUtils.isNotBlank(postactions)) {
-                List<String> sqls = CommonUtils.splitMultiSql(postactions);
+                List<String> sqls = SqlUtils.splitMultiSql(postactions);
                 for (String postsql : sqls) {
                     LOG.info("exec post sql: " + postsql);
                     execute(connection, postsql);

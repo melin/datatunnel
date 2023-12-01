@@ -1,6 +1,6 @@
 package com.superior.datatunnel.core
 
-import com.superior.datatunnel.common.util.CommonUtils
+import com.gitee.melin.bee.util.SqlUtils
 import io.github.melin.superior.parser.spark.SparkSqlPostProcessor
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.{DatatunnelExprContext, DatatunnelHelpContext, SingleStatementContext}
 import io.github.melin.superior.parser.spark.antlr4.{SparkSqlLexer, SparkSqlParser, SparkSqlParserBaseVisitor}
@@ -26,7 +26,7 @@ class DataTunnelSqlParser (spark: SparkSession,
                       val delegate: ParserInterface) extends ParserInterface with Logging {
 
   override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
-    val sql = StringUtils.trim(CommonUtils.cleanSqlComment(sqlText))
+    val sql = StringUtils.trim(SqlUtils.cleanSqlComment(sqlText))
     val builder = new DtunnelAstBuilder(sql)
     builder.visit(parser.singleStatement()) match {
       case plan: LogicalPlan => plan
