@@ -19,12 +19,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>3.9.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.crealytics</groupId>
             <artifactId>spark-excel_2.12</artifactId>
         </dependency>

@@ -33,6 +33,12 @@ public class S3DataTunnelSource implements DataTunnelSource {
 
         SparkSession sparkSession = context.getSparkSession();
         Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
+        sourceOption.getProperties().forEach((key, value) -> {
+            if (key.startsWith("fs.")) {
+                hadoopConf.set(key, value);
+            }
+        });
+
         hadoopConf.set(S3Configs.ACCESS_KEY, sourceOption.getAccessKey());
         hadoopConf.set(S3Configs.SECRET_KEY, sourceOption.getSecretKey());
         if (StringUtils.isNotBlank(sourceOption.getRegion())) {
@@ -45,11 +51,6 @@ public class S3DataTunnelSource implements DataTunnelSource {
         if (!sourceOption.getProperties().containsKey(S3Configs.S3A_CLIENT_IMPL)) {
             hadoopConf.set(S3Configs.S3A_CLIENT_IMPL, sourceOption.getS3aClientImpl());
         }
-        sourceOption.getProperties().forEach((key, value) -> {
-            if (key.startsWith("fs.")) {
-                hadoopConf.set(key, value);
-            }
-        });
 
         String format = sourceOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sourceOption.getFormat()) {

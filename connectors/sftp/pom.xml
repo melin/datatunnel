@@ -24,11 +24,7 @@
             <version>1.0.3</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.55</version>
-        </dependency>
+
 
         <dependency>
             <groupId>com.crealytics</groupId>

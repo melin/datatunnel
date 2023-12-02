@@ -1,9 +1,27 @@
-package com.superior.datatunnel.plugin.sftp.fs;
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.superior.datatunnel.hadoop.fs.sftp;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,13 +61,13 @@ public class SFTPFileSystem extends FileSystem {
 
     public static final int DEFAULT_BLOCK_SIZE = 4 * 1024;
 
-    public static final String FS_SFTP_USERNAME = "fs.sftp.username";
+    public static final String FS_SFTP_USER_PREFIX = "fs.sftp.user.";
 
-    public static final String FS_SFTP_PASSWORD = "fs.sftp.password";
+    public static final String FS_SFTP_PASSWORD_PREFIX = "fs.sftp.password.";
 
     public static final String FS_SFTP_HOST = "fs.sftp.host";
 
-    public static final String FS_SFTP_PORT = "fs.sftp.port";
+    public static final String FS_SFTP_HOST_PORT = "fs.sftp.host.port";
 
     public static final String FS_SFTP_KEYFILE = "fs.sftp.keyfile";
 
@@ -61,7 +79,8 @@ public class SFTPFileSystem extends FileSystem {
 
     public static final String E_HOST_NULL = "Invalid host specified";
 
-    public static final String E_USER_NULL = "No user specified for sftp connection. Expand URI or credential file.";
+    public static final String E_USER_NULL =
+            "No user specified for sftp connection. Expand URI or credential file.";
 
     public static final String E_PATH_DIR = "Path %s is a directory.";
 
@@ -93,24 +112,38 @@ public class SFTPFileSystem extends FileSystem {
 
     /**
      * Set configuration from UI.
-     *
-     * @param uriInfo
-     * @param conf
-     * @throws IOException
      */
     private void setConfigurationFromURI(URI uriInfo, Configuration conf)
             throws IOException {
 
-        String host = conf.get(FS_SFTP_HOST, null);
+        // get host information from URI
+        String host = uriInfo.getHost();
+        host = (host == null) ? conf.get(FS_SFTP_HOST, null) : host;
         if (host == null) {
             throw new IOException(E_HOST_NULL);
         }
         conf.set(FS_SFTP_HOST, host);
 
-        int port = conf.getInt(FS_SFTP_PORT, DEFAULT_SFTP_PORT);
-        conf.setInt(FS_SFTP_PORT, port);
+        int port = uriInfo.getPort();
+        port = (port == -1)
+                ? conf.getInt(FS_SFTP_HOST_PORT, DEFAULT_SFTP_PORT)
+                : port;
+        conf.setInt(FS_SFTP_HOST_PORT, port);
 
-        String user = conf.get(FS_SFTP_USERNAME);
+        // get user/password information from URI
+        String userAndPwdFromUri = uriInfo.getUserInfo();
+        if (userAndPwdFromUri != null) {
+            String[] userPasswdInfo = userAndPwdFromUri.split(":");
+            String user = userPasswdInfo[0];
+            user = URLDecoder.decode(user, "UTF-8");
+            conf.set(FS_SFTP_USER_PREFIX + host, user);
+            if (userPasswdInfo.length > 1) {
+                conf.set(FS_SFTP_PASSWORD_PREFIX + host + "." +
+                        user, userPasswdInfo[1]);
+            }
+        }
+
+        String user = conf.get(FS_SFTP_USER_PREFIX + host);
         if (user == null || user.equals("")) {
             throw new IllegalStateException(E_USER_NULL);
         }
@@ -131,9 +164,9 @@ public class SFTPFileSystem extends FileSystem {
 
         Configuration conf = getConf();
         String host = conf.get(FS_SFTP_HOST, null);
-        int port = conf.getInt(FS_SFTP_PORT, DEFAULT_SFTP_PORT);
-        String user = conf.get(FS_SFTP_USERNAME, null);
-        String pwd = conf.get(FS_SFTP_PASSWORD, null);
+        int port = conf.getInt(FS_SFTP_HOST_PORT, DEFAULT_SFTP_PORT);
+        String user = conf.get(FS_SFTP_USER_PREFIX + host, null);
+        String pwd = conf.get(FS_SFTP_PASSWORD_PREFIX + host + "." + user, null);
         String keyFile = conf.get(FS_SFTP_KEYFILE, null);
         String passPhrase = conf.get(FS_SFTP_PASSPHRASE, null);
 
@@ -142,9 +175,6 @@ public class SFTPFileSystem extends FileSystem {
 
     /**
      * Logout and disconnect the given channel.
-     *
-     * @param channel
-     * @throws IOException
      */
     private void disconnect(ChannelSftp channel) throws IOException {
         connectionPool.disconnect(channel);
@@ -414,7 +444,7 @@ public class SFTPFileSystem extends FileSystem {
         Path absolute = makeAbsolute(workDir, file);
         FileStatus fileStat = getFileStatus(client, absolute);
         if (!fileStat.isDirectory()) {
-            return new FileStatus[] {fileStat};
+            return new FileStatus[]{fileStat};
         }
         Vector<LsEntry> sftpFiles;
         try {
@@ -510,7 +540,7 @@ public class SFTPFileSystem extends FileSystem {
             throw new IOException(e);
         }
         return new FSDataInputStream(
-                new SFTPInputStream(channel, absolute, statistics)){
+                new SFTPInputStream(channel, absolute, statistics)) {
             @Override
             public void close() throws IOException {
                 try {

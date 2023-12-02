@@ -1,4 +1,21 @@
-package com.superior.datatunnel.plugin.sftp.fs;
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.superior.datatunnel.hadoop.fs.sftp;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,17 +33,23 @@ import com.jcraft.jsch.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Concurrent/Multiple Connections.
+ */
 class SFTPConnectionPool {
 
     public static final Logger LOG = LoggerFactory.getLogger(SFTPFileSystem.class);
+    // Maximum number of allowed live connections. This doesn't mean we cannot
+    // have more live connections. It means that when we have more
+    // live connections than this threshold, any unused connection will be
+    // closed.
 
     private int maxConnection;
-
     private int liveConnectionCount = 0;
-
-    private HashMap<ConnectionInfo, HashSet<ChannelSftp>> idleConnections = new HashMap<ConnectionInfo, HashSet<ChannelSftp>>();
-
-    private HashMap<ChannelSftp, ConnectionInfo> con2infoMap = new HashMap<ChannelSftp, ConnectionInfo>();
+    private HashMap<ConnectionInfo, HashSet<ChannelSftp>> idleConnections =
+            new HashMap<ConnectionInfo, HashSet<ChannelSftp>>();
+    private HashMap<ChannelSftp, ConnectionInfo> con2infoMap =
+            new HashMap<ChannelSftp, ConnectionInfo>();
 
     SFTPConnectionPool(int maxConnection) {
         this.maxConnection = maxConnection;
@@ -49,7 +72,9 @@ class SFTPConnectionPool {
         return null;
     }
 
-    /** Add the channel into pool.
+    /**
+     * Add the channel into pool.
+     *
      * @param channel
      */
     synchronized void returnToPool(ChannelSftp channel) {
@@ -63,9 +88,11 @@ class SFTPConnectionPool {
 
     }
 
-    /** Shutdown the connection pool and close all open connections. */
+    /**
+     * Shutdown the connection pool and close all open connections.
+     */
     synchronized void shutdown() {
-        if (this.con2infoMap == null){
+        if (this.con2infoMap == null) {
             return; // already shutdown in case it is called
         }
         LOG.info("Inside shutdown, con2infoMap size=" + con2infoMap.size());
@@ -212,9 +239,7 @@ class SFTPConnectionPool {
      */
     static class ConnectionInfo {
         private String host = "";
-
         private int port;
-
         private String user = "";
 
         ConnectionInfo(String hst, int prt, String usr) {
