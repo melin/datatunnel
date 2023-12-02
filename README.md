@@ -49,7 +49,7 @@ datatunnel source('数据源类型名称') options(键值对参数)
 
 ```sql
 -- 查看不同数据源 options 参数，如果指定SOURCE，只输出数据source options参数，如果指定SINK，只输出数据sink options参数。如果输出为空，说明不支持source或者sink
-DATATUNNEL HELP (SOURCE | SINK | ALL) ('数据源类型名称')
+datatunnel help (source | sink | all) ('数据源类型名称')
 
 ```
 
@@ -156,7 +156,15 @@ SINK("hive") OPTIONS (
 )
 ```
 
+## sparkDistCp sql 语法 (计划中)
 
+s3、hdfs、ftp、sftp、ftps 之间直接传输文件
+
+```sql
+sparkDistCp source('数据源类型名称') options(键值对参数) 
+    transform(数据加工SQL，可以对数据处理后输出)
+    sink('数据源类型名称') options(键值对参数)
+```
 
 ## 参考
 
@@ -165,3 +173,5 @@ SINK("hive") OPTIONS (
 3. https://github.com/apache/incubator-seatunnel
 4. https://www.oudeis.co/blog/2020/spark-jdbc-throttling-writes/
 5. https://sparkbyexamples.com/spark/add-multiple-jars-to-spark-submit-classpath/
+6. https://github.com/CoxAutomotiveDataSolutions/spark-distcp
+7. https://gitlab.com/lwaldmann/Hadoop-FTP-FTPS-SFTP-filesystem
