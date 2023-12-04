@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.sftp;
+package com.superior.datatunnel.hadoop.fs.sftp;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,16 +9,16 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.List;
 
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractChannel;
+import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractFTPFileSystem;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ConnectionInfo;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.DirTree;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings;
+import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
+import com.superior.datatunnel.hadoop.fs.common.DirTree;
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

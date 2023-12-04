@@ -1,10 +1,10 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.sftp;
+package com.superior.datatunnel.hadoop.fs.sftp;
 
 import java.util.function.Function;
 
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractChannel;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractFTPFileSystem;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ConnectionInfo;
+import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
+import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
 
 /**
  * SFTP FileSystem.

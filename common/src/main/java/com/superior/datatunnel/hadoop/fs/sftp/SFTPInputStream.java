@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.sftp;
+package com.superior.datatunnel.hadoop.fs.sftp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +9,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings.E_NULL_INPUTSTREAM;
-import static com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings.E_STREAM_CLOSED;
+import static com.superior.datatunnel.hadoop.fs.common.ErrorStrings.E_NULL_INPUTSTREAM;
+import static com.superior.datatunnel.hadoop.fs.common.ErrorStrings.E_STREAM_CLOSED;
 
 import static com.google.common.base.Preconditions.*;
 

@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.common;
+package com.superior.datatunnel.hadoop.fs.common;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.DirTree.INode;
+import com.superior.datatunnel.hadoop.fs.common.DirTree.INode;
 
 import java.util.function.Function;
 
@@ -27,7 +27,7 @@ import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Progressable;
 
-import static com.superior.datatunnel.hadoop.fs.ftpextended.common.Channel.DEFAULT_BLOCK_SIZE;
+import static com.superior.datatunnel.hadoop.fs.common.Channel.DEFAULT_BLOCK_SIZE;
 
 /**
  * Abstract base for FTP like FileSystems. Basically all the functionality for

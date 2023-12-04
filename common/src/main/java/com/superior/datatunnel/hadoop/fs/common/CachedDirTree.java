@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.common;
+package com.superior.datatunnel.hadoop.fs.common;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

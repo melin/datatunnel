@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.common;
+package com.superior.datatunnel.hadoop.fs.common;
 
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;

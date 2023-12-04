@@ -3,9 +3,11 @@ package com.superior.datatunnel.plugin.ftp;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
-import com.superior.datatunnel.hadoop.fs.ftpextended.ftp.FTPFileSystem;
-import com.superior.datatunnel.hadoop.fs.ftpextended.sftp.SFTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.ftp.FTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem;
+import com.superior.datatunnel.plugin.ftp.enums.AuthType;
 import com.superior.datatunnel.plugin.ftp.enums.FtpProtocol;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
@@ -47,12 +49,31 @@ public class FtpDataTunnelSink implements DataTunnelSink {
         hadoopConf.set(prefix + "host", host);
         hadoopConf.set(prefix + "host.port", port);
         hadoopConf.set(prefix + "user." + host, sinkOption.getUsername());
-        hadoopConf.set(prefix + "password." + host + "." + sinkOption.getUsername(), sinkOption.getPassword());
 
         if (FtpProtocol.SFTP == sinkOption.getProtocol()) {
             hadoopConf.set(prefix + "impl", SFTPFileSystem.class.getName());
+            if (AuthType.SSHKEY == sinkOption.getAuthType()) {
+                if (StringUtils.isBlank(sinkOption.getSshKeyFile())) {
+                    throw new DataTunnelException("sshkey 认证方式，sshKeyFile 不能为空");
+                }
+
+                hadoopConf.set(prefix + "key.file." + host + "." + sinkOption.getUsername(), sinkOption.getSshKeyFile());
+                if (StringUtils.isNotBlank(sinkOption.getSshPassphrase())) {
+                    hadoopConf.set(prefix + "key.passphrase." + host + "." + sinkOption.getUsername(), sinkOption.getSshPassphrase());
+                }
+            } else {
+                if (StringUtils.isBlank(sinkOption.getPassword())) {
+                    throw new DataTunnelException("password can not blank");
+                }
+                hadoopConf.set(prefix + "password." + host + "." + sinkOption.getUsername(), sinkOption.getPassword());
+            }
         } else {
             hadoopConf.set(prefix + "impl", FTPFileSystem.class.getName());
+
+            if (StringUtils.isBlank(sinkOption.getPassword())) {
+                throw new DataTunnelException("password can not blank");
+            }
+            hadoopConf.set(prefix + "password." + host + "." + sinkOption.getUsername(), sinkOption.getPassword());
         }
         hadoopConf.set(prefix + "impl.disable.cache", "false");
 

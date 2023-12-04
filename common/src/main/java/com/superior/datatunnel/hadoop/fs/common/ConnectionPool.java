@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.common;
+package com.superior.datatunnel.hadoop.fs.common;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -7,7 +7,7 @@ import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.superior.datatunnel.hadoop.fs.ftpextended.common.ConnectionInfo.DEFAULT_MAX_CONNECTION;
+import static com.superior.datatunnel.hadoop.fs.common.ConnectionInfo.DEFAULT_MAX_CONNECTION;
 
 /**
  * ConnectionPool keeps the list of connection to the remote server and reuse

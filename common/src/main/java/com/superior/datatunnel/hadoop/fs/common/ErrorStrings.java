@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.common;
+package com.superior.datatunnel.hadoop.fs.common;
 
 /**
  * Error string constants.

@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.ftp;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -6,9 +6,9 @@ import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPHTTPClient;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings;
 
 /**
  * Class needed to be able set timeout on data connection. Default

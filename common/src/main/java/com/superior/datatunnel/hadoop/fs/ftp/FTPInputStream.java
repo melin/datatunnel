@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.ftp;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -6,11 +6,11 @@ import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
 
+import com.superior.datatunnel.hadoop.fs.common.Channel;
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.Channel;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,11 +1,11 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.ftp;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.IOException;
 
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractChannel;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractFTPFileSystem;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.Channel;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ConnectionInfo;
+import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
+import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.common.Channel;
+import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
 
 import java.util.function.Function;
 

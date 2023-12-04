@@ -1,13 +1,13 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.ftp;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings;
 
 /**
  * FTPClient doesn't handle listing paths containing square brackets.

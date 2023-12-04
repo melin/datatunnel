@@ -1,4 +1,4 @@
-package com.superior.datatunnel.hadoop.fs.ftpextended.common;
+package com.superior.datatunnel.hadoop.fs.common;
 
 import java.io.IOException;
 import java.net.URI;
@@ -8,8 +8,6 @@ import java.util.Objects;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractFTPFileSystem.GlobType;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.AbstractFTPFileSystem.ProxyType;
 
 import java.util.function.Function;
 
@@ -214,10 +212,10 @@ public class ConnectionInfo extends Configured {
         return Objects.equals(this.ftpUser, other.ftpUser);
     }
 
-    public ProxyType getProxyType() {
+    public AbstractFTPFileSystem.ProxyType getProxyType() {
         return getConf().getEnum(
                 getPropertyName(FSParameter.FS_FTP_PROXY_TYPE, uri),
-                ProxyType.NONE);
+                AbstractFTPFileSystem.ProxyType.NONE);
     }
 
     public String getProxyHost() {
@@ -225,12 +223,12 @@ public class ConnectionInfo extends Configured {
     }
 
     public int getProxyPort() {
-        ProxyType proxyType = getProxyType();
+        AbstractFTPFileSystem.ProxyType proxyType = getProxyType();
         return getConf().getInt(getPropertyName(FSParameter.FS_FTP_PROXY_PORT, uri),
-                proxyType == ProxyType.HTTP
+                proxyType == AbstractFTPFileSystem.ProxyType.HTTP
                         ? DEFAULT_HTTP_PROXY_PORT
-                        : ((proxyType == ProxyType.SOCKS4 || proxyType ==
-                        ProxyType.SOCKS5) ? DEFAULT_SOCKS_PROXY_PORT : -1));
+                        : ((proxyType == AbstractFTPFileSystem.ProxyType.SOCKS4 || proxyType ==
+                        AbstractFTPFileSystem.ProxyType.SOCKS5) ? DEFAULT_SOCKS_PROXY_PORT : -1));
     }
 
     public String getProxyUser() {
@@ -291,9 +289,9 @@ public class ConnectionInfo extends Configured {
                 DEFAULT_USE_KEEPALIVE);
     }
 
-    public GlobType getGlobType() {
+    public AbstractFTPFileSystem.GlobType getGlobType() {
         return getConf().getEnum(getPropertyName(FSParameter.FS_FTP_GLOB_TYPE, uri),
-                GlobType.UNIX);
+                AbstractFTPFileSystem.GlobType.UNIX);
     }
 
     public String logWithInfo(String message) {
