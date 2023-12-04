@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.FileNotFoundException;
@@ -24,7 +7,6 @@ import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.URI;
 
-import com.google.common.base.Preconditions;
 import org.apache.hadoop.fs.ftp.FTPException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -48,6 +30,8 @@ import org.apache.hadoop.util.Progressable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * <p>
  * A {@link FileSystem} backed by an FTP client provided by <a
@@ -63,25 +47,31 @@ public class FTPFileSystem extends FileSystem {
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
 
     public static final int DEFAULT_BLOCK_SIZE = 4 * 1024;
+
     public static final long DEFAULT_TIMEOUT = 0;
+
     public static final String FS_FTP_USER_PREFIX = "fs.ftp.user.";
+
     public static final String FS_FTP_HOST = "fs.ftp.host";
+
     public static final String FS_FTP_HOST_PORT = "fs.ftp.host.port";
+
     public static final String FS_FTP_PASSWORD_PREFIX = "fs.ftp.password.";
+
     public static final String FS_FTP_DATA_CONNECTION_MODE =
             "fs.ftp.data.connection.mode";
+
     public static final String FS_FTP_TRANSFER_MODE = "fs.ftp.transfer.mode";
+
     public static final String E_SAME_DIRECTORY_ONLY =
             "only same directory renames are supported";
+
     public static final String FS_FTP_TIMEOUT = "fs.ftp.timeout";
 
     private URI uri;
 
     /**
      * Return the protocol scheme for the FileSystem.
-     * <p>
-     *
-     * @return <code>ftp</code>
      */
     @Override
     public String getScheme() {
@@ -90,7 +80,6 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Get the default port for this FTPFileSystem.
-     *
      * @return the default port
      */
     @Override
@@ -123,7 +112,7 @@ public class FTPFileSystem extends FileSystem {
                     .get(FS_FTP_PASSWORD_PREFIX + host, null));
         }
         String[] userPasswdInfo = userAndPassword.split(":");
-        Preconditions.checkState(userPasswdInfo.length > 1, "Invalid username / password");
+        checkState(userPasswdInfo.length > 1, "Invalid username / password");
         conf.set(FS_FTP_USER_PREFIX + host, userPasswdInfo[0]);
         conf.set(FS_FTP_PASSWORD_PREFIX + host, userPasswdInfo[1]);
         setConf(conf);
@@ -176,8 +165,8 @@ public class FTPFileSystem extends FileSystem {
     /**
      * Set FTP's transfer mode based on configuration. Valid values are
      * STREAM_TRANSFER_MODE, BLOCK_TRANSFER_MODE and COMPRESSED_TRANSFER_MODE.
-     * <p>
-     * Defaults to BLOCK_TRANSFER_MODE.
+     *
+     * <p>Defaults to BLOCK_TRANSFER_MODE.
      *
      * @param conf
      * @return
@@ -208,8 +197,8 @@ public class FTPFileSystem extends FileSystem {
      * Set the FTPClient's data connection mode based on configuration. Valid
      * values are ACTIVE_LOCAL_DATA_CONNECTION_MODE,
      * PASSIVE_LOCAL_DATA_CONNECTION_MODE and PASSIVE_REMOTE_DATA_CONNECTION_MODE.
-     * <p>
-     * Defaults to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
+     *
+     * <p>Defaults to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
      *
      * @param client
      * @param conf
@@ -654,12 +643,6 @@ public class FTPFileSystem extends FileSystem {
      * Convenience method, so that we don't open a new connection when using this
      * method from within another method. Otherwise every API invocation incurs
      * the overhead of opening/closing a TCP connection.
-     *
-     * @param client
-     * @param src
-     * @param dst
-     * @return
-     * @throws IOException
      */
     @SuppressWarnings("deprecation")
     private boolean rename(FTPClient client, Path src, Path dst)

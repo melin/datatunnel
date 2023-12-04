@@ -5,7 +5,6 @@ import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.ftp.FTPFileSystem;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;

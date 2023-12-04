@@ -1,5 +1,6 @@
 package com.superior.datatunnel.plugin.kafka.reader
 
+import com.gitee.melin.bee.util.SqlUtils
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.enums.WriteMode
@@ -128,7 +129,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       }
 
       if (StringUtils.isNotBlank(preactions)) {
-        val sqls = CommonUtils.splitMultiSql(preactions)
+        val sqls = SqlUtils.splitMultiSql(preactions)
         for (presql <- sqls.asScala) {
           logInfo("exec pre sql: " + presql)
           execute(connection, presql)
