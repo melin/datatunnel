@@ -26,9 +26,10 @@ public class SftpCommonOption extends BaseCommonOption
     @NotNull(message = "port can not blank")
     private Integer port;
 
-    private String keyFilePath;
+    // 认证方式: password, keys
+    private String authMethod;
 
-    private String passPhrase;
+    private String keyFilePath;
 
     @NotNull(message = "format can not null")
     private FileFormat format;

@@ -32,6 +32,12 @@ public class S3DataTunnelSink implements DataTunnelSink {
 
         SparkSession sparkSession = context.getSparkSession();
         Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
+        sinkOption.getProperties().forEach((key, value) -> {
+            if (key.startsWith("fs.")) {
+                hadoopConf.set(key, value);
+            }
+        });
+
         hadoopConf.set(S3Configs.ACCESS_KEY, sinkOption.getAccessKey());
         hadoopConf.set(S3Configs.SECRET_KEY, sinkOption.getSecretKey());
         if (StringUtils.isNotBlank(sinkOption.getRegion())) {
@@ -44,11 +50,6 @@ public class S3DataTunnelSink implements DataTunnelSink {
         if (!sinkOption.getProperties().containsKey(S3Configs.S3A_CLIENT_IMPL)) {
             hadoopConf.set(S3Configs.S3A_CLIENT_IMPL, sinkOption.getS3aClientImpl());
         }
-        sinkOption.getProperties().forEach((key, value) -> {
-            if (key.startsWith("fs.")) {
-                hadoopConf.set(key, value);
-            }
-        });
 
         String format = sinkOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sinkOption.getFormat()) {

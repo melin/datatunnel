@@ -1,23 +1,28 @@
-package com.superior.datatunnel.plugin.ftp.fs;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.ftp.FTPException;
 
+@InterfaceAudience.Private
+@InterfaceStability.Unstable
 public class FTPInputStream extends FSInputStream {
 
-    private InputStream wrappedStream;
+    InputStream wrappedStream;
 
-    private FTPClient client;
+    FTPClient client;
 
-    private FileSystem.Statistics stats;
+    FileSystem.Statistics stats;
 
-    private boolean closed;
+    boolean closed;
 
-    private long pos;
+    long pos;
 
     public FTPInputStream(InputStream stream, FTPClient client,
                           FileSystem.Statistics stats) {
@@ -91,7 +96,7 @@ public class FTPInputStream extends FSInputStream {
         super.close();
         closed = true;
         if (!client.isConnected()) {
-            throw new FTPException("Client not connected");
+            throw new org.apache.hadoop.fs.ftp.FTPException("Client not connected");
         }
 
         boolean cmdCompleted = client.completePendingCommand();

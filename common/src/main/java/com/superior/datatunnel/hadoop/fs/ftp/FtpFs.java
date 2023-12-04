@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.ftp.fs;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.IOException;
 import java.net.URI;

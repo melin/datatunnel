@@ -55,6 +55,11 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-clickhouse</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-starrocks</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -63,7 +68,7 @@
             <artifactId>datatunnel-connector-doris</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-kafka</artifactId>
             <version>${project.version}</version>
@@ -98,11 +103,7 @@
             <artifactId>datatunnel-connector-sftp</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-clickhouse</artifactId>
-            <version>${project.version}</version>
-        </dependency>-->
+        -->
     </dependencies>
 
     <build>

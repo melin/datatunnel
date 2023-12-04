@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.sftp.fs;
+package com.superior.datatunnel.hadoop.fs.sftp;
 
 import java.io.EOFException;
 import java.io.IOException;

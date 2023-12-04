@@ -1,12 +1,10 @@
 package com.superior.datatunnel.plugin.clickhouse;
 
-import com.gitee.melin.bee.core.hibernate5.validation.ValidConst;
 import com.superior.datatunnel.api.model.BaseSourceOption;
-import com.superior.datatunnel.common.annotation.SparkConfKey;
+import com.superior.datatunnel.common.annotation.OptionDesc;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 public class ClickhouseDataTunnelSourceOption extends BaseSourceOption {
@@ -18,36 +16,18 @@ public class ClickhouseDataTunnelSourceOption extends BaseSourceOption {
     private String tableName;
 
     @NotBlank(message = "username can not blank")
-    @SparkConfKey("spark.sql.catalog.clickhouse.user")
     private String username;
 
-    @SparkConfKey("spark.sql.catalog.clickhouse.password")
     private String password = "";
 
-    @NotBlank(message = "host can not blank")
-    @SparkConfKey("spark.sql.catalog.clickhouse.host")
     private String host;
 
-    @NotNull(message = "port can not blank")
     private Integer port;
 
-    @ValidConst({"http", "grpc"})
-    private String protocol = "http";
+    @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
+    private String jdbcUrl;
 
     private String condition;
 
-    @SparkConfKey("spark.clickhouse.ignoreUnsupportedTransform")
-    private boolean ignoreUnsupportedTransform;
-
-    @SparkConfKey("spark.clickhouse.read.compression.codec")
-    private String compressionCodec = "lz4";
-
-    @SparkConfKey("spark.clickhouse.read.distributed.convertLocal")
-    private boolean distributedConvertLocal = true;
-
-    @SparkConfKey("spark.clickhouse.read.format")
-    private String format = "json";
-
-    @SparkConfKey("spark.clickhouse.read.splitByPartitionId")
-    private boolean splitByPartitionId = true;
+    private String protocol = "http";
 }

@@ -4,7 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
-import com.superior.datatunnel.common.util.CommonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -24,13 +24,41 @@ public class ClickhouseDataTunnelSink implements DataTunnelSink {
         ClickhouseDataTunnelSinkOption option = (ClickhouseDataTunnelSinkOption) context.getSinkOption();
         sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse", ClickHouseCatalog.class.getName());
         sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.protocol", option.getProtocol());
-        if ("http".equals(option.getProtocol())) {
-            sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.http_port", option.getPort());
-        } else {
-            sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.grpc_port", option.getPort());
+
+        String host = option.getHost();
+        Integer port = option.getPort();
+        String protocol = option.getProtocol();
+        String jdbcUrl = option.getJdbcUrl();
+        if (StringUtils.isNotBlank(jdbcUrl)) {
+            if (StringUtils.contains(jdbcUrl, "https://")) {
+                sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.option.ssl", true);
+                jdbcUrl = StringUtils.substringAfter(jdbcUrl, "https://");
+                protocol = "https";
+            } else if (StringUtils.contains(jdbcUrl, "grpc://")) {
+                throw new DataTunnelException("not support protocol");
+            } else {
+                sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.option.ssl", false);
+                jdbcUrl = StringUtils.substringAfter(jdbcUrl, "://");
+                protocol = "http";
+            }
+
+            if (StringUtils.contains(jdbcUrl, "?")) {
+                jdbcUrl = StringUtils.substringBefore(jdbcUrl, "?");
+            }
+            String[] items = StringUtils.split(jdbcUrl, ":");
+            host = items[0];
+            port = Integer.valueOf(items[1]);
         }
+
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.protocol", protocol);
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.host", host);
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.user", option.getUsername());
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.password", option.getPassword());
+        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.http_port", port);
+
         sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.database", "default");
-        CommonUtils.convertOptionToSparkConf(sparkSession, option);
+
+        sparkSession.conf().set("spark.clickhouse.write.batchSize", option.getBatchsize());
 
         try {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();

@@ -7,6 +7,7 @@ import org.apache.spark.sql.Row;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import java.util.Set;
 @SPI
 public interface DataTunnelSource extends Serializable {
 
-    Dataset<Row> read(DataTunnelContext context) throws IOException;
+    Dataset<Row> read(DataTunnelContext context) throws IOException, URISyntaxException;
 
     Class<? extends DataTunnelSourceOption> getOptionClass();
 

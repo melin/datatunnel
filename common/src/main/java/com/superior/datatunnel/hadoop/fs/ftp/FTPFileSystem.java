@@ -1,4 +1,4 @@
-package com.superior.datatunnel.plugin.ftp.fs;
+package com.superior.datatunnel.hadoop.fs.ftp;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,10 +7,13 @@ import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.URI;
 
+import org.apache.hadoop.fs.ftp.FTPException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -27,10 +30,19 @@ import org.apache.hadoop.util.Progressable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.*;
+
+/**
+ * <p>
+ * A {@link FileSystem} backed by an FTP client provided by <a
+ * href="http://commons.apache.org/net/">Apache Commons Net</a>.
+ * </p>
+ */
+@InterfaceAudience.Public
+@InterfaceStability.Stable
 public class FTPFileSystem extends FileSystem {
 
-    public static final Logger LOG = LoggerFactory
-            .getLogger(FTPFileSystem.class);
+    public static final Logger LOG = LoggerFactory.getLogger(FTPFileSystem.class);
 
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
 
@@ -38,19 +50,21 @@ public class FTPFileSystem extends FileSystem {
 
     public static final long DEFAULT_TIMEOUT = 0;
 
+    public static final String FS_FTP_USER_PREFIX = "fs.ftp.user.";
+
     public static final String FS_FTP_HOST = "fs.ftp.host";
 
-    public static final String FS_FTP_PORT = "fs.ftp.port";
+    public static final String FS_FTP_HOST_PORT = "fs.ftp.host.port";
 
-    public static final String FS_FTP_USERNAME = "fs.ftp.username";
+    public static final String FS_FTP_PASSWORD_PREFIX = "fs.ftp.password.";
 
-    public static final String FS_FTP_PASSWORD = "fs.ftp.password";
-
-    public static final String FS_FTP_DATA_CONNECTION_MODE = "fs.ftp.data.connection.mode";
+    public static final String FS_FTP_DATA_CONNECTION_MODE =
+            "fs.ftp.data.connection.mode";
 
     public static final String FS_FTP_TRANSFER_MODE = "fs.ftp.transfer.mode";
 
-    public static final String E_SAME_DIRECTORY_ONLY = "only same directory renames are supported";
+    public static final String E_SAME_DIRECTORY_ONLY =
+            "only same directory renames are supported";
 
     public static final String FS_FTP_TIMEOUT = "fs.ftp.timeout";
 
@@ -66,6 +80,7 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Get the default port for this FTPFileSystem.
+     * @return the default port
      */
     @Override
     protected int getDefaultPort() {
@@ -75,42 +90,56 @@ public class FTPFileSystem extends FileSystem {
     @Override
     public void initialize(URI uri, Configuration conf) throws IOException { // get
         super.initialize(uri, conf);
-        String host = conf.get(FS_FTP_HOST);
+        // get host information from uri (overrides info in conf)
+        String host = uri.getHost();
+        host = (host == null) ? conf.get(FS_FTP_HOST, null) : host;
+        if (host == null) {
+            throw new IOException("Invalid host specified");
+        }
         conf.set(FS_FTP_HOST, host);
 
         // get port information from uri, (overrides info in conf)
         int port = uri.getPort();
         if (port == -1) {
-            port = conf.getInt(FS_FTP_PORT, FTP.DEFAULT_PORT);
+            port = conf.getInt(FS_FTP_HOST_PORT, FTP.DEFAULT_PORT);
         }
-        conf.setInt(FS_FTP_PORT, port);
+        conf.setInt(FS_FTP_HOST_PORT, port);
 
-        String username = conf.get(FS_FTP_USERNAME, null);
-        String password = conf.get(FS_FTP_PASSWORD, null);
-
-        conf.set(FS_FTP_USERNAME, username);
-        conf.set(FS_FTP_PASSWORD, password);
+        // get user/password information from URI (overrides info in conf)
+        String userAndPassword = uri.getUserInfo();
+        if (userAndPassword == null) {
+            userAndPassword = (conf.get(FS_FTP_USER_PREFIX + host, null) + ":" + conf
+                    .get(FS_FTP_PASSWORD_PREFIX + host, null));
+        }
+        String[] userPasswdInfo = userAndPassword.split(":");
+        checkState(userPasswdInfo.length > 1, "Invalid username / password");
+        conf.set(FS_FTP_USER_PREFIX + host, userPasswdInfo[0]);
+        conf.set(FS_FTP_PASSWORD_PREFIX + host, userPasswdInfo[1]);
         setConf(conf);
         this.uri = uri;
     }
 
     /**
      * Connect to the FTP server using configuration parameters *
+     *
+     * @return An FTPClient instance
+     * @throws IOException
      */
     private FTPClient connect() throws IOException {
+        FTPClient client = null;
         Configuration conf = getConf();
         String host = conf.get(FS_FTP_HOST);
-        int port = conf.getInt(FS_FTP_PORT, FTP.DEFAULT_PORT);
-        String username = conf.get(FS_FTP_USERNAME);
-        String password = conf.get(FS_FTP_PASSWORD);
-        FTPClient client = new FTPClient();
+        int port = conf.getInt(FS_FTP_HOST_PORT, FTP.DEFAULT_PORT);
+        String user = conf.get(FS_FTP_USER_PREFIX + host);
+        String password = conf.get(FS_FTP_PASSWORD_PREFIX + host);
+        client = new FTPClient();
         client.connect(host, port);
         int reply = client.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
             throw NetUtils.wrapException(host, port,
                     NetUtils.UNKNOWN_HOST, 0,
                     new ConnectException("Server response " + reply));
-        } else if (client.login(username, password)) {
+        } else if (client.login(user, password)) {
             client.setFileTransferMode(getTransferMode(conf));
             client.setFileType(FTP.BINARY_FILE_TYPE);
             client.setBufferSize(DEFAULT_BUFFER_SIZE);
@@ -118,7 +147,7 @@ public class FTPFileSystem extends FileSystem {
             setDataConnectionMode(client, conf);
         } else {
             throw new IOException("Login failed on server - " + host + ", port - "
-                    + port + " as user '" + username + "'");
+                    + port + " as user '" + user + "'");
         }
 
         return client;
@@ -136,6 +165,11 @@ public class FTPFileSystem extends FileSystem {
     /**
      * Set FTP's transfer mode based on configuration. Valid values are
      * STREAM_TRANSFER_MODE, BLOCK_TRANSFER_MODE and COMPRESSED_TRANSFER_MODE.
+     *
+     * <p>Defaults to BLOCK_TRANSFER_MODE.
+     *
+     * @param conf
+     * @return
      */
     int getTransferMode(Configuration conf) {
         final String mode = conf.get(FS_FTP_TRANSFER_MODE);
@@ -163,7 +197,12 @@ public class FTPFileSystem extends FileSystem {
      * Set the FTPClient's data connection mode based on configuration. Valid
      * values are ACTIVE_LOCAL_DATA_CONNECTION_MODE,
      * PASSIVE_LOCAL_DATA_CONNECTION_MODE and PASSIVE_REMOTE_DATA_CONNECTION_MODE.
-     * Defaults to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
+     *
+     * <p>Defaults to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
+     *
+     * @param client
+     * @param conf
+     * @throws IOException
      */
     void setDataConnectionMode(FTPClient client, Configuration conf)
             throws IOException {
@@ -186,11 +225,14 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Logout and disconnect the given FTPClient. *
+     *
+     * @param client
+     * @throws IOException
      */
     private void disconnect(FTPClient client) throws IOException {
         if (client != null) {
             if (!client.isConnected()) {
-                throw new FTPException("Client not connected");
+                throw new org.apache.hadoop.fs.ftp.FTPException("Client not connected");
             }
             boolean logoutSuccess = client.logout();
             client.disconnect();
@@ -203,6 +245,10 @@ public class FTPFileSystem extends FileSystem {
 
     /**
      * Resolve against given working directory. *
+     *
+     * @param workDir
+     * @param path
+     * @return
      */
     private Path makeAbsolute(Path workDir, Path path) {
         if (path.isAbsolute()) {
@@ -299,12 +345,12 @@ public class FTPFileSystem extends FileSystem {
             public void close() throws IOException {
                 super.close();
                 if (!client.isConnected()) {
-                    throw new FTPException("Client not connected");
+                    throw new org.apache.hadoop.fs.ftp.FTPException("Client not connected");
                 }
                 boolean cmdCompleted = client.completePendingCommand();
                 disconnect(client);
                 if (!cmdCompleted) {
-                    throw new FTPException("Could not complete transfer, Reply Code - "
+                    throw new org.apache.hadoop.fs.ftp.FTPException("Could not complete transfer, Reply Code - "
                             + client.getReplyCode());
                 }
             }
@@ -333,12 +379,6 @@ public class FTPFileSystem extends FileSystem {
         } catch (FileNotFoundException fnfe) {
             return false;
         }
-    }
-
-    @Override
-    public boolean exists(Path f) throws IOException {
-        final FTPClient client = connect();
-        return exists(client, f);
     }
 
     @Override
@@ -430,7 +470,7 @@ public class FTPFileSystem extends FileSystem {
         Path absolute = makeAbsolute(workDir, file);
         FileStatus fileStat = getFileStatus(client, absolute);
         if (fileStat.isFile()) {
-            return new FileStatus[] { fileStat };
+            return new FileStatus[]{fileStat};
         }
         FTPFile[] ftpFiles = client.listFiles(absolute.toUri().getPath());
         FileStatus[] fileStats = new FileStatus[ftpFiles.length];
@@ -563,7 +603,7 @@ public class FTPFileSystem extends FileSystem {
         } catch (FileNotFoundException e) {
             return false; // file does not exist
         } catch (IOException ioe) {
-            throw new FTPException("File check failed", ioe);
+            throw new org.apache.hadoop.fs.ftp.FTPException("File check failed", ioe);
         }
     }
 
@@ -637,7 +677,8 @@ public class FTPFileSystem extends FileSystem {
         String from = absoluteSrc.getName();
         String to = absoluteDst.getName();
         client.changeWorkingDirectory(parentSrc);
-        return client.rename(from, to);
+        boolean renamed = client.rename(from, to);
+        return renamed;
     }
 
     @Override
@@ -654,7 +695,7 @@ public class FTPFileSystem extends FileSystem {
             Path homeDir = new Path(client.printWorkingDirectory());
             return homeDir;
         } catch (IOException ioe) {
-            throw new FTPException("Failed to get home directory", ioe);
+            throw new org.apache.hadoop.fs.ftp.FTPException("Failed to get home directory", ioe);
         } finally {
             try {
                 disconnect(client);
