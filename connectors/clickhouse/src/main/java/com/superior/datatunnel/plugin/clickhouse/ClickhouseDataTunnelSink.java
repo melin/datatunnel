@@ -57,7 +57,8 @@ public class ClickhouseDataTunnelSink implements DataTunnelSink {
         sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.http_port", port);
 
         sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.database", "default");
-        sparkSession.conf().set("spark.sql.catalog.datatunnel_clickhouse.batchSize", option.getBatchsize());
+
+        sparkSession.conf().set("spark.clickhouse.write.batchSize", option.getBatchsize());
 
         try {
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
