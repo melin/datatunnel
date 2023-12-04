@@ -15,12 +15,13 @@ object SFtpText2LogDemo {
 
         val sql = """
 datatunnel SOURCE('ftp') OPTIONS(
-    host='172.18.1.52',
-    port=21,
-    username='fcftp',
-    password="fcftp",
+    protocol = 'sftp',
+    host='172.18.5.46',
+    port=22,
+    username='test',
+    password="test2023",
     format="csv",
-    filePath="ftp:///demo.csv")
+    filePath="sftp:///ftpdata/csv/*.csv")
 SINK('log')
 """
         spark.sql(sql)

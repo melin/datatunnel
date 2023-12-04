@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hadoop.fs.FSInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import com.superior.datatunnel.hadoop.fs.ftpextended.common.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings.E_NULL_INPUTSTREAM;
-import static com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings.E_SEEK_NOTSUPPORTED;
 import static com.superior.datatunnel.hadoop.fs.ftpextended.common.ErrorStrings.E_STREAM_CLOSED;
 
 import static com.google.common.base.Preconditions.*;
@@ -27,19 +26,25 @@ class SFTPInputStream extends FSInputStream {
             SFTPInputStream.class);
 
     // Data stream
-    private final InputStream wrappedStream;
+    private InputStream wrappedStream;
 
     private final FileSystem.Statistics stats;
+
+    private final SFTPFileSystem fs;
+
+    private final FileStatus file;
+
+    private long realLength;
 
     private boolean closed;
 
     private long pos;
 
     // Communication channel to the remote server
-    private final Channel channel;
+    private SFTPChannel channel;
 
-    SFTPInputStream(InputStream stream, Channel channel,
-                    FileSystem.Statistics stats) {
+    SFTPInputStream(InputStream stream, SFTPChannel channel,
+                    FileStatus file, FileSystem.Statistics stats) throws IOException {
 
         checkNotNull(stream, E_NULL_INPUTSTREAM);
         this.wrappedStream = stream;
@@ -48,16 +53,21 @@ class SFTPInputStream extends FSInputStream {
         this.pos = 0;
         this.closed = false;
         this.channel = channel;
+        this.file = file;
+        this.fs = (SFTPFileSystem) file.getPath().getFileSystem(
+                channel.getConnectionInfo().getConf());
+        this.realLength = file.getLen();
     }
 
     @Override
     public void seek(long position) throws IOException {
-        throw new IOException(E_SEEK_NOTSUPPORTED);
+        this.wrappedStream.skip(position);
+        this.pos = position;
     }
 
     @Override
     public boolean seekToNewSource(long targetPos) throws IOException {
-        throw new IOException(E_SEEK_NOTSUPPORTED);
+        return false;
     }
 
     @Override
@@ -107,7 +117,8 @@ class SFTPInputStream extends FSInputStream {
         try {
             wrappedStream.close();
             closed = true;
-            channel.disconnect(false);
+            //channel.disconnect(false);
+            channel.destroy();
         } catch (IOException e) {
             LOG.debug("Failed to close connection", e);
             channel.disconnect(true);

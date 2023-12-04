@@ -406,7 +406,7 @@ public class SFTPChannel extends AbstractChannel {
         InputStream is = getDataStream(file);
         if (is != null) {
             // All extra handling is done in SFTPInputStream
-            return new FSDataInputStream(new SFTPInputStream(is, this, statistics));
+            return new FSDataInputStream(new SFTPInputStream(is, this, file, statistics));
         } else {
             throw new IOException(String.format(ErrorStrings.E_CREATE_FILE,
                     file.getPath()));

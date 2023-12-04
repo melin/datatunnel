@@ -135,7 +135,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @return Connected communication channel
      * @throws IOException communication channel can't be established
      */
-    protected Channel connect() throws IOException {
+    public Channel connect() throws IOException {
         return connectionPool.connect(connectionInfo);
     }
 

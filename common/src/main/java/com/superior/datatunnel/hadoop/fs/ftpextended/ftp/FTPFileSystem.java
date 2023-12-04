@@ -22,13 +22,12 @@ public class FTPFileSystem extends AbstractFTPFileSystem {
     }
 
     @Override
-    protected Channel connect() throws IOException {
+    public Channel connect() throws IOException {
         return super.connect();
     }
 
     @Override
-    protected Function<ConnectionInfo, ? extends AbstractChannel>
-    getChannelSupplier() {
+    protected Function<ConnectionInfo, ? extends AbstractChannel> getChannelSupplier() {
         return FTPChannel::create;
     }
 }

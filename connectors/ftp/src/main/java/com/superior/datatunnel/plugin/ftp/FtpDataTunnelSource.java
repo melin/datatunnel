@@ -5,6 +5,7 @@ import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.hadoop.fs.ftpextended.ftp.FTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.ftpextended.sftp.SFTPFileSystem;
 import com.superior.datatunnel.plugin.ftp.enums.FtpProtocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.DataFrameReader;
@@ -43,7 +44,11 @@ public class FtpDataTunnelSource implements DataTunnelSource {
         hadoopConf.set(prefix + "user." + host, sourceOption.getUsername());
         hadoopConf.set(prefix + "password." + host + "." + sourceOption.getUsername(), sourceOption.getPassword());
 
-        hadoopConf.set(prefix + "impl", FTPFileSystem.class.getName());
+        if (FtpProtocol.SFTP == sourceOption.getProtocol()) {
+            hadoopConf.set(prefix + "impl", SFTPFileSystem.class.getName());
+        } else {
+            hadoopConf.set(prefix + "impl", FTPFileSystem.class.getName());
+        }
         hadoopConf.set(prefix + "impl.disable.cache", "false");
 
         /*if (sourceOption.getConnectionMode() != null) {

@@ -19,8 +19,7 @@ public class SFTPFileSystem extends AbstractFTPFileSystem {
     }
 
     @Override
-    protected Function<ConnectionInfo, ? extends AbstractChannel>
-    getChannelSupplier() {
+    protected Function<ConnectionInfo, ? extends AbstractChannel> getChannelSupplier() {
         return SFTPChannel::create;
     }
 }
