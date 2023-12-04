@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.ftp
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object FtpText2LogDemo {
+object SFtpText2LogDemo {
     @JvmStatic
     fun main(args: Array<String>) {
         val spark = SparkSession

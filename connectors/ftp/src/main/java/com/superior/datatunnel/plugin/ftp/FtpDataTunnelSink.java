@@ -3,15 +3,14 @@ package com.superior.datatunnel.plugin.ftp;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
-import com.superior.datatunnel.hadoop.fs.ftp.FTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.ftpextended.ftp.FTPFileSystem;
+import com.superior.datatunnel.plugin.ftp.enums.FtpProtocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-
-import static com.superior.datatunnel.hadoop.fs.ftp.FTPFileSystem.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -39,23 +38,26 @@ public class FtpDataTunnelSink implements DataTunnelSink {
 
         String host = sinkOption.getHost();
         String port = String.valueOf(sinkOption.getPort());
+        String prefix = "fs.ftp.";
+        if (sinkOption.getProtocol() == FtpProtocol.SFTP) {
+            prefix =  "fs.sftp.";
+        }
 
-        hadoopConf.set(FS_FTP_HOST, host);
-        hadoopConf.set(FS_FTP_HOST_PORT, port);
-        hadoopConf.set(FS_FTP_USER_PREFIX + host, sinkOption.getUsername());
-        hadoopConf.set(FS_FTP_PASSWORD_PREFIX + host, sinkOption.getPassword());
-        hadoopConf.set(FS_FTP_TIMEOUT, String.valueOf(sinkOption.getKeepAliveTimeout()));
+        hadoopConf.set(prefix + "host", host);
+        hadoopConf.set(prefix + "host.port", port);
+        hadoopConf.set(prefix + "user." + host, sinkOption.getUsername());
+        hadoopConf.set(prefix + "password." + host + "." + sinkOption.getUsername(), sinkOption.getPassword());
 
-        hadoopConf.set("fs.ftp.impl", FTPFileSystem.class.getName());
-        hadoopConf.set("fs.ftp.impl.disable.cache", "false");
+        hadoopConf.set(prefix + "impl", FTPFileSystem.class.getName());
+        hadoopConf.set(prefix + "impl.disable.cache", "false");
 
-        if (sinkOption.getConnectionMode() != null) {
+        /*if (sinkOption.getConnectionMode() != null) {
             hadoopConf.set(FS_FTP_DATA_CONNECTION_MODE, "PASSIVE_" + sinkOption.getConnectionMode().name() + "_DATA_CONNECTION_MODE");
         }
 
         if (sinkOption.getTransferMode() != null) {
             hadoopConf.set(FS_FTP_TRANSFER_MODE, sinkOption.getTransferMode().name() + "_TRANSFER_MODE");
-        }
+        }*/
 
         String format = sinkOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sinkOption.getFormat()) {
@@ -63,8 +65,7 @@ public class FtpDataTunnelSink implements DataTunnelSink {
         }
 
         DataFrameWriter writer = dataset.write().format(format);
-
-        sinkOption.getProperties().forEach(writer::option);
+        writer.options(sinkOption.getProperties());
         writer.save(sinkOption.getFilePath());
     }
 
