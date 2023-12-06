@@ -99,7 +99,16 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             statTable(connection, sourceOption, fullTableName);
 
             if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
-                fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
+                String condition = StringUtils.trim(sourceOption.getCondition());
+                if (StringUtils.isNotBlank(condition)) {
+                    if (StringUtils.startsWithIgnoreCase(condition, "where")) {
+                        fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " " + condition + ") tdl_datatunnel";
+                    } else {
+                        fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " where " + condition + ") tdl_datatunnel";
+                    }
+                } else {
+                    fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
+                }
             }
 
             int fetchsize = sourceOption.getFetchsize();
@@ -137,21 +146,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
 
         JdbcUtils.close(connection);
-
-        try {
-            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
-            dataset.createTempView(tdlName);
-            String sql = "select " + StringUtils.join(columns, ",") + " from " + tdlName;
-
-            String condition = sourceOption.getCondition();
-            if (StringUtils.isNotBlank(condition)) {
-                sql = sql + " where " + condition;
-            }
-
-            return context.getSparkSession().sql(sql);
-        } catch (AnalysisException e) {
-            throw new DataTunnelException(e.message(), e);
-        }
+        return dataset;
     }
 
     private List<String> getSchemaNames(String schemaName, DatabaseDialect dialect) {
@@ -238,9 +233,13 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 sql = "select count(1) as num from " + table;
             }
 
-            String condition = sourceOption.getCondition();
+            String condition = StringUtils.trim(sourceOption.getCondition());
             if (StringUtils.isNotBlank(condition)) {
-                sql = sql + " where " + condition;
+                if (StringUtils.startsWithIgnoreCase(condition, condition)) {
+                    sql = sql + " " + condition;
+                } else {
+                    sql = sql + " where " + condition;
+                }
             }
 
             StopWatch stopWatch = StopWatch.createStarted();

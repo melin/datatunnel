@@ -26,7 +26,7 @@ object DataTunnelMysql2LogDemo {
               databaseName = 'demos',
               tableName = 'orders',
               columns = ["id", "name"],
-              'properties.test' = 'sd'
+              condition = "where 1=1 limit 1"
             ) 
             SINK("log") OPTIONS (
               columns = ["id", "username"]

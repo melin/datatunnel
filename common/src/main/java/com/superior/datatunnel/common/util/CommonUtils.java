@@ -6,7 +6,7 @@ import com.google.common.collect.Maps;
 import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.ParamKey;
-import com.superior.datatunnel.api.model.BaseCommonOption;
+import com.superior.datatunnel.api.model.DataTunnelOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
@@ -67,8 +67,8 @@ public class CommonUtils {
         T beanInstance = clazz.getConstructor().newInstance();
 
         Map<String, String> properties = null;
-        if (beanInstance instanceof BaseCommonOption) {
-            properties = ((BaseCommonOption) beanInstance).getProperties();
+        if (beanInstance instanceof DataTunnelOption) {
+            properties = ((DataTunnelOption) beanInstance).getProperties();
         }
 
         Map<String, String> keyAliasMap = Maps.newHashMap();

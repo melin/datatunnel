@@ -107,10 +107,10 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
   def validateOptions(sourceName: String, source: DataTunnelSource, sourceOption: DataTunnelSourceOption,
                       sinkName: String, sink: DataTunnelSink, sinkOption: DataTunnelSinkOption): Unit = {
     if (!source.optionalOptions().isEmpty) {
-      sourceOption.getProperties.asScala.foreach(key => {
-        if (!source.optionalOptions().contains(key)) {
-          var keys = source.optionalOptions().asScala.map(key => "properties." + key).mkString(",")
-          throw new DataTunnelException(s"source $sourceName not have param: properties.${key}, Available options: ${keys}")
+      sourceOption.getProperties.asScala.foreach(item => {
+        if (!source.optionalOptions().contains(item._1)) {
+          val keys = source.optionalOptions().asScala.map(key => "properties." + key).mkString(",")
+          throw new DataTunnelException(s"source $sourceName not have param: properties.${item._1}, Available options: ${keys}")
         }
       })
     }
