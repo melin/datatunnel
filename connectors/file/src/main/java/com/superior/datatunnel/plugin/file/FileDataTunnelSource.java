@@ -24,8 +24,13 @@ public class FileDataTunnelSource implements DataTunnelSource {
 
         SparkSession sparkSession = context.getSparkSession();
         DataFrameReader reader = sparkSession.read().format(format);
-        sourceOption.getProperties().forEach(reader::option);
+        reader.options(sourceOption.getProperties());
 
+        if ("csv".equalsIgnoreCase(format)) {
+            reader.option("sep", sourceOption.getSep());
+            reader.option("encoding", sourceOption.getEncoding());
+            reader.option("header", sourceOption.isHeader());
+        }
         return reader.load(sourceOption.getFilePath());
     }
 

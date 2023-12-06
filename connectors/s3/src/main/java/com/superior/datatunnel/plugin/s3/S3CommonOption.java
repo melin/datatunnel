@@ -3,6 +3,7 @@ package com.superior.datatunnel.plugin.s3;
 import com.superior.datatunnel.api.model.BaseCommonOption;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.FileFormat;
 import lombok.Data;
 
@@ -37,6 +38,15 @@ public class S3CommonOption extends BaseCommonOption
 
     @NotBlank(message = "filePath can not blank")
     private String filePath;
+
+    @OptionDesc("csv 字段分隔符")
+    private String sep = ",";
+
+    @OptionDesc("csv 文件编码")
+    private String encoding = "UTF-8";
+
+    @OptionDesc("csv 文件，第一行是否为字段名")
+    private boolean header = false;
 
     @NotEmpty(message = "columns can not empty")
     private String[] columns = new String[]{"*"};

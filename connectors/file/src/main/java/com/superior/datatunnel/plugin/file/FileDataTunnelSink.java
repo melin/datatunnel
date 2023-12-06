@@ -21,8 +21,13 @@ public class FileDataTunnelSink implements DataTunnelSink {
             format = "com.crealytics.spark.excel";
         }
         DataFrameWriter writer = dataset.write().format(format);
-
-        sinkOption.getProperties().forEach(writer::option);
+        writer.options(sinkOption.getProperties());
+        if ("csv".equalsIgnoreCase(format)) {
+            writer.option("sep", sinkOption.getSep());
+            writer.option("encoding", sinkOption.getEncoding());
+            writer.option("header", sinkOption.isHeader());
+        }
+        writer.option("compression", sinkOption.getCompression());
         writer.save(sinkOption.getFilePath());
     }
 

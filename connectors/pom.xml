@@ -18,7 +18,6 @@
         <module>clickhouse</module>
         <module>file</module>
         <module>elasticsearch</module>
-        <module>hdfs</module>
         <module>hive</module>
         <module>jdbc</module>
         <module>kafka</module>

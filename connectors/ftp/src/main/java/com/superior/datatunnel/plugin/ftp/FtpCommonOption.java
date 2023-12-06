@@ -50,10 +50,10 @@ public class FtpCommonOption extends BaseCommonOption
     private String sshPassphrase = "passphrase";
 
     @OptionDesc("csv 字段分隔符")
-    private String sep;
+    private String sep = ",";
 
     @OptionDesc("csv 文件编码")
-    private String encoding;
+    private String encoding = "UTF-8";
 
     @OptionDesc("csv 文件，第一行是否为字段名")
     private boolean header = false;

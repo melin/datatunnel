@@ -58,7 +58,7 @@ public class S3DataTunnelSink implements DataTunnelSink {
 
         DataFrameWriter writer = dataset.write()
                 .format(format)
-                .mode(sinkOption.getSaveMode().name().toLowerCase());
+                .mode(sinkOption.getWriteMode().name().toLowerCase());
 
         sinkOption.getProperties().forEach((key, value) -> {
             if (!key.startsWith("fs.")) {
@@ -66,6 +66,13 @@ public class S3DataTunnelSink implements DataTunnelSink {
             }
         });
 
+        if ("csv".equalsIgnoreCase(format)) {
+            writer.option("sep", sinkOption.getSep());
+            writer.option("encoding", sinkOption.getEncoding());
+            writer.option("header", sinkOption.isHeader());
+        }
+
+        writer.option("compression", sinkOption.getCompression());
         writer.save(sinkOption.getFilePath());
     }
 
