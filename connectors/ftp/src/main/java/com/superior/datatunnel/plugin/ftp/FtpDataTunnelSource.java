@@ -88,6 +88,11 @@ public class FtpDataTunnelSource implements DataTunnelSource {
         }
         DataFrameReader reader = sparkSession.read().format(format);
         reader.options(sourceOption.getProperties());
+        if ("csv".equalsIgnoreCase(format)) {
+            reader.option("sep", sourceOption.getSep());
+            reader.option("encoding", sourceOption.getEncoding());
+            reader.option("header", sourceOption.isHeader());
+        }
         return reader.load(sourceOption.getFilePath());
     }
 

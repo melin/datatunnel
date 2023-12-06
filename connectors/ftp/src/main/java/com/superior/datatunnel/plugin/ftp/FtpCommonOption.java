@@ -49,6 +49,15 @@ public class FtpCommonOption extends BaseCommonOption
 
     private String sshPassphrase = "passphrase";
 
+    @OptionDesc("csv 字段分隔符")
+    private String sep;
+
+    @OptionDesc("csv 文件编码")
+    private String encoding;
+
+    @OptionDesc("csv 文件，第一行是否为字段名")
+    private boolean header = false;
+
     @NotEmpty(message = "columns can not empty")
     private String[] columns = new String[]{"*"};
 

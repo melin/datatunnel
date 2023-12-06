@@ -92,6 +92,12 @@ public class FtpDataTunnelSink implements DataTunnelSink {
 
         DataFrameWriter writer = dataset.write().format(format);
         writer.options(sinkOption.getProperties());
+        if ("csv".equalsIgnoreCase(format)) {
+            writer.option("sep", sinkOption.getSep());
+            writer.option("encoding", sinkOption.getEncoding());
+            writer.option("header", sinkOption.isHeader());
+        }
+        writer.option("compression", sinkOption.getCompression());
         writer.save(sinkOption.getFilePath());
     }
 
