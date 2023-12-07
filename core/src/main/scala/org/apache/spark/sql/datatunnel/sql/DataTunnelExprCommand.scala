@@ -118,7 +118,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     if (!sink.optionalOptions().isEmpty) {
       sinkOption.getProperties.asScala.foreach(key => {
         if (!sink.optionalOptions().contains(key)) {
-          var keys = sink.optionalOptions().asScala.map(key => "properties." + key).mkString(",")
+          val keys = sink.optionalOptions().asScala.map(key => "properties." + key).mkString(",")
           throw new DataTunnelException(s"sink $sinkName not have param: properties.${key}, Available options: ${keys}")
         }
       })
