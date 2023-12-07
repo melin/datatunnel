@@ -11,7 +11,17 @@
         <dependencySet>
             <excludes>
                 <exclude>com.superior.datatunnel:datatunnel-assembly:jar</exclude>
-                <exclude>*:commons-*:jar</exclude>
+                <exclude>*:commons-collections4:jar</exclude>
+                <exclude>*:commons-compress:jar</exclude>
+                <exclude>*:commons-configuration2:jar</exclude>
+                <exclude>*:commons-lang3:jar</exclude>
+                <exclude>*:commons-math3:jar</exclude>
+                <exclude>*:commons-text:jar</exclude>
+                <exclude>*:commons-codec:jar</exclude>
+                <exclude>*:commons-io:jar</exclude>
+                <exclude>*:commons-logging:jar</exclude>
+                <exclude>*:commons-net:jar</exclude>
+
                 <exclude>*:superior-*-parser-*:jar</exclude>
                 <exclude>com.alibaba:fastjson:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java:jar</exclude>

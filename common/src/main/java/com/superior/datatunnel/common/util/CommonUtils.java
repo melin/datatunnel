@@ -130,7 +130,7 @@ public class CommonUtils {
             String[] sinkColumns,
             DataSourceType dataSourceType) throws AnalysisException {
 
-        String tdlName = "tdl_" + dataSourceType.name().toLowerCase() + "_" + System.currentTimeMillis();
+        String tdlName = "tdl_datatunnel_" + dataSourceType.name().toLowerCase() + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);
 
         String sql;

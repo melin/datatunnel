@@ -31,8 +31,8 @@
         <scala.bin.version>2.12</scala.bin.version>
         <spark.version>3.4.2</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <slf4j.version>2.0.6</slf4j.version>
-        <log4j2.version>2.19.0</log4j2.version> <!-- spark 中版本一致 -->
+        <slf4j.version>2.0.9</slf4j.version>
+        <log4j2.version>2.22.0</log4j2.version>
         <bee.version>1.7.0</bee.version>
         <hudi.version>0.14.0</hudi.version>
         <jackson.version>2.15.3</jackson.version>
@@ -46,8 +46,8 @@
         <hive.version>2.1.1-cdh6.3.2</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
-        <spark-excel.version>3.4.1_0.20.1</spark-excel.version>
-        <spark-elasticsearch.version>7.17.10</spark-elasticsearch.version>
+        <spark-excel.version>3.4.2_0.20.3</spark-excel.version>
+        <spark-elasticsearch.version>7.17.15</spark-elasticsearch.version>
         <sql-parser.version>4.0.6</sql-parser.version>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>

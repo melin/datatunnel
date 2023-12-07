@@ -104,9 +104,9 @@ public class FtpDataTunnelSink implements DataTunnelSink {
 
         String path = sinkOption.getFilePath();
         if (FtpProtocol.SFTP == sinkOption.getProtocol()) {
-            path = "sftp://" + path;
+            path = "sftp:////" + path;
         } else {
-            path = "ftp://" + path;
+            path = "ftp:////" + path;
         }
         writer.save(path);
     }
