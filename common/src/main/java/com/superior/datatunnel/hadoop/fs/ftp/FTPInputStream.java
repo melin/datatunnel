@@ -169,7 +169,7 @@ class FTPInputStream extends FSInputStream {
             keepAlive(byteRead);
             return handleTruncate(byteRead);
         } catch (SocketTimeoutException e) {
-            LOG.warn("Socket read timeout", e);
+            LOG.warn("Socket read timeout, error: {}", e.getMessage());
             // Let's handle it in handleTruncate - not being able to read from socket
             // is suspicious
             return handleTruncate(-1);
@@ -205,7 +205,7 @@ class FTPInputStream extends FSInputStream {
             keepAlive(result);
             return handleTruncate(result);
         } catch (SocketTimeoutException e) {
-            LOG.warn("Socket read timeout", e);
+            LOG.warn("Socket read timeout, error: {}", e.getMessage());
             // Let's handle it in handleTruncate - not being able to read from socket
             // is suspicious
             return handleTruncate(-1);
@@ -326,9 +326,7 @@ class FTPInputStream extends FSInputStream {
                 // Length has changed. Run the check again
                 return handleTruncate(length);
             }
-            LOG.warn(
-                    "Restarting transfer from position: " + pos + " Expected size: " +
-                            realLength);
+            LOG.warn("Restarting transfer from position: {} Expected size: {}", pos, realLength);
             resetSeek(pos);
             // we are starting from pos, store the value to lastPos so we can check
             // if we won't stop on the same place again

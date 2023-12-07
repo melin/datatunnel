@@ -281,7 +281,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
             fileStat = getFileStatus(channel, absolute);
         } catch (FileNotFoundException e) {
             // file not found, no need to delete, return false
-            LOG.warn(String.format(ErrorStrings.E_FILE_NOTFOUND, file), e);
+            LOG.warn(String.format(ErrorStrings.E_FILE_NOTFOUND, file) + " Error: " + e.getMessage());
             return false;
         }
         boolean result;
@@ -395,7 +395,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
                     channel.disconnect();
                 }
             } catch (IOException ex) {
-                LOG.warn("Disconnection fails", ex);
+                LOG.warn("Disconnection fails, error: " + ex.getMessage());
             }
         }
     }
