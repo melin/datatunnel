@@ -7,11 +7,11 @@ object S3Excel2LogDemo {
     @JvmStatic
     fun main(args: Array<String>) {
         val spark = SparkSession
-            .builder()
-            .master("local")
-            .appName("Datatunnel spark example")
-            .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
-            .getOrCreate()
+                .builder()
+                .master("local")
+                .appName("Datatunnel spark example")
+                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
+                .getOrCreate()
 
         val sql = """
 datatunnel SOURCE('s3') OPTIONS(
