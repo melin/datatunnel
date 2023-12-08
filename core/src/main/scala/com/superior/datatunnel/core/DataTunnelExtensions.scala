@@ -5,7 +5,7 @@ import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.{SparkListener, SparkListenerTaskEnd}
-import org.apache.spark.sql.{SparkSession, SparkSessionExtensions}
+import org.apache.spark.sql.SparkSessionExtensions
 
 import java.util.concurrent.ConcurrentMap
 import scala.collection.JavaConverters._
@@ -23,8 +23,7 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
 
         override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
           val metrics = taskEnd.taskMetrics
-          val jobType = SparkSession.getActiveSession.get.conf.get("spark.jobserver.superior.jobType", "")
-          logInfo(s"${jobType}=======================")
+          val jobType = session.conf.get("spark.jobserver.superior.jobType", "**")
           if (metrics == null || StringUtils.isBlank(jobType) || !"data_tunnel".equals(jobType)) {
             return
           }
@@ -38,20 +37,19 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
 
           val inputRecords: Long = DataTunnelMetrics.inputRecords()
           val outputRecords: Long = DataTunnelMetrics.outputRecords()
-          logInfo(s"${jobType}=======================${inputRecords}. ${outputRecords}")
 
           var msg = ""
           if (inputRecords > 0 && lastInputRecords != inputRecords) {
             msg = s"datatunnel read records: ${inputRecords}."
             lastInputRecords = inputRecords
             logInfo(msg)
-            LogUtils.info(msg)
+            LogUtils.warn(msg)
           }
           if (outputRecords > 0 && lastOutputRecords != outputRecords) {
             msg = s"datatunnel write records: ${outputRecords}."
             lastOutputRecords = outputRecords
             logInfo(msg)
-            LogUtils.info(msg)
+            LogUtils.warn(msg)
           }
         }
       })
