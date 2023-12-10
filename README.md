@@ -1,10 +1,10 @@
 ## 基于spark 打造的数据集成软件
 目前很多公司使用datax 同步数据，存在如下问题：
-1. hive 表不支持复杂数据类型(array, map, struct)读写。
+1. hive 表不支持复杂数据类型(array, map, struct)读写，seatunnel 也有类似问题。基于spark 去实现，对数据类型以及数据格式支持，非常成熟
 2. hive 表数据格式支持有限，不支持parquet，数据湖iceberg, hudi, paimon 等。
 3. hive 同步直接读取数据文件，不能获取分区信息，不能把分区信息同步到 sink 表。
 4. 需要自己管理datax 任务资源，例如：同步任务数量比较多，在固定步数节点情况，怎么控制同时运行任务数量，同一个节点运行太多，可能导致CPU 使用过高，触发运维监控。
-5. 如果是出海用户，使用redshift，snowflake 产品，datax不支持。redshift，snowflake 提供spark connector。底层提供基于copy form/into 命令批量导入数据，效率高。
+5. 如果是出海用户，使用redshift，snowflake 产品，如果基于datax api 方式去实现，效率非常低。redshift，snowflake 提供spark connector。底层提供基于copy form/into 命令批量导入数据，效率高。
 
 ## 发布打包
 
