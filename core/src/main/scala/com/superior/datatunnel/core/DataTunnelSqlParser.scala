@@ -35,7 +35,8 @@ class DataTunnelSqlParser (spark: SparkSession,
   }
 
   protected def parse[T](command: String)(toResult: SparkSqlParser => T): T = {
-    logInfo(s"Parsing command: $command")
+    val maskSql = DataTunnelUtils.maskSql(command)
+    logInfo(s"Parsing command: $maskSql")
 
     val lexer = new SparkSqlLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
     lexer.removeErrorListeners()
