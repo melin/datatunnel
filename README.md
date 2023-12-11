@@ -37,7 +37,8 @@ docker push 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.15-serverless-spar
 ## 部署
 
 解压 assembly/target/ 目录下生成可用包 datatunnel-[version].tar.gz。复制所有jar 到 spark_home/jars 
-在conf/spark-default.conf 添加配置: spark.sql.extensions com.superior.datatunnel.core.DataTunnelExtensions
+在conf/spark-default.conf 添加配置: 
+> spark.sql.extensions com.superior.datatunnel.core.DataTunnelExtensions
 
 ## datatunnel sql 语法
 
