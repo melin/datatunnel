@@ -4,7 +4,7 @@
 2. hive 表数据格式支持有限，不支持parquet，数据湖iceberg, hudi, paimon 等。
 3. hive 同步直接读取数据文件，不能获取分区信息，不能把分区信息同步到 sink 表。
 4. 需要自己管理datax 任务资源，例如：同步任务数量比较多，怎么控制同时运行任务数量，同一个节点运行太多，可能导致CPU 使用过高，触发运维监控。
-5. 如果是出海用户，使用redshift，snowflake 产品，如果基于datax api 方式去实现，效率非常低。redshift，snowflake 提供spark connector。底层提供基于copy form/into 命令批量导入数据，效率高。
+5. 如果是出海用户，使用redshift、snowflake、bigquery 产品(国产很多数仓缺少大数据引擎connector，例如hashdata，gauss dws)，基于datax api 方式去实现，效率非常低。redshift，snowflake 提供spark connector。底层提供基于copy form/into 命令批量导入数据，效率高。
 
 ## 发布打包
 
@@ -83,8 +83,9 @@ datatunnel help (source | sink | all) ('数据源类型名称')
 | redis         |           | √            | [写](doc/redis.md)                                                                 |
 | aerospike     | √         | √            | [读写](doc/aerospike.md) 相比redis 性能更好                                               |
 | maxcompute    | √         | √            | [读写](doc/maxcompute.md)                                                           |
-| redshift      | √         | √            | [读写](doc/redshift.md)  https://github.com/spark-redshift-community/spark-redshift |
-| snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake            |
+| redshift      | √         | √            | [读写](doc/redshift.md)  https://github.com/spark-redshift-community/spark-redshift          |
+| snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake                     |
+| Bigquery      | √         | √            | [读写](doc/bigquery.md)  https://github.com/GoogleCloudDataproc/spark-bigquery-connector     |
 
 ## example
 ```sql
