@@ -12,7 +12,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{AnalysisException, SparkSession}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.{FunctionIdentifier, TableIdentifier}
-import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException, ParserInterface, PostProcessor}
+import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException, ParserInterface}
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
@@ -35,9 +35,6 @@ class DataTunnelSqlParser (spark: SparkSession,
   }
 
   protected def parse[T](command: String)(toResult: SparkSqlParser => T): T = {
-    val maskSql = DataTunnelUtils.maskSql(command)
-    logInfo(s"Parsing command: $maskSql")
-
     val lexer = new SparkSqlLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
     lexer.removeErrorListeners()
     lexer.addErrorListener(ParseErrorListener)
@@ -115,9 +112,11 @@ class DataTunnelSqlParser (spark: SparkSession,
   }
 }
 
-class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[AnyRef] {
+class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[AnyRef] with Logging {
 
   override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan = withOrigin(ctx) {
+    val maskSql = DataTunnelUtils.maskSql(sqlText)
+    logInfo(s"Parsing command: $maskSql")
     DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
   }
 
