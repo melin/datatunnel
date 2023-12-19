@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
 import com.superior.datatunnel.api.DataTunnelException
-import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect, SupportMergeDatabaseDialect}
+import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect, PostgreSqlDatabaseDialect, SupportMergeDatabaseDialect}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
@@ -51,6 +51,8 @@ object JdbcDialectUtils {
   def getDatabaseDialect(conn: Connection, dataSourceType: String): DatabaseDialect = {
     if (StringUtils.equalsIgnoreCase("mysql", dataSourceType)) {
       new MySqlDatabaseDialect(conn, dataSourceType)
+    } else if (StringUtils.equalsIgnoreCase("postgresql", dataSourceType)) {
+      new PostgreSqlDatabaseDialect(conn, dataSourceType)
     } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
       throw new IllegalArgumentException("not support type: " + dataSourceType)
     } else {

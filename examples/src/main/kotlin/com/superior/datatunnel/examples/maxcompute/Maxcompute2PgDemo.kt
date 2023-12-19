@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.maxcompute
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Maxcompute2LogDemo {
+object Maxcompute2PgDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -25,10 +25,18 @@ object Maxcompute2LogDemo {
               secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               columns = ["*"],
-              partitionSpec = "pt>'20230718',pt<='20230719'",
-              condition = "username = 'dd'"
+              partitionSpec = "pt>'20230718',pt<='20230719'"
             )
-            SINK("log")
+            SINK("postgresql") OPTIONS (
+              username = "postgres",
+              password = "postgres2023",
+              host = '172.18.1.56',
+              port = 5432,
+              databaseName = 'postgres',
+              schemaName = 'public',
+              tableName = 'pg_orders',
+              writeMode = 'upsert',
+              columns = ["*"])
         """.trimIndent()
 
         spark.sql(sql1)

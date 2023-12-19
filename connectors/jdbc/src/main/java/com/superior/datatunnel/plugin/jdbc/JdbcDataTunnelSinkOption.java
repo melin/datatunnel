@@ -43,7 +43,7 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "writeMode can not null")
     private WriteMode writeMode = WriteMode.APPEND;
 
-    private int batchsize = 1000;
+    private int batchsize = 1024;
 
     private int queryTimeout = 0;
 
