@@ -14,12 +14,14 @@ class MySqlDatabaseDialect(connection: Connection, dataSourceType: String)
       tableSchema: Option[StructType],
       dialect: JdbcDialect): String = {
 
+    val version = getDatabaseVersion(connection)
+
     val columns = getColumns(rddSchema, tableSchema, dialect)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
 
     val builder = new StringBuilder()
     var sql = s"INSERT INTO $table (${columns.mkString(",")}) VALUES ($placeholders)"
-    builder.append(sql).append("\nON DUPLICATE KEY UPDATE\n")
+    builder.append(sql)
 
     val items = StringUtils.split(table, ".")
     val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(dialect.quoteIdentifier)
@@ -28,9 +30,17 @@ class MySqlDatabaseDialect(connection: Connection, dataSourceType: String)
       throw new IllegalArgumentException("not primary key, not support upsert")
     }
 
-    sql = columns.filter(!primaryKeys.contains(_))
-      .map(col => s"\t$col = VALUES($col)").mkString(",\n")
-    builder.append(sql);
+    if (version.isSameOrAfter(8, 0, 20)) {
+      builder.append("\nAS new ON DUPLICATE KEY UPDATE ")
+      sql = columns.filter(!primaryKeys.contains(_))
+        .map(col => s"\t$col = new.$col").mkString(",\n")
+      builder.append(sql);
+    } else {
+      builder.append(sql).append("\nON DUPLICATE KEY UPDATE\n")
+      sql = columns.filter(!primaryKeys.contains(_))
+        .map(col => s"\t$col = VALUES($col)").mkString(",\n")
+      builder.append(sql);
+    }
     builder.toString()
   }
 }

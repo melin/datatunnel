@@ -31,11 +31,10 @@ object Maxcompute2SqlServerDemo {
               username = "sa",
               password = "Password!",
               host = '172.18.1.53',
-              port = 1443,
+              port = 1433,
               databaseName="demos",
               schemaName = 'dbo',
               tableName = 'pg_orders',
-              writeMode = 'upsert',
               columns = ["*"])
         """.trimIndent()
 

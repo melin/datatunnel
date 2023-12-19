@@ -53,6 +53,8 @@ object JdbcDialectUtils {
       new MySqlDatabaseDialect(conn, dataSourceType)
     } else if (StringUtils.equalsIgnoreCase("postgresql", dataSourceType)) {
       new PostgreSqlDatabaseDialect(conn, dataSourceType)
+    } else if (StringUtils.equalsIgnoreCase("sqlserver", dataSourceType)) {
+      throw new IllegalArgumentException("not support type: sqlserver")
     } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
       throw new IllegalArgumentException("not support type: " + dataSourceType)
     } else {

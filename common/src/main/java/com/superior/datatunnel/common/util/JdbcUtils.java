@@ -51,7 +51,7 @@ public class JdbcUtils {
             }
             url = url + "?reWriteBatchedInserts=true";
         } else if (SQLSERVER == dsType) {
-            url = "jdbc:sqlserver://" + host + ":" + port + ";DatabaseName=" + databaseName + ";trustServerCertificate=true";
+            url = "jdbc:sqlserver://" + host + ":" + port + ";database=" + databaseName + ";trustServerCertificate=true";
         } else if (HANA == dsType) {
             url = "jdbc:sap://" + host + ":" + port + "?reconnect=true";
         } else if (GREENPLUM == dsType) {
