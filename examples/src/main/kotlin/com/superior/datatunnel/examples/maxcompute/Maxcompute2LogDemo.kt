@@ -20,11 +20,12 @@ object Maxcompute2LogDemo {
         val sql1 = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
               projectName = "superior",
-              tableName = "orders",
+              tableName = "ods_orders_pt",
               accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
               secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
-              columns = ["id", "name"]
+              columns = ["*"],
+              partitionSpec = "pt>'20230718'"
             )
             SINK("log")
         """.trimIndent()
