@@ -10,6 +10,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
+// https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
 object CopyHelper extends Logging{
 
   val fieldDelimiter = "\u0001";
