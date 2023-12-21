@@ -1,5 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
+import com.google.common.collect.Lists
 import com.superior.datatunnel.api.DataTunnelException
 import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect, PostgreSqlDatabaseDialect, SupportMergeDatabaseDialect}
 import org.apache.commons.lang3.StringUtils
@@ -66,6 +67,50 @@ object JdbcDialectUtils {
     new IllegalArgumentException(
       s"Invalid value `$n` for parameter `$jdbcNumPartitions` in table writing " +
         "via JDBC. The minimum value is 1.")
+  }
+
+  def queryPrimaryKeys(tableId: String, conn: Connection): java.util.List[String] = {
+    val items = StringUtils.split(tableId, ".")
+    val metaData = conn.getMetaData
+    val rs = metaData.getPrimaryKeys(null, items(0), items(1))
+    val keys: java.util.List[String] = Lists.newArrayList();
+    try {
+      while (rs.next) {
+        keys.add(rs.getString("COLUMN_NAME"))
+      }
+    } finally {
+      try {
+        if (rs != null) {
+          rs.close()
+        }
+      } catch {
+        case _ =>
+      }
+    }
+
+    keys
+  }
+
+  def queryColumnss(tableId: String, conn: Connection): java.util.List[String] = {
+    val items = StringUtils.split(tableId, ".")
+    val metaData = conn.getMetaData
+    val rs = metaData.getColumns(null, items(0), items(1), null)
+    val keys: java.util.List[String] = Lists.newArrayList();
+    try {
+      while (rs.next) {
+        keys.add(rs.getString("COLUMN_NAME"))
+      }
+    } finally {
+      try {
+        if (rs != null) {
+          rs.close()
+        }
+      } catch {
+        case _ =>
+      }
+    }
+
+    keys
   }
 
   def columnNotFoundInSchemaError(

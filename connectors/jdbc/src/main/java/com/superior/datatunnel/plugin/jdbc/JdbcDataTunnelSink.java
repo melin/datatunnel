@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.superior.datatunnel.api.DataSourceType.GAUSS;
+import static com.superior.datatunnel.api.DataSourceType.POSTGRESQL;
 import static com.superior.datatunnel.common.util.JdbcUtils.*;
 
 /**
@@ -80,6 +82,10 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             int queryTimeout = sinkOption.getQueryTimeout();
 
             final WriteMode writeMode = sinkOption.getWriteMode();
+            if ((GAUSS != dataSourceType && POSTGRESQL != dataSourceType) && writeMode == WriteMode.COPYFROM) {
+                throw new DataTunnelException("write mode: COPY_FROM, only support: gauss, postgresql");
+            }
+
             SaveMode mode = SaveMode.Append;
             if (WriteMode.OVERWRITE == writeMode) {
                 mode = SaveMode.Overwrite;

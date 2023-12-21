@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.maxcompute
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Maxcompute2MysqlDemo {
+object Maxcompute2PgCopyFromDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -27,12 +27,13 @@ object Maxcompute2MysqlDemo {
               columns = ["*"],
               partitionSpec = "pt>'20230718',pt<='20230719'"
             )
-            SINK("mysql") OPTIONS (
-              username = "root",
-              password = "root2023",
-              host = '172.18.5.44',
-              port = 3306,
-              schemaName = 'demos',
+            SINK("postgresql") OPTIONS (
+              username = "postgres",
+              password = "postgres2023",
+              host = '172.18.1.56',
+              port = 5432,
+              databaseName = 'postgres',
+              schemaName = 'public',
               tableName = 'pg_orders',
               writeMode = 'copyfrom',
               columns = ["*"])
