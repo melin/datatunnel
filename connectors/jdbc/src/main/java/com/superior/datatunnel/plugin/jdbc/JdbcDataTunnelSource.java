@@ -310,6 +310,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 numPartitions = 1;
             }
 
+            sourceOption.setPartitionColumn(partitionColumn);
             sourceOption.setNumPartitions(numPartitions);
             LOG.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
                     sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
