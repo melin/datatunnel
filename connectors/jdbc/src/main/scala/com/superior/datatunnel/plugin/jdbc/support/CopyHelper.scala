@@ -46,7 +46,7 @@ object CopyHelper extends Logging{
         val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
         val sql = s"COPY $table FROM STDIN WITH (NULL '\\N', FORMAT CSV, DELIMITER E'${fieldDelimiter}')";
         logInfo(s"copy from sql: $sql")
-        LogUtils.info(s"copy from sql: $sql")
+        //LogUtils.info(s"copy from sql: $sql")
         cm.copyIn(sql, rowsToInputStream(rows))
         ()
       } finally {
