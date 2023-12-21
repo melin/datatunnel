@@ -5,6 +5,7 @@ import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
+import com.superior.datatunnel.plugin.jdbc.support.Column;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import com.superior.datatunnel.plugin.jdbc.support.dialect.DatabaseDialect;
 import io.github.melin.jobserver.spark.api.LogUtils;
@@ -28,6 +29,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.sql.Types.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午O
@@ -95,9 +98,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         Dataset<Row> dataset = null;
         for (int i = 0, len = tableNames.size(); i < len; i++) {
             Pair<String, String> pair = tableNames.get(i);
-            String fullTableName = pair.getLeft() + "." + pair.getRight();
-            statTable(connection, sourceOption, fullTableName);
+            statTable(connection, sourceOption, pair.getLeft(), pair.getRight());
 
+            String fullTableName = pair.getLeft() + "." + pair.getRight();
             if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
                 String condition = StringUtils.trim(sourceOption.getCondition());
                 if (StringUtils.isNotBlank(condition)) {
@@ -208,7 +211,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
     }
 
-    private void statTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String table) {
+    private void statTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String schemaName, String tableName) {
         PreparedStatement stmt = null;
         try {
             String partitionColumn = sourceOption.getPartitionColumn();
@@ -225,12 +228,36 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 return;
             }
 
+            if (StringUtils.isBlank(partitionColumn)) {
+                String dsType = sourceOption.getDataSourceType().name();
+                List<String> primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn);
+                if (primaryKeys.size() == 1) {
+                    String primaryKey = primaryKeys.get(0);
+                    List<Column> columns = JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn);
+                    for (Column column : columns) {
+                        if (primaryKey.equals(column.name())) {
+                            int type = column.jdbcType();
+                            if (type == TINYINT || type == SMALLINT || type == INTEGER
+                                    || type == BIGINT || type == FLOAT || type == DOUBLE
+                                    || type == NUMERIC || type == DECIMAL) {
+
+                                partitionColumn = primaryKey;
+                                LOG.info("自动推测 partitionColumn: {}", primaryKey);
+                                LogUtils.info("自动推测 partitionColumn: {}", primaryKey);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            String fullTableName = schemaName + "." + tableName;
             String sql;
             if (StringUtils.isNotBlank(partitionColumn)) {
                 sql = "select count(1) as num , max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value " +
-                        "from " + table;
+                        "from " + fullTableName;
             } else {
-                sql = "select count(1) as num from " + table;
+                sql = "select count(1) as num from " + fullTableName;
             }
 
             String condition = StringUtils.trim(sourceOption.getCondition());
@@ -252,25 +279,26 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             if (StringUtils.isBlank(partitionColumn)) {
                 LOG.info("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
-                        execTimes, table, count);
+                        execTimes, fullTableName, count);
                 LogUtils.warn("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
-                        execTimes, table, count);
+                        execTimes, fullTableName, count);
             } else {
-                LOG.info("ExecTimes: {}, table {} record count: {}", execTimes, table, count);
-                LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, table, count);
+                LOG.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
+                LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
             }
 
+            // 如果没有设置partitionColumn，获取表主键，如果只有一个主键且为数字类型，自动设置为 partitionColumn 值。
             if (StringUtils.isNotBlank(partitionColumn)) {
                 if (StringUtils.isBlank(lowerBound)) {
                     String minValue = String.valueOf(resultSet.getObject("min_value"));
-                    LOG.info("table {} min value: {}", table, minValue);
-                    LogUtils.info("table {} min value: {}", table, minValue);
+                    LOG.info("table {} min value: {}", fullTableName, minValue);
+                    LogUtils.info("table {} min value: {}", fullTableName, minValue);
                     sourceOption.setLowerBound(minValue);
                 }
                 if (StringUtils.isBlank(upperBound)) {
                     String maxValue = String.valueOf(resultSet.getObject("max_value"));
-                    LOG.info("table {} max value: {}", table, maxValue);
-                    LogUtils.info("table {} max value: {}", table, maxValue);
+                    LOG.info("table {} max value: {}", fullTableName, maxValue);
+                    LogUtils.info("table {} max value: {}", fullTableName, maxValue);
                     sourceOption.setUpperBound(maxValue);
                 }
             }
@@ -283,8 +311,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             }
 
             sourceOption.setNumPartitions(numPartitions);
-            LogUtils.info("lowerBound: {}, upperBound: {}, numPartitions: {}",
-                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), numPartitions);
+            LOG.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
+            LogUtils.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
         } catch (SQLException e) {
             throw new DataTunnelException(e.getMessage(), e);
         } finally {

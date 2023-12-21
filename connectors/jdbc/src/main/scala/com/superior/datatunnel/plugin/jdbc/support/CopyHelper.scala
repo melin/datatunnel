@@ -1,5 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
+import io.github.melin.jobserver.spark.api.LogUtils
+import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialects
 
@@ -8,7 +10,9 @@ import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
-object CopyHelper {
+object CopyHelper extends Logging{
+
+  val fieldDelimiter = "\u0001";
 
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
     val bytes: Iterator[Byte] = rows.flatMap { row =>
@@ -20,7 +24,7 @@ object CopyHelper {
             "\"" + v.toString.replaceAll("\"", "\"\"") + "\""
           }
         }
-        .mkString("\t") + "\n").getBytes
+        .mkString(fieldDelimiter) + "\n").getBytes
     }
 
     new InputStream {
@@ -40,9 +44,10 @@ object CopyHelper {
       val conn = dialect.createConnectionFactory(options)(-1)
       try {
         val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-        cm.copyIn(
-          s"COPY $table " + """FROM STDIN WITH (NULL '\N', FORMAT CSV, DELIMITER E'\t')""",
-          rowsToInputStream(rows))
+        val sql = s"COPY $table FROM STDIN WITH (NULL '\\N', FORMAT CSV, DELIMITER E'${fieldDelimiter}')";
+        logInfo(s"copy from sql: $sql")
+        LogUtils.info(s"copy from sql: $sql")
+        cm.copyIn(sql, rowsToInputStream(rows))
         ()
       } finally {
         conn.close()

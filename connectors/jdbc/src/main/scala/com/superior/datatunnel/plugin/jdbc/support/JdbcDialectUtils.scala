@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.jdbc.support
 
 import com.google.common.collect.Lists
 import com.superior.datatunnel.api.DataTunnelException
+import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect, PostgreSqlDatabaseDialect, SupportMergeDatabaseDialect}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
@@ -69,14 +70,18 @@ object JdbcDialectUtils {
         "via JDBC. The minimum value is 1.")
   }
 
-  def queryPrimaryKeys(tableId: String, conn: Connection): java.util.List[String] = {
-    val items = StringUtils.split(tableId, ".")
+  def queryPrimaryKeys(dsType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[String] = {
     val metaData = conn.getMetaData
-    val rs = metaData.getPrimaryKeys(null, items(0), items(1))
+    val rs = if ("mysql".equalsIgnoreCase(dsType)) {
+      metaData.getPrimaryKeys(schemaName, null, tableName)
+    } else {
+      metaData.getPrimaryKeys(null, schemaName, tableName)
+    }
     val keys: java.util.List[String] = Lists.newArrayList();
     try {
       while (rs.next) {
-        keys.add(rs.getString("COLUMN_NAME"))
+        val name = rs.getString("COLUMN_NAME")
+        keys.add(name)
       }
     } finally {
       try {
@@ -91,14 +96,18 @@ object JdbcDialectUtils {
     keys
   }
 
-  def queryColumnss(tableId: String, conn: Connection): java.util.List[String] = {
-    val items = StringUtils.split(tableId, ".")
+  def queryColumns(dsType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[Column] = {
     val metaData = conn.getMetaData
-    val rs = metaData.getColumns(null, items(0), items(1), null)
-    val keys: java.util.List[String] = Lists.newArrayList();
+    val rs = if ("mysql".equalsIgnoreCase(dsType)) {
+      metaData.getColumns(schemaName, null, tableName, null)
+    } else {
+      metaData.getColumns(null, schemaName, tableName, null)
+    }
+    val columns: java.util.List[Column] = Lists.newArrayList();
     try {
       while (rs.next) {
-        keys.add(rs.getString("COLUMN_NAME"))
+        val column = Column(rs.getString("COLUMN_NAME"), rs.getInt("DATA_TYPE"))
+        columns.add(column)
       }
     } finally {
       try {
@@ -110,7 +119,7 @@ object JdbcDialectUtils {
       }
     }
 
-    keys
+    columns
   }
 
   def columnNotFoundInSchemaError(
@@ -118,3 +127,5 @@ object JdbcDialectUtils {
     new DataTunnelException(s"""Column "${col.name}" not found in schema $tableSchema""")
   }
 }
+
+case class Column(name: String, jdbcType: Int)

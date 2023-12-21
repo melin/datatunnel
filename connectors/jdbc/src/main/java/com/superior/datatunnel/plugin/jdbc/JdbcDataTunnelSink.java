@@ -116,12 +116,16 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .options(sinkOption.getProperties())
                     .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
+                    .option("dsType", dataSourceType.name())
+                    .option("schemaName", schemaName)
+                    .option("tableName", sinkOption.getTableName())
                     .option("batchsize", batchsize)
                     .option("queryTimeout", queryTimeout)
                     .option("truncate", truncate)
                     .option("user", username)
                     .option("password", password)
                     .option("writeMode", writeMode.name().toLowerCase())
+                    .option("columns", StringUtils.join(sinkOption.getColumns(), ","))
                     .option("dataSourceType", dataSourceType.name())
                     .option("isolationLevel", sinkOption.getIsolationLevel());
 

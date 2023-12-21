@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.jdbc.support
 
 import com.superior.datatunnel.api.DataTunnelException
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.saveTable
+import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{createTable, dropTable, isCascadingTruncateTable, truncateTable}
@@ -31,13 +32,22 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     val dialect = JdbcDialects.get(options.url)
     val conn = dialect.createConnectionFactory(options)(-1)
     val writeMode = parameters.getOrElse("writeMode", "append")
+    val columnsStr = parameters("columns")
+    val dsType = parameters("dsType")
+    val schemaName = parameters("schemaName")
+    val tableName = parameters("tableName")
+    val tableId = options.table;
     val dataSourceType = parameters.getOrElse("dataSourceType", "UNKNOW")
     try {
       if (StringUtils.endsWithIgnoreCase(writeMode, "COPYFROM")) {
-        val tableId = options.table;
-        val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(tableId, conn)
-        val columns = JdbcDialectUtils.queryColumnss(tableId, conn)
+
+        val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn)
+        val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
+          JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+          else StringUtils.split(columnsStr, ",").toList.asJava
+
         logInfo(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
+        LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
 
         // 创建临时表名
         val items = StringUtils.split(tableId, ".")
@@ -47,11 +57,13 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
         val tempTableName = items.mkString(".")
 
         if (primaryKeys.size() > 0) {
-          logInfo(s"prepare temp table: ${tempTableName}");
+          logInfo(s"prepare temp table: ${tempTableName}")
+          LogUtils.info(s"prepare temp table: ${tempTableName}")
           var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} INCLUDING defaults)";
           executeSql(conn, sql)
 
           logInfo(s"truncat temp table: ${tempTableName}");
+          LogUtils.info(s"truncat temp table: ${tempTableName}")
           sql = s"TRUNCATE TABLE ${tempTableName}";
           executeSql(conn, sql)
         }
@@ -65,11 +77,13 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
 
         if (primaryKeys.size() > 0) {
           // 从临时表导入
-          var sql = buildUpsertSql(tableId, tempTableName, columns, primaryKeys)
+          var sql = buildUpsertSql(tableId, tempTableName, columnNames, primaryKeys)
           logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+          LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
           executeSql(conn, sql)
 
           logInfo(s"drop temp table ${tempTableName}");
+          LogUtils.info(s"drop temp table ${tempTableName}")
           sql = s"drop table $tempTableName";
           executeSql(conn, sql)
         }

@@ -25,8 +25,7 @@ object Mysql2PgCopyFromDemo {
               port = 3306,
               databaseName = '`data_dev4.4.0`',
               tableName = 'interface_call_log',
-              columns = ["*"],
-              partitionColumn = 'id'
+              columns = ["*"]
             ) 
             SINK("postgresql") OPTIONS (
               username = "postgres",
