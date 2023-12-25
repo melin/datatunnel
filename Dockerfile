@@ -1,7 +1,3 @@
-FROM public.ecr.aws/emr-serverless/spark/emr-6.15.0:latest
+FROM public.ecr.aws/w6m0k7l2/spark:spark-3.4.2
 
-USER root
-# MODIFICATIONS GO HERE
-COPY assembly/target/datatunnel-3.4.0/*.jar /usr/lib/spark/jars/
-# EMRS will run the image as hadoop
-USER hadoop:hadoop
+ADD assembly/target/datatunnel-3.4.0.tar.gz /opt/spark/jars

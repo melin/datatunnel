@@ -47,7 +47,7 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
     private int queryTimeout = 0;
 
-    private boolean truncate = false;
+    private boolean truncate = true;
 
     private String preActions;
 

@@ -23,6 +23,33 @@ mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.
 mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Phadoop2
 ```
 
+### 构建Spark 镜像
+```
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/w6m0k7l2
+
+./bin/docker-image-tool.sh -r public.ecr.aws/w6m0k7l2 -t spark-3.4.2 build
+./bin/docker-image-tool.sh -r public.ecr.aws/w6m0k7l2 -t spark-3.4.2 push
+
+docker build -t spark-3.4.2-datatunnel .
+docker tag spark-3.4.2-datatunnel public.ecr.aws/w6m0k7l2/spark:spark-3.4.2-datatunnel
+docker push public.ecr.aws/w6m0k7l2/spark:spark-3.4.2-datatunnel
+
+./bin/spark-submit \
+    --master k8s://https://xxxx.yl4.us-east-1.eks.amazonaws.com \
+    --deploy-mode cluster \
+    --name spark-pi \
+    --class org.apache.spark.examples.SparkPi \
+    --conf spark.executor.instances=1 \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+    --conf spark.kubernetes.container.image=public.ecr.aws/w6m0k7l2/spark:spark-3.4.2 \
+    --conf spark.kubernetes.file.upload.path=s3a://superior2023/kubenetes \
+	--conf spark.hadoop.fs.s3a.access.key=xxx \
+	--conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem  \
+	--conf spark.hadoop.fs.s3a.fast.upload=true  \
+	--conf spark.hadoop.fs.s3a.secret.key=xxx  \
+    s3a://superior2023/spark/spark-examples_2.12-3.4.2.jar 5
+```
+
 ### 构建AWS EMR镜像
 ```
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 480976988805.dkr.ecr.us-east-1.amazonaws.com
