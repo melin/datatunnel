@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
-import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialects
@@ -10,31 +9,62 @@ import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
+import java.nio.ByteBuffer
+
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
 object CopyHelper extends Logging{
 
-  val fieldDelimiter = "\u0001";
+  private val fieldDelimiter = ",";
 
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
-    val bytes: Iterator[Byte] = rows.flatMap { row =>
-      (row.toSeq
-        .map { v =>
+    val bytes: Iterator[Byte] = rows.flatMap {
+      row => {
+        val columns = row.toSeq.map { v =>
           if (v == null) {
-            """\N"""
+            Array[Byte]('\\', 'N')
           } else {
-            "\"" + v.toString.replaceAll("\"", "\"\"") + "\""
+            v.toString.getBytes()
           }
         }
-        .mkString(fieldDelimiter) + "\n").getBytes
+
+        val bytesSize = columns.map(_.length).sum
+        val byteBuffer = ByteBuffer.allocate((bytesSize * 2 + 10).toInt)
+
+        var index: Int = 0;
+        columns.foreach(bytes => {
+          if (index > 0) {
+            byteBuffer.put(fieldDelimiter.getBytes)
+          }
+
+          if (bytes.length == 2 && bytes(0) == '\\'.toByte && bytes(1) == 'N'.toByte) {
+            byteBuffer.put(bytes)
+          } else {
+            byteBuffer.put('"'.toByte)
+            bytes.foreach(ch => {
+              if (ch == '"'.toByte) {
+                byteBuffer.put('"'.toByte).put('"'.toByte)
+              } else {
+                byteBuffer.put(ch)
+              }
+            })
+            byteBuffer.put('"'.toByte)
+          }
+
+          index = index + 1
+        })
+
+        byteBuffer.put('\n'.toByte)
+        byteBuffer.flip()
+        val bytesArray = new Array[Byte](byteBuffer.remaining)
+        byteBuffer.get(bytesArray, 0, bytesArray.length)
+        bytesArray
+      }
     }
 
-    new InputStream {
-      override def read(): Int =
-        if (bytes.hasNext) {
-          bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
-        } else {
-          -1
-        }
+    () => if (bytes.hasNext) {
+      bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
+    } else {
+      -1
     }
   }
 
