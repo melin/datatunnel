@@ -35,7 +35,8 @@ object Mysql2PgCopyFromDemo1 {
               databaseName = 'postgres',
               schemaName = 'public',
               tableName = 'pg_orders',
-              writeMode = 'copyfrom',
+              truncate = true,
+              writeMode = 'bulkinsert',
               columns = ["*"])
         """.trimIndent()
 

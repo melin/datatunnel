@@ -7,7 +7,7 @@ public enum DataSourceType {
     SQLSERVER,
     POSTGRESQL,
     TERADATA,
-    GAUSS,
+    GAUSSDWS,
     GREENPLUM,
     DB2,
     HANA,
@@ -36,7 +36,7 @@ public enum DataSourceType {
     public static boolean isJdbcDataSource(DataSourceType dsType) {
         if (dsType == MYSQL || dsType == ORACLE || dsType == SQLSERVER
                 || dsType == POSTGRESQL || dsType == DB2
-                || dsType == GAUSS || dsType == GREENPLUM  || dsType == HANA
+                || dsType == GAUSSDWS || dsType == GREENPLUM  || dsType == HANA
                 || dsType == DAMENG) {
             return true;
         } else {

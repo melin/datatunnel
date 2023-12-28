@@ -6,6 +6,7 @@ import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions;
@@ -22,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.superior.datatunnel.api.DataSourceType.GAUSS;
-import static com.superior.datatunnel.api.DataSourceType.POSTGRESQL;
+import static com.superior.datatunnel.api.DataSourceType.*;
 import static com.superior.datatunnel.common.util.JdbcUtils.*;
 
 /**
@@ -32,6 +32,10 @@ import static com.superior.datatunnel.common.util.JdbcUtils.*;
 public class JdbcDataTunnelSink implements DataTunnelSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSink.class);
+
+    private static final DataSourceType[] SUPPORT_BULKINSERT = new DataSourceType[] {
+            SQLSERVER, MYSQL, GAUSSDWS, POSTGRESQL, REDSHIFT
+    };
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSinkOption().getDataSourceType();
@@ -82,8 +86,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             int queryTimeout = sinkOption.getQueryTimeout();
 
             final WriteMode writeMode = sinkOption.getWriteMode();
-            if ((GAUSS != dataSourceType && POSTGRESQL != dataSourceType) && writeMode == WriteMode.COPYFROM) {
-                throw new DataTunnelException("write mode: COPY_FROM, only support: gauss, postgresql");
+            if (!ArrayUtils.contains(SUPPORT_BULKINSERT, dataSourceType) && writeMode == WriteMode.BULKINSERT) {
+                throw new DataTunnelException("write mode: Bulk insert, only support: gauss, postgresql, mysql, sqlserver");
             }
 
             SaveMode mode = SaveMode.Append;

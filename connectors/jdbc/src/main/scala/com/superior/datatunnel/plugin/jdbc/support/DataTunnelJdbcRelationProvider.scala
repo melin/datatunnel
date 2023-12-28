@@ -32,60 +32,13 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     val dialect = JdbcDialects.get(options.url)
     val conn = dialect.createConnectionFactory(options)(-1)
     val writeMode = parameters.getOrElse("writeMode", "append")
-    val columnsStr = parameters("columns")
-    val dsType = parameters("dsType")
-    val schemaName = parameters("schemaName")
-    val tableName = parameters("tableName")
-    val tableId = options.table;
     val dataSourceType = parameters.getOrElse("dataSourceType", "UNKNOW")
     try {
-      if (StringUtils.endsWithIgnoreCase(writeMode, "COPYFROM")) {
-
-        val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn)
-        val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
-          JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
-          else StringUtils.split(columnsStr, ",").toList.asJava
-
-        logInfo(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
-        LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
-
-        // 创建临时表名
-        val items = StringUtils.split(tableId, ".")
-        var name = items(items.length - 1)
-        name = "datatunnel_temp_" + name + "_001"
-        items(items.length - 1) = name
-        val tempTableName = items.mkString(".")
-
-        if (primaryKeys.size() > 0) {
-          logInfo(s"prepare temp table: ${tempTableName}")
-          LogUtils.info(s"prepare temp table: ${tempTableName}")
-          var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
-          executeSql(conn, sql)
-
-          logInfo(s"truncat temp table: ${tempTableName}");
-          LogUtils.info(s"truncat temp table: ${tempTableName}")
-          sql = s"TRUNCATE TABLE ${tempTableName}";
-          executeSql(conn, sql)
-        }
-
-        if (primaryKeys.size() > 0) {
-          //先导入临时表
-          CopyHelper.copyIn(parameters)(df, tempTableName)
+      if (StringUtils.endsWithIgnoreCase(writeMode, "BULKINSERT")) {
+        if (dataSourceType.equalsIgnoreCase("POSTGRESQL") || dataSourceType.equalsIgnoreCase("GAUSSDWS")) {
+          bulkInsertPG(conn, df, options, parameters)
         } else {
-          CopyHelper.copyIn(parameters)(df, tableId)
-        }
-
-        if (primaryKeys.size() > 0) {
-          // 从临时表导入
-          var sql = buildUpsertSql(tableId, tempTableName, columnNames, primaryKeys)
-          logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
-          LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
-          executeSql(conn, sql)
-
-          logInfo(s"drop temp table ${tempTableName}");
-          LogUtils.info(s"drop temp table ${tempTableName}")
-          sql = s"drop table $tempTableName";
-          executeSql(conn, sql)
+          throw new DataTunnelException(s"$dataSourceType not support bulk insert")
         }
       } else {
         val tableExists = SparkJdbcUtils.tableExists(conn, options)
@@ -129,7 +82,77 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     createRelation(sqlContext, parameters)
   }
 
-  private def buildUpsertSql(tableName: String, tempTableName: String,
+  // pg bulk insert
+  private def bulkInsertPG(
+      conn: Connection,
+      df: DataFrame,
+      options: JdbcOptionsInWrite,
+      parameters: Map[String, String]): Unit = {
+
+    val truncate = parameters("truncate").toBoolean
+    val columnsStr = parameters("columns")
+    val dsType = parameters("dsType")
+    val schemaName = parameters("schemaName")
+    val tableName = parameters("tableName")
+    val tableId = options.table;
+
+    val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn)
+    val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
+      JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+    else StringUtils.split(columnsStr, ",").toList.asJava
+
+    logInfo(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
+    LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
+
+    // 创建临时表名
+    val items = StringUtils.split(tableId, ".")
+    var name = items(items.length - 1)
+    name = "datatunnel_temp_" + name + "_001"
+    items(items.length - 1) = name
+    val tempTableName = items.mkString(".")
+    val tempTableMode = primaryKeys.size() > 0 && !truncate // 设置主键，且truncate = false，才需要创建临时表
+
+    if (truncate) {
+      logInfo(s"prepare truncate table: ${tableId}")
+      LogUtils.info(s"prepare truncate table: ${tableId}")
+      val sql = s"truncate table ${tableId}";
+      executeSql(conn, sql)
+    }
+
+    if (tempTableMode) {
+      logInfo(s"prepare temp table: ${tempTableName}")
+      LogUtils.info(s"prepare temp table: ${tempTableName}")
+      var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
+      executeSql(conn, sql)
+
+      logInfo(s"truncat temp table: ${tempTableName}");
+      LogUtils.info(s"truncat temp table: ${tempTableName}")
+      sql = s"TRUNCATE TABLE ${tempTableName}";
+      executeSql(conn, sql)
+    }
+
+    if (tempTableMode) {
+      //先导入临时表
+      CopyHelper.copyIn(parameters)(df, tempTableName)
+    } else {
+      CopyHelper.copyIn(parameters)(df, tableId)
+    }
+
+    if (tempTableMode) {
+      // 从临时表导入
+      var sql = buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
+      logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+      LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+      executeSql(conn, sql)
+
+      logInfo(s"drop temp table ${tempTableName}");
+      LogUtils.info(s"drop temp table ${tempTableName}")
+      sql = s"drop table $tempTableName";
+      executeSql(conn, sql)
+    }
+  }
+
+  private def buildUpsertPGSql(tableName: String, tempTableName: String,
                              columns: util.List[String], primaryKeys: util.List[String]): String = {
 
     val updateColumns = columns.asScala.filter(name => !primaryKeys.contains(name)).map(name => name)

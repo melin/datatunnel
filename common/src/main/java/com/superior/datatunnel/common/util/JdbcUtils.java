@@ -44,7 +44,7 @@ public class JdbcUtils {
             if (StringUtils.isNotBlank(databaseName)) {
                 url += "/" + databaseName;
             }
-        } else if (POSTGRESQL == dsType || GAUSS == dsType) {
+        } else if (POSTGRESQL == dsType || GAUSSDWS == dsType) {
             url = "jdbc:postgresql://" + host + ":" + port;
             if (StringUtils.isNotBlank(databaseName)) {
                 url += "/" + databaseName;
