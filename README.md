@@ -11,9 +11,9 @@
 #### 独立集成spark 打包
 ```
 -- antlr4 版本要与spark 中版本一致
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Dantlr4.version=4.8 -Pcdh6
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Dantlr4.version=4.8 -Phadoop3
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Dantlr4.version=4.8 -Phadoop2
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Pcdh6
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Phadoop3
+mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Phadoop2
 ```
 
 #### superior 平台打包，排除一些平台已经有的jar
