@@ -5,6 +5,7 @@
 3. hive 同步直接读取数据文件，不能获取分区信息，不能把分区信息同步到 sink 表。
 4. 需要自己管理datax 任务资源，例如：同步任务数量比较多，怎么控制同时运行任务数量，同一个节点运行太多，可能导致CPU 使用过高，触发运维监控。
 5. 如果是出海用户，使用redshift、snowflake、bigquery 产品(国产很多数仓缺少大数据引擎connector，例如hashdata，gauss dws)，基于datax api 方式去实现，效率非常低。redshift，snowflake 提供spark connector。底层提供基于copy form/into 命令批量导入数据，效率高。
+6. JDBC 缺少bulk insert，效率不高
 
 ## 发布打包
 
