@@ -59,7 +59,7 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
         if (primaryKeys.size() > 0) {
           logInfo(s"prepare temp table: ${tempTableName}")
           LogUtils.info(s"prepare temp table: ${tempTableName}")
-          var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} INCLUDING defaults)";
+          var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
           executeSql(conn, sql)
 
           logInfo(s"truncat temp table: ${tempTableName}");
