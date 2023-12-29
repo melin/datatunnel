@@ -1,23 +1,39 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
+import com.superior.datatunnel.common.util.IOCopier
 import org.apache.commons.io.FileUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{DataFrame, Row}
 
 import java.io.{File, FileOutputStream}
 import java.nio.ByteBuffer
+import java.util.UUID
 
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
 object MysqlSqlHelper extends Logging{
 
   private val fieldDelimiter = ",";
 
-  def rowsToFile(df: DataFrame, filePath: String): Unit = {
-    df.repartition(1).rdd.foreachPartition { rows =>
-      FileUtils.deleteQuietly(new File(filePath))
+  def rowsToFile(df: DataFrame, path: String): String = {
+    FileUtils.deleteQuietly(new File(path))
+    FileUtils.forceMkdir(new File(path))
+    df.rdd.foreachPartition { rows =>
+      val filePath = path + "/" + UUID.randomUUID().toString + ".csv"
       val fos = new FileOutputStream(filePath)
       writeFile(rows, fos)
       fos.close()
+    }
+
+    val list = FileUtils.listFiles(new File(path), Array("csv"), false)
+    val files = list.toArray(new Array[File](list.size()))
+    logInfo("files: " + files.mkString(","))
+    if (files.size == 1) {
+      files(0).toPath.toString
+    } else {
+      val filePath = path + "/total_data.csv"
+      IOCopier.joinFiles(new File(filePath), files)
+      logInfo("merge file: " + filePath)
+      filePath
     }
   }
 

@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelException
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.saveTable
 import com.superior.datatunnel.plugin.jdbc.support.PostgreSqlHelper.buildUpsertPGSql
 import io.github.melin.jobserver.spark.api.LogUtils
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.{StringUtils, SystemUtils}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{createTable, dropTable, isCascadingTruncateTable, truncateTable}
@@ -13,6 +14,7 @@ import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.jdbc.JdbcDialects
 import org.apache.spark.sql.sources.BaseRelation
 
+import java.io.File
 import java.sql.{Connection, Statement}
 import scala.collection.JavaConverters._
 
@@ -183,9 +185,9 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
       executeSql(conn, sql)
     }
 
-    val filePath = SystemUtils.USER_DIR + "/" + tableName + ".csv"
-    logInfo("files: " + filePath)
-    MysqlSqlHelper.rowsToFile(df, filePath)
+    val path = SystemUtils.USER_DIR + "/" + tableName
+    logInfo("files: " + path)
+    val filePath = MysqlSqlHelper.rowsToFile(df, path)
 
     val loadCommand = s"LOAD DATA LOCAL INFILE '${filePath}' REPLACE INTO TABLE ${tableId} " +
       s"FIELDS TERMINATED BY ',' ENCLOSED BY '${'"'}' LINES TERMINATED BY '\n' (${columnNames.asScala.mkString(",")})";
@@ -193,6 +195,8 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     logInfo(s"load data: ${loadCommand}")
     LogUtils.info(s"load data: ${loadCommand}")
     executeSql(conn, loadCommand)
+    // 删除文件，避免占用磁盘
+    FileUtils.deleteQuietly(new File(filePath))
   }
 
   private def executeSql(conn: Connection, sql: String): Unit = {
