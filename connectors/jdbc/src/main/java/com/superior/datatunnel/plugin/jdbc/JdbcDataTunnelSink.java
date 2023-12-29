@@ -34,7 +34,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
     private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSink.class);
 
     private static final DataSourceType[] SUPPORT_BULKINSERT = new DataSourceType[] {
-            SQLSERVER, MYSQL, GAUSSDWS, POSTGRESQL, REDSHIFT
+            SQLSERVER, MYSQL, GAUSSDWS, POSTGRESQL, REDSHIFT, OCEANBASE
     };
 
     public void validateOptions(DataTunnelContext context) {

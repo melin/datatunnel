@@ -2,6 +2,8 @@ package com.superior.datatunnel.plugin.jdbc.support
 
 import com.gitee.melin.bee.util.JdbcUtils
 import com.mysql.cj.jdbc.JdbcStatement
+import com.oceanbase.jdbc.OceanBaseStatement
+import com.superior.datatunnel.api.DataTunnelException
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialects
@@ -11,7 +13,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
-object MysqlSqlHelper extends Logging{
+object LoadDataSqlHelper extends Logging{
 
   private val fieldDelimiter = ",";
 
@@ -69,15 +71,23 @@ object MysqlSqlHelper extends Logging{
     }
   }
 
-  def loadData(parameters: Map[String, String])(df: DataFrame, loadCommand: String): Unit = {
+  def loadData(dataSourceType: String, parameters: Map[String, String])(df: DataFrame, loadCommand: String): Unit = {
     df.rdd.foreachPartition { rows =>
       val options = new JdbcOptionsInWrite(parameters)
       val dialect = JdbcDialects.get(options.url)
       val conn = dialect.createConnectionFactory(options)(-1)
       val statement = conn.createStatement();
       try {
-        val mysqlStatement = statement.asInstanceOf[JdbcStatement];
-        mysqlStatement.setLocalInfileInputStream(rowsToInputStream(rows))
+        if ("MYSQL".equalsIgnoreCase(dataSourceType)) {
+          val jdbcStatement = statement.asInstanceOf[JdbcStatement];
+          jdbcStatement.setLocalInfileInputStream(rowsToInputStream(rows))
+        } else if ("OCEANBASE".equalsIgnoreCase(dataSourceType)) {
+          val jdbcStatement = statement.asInstanceOf[OceanBaseStatement];
+          jdbcStatement.setLocalInfileInputStream(rowsToInputStream(rows))
+        } else {
+          throw new DataTunnelException(s"$dataSourceType not support load data")
+        }
+
         statement.execute(loadCommand)
       } finally {
         JdbcUtils.closeStatement(statement)

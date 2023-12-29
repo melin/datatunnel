@@ -37,8 +37,9 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
       if (StringUtils.endsWithIgnoreCase(writeMode, "BULKINSERT")) {
         if (dataSourceType.equalsIgnoreCase("POSTGRESQL") || dataSourceType.equalsIgnoreCase("GAUSSDWS")) {
           bulkInsertPG(conn, df, options, parameters)
-        } else if (dataSourceType.equalsIgnoreCase("MYSQL")) {
-          bulkInsertMySql(conn, df, options, parameters)
+        } else if (dataSourceType.equalsIgnoreCase("MYSQL")
+          || dataSourceType.equalsIgnoreCase("OCEANBASE")) {
+          bulkInsertLoadData(dataSourceType, conn, df, options, parameters)
         } else {
           throw new DataTunnelException(s"$dataSourceType not support bulk insert")
         }
@@ -93,14 +94,14 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
 
     val truncate = parameters("truncate").toBoolean
     val columnsStr = parameters("columns")
-    val dsType = parameters("dsType")
+    val dataSourceType = parameters("dataSourceType")
     val schemaName = parameters("schemaName")
     val tableName = parameters("tableName")
     val tableId = options.table;
 
-    val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn)
+    val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName, tableName, conn)
     val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
-      JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
     else StringUtils.split(columnsStr, ",").toList.asJava
 
     logInfo(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
@@ -155,7 +156,8 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
   }
 
   // pg bulk insert
-  private def bulkInsertMySql(
+  private def bulkInsertLoadData(
+      dataSourceType: String,
       conn: Connection,
       df: DataFrame,
       options: JdbcOptionsInWrite,
@@ -163,18 +165,13 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
 
     val truncate = parameters("truncate").toBoolean
     val columnsStr = parameters("columns")
-    val dsType = parameters("dsType")
     val schemaName = parameters("schemaName")
     val tableName = parameters("tableName")
     val tableId = options.table;
 
-    val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn)
     val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
-      JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
     else StringUtils.split(columnsStr, ",").toList.asJava
-
-    logInfo(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
-    LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
 
     if (truncate) {
       logInfo(s"prepare truncate table: ${tableId}")
@@ -188,7 +185,7 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
 
     logInfo(s"load data: ${loadCommand}")
     LogUtils.info(s"load data: ${loadCommand}")
-    MysqlSqlHelper.loadData(parameters)(df, loadCommand)
+    LoadDataSqlHelper.loadData(dataSourceType, parameters)(df, loadCommand)
   }
 
   private def executeSql(conn: Connection, sql: String): Unit = {

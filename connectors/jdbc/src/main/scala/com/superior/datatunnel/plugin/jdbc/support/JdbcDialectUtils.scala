@@ -2,7 +2,6 @@ package com.superior.datatunnel.plugin.jdbc.support
 
 import com.google.common.collect.Lists
 import com.superior.datatunnel.api.DataTunnelException
-import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.plugin.jdbc.support.dialect.{DatabaseDialect, MySqlDatabaseDialect, PostgreSqlDatabaseDialect, SupportMergeDatabaseDialect}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
@@ -70,9 +69,9 @@ object JdbcDialectUtils {
         "via JDBC. The minimum value is 1.")
   }
 
-  def queryPrimaryKeys(dsType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[String] = {
+  def queryPrimaryKeys(dataSourceType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[String] = {
     val metaData = conn.getMetaData
-    val rs = if ("mysql".equalsIgnoreCase(dsType)) {
+    val rs = if ("mysql".equalsIgnoreCase(dataSourceType)) {
       metaData.getPrimaryKeys(schemaName, null, tableName)
     } else {
       metaData.getPrimaryKeys(null, schemaName, tableName)
@@ -96,9 +95,9 @@ object JdbcDialectUtils {
     keys
   }
 
-  def queryColumns(dsType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[Column] = {
+  def queryColumns(dataSourceType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[Column] = {
     val metaData = conn.getMetaData
-    val rs = if ("mysql".equalsIgnoreCase(dsType)) {
+    val rs = if ("mysql".equalsIgnoreCase(dataSourceType)) {
       metaData.getColumns(schemaName, null, tableName, null)
     } else {
       metaData.getColumns(null, schemaName, tableName, null)
