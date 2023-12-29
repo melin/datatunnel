@@ -25,15 +25,18 @@ object MysqlBulkInsertTest {
               port = 5432,
               databaseName = 'postgres',
               schemaName = 'public',
-              tableName = 'pg_orders',
-              columns = ["*"])
+              tableName = 'interface_call_log',
+              columns = ["*"],
+              condition = "id < 300000"
+              )
             SINK("mysql") OPTIONS (
               username = "root",
               password = "root2023",
               host = '172.18.5.44',
               port = 3306,
               schemaName = 'demos',
-              tableName = 'pg_orders',
+              tableName = 'interface_call_log',
+              truncate = true,
               columns = ["*"],
               writeMode = 'bulkinsert'
             )

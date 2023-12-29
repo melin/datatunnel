@@ -1,5 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
+import com.gitee.melin.bee.util.JdbcUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
@@ -12,7 +13,6 @@ import org.postgresql.core.BaseConnection
 
 import java.nio.ByteBuffer
 import java.util
-
 import scala.collection.JavaConverters._
 
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
@@ -101,7 +101,7 @@ object PostgreSqlHelper extends Logging{
         cm.copyIn(sql, rowsToInputStream(rows))
         ()
       } finally {
-        conn.close()
+        JdbcUtils.closeConnection(conn)
       }
     }
   }

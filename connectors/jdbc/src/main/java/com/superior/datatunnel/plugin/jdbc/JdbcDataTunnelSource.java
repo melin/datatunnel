@@ -101,18 +101,17 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             statTable(connection, sourceOption, pair.getLeft(), pair.getRight());
 
             String fullTableName = pair.getLeft() + "." + pair.getRight();
-            if (columns.length > 1 || (columns.length == 1 && !"*".equals(columns[0]))) {
-                String condition = StringUtils.trim(sourceOption.getCondition());
-                if (StringUtils.isNotBlank(condition)) {
-                    if (StringUtils.startsWithIgnoreCase(condition, "where")) {
-                        fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " " + condition + ") tdl_datatunnel";
-                    } else {
-                        fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " where " + condition + ") tdl_datatunnel";
-                    }
+            String condition = StringUtils.trim(sourceOption.getCondition());
+            if (StringUtils.isNotBlank(condition)) {
+                if (StringUtils.startsWithIgnoreCase(condition, "where")) {
+                    fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " " + condition + ") tdl_datatunnel";
                 } else {
-                    fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
+                    fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " where " + condition + ") tdl_datatunnel";
                 }
+            } else {
+                fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
             }
+            LOG.info("fullTableName: {}", fullTableName);
 
             int fetchsize = sourceOption.getFetchsize();
             int queryTimeout = sourceOption.getQueryTimeout();
@@ -262,7 +261,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             String condition = StringUtils.trim(sourceOption.getCondition());
             if (StringUtils.isNotBlank(condition)) {
-                if (StringUtils.startsWithIgnoreCase(condition, condition)) {
+                if (StringUtils.startsWithIgnoreCase(condition, "where")) {
                     sql = sql + " " + condition;
                 } else {
                     sql = sql + " where " + condition;
