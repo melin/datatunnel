@@ -1,23 +1,28 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
+import org.apache.commons.io.FileUtils
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
-import org.apache.spark.sql.jdbc.JdbcDialects
-
-import java.io.InputStream
 import org.apache.spark.sql.{DataFrame, Row}
-import org.postgresql.copy.CopyManager
-import org.postgresql.core.BaseConnection
 
+import java.io.{File, FileOutputStream}
 import java.nio.ByteBuffer
 
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
-object CopyHelper extends Logging{
+object MysqlSqlHelper extends Logging{
 
   private val fieldDelimiter = ",";
 
-  def rowsToInputStream(rows: Iterator[Row]): InputStream = {
-    val bytes: Iterator[Byte] = rows.flatMap {
+  def rowsToFile(df: DataFrame, filePath: String): Unit = {
+    df.repartition(1).rdd.foreachPartition { rows =>
+      FileUtils.deleteQuietly(new File(filePath))
+      val fos = new FileOutputStream(filePath)
+      writeFile(rows, fos)
+      fos.close()
+    }
+  }
+
+  private def writeFile(rows: Iterator[Row], fos: FileOutputStream): Unit = {
+    rows.foreach {
       row => {
         val columns = row.toSeq.map { v =>
           if (v == null) {
@@ -42,7 +47,9 @@ object CopyHelper extends Logging{
             byteBuffer.put('"'.toByte)
             bytes.foreach(ch => {
               if (ch == '"'.toByte) {
-                byteBuffer.put('"'.toByte).put('"'.toByte)
+                byteBuffer.put('\\'.toByte).put('"'.toByte)
+              } else if (ch == '\\') {
+                byteBuffer.put('\\'.toByte).put(ch)
               } else {
                 byteBuffer.put(ch)
               }
@@ -57,31 +64,7 @@ object CopyHelper extends Logging{
         byteBuffer.flip()
         val bytesArray = new Array[Byte](byteBuffer.remaining)
         byteBuffer.get(bytesArray, 0, bytesArray.length)
-        bytesArray
-      }
-    }
-
-    () => if (bytes.hasNext) {
-      bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
-    } else {
-      -1
-    }
-  }
-
-  def copyIn(parameters: Map[String, String])(df: DataFrame, table: String): Unit = {
-    df.rdd.foreachPartition { rows =>
-      val options = new JdbcOptionsInWrite(parameters)
-      val dialect = JdbcDialects.get(options.url)
-      val conn = dialect.createConnectionFactory(options)(-1)
-      try {
-        val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-        val sql = s"COPY $table FROM STDIN WITH (NULL '\\N', FORMAT CSV, DELIMITER E'${fieldDelimiter}')";
-        logInfo(s"copy from sql: $sql")
-        //LogUtils.info(s"copy from sql: $sql")
-        cm.copyIn(sql, rowsToInputStream(rows))
-        ()
-      } finally {
-        conn.close()
+        fos.write(bytesArray)
       }
     }
   }

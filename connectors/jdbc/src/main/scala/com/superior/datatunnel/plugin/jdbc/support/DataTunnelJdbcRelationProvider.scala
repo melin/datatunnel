@@ -2,8 +2,9 @@ package com.superior.datatunnel.plugin.jdbc.support
 
 import com.superior.datatunnel.api.DataTunnelException
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.saveTable
+import com.superior.datatunnel.plugin.jdbc.support.PostgreSqlHelper.buildUpsertPGSql
 import io.github.melin.jobserver.spark.api.LogUtils
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.{StringUtils, SystemUtils}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{createTable, dropTable, isCascadingTruncateTable, truncateTable}
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
@@ -13,7 +14,6 @@ import org.apache.spark.sql.jdbc.JdbcDialects
 import org.apache.spark.sql.sources.BaseRelation
 
 import java.sql.{Connection, Statement}
-import java.util
 import scala.collection.JavaConverters._
 
 class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
@@ -37,6 +37,8 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
       if (StringUtils.endsWithIgnoreCase(writeMode, "BULKINSERT")) {
         if (dataSourceType.equalsIgnoreCase("POSTGRESQL") || dataSourceType.equalsIgnoreCase("GAUSSDWS")) {
           bulkInsertPG(conn, df, options, parameters)
+        } else if (dataSourceType.equalsIgnoreCase("MYSQL")) {
+          bulkInsertMySql(conn, df, options, parameters)
         } else {
           throw new DataTunnelException(s"$dataSourceType not support bulk insert")
         }
@@ -133,9 +135,9 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
 
     if (tempTableMode) {
       //先导入临时表
-      CopyHelper.copyIn(parameters)(df, tempTableName)
+      PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
     } else {
-      CopyHelper.copyIn(parameters)(df, tableId)
+      PostgreSqlHelper.copyIn(parameters)(df, tableId)
     }
 
     if (tempTableMode) {
@@ -152,20 +154,45 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     }
   }
 
-  private def buildUpsertPGSql(tableName: String, tempTableName: String,
-                             columns: util.List[String], primaryKeys: util.List[String]): String = {
+  // pg bulk insert
+  private def bulkInsertMySql(
+      conn: Connection,
+      df: DataFrame,
+      options: JdbcOptionsInWrite,
+      parameters: Map[String, String]): Unit = {
 
-    val updateColumns = columns.asScala.filter(name => !primaryKeys.contains(name)).map(name => name)
-    val excludedColumns = updateColumns.map(name => "excluded." + name)
+    val truncate = parameters("truncate").toBoolean
+    val columnsStr = parameters("columns")
+    val dsType = parameters("dsType")
+    val schemaName = parameters("schemaName")
+    val tableName = parameters("tableName")
+    val tableId = options.table;
 
-    val sqlBuilder: StringBuilder = new StringBuilder
-    sqlBuilder.append("insert into ").append(tableName).append("(").append(StringUtils.join(columns, ",")).append(")\n")
-    sqlBuilder.append("select ").append(StringUtils.join(columns, ",")).append("\n")
-    sqlBuilder.append("\tfrom ").append(tempTableName).append("\n")
-    sqlBuilder.append("on conflict (").append(StringUtils.join(primaryKeys, ",")).append(")").append("\n")
-    sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
-    sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
-    sqlBuilder.toString
+    val primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn)
+    val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
+      JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+    else StringUtils.split(columnsStr, ",").toList.asJava
+
+    logInfo(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
+    LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.asScala.mkString(",")}")
+
+    if (truncate) {
+      logInfo(s"prepare truncate table: ${tableId}")
+      LogUtils.info(s"prepare truncate table: ${tableId}")
+      val sql = s"truncate table ${tableId}";
+      executeSql(conn, sql)
+    }
+
+    val filePath = SystemUtils.USER_DIR + "/" + tableName + ".csv"
+    logInfo("files: " + filePath)
+    MysqlSqlHelper.rowsToFile(df, filePath)
+
+    val loadCommand = s"LOAD DATA LOCAL INFILE '${filePath}' REPLACE INTO TABLE ${tableId} " +
+      s"FIELDS TERMINATED BY ',' ENCLOSED BY '${'"'}' LINES TERMINATED BY '\n' (${columnNames.asScala.mkString(",")})";
+
+    logInfo(s"load data: ${loadCommand}")
+    LogUtils.info(s"load data: ${loadCommand}")
+    executeSql(conn, loadCommand)
   }
 
   private def executeSql(conn: Connection, sql: String): Unit = {

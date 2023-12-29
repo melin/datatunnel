@@ -31,7 +31,7 @@ public class JdbcUtils {
         String url = "";
         if (MYSQL == dsType) {
             url = "jdbc:mysql://" + host + ":" + port;
-            url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&tinyInt1isBit=false";
+            url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
         } else if (ORACLE == dsType) {
             url = "jdbc:oracle:thin:@//" + host + ":" + port;
             if (StringUtils.isNotBlank(oracleSid)) {
