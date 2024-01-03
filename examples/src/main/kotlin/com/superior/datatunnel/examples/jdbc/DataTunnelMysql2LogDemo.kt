@@ -25,11 +25,11 @@ object DataTunnelMysql2LogDemo {
               port = 3306,
               schemaName = 'cdc_demos_[0-9]+',
               tableName = 'account_[0-9]+',
-              columns = ["id", "name"],
+              columns = ["id", "name", "dt_meta_table"],
               condition = "where 1=1 limit 1"
             ) 
             SINK("log") OPTIONS (
-              columns = ["id", "username"]
+              columns = ["id", "username", "table_name"]
             )
         """.trimIndent()
 

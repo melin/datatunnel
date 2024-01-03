@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,8 @@ import static java.sql.Types.*;
 public class JdbcDataTunnelSource implements DataTunnelSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSource.class);
+
+    private static final String META_TABLE_NAME_FIELD = "dt_meta_table";
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
@@ -103,15 +106,24 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             statTable(connection, sourceOption, pair.getLeft(), pair.getRight());
 
             String fullTableName = pair.getLeft() + "." + pair.getRight();
+            String[] newColumns = Arrays.copyOf(columns, columns.length);
+            // 如果存在字段名：dt_meta_table，设置当前表名作为值
+            for (int index = 0; index < newColumns.length; index++) {
+                if (META_TABLE_NAME_FIELD.equalsIgnoreCase(newColumns[index])) {
+                    newColumns[index] = "'" + fullTableName + "' as " + newColumns[index];
+                    break;
+                }
+            }
+
             String condition = StringUtils.trim(sourceOption.getCondition());
             if (StringUtils.isNotBlank(condition)) {
                 if (StringUtils.startsWithIgnoreCase(condition, "where")) {
-                    fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " " + condition + ") tdl_datatunnel";
+                    fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + " " + condition + ") tdl_datatunnel";
                 } else {
-                    fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + " where " + condition + ") tdl_datatunnel";
+                    fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + " where " + condition + ") tdl_datatunnel";
                 }
             } else {
-                fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
+                fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
             }
             LOG.info("read table: {}", fullTableName);
 
