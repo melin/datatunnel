@@ -1,6 +1,5 @@
 package org.apache.spark.sql.datatunnel.sql
 
-import com.gitee.melin.bee.util.JsonUtils
 import com.google.common.collect.Maps
 import com.superior.datatunnel.api.DataSourceType._
 import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
@@ -27,8 +26,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
     val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
-    val sourceOpts = convertOptions(sparkSession, ctx.readOpts)
-    val sinkOpts = convertOptions(sparkSession, ctx.writeOpts)
+    val sourceOpts = convertOptions(ctx.readOpts)
+    val sinkOpts = convertOptions(ctx.writeOpts)
     val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null
 
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
@@ -125,7 +124,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     }
   }
 
-  def convertOptions(sparkSession: SparkSession, ctx: SparkSqlParser.DtPropertyListContext): util.HashMap[String, String] = {
+  def convertOptions(ctx: SparkSqlParser.DtPropertyListContext): util.HashMap[String, String] = {
     val options: util.HashMap[String, String] = Maps.newHashMap()
     if (ctx != null) {
       for (entry <- ctx.dtProperty().asScala) {
@@ -134,16 +133,6 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
         options.put(key, value);
       }
     }
-
-    // superior 通过 datasourceCode 获取数据源链接信息.
-    if (options.containsKey("datasourceCode")) {
-      val code = options.containsKey("datasourceCode")
-      val key = "spark.sql.datatunnel.datasource." + code
-      val json = sparkSession.conf.get(key);
-      val map = JsonUtils.toJavaMap[String](json);
-      options.putAll(map)
-    }
-
     options
   }
 }

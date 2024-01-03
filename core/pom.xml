@@ -31,6 +31,12 @@
             <artifactId>datatunnel-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-distcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

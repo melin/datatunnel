@@ -1,8 +1,9 @@
 package com.superior.datatunnel.core
 
 import com.gitee.melin.bee.util.SqlUtils
+import com.superior.datatunnel.distcp.DistCpCommand
 import io.github.melin.superior.parser.spark.SparkSqlPostProcessor
-import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.{DatatunnelExprContext, DatatunnelHelpContext, SingleStatementContext}
+import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.{DatatunnelExprContext, DatatunnelHelpContext, DistCpExprContext, SingleStatementContext}
 import io.github.melin.superior.parser.spark.antlr4.{SparkSqlLexer, SparkSqlParser, SparkSqlParserBaseVisitor}
 import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream}
 import org.antlr.v4.runtime.atn.PredictionMode
@@ -118,6 +119,11 @@ class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[A
     val maskSql = DataTunnelUtils.maskSql(sqlText)
     logInfo(s"Parsing command: $maskSql")
     DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
+  }
+
+  override def visitDistCpExpr(ctx: DistCpExprContext): LogicalPlan = withOrigin(ctx) {
+    logInfo(s"Parsing command: $sqlText")
+    DistCpCommand(sqlText, ctx: DistCpExprContext)
   }
 
   override def visitDatatunnelHelp(ctx: DatatunnelHelpContext): LogicalPlan = withOrigin(ctx) {
