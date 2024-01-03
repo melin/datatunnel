@@ -196,15 +196,15 @@ SINK("hive") OPTIONS (
 )
 ```
 
-## sparkDistCp sql 语法 (计划中)
+## Spark DistCp 语法 (计划中)
 
 s3、hdfs、ftp、sftp、ftps 之间直接传输文件
 
 ```sql
-sparkDistCp source('数据源类型名称') options(键值对参数) 
-    transform(数据加工SQL，可以对数据处理后输出)
-    sink('数据源类型名称') options(键值对参数)
+distCp sourcePath options(键值对参数) 
+TO sinkPath options(键值对参数)
 ```
+
 
 ## 参考
 

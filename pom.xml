@@ -18,6 +18,7 @@
         <module>assembly</module>
         <module>connectors</module>
         <module>examples</module>
+        <module>sparkdistcp</module>
     </modules>
 
     <properties>
