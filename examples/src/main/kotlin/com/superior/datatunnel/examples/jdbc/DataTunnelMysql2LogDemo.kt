@@ -23,8 +23,8 @@ object DataTunnelMysql2LogDemo {
               password = "root2023",
               host = '172.18.5.44',
               port = 3306,
-              databaseName = 'demos',
-              tableName = 'orders',
+              schemaName = 'cdc_demos_[0-9]+',
+              tableName = 'account_[0-9]+',
               columns = ["id", "name"],
               condition = "where 1=1 limit 1"
             ) 

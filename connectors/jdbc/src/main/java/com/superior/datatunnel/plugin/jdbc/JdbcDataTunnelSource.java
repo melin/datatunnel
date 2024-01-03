@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc;
 
 import com.clearspring.analytics.util.Lists;
+import com.gitee.melin.bee.util.Predicates;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.util.CommonUtils;
@@ -29,6 +30,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static java.sql.Types.*;
 
@@ -111,7 +113,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             } else {
                 fullTableName = "(SELECT " + StringUtils.join(columns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
             }
-            LOG.info("fullTableName: {}", fullTableName);
+            LOG.info("read table: {}", fullTableName);
 
             int fetchsize = sourceOption.getFetchsize();
             int queryTimeout = sourceOption.getQueryTimeout();
@@ -152,37 +154,30 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     }
 
     private List<String> getSchemaNames(String schemaName, DatabaseDialect dialect) {
-        String[] names = StringUtils.split(schemaName, ",");
+        Predicate<String> predicate = Predicates.includes(schemaName);
         List<String> schemaNames = dialect.getSchemaNames();
 
         List<String> list = Lists.newArrayList();
         for (String name : schemaNames) {
-            for (String pattern : names) {
-                String newPattern = CommonUtils.cleanQuote(pattern);
-                if (name.equals(newPattern) || name.matches(newPattern)) {
-                    list.add(pattern);
-                    break;
-                }
+            if (predicate.test(name)) {
+                list.add(name);
             }
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             throw new DataTunnelException("没有找到匹配的schema: " + schemaName + ", schemas: " + StringUtils.join(schemaNames, ","));
         }
         return list;
     }
 
     private List<Pair<String, String>> getTablesNames(List<String> schemaNames, String tableName, DatabaseDialect dialect) {
-        String[] names = StringUtils.split(tableName, ",");
+        Predicate<String> predicate = Predicates.includes(tableName);
         List<Pair<String, String>> list = Lists.newArrayList();
         for (String schemaName : schemaNames) {
             String schema = CommonUtils.cleanQuote(schemaName);
             List<String> tableNames = dialect.getTableNames(schema);
             for (String name : tableNames) {
-                for (String pattern : names) {
-                    if (name.equals(pattern) || name.matches(pattern)) {
-                        list.add(Pair.of(schemaName, name));
-                        break;
-                    }
+                if (predicate.test(name)) {
+                    list.add(Pair.of(schemaName, name));
                 }
             }
         }

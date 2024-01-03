@@ -12,9 +12,11 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
     @OptionDesc("数据库名")
     private String databaseName;
 
-    @OptionDesc("数据库 schema 名，如果是mysql或者oracle，databaseName和schemaName 任意填写一个")
+    @OptionDesc("数据库 schema 名，如果是mysql或者oracle，databaseName和schemaName 任意填写一个。" +
+            "支持多个schema名称，逗号分隔。支持正则表达式")
     private String schemaName;
 
+    @OptionDesc("支持多个tableName，逗号分隔。支持正则表达式")
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
