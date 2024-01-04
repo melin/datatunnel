@@ -6,8 +6,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface DataTunnelOption {
-
+public interface DistCpOption {
     default Map<String, String> getParams() {
         try {
             Map<String, String> params = new HashMap<String, String>();
@@ -28,13 +27,6 @@ public interface DataTunnelOption {
     DataSourceType getDataSourceType();
 
     void setDataSourceType(DataSourceType dataSourceType);
-
-    default String getCteSql() {
-        return null;
-    }
-
-    default void setCteSql(String cteSql) {
-    }
 
     Map<String, String> getProperties();
 }

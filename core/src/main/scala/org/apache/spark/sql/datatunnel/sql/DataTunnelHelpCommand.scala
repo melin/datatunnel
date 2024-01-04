@@ -31,7 +31,7 @@ case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) ex
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val datasourceType = DataSourceType.valueOf(CommonUtils.cleanQuote(ctx.value.getText).toUpperCase)
-    val (sourceConnector, sinkConnector) = Utils.getDatasourceConnector(datasourceType, datasourceType)
+    val (sourceConnector, sinkConnector) = Utils.getDataTunnelConnector(datasourceType, datasourceType)
 
     val rows = if (ctx.SOURCE() != null) {
       if (sourceConnector == null) {

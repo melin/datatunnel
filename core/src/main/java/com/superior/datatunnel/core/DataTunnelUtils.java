@@ -2,8 +2,11 @@ package com.superior.datatunnel.core;
 
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.superior.datatunnel.common.annotation.OptionDesc;
+import com.superior.datatunnel.common.util.CommonUtils;
 import io.github.melin.superior.parser.spark.SparkSqlHelper;
+import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser;
 import io.github.melin.superior.parser.spark.relational.DataTunnelExpr;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -126,6 +129,18 @@ public class DataTunnelUtils {
 
             Row row = RowFactory.create(type, key, notBlank, defaultValue, desc);
             options.add(row);
+        }
+        return options;
+    }
+
+    public static Map<String, String> convertOptions(SparkSqlParser.DtPropertyListContext ctx) {
+        Map<String, String> options = Maps.newHashMap();
+        if (ctx != null) {
+            ctx.dtProperty().forEach(property -> {
+                String key = CommonUtils.cleanQuote(property.key.getText());
+                String value = CommonUtils.cleanQuote(property.value.getText());
+                options.put(key, value);
+            });
         }
         return options;
     }

@@ -1,12 +1,10 @@
 package org.apache.spark.sql.datatunnel.sql
 
-import com.google.common.collect.Maps
 import com.superior.datatunnel.api.DataSourceType._
 import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.core.Utils
-import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser
+import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelExprContext
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
@@ -26,8 +24,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)
     val sinkName = CommonUtils.cleanQuote(ctx.sinkName.getText)
-    val sourceOpts = convertOptions(ctx.readOpts)
-    val sinkOpts = convertOptions(ctx.writeOpts)
+    val sourceOpts = DataTunnelUtils.convertOptions(ctx.sourceOpts)
+    val sinkOpts = DataTunnelUtils.convertOptions(ctx.sinkOpts)
     val transfromSql = if (ctx.transfromSql != null) CommonUtils.cleanQuote(ctx.transfromSql.getText) else null
 
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
@@ -38,7 +36,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
     }
 
-    val (sourceConnector, sinkConnector) = Utils.getDatasourceConnector(sourceType, sinkType)
+    val (sourceConnector, sinkConnector) = Utils.getDataTunnelConnector(sourceType, sinkType)
     var errorMsg = s"source $sourceName not have parameter: "
     val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, sourceConnector.getOptionClass, errorMsg)
     sourceOption.setDataSourceType(sourceType)
@@ -122,17 +120,5 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
         }
       })
     }
-  }
-
-  def convertOptions(ctx: SparkSqlParser.DtPropertyListContext): util.HashMap[String, String] = {
-    val options: util.HashMap[String, String] = Maps.newHashMap()
-    if (ctx != null) {
-      for (entry <- ctx.dtProperty().asScala) {
-        val key = CommonUtils.cleanQuote(entry.key.getText)
-        val value = CommonUtils.cleanQuote(entry.value.getText)
-        options.put(key, value);
-      }
-    }
-    options
   }
 }

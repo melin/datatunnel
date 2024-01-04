@@ -18,7 +18,6 @@
         <module>assembly</module>
         <module>connectors</module>
         <module>examples</module>
-        <module>distcp</module>
     </modules>
 
     <properties>

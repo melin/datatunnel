@@ -1,7 +1,6 @@
 package com.superior.datatunnel.core
 
 import com.gitee.melin.bee.util.SqlUtils
-import com.superior.datatunnel.distcp.DistCpCommand
 import io.github.melin.superior.parser.spark.SparkSqlPostProcessor
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.{DatatunnelExprContext, DatatunnelHelpContext, DistCpExprContext, SingleStatementContext}
 import io.github.melin.superior.parser.spark.antlr4.{SparkSqlLexer, SparkSqlParser, SparkSqlParserBaseVisitor}
@@ -17,7 +16,7 @@ import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException,
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
-import org.apache.spark.sql.datatunnel.sql.{DataTunnelExprCommand, DataTunnelHelpCommand}
+import org.apache.spark.sql.datatunnel.sql.{DataTunnelExprCommand, DataTunnelHelpCommand, DistCpCommand}
 import org.apache.spark.sql.types.{DataType, StructType}
 
 /**
