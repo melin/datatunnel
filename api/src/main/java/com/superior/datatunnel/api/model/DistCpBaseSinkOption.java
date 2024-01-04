@@ -11,6 +11,8 @@ public class DistCpBaseSinkOption implements DistCpOption {
 
     private DataSourceType dataSourceType;
 
+    private String path;
+
     @Override
     public Map<String, String> getProperties() {
         return properties;
@@ -24,5 +26,13 @@ public class DistCpBaseSinkOption implements DistCpOption {
     @Override
     public void setDataSourceType(DataSourceType dataSourceType) {
         this.dataSourceType = dataSourceType;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

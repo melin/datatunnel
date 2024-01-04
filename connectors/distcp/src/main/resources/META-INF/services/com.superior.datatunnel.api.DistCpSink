@@ -1,0 +1,1 @@
+hdfs=com.superior.datatunnel.distcp.HdfsDistCpSink

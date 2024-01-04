@@ -30,6 +30,7 @@
         <module>maxcompute</module>
         <module>redshift</module>
         <module>snowflake</module>
+        <module>distcp</module>
     </modules>
 
     <dependencies>

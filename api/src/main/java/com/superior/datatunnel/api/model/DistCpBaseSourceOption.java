@@ -11,6 +11,8 @@ public class DistCpBaseSourceOption implements DistCpOption {
 
     private DataSourceType dataSourceType;
 
+    private String[] paths;
+
     @Override
     public Map<String, String> getProperties() {
         return properties;
@@ -24,5 +26,13 @@ public class DistCpBaseSourceOption implements DistCpOption {
     @Override
     public void setDataSourceType(DataSourceType dataSourceType) {
         this.dataSourceType = dataSourceType;
+    }
+
+    public String[] getPaths() {
+        return paths;
+    }
+
+    public void setPaths(String[] paths) {
+        this.paths = paths;
     }
 }
