@@ -25,7 +25,7 @@ object Maxcompute2LogDemo {
               secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               columns = ["*"],
-              partitionSpec = "pt>'20230718',pt<='20230719'",
+              partitionSpec = "pt>'20230718' and pt<='20230719'",
               condition = "username = 'dd'"
             )
             SINK("log")

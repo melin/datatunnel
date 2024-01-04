@@ -50,15 +50,7 @@ public class MaxcomputeDataTunnelSource implements DataTunnelSource {
 
             String partitionSpec = sourceOption.getPartitionSpec();
             if (StringUtils.isNotBlank(partitionSpec)) {
-                // 从 ds=20231102, type='Login' 格式中，解析出分区字段。
-                String[] parts = StringUtils.split(partitionSpec, ",");
-                for (int i = 0; i < parts.length; i++) {
-                    if (i == 0) {
-                        sqlBuilder.append(" where ").append(parts[i]);
-                    } else {
-                        sqlBuilder.append(" and ").append(parts[i]);
-                    }
-                }
+                sqlBuilder.append(" where ").append(partitionSpec);
             }
 
             String condition = sourceOption.getCondition();
