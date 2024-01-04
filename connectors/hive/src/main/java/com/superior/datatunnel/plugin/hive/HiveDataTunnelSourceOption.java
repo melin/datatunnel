@@ -19,6 +19,6 @@ public class HiveDataTunnelSourceOption extends BaseSourceOption {
 
     private String condition;
 
-    @OptionDesc("hive 表分区信息，例如：pt='20231201', type='Login'")
+    @OptionDesc("hive 表分区信息，例如：pt='20231201', type='Login'，或者读取多个分区: pt>'20230718',pt<='20230719'")
     private String partitionSpec;
 }
