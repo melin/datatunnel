@@ -77,9 +77,11 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String jdbcUrl = sinkOption.getJdbcUrl();
             if (StringUtils.isBlank(jdbcUrl)) {
+                if (dataSourceType == ORACLE) {
+                    throw new DataTunnelException("orcale 数据源请指定 jdbcUrl");
+                }
                 jdbcUrl = JdbcUtils.buildJdbcUrl(dataSourceType, sinkOption.getHost(),
-                        sinkOption.getPort(), sinkOption.getDatabaseName(),
-                        sinkOption.getSid(), sinkOption.getServiceName());
+                        sinkOption.getPort(), sinkOption.getDatabaseName());
             }
 
             int batchsize = sinkOption.getBatchsize();

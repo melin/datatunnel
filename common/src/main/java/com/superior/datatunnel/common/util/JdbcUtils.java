@@ -22,9 +22,7 @@ public class JdbcUtils {
             DataSourceType dsType,
             String host,
             int port,
-            String databaseName,
-            String oracleSid,
-            String oracleServiceName) {
+            String databaseName) {
 
         // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
 
@@ -32,13 +30,6 @@ public class JdbcUtils {
         if (MYSQL == dsType) {
             url = "jdbc:mysql://" + host + ":" + port;
             url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
-        } else if (ORACLE == dsType) {
-            url = "jdbc:oracle:thin:@//" + host + ":" + port;
-            if (StringUtils.isNotBlank(oracleSid)) {
-                url += ":" + oracleSid;
-            } else if (StringUtils.isNotBlank(oracleServiceName)) {
-                url += "/" + oracleServiceName;
-            }
         } else if (DB2 == dsType) {
             url = "jdbc:db2://" + host + ":" + port;
             if (StringUtils.isNotBlank(databaseName)) {

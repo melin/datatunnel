@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static com.superior.datatunnel.api.DataSourceType.ORACLE;
 import static java.sql.Types.*;
 
 /**
@@ -85,9 +86,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         String jdbcUrl = sourceOption.getJdbcUrl();
         if (StringUtils.isBlank(jdbcUrl)) {
+            if (dataSourceType == ORACLE) {
+                throw new DataTunnelException("orcale 数据源请指定 jdbcUrl");
+            }
+
             jdbcUrl = JdbcUtils.buildJdbcUrl(dataSourceType, sourceOption.getHost(),
-                    sourceOption.getPort(), sourceOption.getDatabaseName(),
-                    sourceOption.getSid(), sourceOption.getServiceName());
+                    sourceOption.getPort(), sourceOption.getDatabaseName());
         }
 
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);

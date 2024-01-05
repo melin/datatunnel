@@ -20,12 +20,6 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
-    //oracle
-    private String sid;
-
-    //oracle
-    private String serviceName;
-
     @NotBlank(message = "username can not blank")
     private String username;
 

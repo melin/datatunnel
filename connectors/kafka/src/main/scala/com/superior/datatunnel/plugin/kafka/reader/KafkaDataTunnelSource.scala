@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.kafka.reader
 
 import com.gitee.melin.bee.util.SqlUtils
+import com.superior.datatunnel.api.DataSourceType.ORACLE
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
 import com.superior.datatunnel.common.enums.WriteMode
@@ -93,20 +94,22 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     var connection: Connection = null
     try {
       val querySql = buildQuerySql(context, sourceOption, tmpTable)
-
       var dataset = sparkSession.sql(querySql)
       val tdlName = "tdl_datatunnel_" + System.currentTimeMillis
       dataset.createTempView(tdlName)
 
       val jdbcSinkOption = context.getSinkOption.asInstanceOf[JdbcDataTunnelSinkOption]
+      val dataSourceType = jdbcSinkOption.getDataSourceType
       val sinkDatabaseName = jdbcSinkOption.getDatabaseName
       val sinkTableName = jdbcSinkOption.getTableName
       val table = sinkDatabaseName + "." + sinkTableName
 
       var jdbcUrl = jdbcSinkOption.getJdbcUrl
       if (StringUtils.isBlank(jdbcUrl)) {
-        jdbcUrl = JdbcUtils.buildJdbcUrl(jdbcSinkOption.getDataSourceType, jdbcSinkOption.getHost,
-          jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName, jdbcSinkOption.getSid, jdbcSinkOption.getServiceName)
+        if (dataSourceType eq ORACLE) throw new DataTunnelException("orcale 数据源请指定 jdbcUrl")
+
+        jdbcUrl = JdbcUtils.buildJdbcUrl(dataSourceType, jdbcSinkOption.getHost,
+          jdbcSinkOption.getPort, jdbcSinkOption.getDatabaseName)
       }
 
       val batchsize = jdbcSinkOption.getBatchsize
