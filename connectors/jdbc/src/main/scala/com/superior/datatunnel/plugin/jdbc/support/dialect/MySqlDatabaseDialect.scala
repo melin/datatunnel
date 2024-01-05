@@ -5,18 +5,17 @@ import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
 
-class MySqlDatabaseDialect(connection: Connection, dataSourceType: String)
-  extends DatabaseDialect(connection, dataSourceType) {
+class MySqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
+  extends DatabaseDialect(connection, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
       table: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType],
-      dialect: JdbcDialect): String = {
+      tableSchema: Option[StructType]): String = {
 
     val version = getDatabaseVersion(connection)
 
-    val columns = getColumns(rddSchema, tableSchema, dialect)
+    val columns = getColumns(rddSchema, tableSchema)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
 
     val builder = new StringBuilder()
@@ -24,7 +23,7 @@ class MySqlDatabaseDialect(connection: Connection, dataSourceType: String)
     builder.append(sql)
 
     val items = StringUtils.split(table, ".")
-    val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(dialect.quoteIdentifier)
+    val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(jdbcDialect.quoteIdentifier)
 
     if (primaryKeys.length == 0) {
       throw new IllegalArgumentException("not primary key, not support upsert")

@@ -13,10 +13,10 @@ import org.apache.spark.sql.types.StructType
 import java.sql.{Connection, ResultSet}
 import java.util
 
-abstract class DatabaseDialect(connection: Connection, dataSourceType: String) extends Logging {
+abstract class DatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String) extends Logging {
 
   private val dsType = DataSourceType.valueOf(dataSourceType.toUpperCase)
-  private val jdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection)
+  private val beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection)
 
   protected def getDatabaseVersion(connection: Connection): DatabaseVersion = {
     val metaData = connection.getMetaData
@@ -42,22 +42,21 @@ abstract class DatabaseDialect(connection: Connection, dataSourceType: String) e
   }
 
   def getSchemaNames: util.List[String] = {
-    jdbcDialect.getSchemas
+    beeJdbcDialect.getSchemas
   }
 
   def getTableNames(schemaName: String): util.ArrayList[String] = {
     val tableNames = Lists.newArrayList[String]()
-    jdbcDialect.getSchemaTables(schemaName).forEach(table => tableNames.add(table.getTableName))
+    beeJdbcDialect.getSchemaTables(schemaName).forEach(table => tableNames.add(table.getTableName))
     tableNames
   }
 
   protected def getColumns(
       rddSchema: StructType,
-      tableSchema: Option[StructType],
-      dialect: JdbcDialect): Array[String] = {
+      tableSchema: Option[StructType]): Array[String] = {
 
     if (tableSchema.isEmpty) {
-      rddSchema.fields.map(x => dialect.quoteIdentifier(x.name))
+      rddSchema.fields.map(x => jdbcDialect.quoteIdentifier(x.name))
     } else {
       // The generated insert statement needs to follow rddSchema's column sequence and
       // tableSchema's column names. When appending data into some case-sensitive DBMSs like
@@ -68,7 +67,7 @@ abstract class DatabaseDialect(connection: Connection, dataSourceType: String) e
         val normalizedName = tableColumnNames.find(f => conf.resolver(f, col.name)).getOrElse {
           throw columnNotFoundInSchemaError(col, tableSchema)
         }
-        dialect.quoteIdentifier(normalizedName)
+        jdbcDialect.quoteIdentifier(normalizedName)
       }
     }
   }
@@ -88,10 +87,9 @@ abstract class DatabaseDialect(connection: Connection, dataSourceType: String) e
   def getInsertStatement(
       table: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType],
-      dialect: JdbcDialect): String = {
+      tableSchema: Option[StructType]): String = {
 
-    val columns = getColumns(rddSchema, tableSchema, dialect)
+    val columns = getColumns(rddSchema, tableSchema)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
     s"INSERT INTO $table (${columns.mkString(",")}) VALUES ($placeholders)"
   }
@@ -99,8 +97,7 @@ abstract class DatabaseDialect(connection: Connection, dataSourceType: String) e
   def getUpsertStatement(
       table: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType],
-      dialect: JdbcDialect): String = {
+      tableSchema: Option[StructType]): String = {
 
     return null;
   }

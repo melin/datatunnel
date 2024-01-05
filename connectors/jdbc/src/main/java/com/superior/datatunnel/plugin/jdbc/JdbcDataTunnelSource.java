@@ -96,7 +96,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
         Connection connection = buildConnection(jdbcUrl, options);
-        DatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, dataSourceType.name());
+        JdbcDialect jdbcDialect = JdbcDialects.get(jdbcUrl);
+        DatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, jdbcDialect, dataSourceType.name());
 
         List<String> schemaNames = getSchemaNames(schemaName, dialect);
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dialect);

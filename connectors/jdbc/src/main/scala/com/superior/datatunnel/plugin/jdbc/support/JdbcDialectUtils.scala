@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.savePartition
-import org.apache.spark.sql.jdbc.JdbcDialects
+import org.apache.spark.sql.jdbc.{JdbcDialect, JdbcDialects}
 import org.apache.spark.sql.types.{StructField, StructType}
 
 import java.sql.Connection
@@ -25,16 +25,16 @@ object JdbcDialectUtils {
 
     val url = options.url
     val table = options.table
-    val dialect = JdbcDialects.get(url)
+    val jdbcDialect = JdbcDialects.get(url)
     val rddSchema = df.schema
     val batchSize = options.batchSize
     val isolationLevel = options.isolationLevel
 
-    val databaseDialect = getDatabaseDialect(conn, dataSourceType)
+    val databaseDialect = getDatabaseDialect(conn, jdbcDialect, dataSourceType)
     val insertStmt = if ("upsert" == writeMode) {
-      databaseDialect.getUpsertStatement(table, rddSchema, tableSchema, dialect)
+      databaseDialect.getUpsertStatement(table, rddSchema, tableSchema)
     } else {
-      databaseDialect.getInsertStatement(table, rddSchema, tableSchema, dialect)
+      databaseDialect.getInsertStatement(table, rddSchema, tableSchema)
     }
 
     val repartitionedDF = options.numPartitions match {
@@ -45,21 +45,21 @@ object JdbcDialectUtils {
     }
     repartitionedDF.rdd.foreachPartition { iterator =>
       savePartition(
-        table, iterator, rddSchema, insertStmt, batchSize, dialect, isolationLevel, options)
+        table, iterator, rddSchema, insertStmt, batchSize, jdbcDialect, isolationLevel, options)
     }
   }
 
-  def getDatabaseDialect(conn: Connection, dataSourceType: String): DatabaseDialect = {
+  def getDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, dataSourceType: String): DatabaseDialect = {
     if (StringUtils.equalsIgnoreCase("mysql", dataSourceType)) {
-      new MySqlDatabaseDialect(conn, dataSourceType)
+      new MySqlDatabaseDialect(conn, jdbcDialect, dataSourceType)
     } else if (StringUtils.equalsIgnoreCase("postgresql", dataSourceType)) {
-      new PostgreSqlDatabaseDialect(conn, dataSourceType)
+      new PostgreSqlDatabaseDialect(conn, jdbcDialect, dataSourceType)
     } else if (StringUtils.equalsIgnoreCase("sqlserver", dataSourceType)) {
       throw new IllegalArgumentException("not support type: sqlserver")
     } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
       throw new IllegalArgumentException("not support type: " + dataSourceType)
     } else {
-      new SupportMergeDatabaseDialect(conn, dataSourceType)
+      new SupportMergeDatabaseDialect(conn, jdbcDialect, dataSourceType)
     }
   }
 
