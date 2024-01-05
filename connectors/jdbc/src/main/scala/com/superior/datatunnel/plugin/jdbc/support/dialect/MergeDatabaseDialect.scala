@@ -1,13 +1,12 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
-import org.apache.commons.lang3.StringUtils
+import com.superior.datatunnel.api.DataSourceType
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
-import java.sql.Connection
-
-class MergeDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
-  extends DefaultDatabaseDialect(conn, jdbcDialect, dataSourceType) {
+class MergeDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType)
+  extends DefaultDatabaseDialect(options, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
       destTableName: String,
@@ -26,9 +25,9 @@ class MergeDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, dataSourc
     sql = columns.map(col => s"? AS $col").mkString(",")
     builder.append(sql);
 
-    if (StringUtils.equalsIgnoreCase("oracle", dataSourceType)) {
+    if (dataSourceType == DataSourceType.ORACLE) {
       builder.append("\n    FROM DUAL")
-    } else if (StringUtils.equalsIgnoreCase("db2", dataSourceType)) {
+    } else if (dataSourceType == DataSourceType.DB2) {
       builder.append("\n    FROM sysibm.sysdummy1")
     }
 

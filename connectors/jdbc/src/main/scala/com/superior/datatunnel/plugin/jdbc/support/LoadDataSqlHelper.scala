@@ -3,7 +3,7 @@ package com.superior.datatunnel.plugin.jdbc.support
 import com.gitee.melin.bee.util.JdbcUtils
 import com.mysql.cj.jdbc.JdbcStatement
 import com.oceanbase.jdbc.OceanBaseStatement
-import com.superior.datatunnel.api.DataTunnelException
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialects
@@ -71,17 +71,17 @@ object LoadDataSqlHelper extends Logging{
     }
   }
 
-  def loadData(dataSourceType: String, parameters: Map[String, String])(df: DataFrame, loadCommand: String): Unit = {
+  def loadData(dataSourceType: DataSourceType, parameters: Map[String, String])(df: DataFrame, loadCommand: String): Unit = {
     df.rdd.foreachPartition { rows =>
       val options = new JdbcOptionsInWrite(parameters)
       val dialect = JdbcDialects.get(options.url)
       val conn = dialect.createConnectionFactory(options)(-1)
       val statement = conn.createStatement();
       try {
-        if ("MYSQL".equalsIgnoreCase(dataSourceType)) {
+        if (dataSourceType == DataSourceType.MYSQL) {
           val jdbcStatement = statement.asInstanceOf[JdbcStatement];
           jdbcStatement.setLocalInfileInputStream(rowsToInputStream(rows))
-        } else if ("OCEANBASE".equalsIgnoreCase(dataSourceType)) {
+        } else if (dataSourceType == DataSourceType.OCEANBASE) {
           val jdbcStatement = statement.asInstanceOf[OceanBaseStatement];
           jdbcStatement.setLocalInfileInputStream(rowsToInputStream(rows))
         } else {

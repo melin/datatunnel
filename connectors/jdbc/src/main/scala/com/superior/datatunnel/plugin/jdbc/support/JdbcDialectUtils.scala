@@ -2,9 +2,9 @@ package com.superior.datatunnel.plugin.jdbc.support
 
 import com.gitee.melin.bee.util.JdbcUtils
 import com.google.common.collect.Lists
-import com.superior.datatunnel.api.DataTunnelException
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import com.superior.datatunnel.plugin.jdbc.support.dialect._
-import org.apache.commons.lang3.StringUtils
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.{StructField, StructType}
 
@@ -12,17 +12,17 @@ import java.sql.Connection
 
 object JdbcDialectUtils {
 
-  def getDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, dataSourceType: String): DefaultDatabaseDialect = {
-    if (StringUtils.equalsIgnoreCase("mysql", dataSourceType)) {
-      new MySqlDatabaseDialect(conn, jdbcDialect, dataSourceType)
-    } else if (StringUtils.equalsIgnoreCase("postgresql", dataSourceType)) {
-      new PostgreSqlDatabaseDialect(conn, jdbcDialect, dataSourceType)
-    } else if (StringUtils.equalsIgnoreCase("sqlserver", dataSourceType)) {
-      new SqlServerMergeDatabaseDialect(conn, jdbcDialect, dataSourceType)
-    } else if (StringUtils.equalsIgnoreCase("UNKNOW", dataSourceType)) {
-      new OracleMergeDatabaseDialect(conn, jdbcDialect, dataSourceType)
+  def getDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType): DefaultDatabaseDialect = {
+    if (dataSourceType == DataSourceType.MYSQL) {
+      new MySqlDatabaseDialect(options, jdbcDialect, dataSourceType)
+    } else if (dataSourceType == DataSourceType.POSTGRESQL) {
+      new PostgreSqlDatabaseDialect(options, jdbcDialect, dataSourceType)
+    } else if (dataSourceType == DataSourceType.SQLSERVER) {
+      new SqlServerMergeDatabaseDialect(options, jdbcDialect, dataSourceType)
+    } else if (dataSourceType == DataSourceType.ORACLE) {
+      new OracleMergeDatabaseDialect(options, jdbcDialect, dataSourceType)
     } else {
-      new DefaultDatabaseDialect(conn, jdbcDialect, dataSourceType)
+      new DefaultDatabaseDialect(options, jdbcDialect, dataSourceType)
     }
   }
 
@@ -32,9 +32,9 @@ object JdbcDialectUtils {
         "via JDBC. The minimum value is 1.")
   }
 
-  def queryPrimaryKeys(dataSourceType: String, schemaName: String, tableName: String, conn: Connection): Array[String] = {
+  def queryPrimaryKeys(dataSourceType: DataSourceType, schemaName: String, tableName: String, conn: Connection): Array[String] = {
     val metaData = conn.getMetaData
-    val rs = if ("mysql".equalsIgnoreCase(dataSourceType)) {
+    val rs = if (dataSourceType == DataSourceType.MYSQL) {
       metaData.getPrimaryKeys(schemaName, null, tableName)
     } else {
       metaData.getPrimaryKeys(null, schemaName, tableName)
@@ -52,9 +52,13 @@ object JdbcDialectUtils {
     keys.toArray(new Array[String](0))
   }
 
-  def queryColumns(dataSourceType: String, schemaName: String, tableName: String, conn: Connection): java.util.List[Column] = {
+  def queryColumns(dataSourceType: DataSourceType,
+                   schemaName: String,
+                   tableName: String,
+                   conn: Connection): java.util.List[Column] = {
+
     val metaData = conn.getMetaData
-    val rs = if ("mysql".equalsIgnoreCase(dataSourceType)) {
+    val rs = if (dataSourceType == DataSourceType.MYSQL) {
       metaData.getColumns(schemaName, null, tableName, null)
     } else {
       metaData.getColumns(null, schemaName, tableName, null)

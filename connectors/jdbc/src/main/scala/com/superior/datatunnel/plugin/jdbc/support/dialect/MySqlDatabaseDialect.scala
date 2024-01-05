@@ -1,17 +1,19 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
+import com.gitee.melin.bee.util.JdbcUtils
+import com.superior.datatunnel.api.DataSourceType
 import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, LoadDataSqlHelper}
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
 import scala.collection.JavaConverters._
 
-class MySqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
-  extends DefaultDatabaseDialect(connection, jdbcDialect, dataSourceType) {
+class MySqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType)
+  extends DefaultDatabaseDialect(options, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
       destTableName: String,
@@ -23,26 +25,31 @@ class MySqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dat
       throw new IllegalArgumentException("not primary key, not support upsert")
     }
 
-    val version = getDatabaseVersion(connection)
-    val columns = getColumns(rddSchema, tableSchema)
-    val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
+    val conn = jdbcDialect.createConnectionFactory(options)(-1)
+    try {
+      val version = getDatabaseVersion(conn)
+      val columns = getColumns(rddSchema, tableSchema)
+      val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
 
-    val builder = new StringBuilder()
-    var sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
-    builder.append(sql)
+      val builder = new StringBuilder()
+      var sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
+      builder.append(sql)
 
-    if (version.isSameOrAfter(8, 0, 20)) {
-      builder.append("\nAS new ON DUPLICATE KEY UPDATE ")
-      sql = columns.filter(!keyColumns.contains(_))
-        .map(col => s"\t$col = new.$col").mkString(",\n")
-      builder.append(sql);
-    } else {
-      builder.append(sql).append("\nON DUPLICATE KEY UPDATE\n")
-      sql = columns.filter(!keyColumns.contains(_))
-        .map(col => s"\t$col = VALUES($col)").mkString(",\n")
-      builder.append(sql);
+      if (version.isSameOrAfter(8, 0, 20)) {
+        builder.append("\nAS new ON DUPLICATE KEY UPDATE ")
+        sql = columns.filter(!keyColumns.contains(_))
+          .map(col => s"\t$col = new.$col").mkString(",\n")
+        builder.append(sql);
+      } else {
+        builder.append(sql).append("\nON DUPLICATE KEY UPDATE\n")
+        sql = columns.filter(!keyColumns.contains(_))
+          .map(col => s"\t$col = VALUES($col)").mkString(",\n")
+        builder.append(sql);
+      }
+      builder.toString()
+    } finally {
+      JdbcUtils.closeConnection(conn)
     }
-    builder.toString()
   }
 
   override def bulkInsertTable(

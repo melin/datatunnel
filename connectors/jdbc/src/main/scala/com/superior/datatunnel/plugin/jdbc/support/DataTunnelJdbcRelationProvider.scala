@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
-import com.superior.datatunnel.api.DataTunnelException
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils._
@@ -23,19 +23,13 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     val options = new JdbcOptionsInWrite(parameters)
     val isCaseSensitive = if (sqlContext.getConf(SQLConf.CASE_SENSITIVE.key, "false") == "true") true else false
 
-    val schemaName = parameters("schemaName")
-    val tableName = parameters("tableName")
     val jdbcDialect = JdbcDialects.get(options.url)
     val conn = jdbcDialect.createConnectionFactory(options)(-1)
     val writeMode = parameters.getOrElse("writeMode", "append")
     val dataSourceType = parameters.getOrElse("dataSourceType", "UNKNOW")
-
-    var upsertKeyColumns = StringUtils.split(parameters.getOrElse("upsertKeyColumns", null), ",")
-    if (upsertKeyColumns == null || upsertKeyColumns.length == 0) {
-      upsertKeyColumns = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName, tableName, conn)
-    }
-
-    val databaseDialect = JdbcDialectUtils.getDatabaseDialect(conn, jdbcDialect, dataSourceType)
+    val upsertKeyColumns = StringUtils.split(parameters.getOrElse("upsertKeyColumns", ""), ",")
+    val databaseDialect = JdbcDialectUtils.getDatabaseDialect(options, jdbcDialect,
+      DataSourceType.valueOf(dataSourceType.toUpperCase))
 
     try {
       if (StringUtils.endsWithIgnoreCase(writeMode, "BULKINSERT")) {

@@ -1,10 +1,8 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
-import com.gitee.melin.bee.core.jdbc.JdbcDialectHolder
-import com.gitee.melin.bee.core.jdbc.enums.DataSourceType
 import com.gitee.melin.bee.core.jdbc.relational.DatabaseVersion
 import com.gitee.melin.bee.util.JdbcUtils
-import com.google.common.collect.Lists
+import com.superior.datatunnel.api.DataSourceType
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils._
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.DataFrame
@@ -14,11 +12,9 @@ import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.{Connection, Statement}
-import java.util
-class DefaultDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String) extends Logging {
 
-  private val dsType = DataSourceType.valueOf(dataSourceType.toUpperCase)
-  private val beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection)
+class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType)
+  extends Serializable with Logging {
 
   protected def getDatabaseVersion(connection: Connection): DatabaseVersion = {
     val metaData = connection.getMetaData
@@ -41,16 +37,6 @@ class DefaultDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, d
   private def interpretVersion(result: Int) = {
     if (result < 0) -9999
     else result
-  }
-
-  def getSchemaNames: util.List[String] = {
-    beeJdbcDialect.getSchemas
-  }
-
-  def getTableNames(schemaName: String): util.ArrayList[String] = {
-    val tableNames = Lists.newArrayList[String]()
-    beeJdbcDialect.getSchemaTables(schemaName).forEach(table => tableNames.add(table.getTableName))
-    tableNames
   }
 
   protected def getColumns(
@@ -100,17 +86,43 @@ class DefaultDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, d
        writeMode: String,
        primaryKeys: Array[String]): Unit = {
 
-    val table = options.table
+    if ("upsert" == writeMode) {
+      this.upsertTable(df, tableSchema, options, primaryKeys)
+    } else {
+      this.insertTable(df, tableSchema, options)
+    }
+  }
 
+  private def insertTable(df: DataFrame,
+                  tableSchema: Option[StructType],
+                  options: JdbcOptionsInWrite): Unit = {
+    val table = options.table
     val rddSchema = df.schema
+    val insertStmt = this.getInsertStatement(table, rddSchema, tableSchema)
     val batchSize = options.batchSize
     val isolationLevel = options.isolationLevel
 
-    val insertStmt = if ("upsert" == writeMode) {
-      this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
-    } else {
-      this.getInsertStatement(table, rddSchema, tableSchema)
+    val repartitionedDF = options.numPartitions match {
+      case Some(n) if n <= 0 => throw invalidJdbcNumPartitionsError(
+        n, JDBCOptions.JDBC_NUM_PARTITIONS)
+      case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
+      case _ => df
     }
+    repartitionedDF.rdd.foreachPartition { iterator =>
+      savePartition(
+        table, iterator, rddSchema, insertStmt, batchSize, jdbcDialect, isolationLevel, options)
+    }
+  }
+
+  private def upsertTable(df: DataFrame,
+                  tableSchema: Option[StructType],
+                  options: JdbcOptionsInWrite,
+                  primaryKeys: Array[String]): Unit = {
+    val table = options.table
+    val rddSchema = df.schema
+    val insertStmt = this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
+    val batchSize = options.batchSize
+    val isolationLevel = options.isolationLevel
 
     val repartitionedDF = options.numPartitions match {
       case Some(n) if n <= 0 => throw invalidJdbcNumPartitionsError(

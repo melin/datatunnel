@@ -1,19 +1,20 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
+import com.superior.datatunnel.api.DataSourceType
 import com.superior.datatunnel.plugin.jdbc.support.PostgreSqlHelper.buildUpsertPGSql
 import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, PostgreSqlHelper}
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
 import scala.collection.JavaConverters._
 
-class PostgreSqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
-  extends DefaultDatabaseDialect(connection, jdbcDialect, dataSourceType) {
+class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType)
+  extends DefaultDatabaseDialect(options, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
       destTableName: String,
@@ -42,7 +43,6 @@ class PostgreSqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect
         primaryKeys: Array[String]): Unit = {
     val truncate = parameters("truncate").toBoolean
     val columnsStr = parameters("columns")
-    val dataSourceType = parameters("dataSourceType")
     val schemaName = parameters("schemaName")
     val tableName = parameters("tableName")
     val tableId = options.table;

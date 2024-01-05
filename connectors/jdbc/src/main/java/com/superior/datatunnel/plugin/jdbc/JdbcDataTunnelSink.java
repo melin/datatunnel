@@ -5,6 +5,7 @@ import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.JdbcUtils;
+import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -137,6 +138,16 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             if (sinkOption.getUpsertKeyColumns() != null) {
                 dataFrameWriter.option("upsertKeyColumns", StringUtils.join(sinkOption.getUpsertKeyColumns(), ","));
+            } else {
+                // 没有设置upsertKeyColumns，自动获取主键
+                if (connection == null) {
+                    connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
+                }
+                String[] upsertKeyColumns = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName,
+                        sinkOption.getTableName(), connection);
+                if (upsertKeyColumns.length > 0) {
+                    dataFrameWriter.option("upsertKeyColumns", StringUtils.join(upsertKeyColumns, ","));
+                }
             }
 
             dataFrameWriter.save();

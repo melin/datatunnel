@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc;
 
 import com.clearspring.analytics.util.Lists;
+import com.gitee.melin.bee.core.jdbc.JdbcDialectHolder;
 import com.gitee.melin.bee.util.Predicates;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
@@ -8,7 +9,6 @@ import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.jdbc.support.Column;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
-import com.superior.datatunnel.plugin.jdbc.support.dialect.DefaultDatabaseDialect;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -97,10 +97,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
         Connection connection = buildConnection(jdbcUrl, options);
         JdbcDialect jdbcDialect = JdbcDialects.get(jdbcUrl);
-        DefaultDatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, jdbcDialect, dataSourceType.name());
 
-        List<String> schemaNames = getSchemaNames(schemaName, dialect);
-        List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dialect);
+        com.gitee.melin.bee.core.jdbc.enums.DataSourceType dsType =
+                com.gitee.melin.bee.core.jdbc.enums.DataSourceType.valueOf(dataSourceType.name());
+        com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection);
+        List<String> schemaNames = getSchemaNames(schemaName, beeJdbcDialect);
+        List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, beeJdbcDialect);
         if (tableNames.isEmpty()) {
             throw new DataTunnelException("没有找到匹配的表, schemaName: " + schemaName + ", tableName: " + tableName);
         }
@@ -170,9 +172,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         return dataset;
     }
 
-    private List<String> getSchemaNames(String schemaName, DefaultDatabaseDialect dialect) {
+    private List<String> getSchemaNames(
+            String schemaName,
+            com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
+
         Predicate<String> predicate = Predicates.includes(schemaName);
-        List<String> schemaNames = dialect.getSchemaNames();
+        List<String> schemaNames = dialect.getSchemas();
 
         List<String> list = Lists.newArrayList();
         for (String name : schemaNames) {
@@ -186,7 +191,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         return list;
     }
 
-    private List<Pair<String, String>> getTablesNames(List<String> schemaNames, String tableName, DefaultDatabaseDialect dialect) {
+    private List<Pair<String, String>> getTablesNames(
+            List<String> schemaNames, String tableName,
+            com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
         Predicate<String> predicate = Predicates.includes(tableName);
         List<Pair<String, String>> list = Lists.newArrayList();
         for (String schemaName : schemaNames) {
@@ -240,11 +247,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             }
 
             if (StringUtils.isBlank(partitionColumn)) {
-                String dsType = sourceOption.getDataSourceType().name();
-                String[] primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn);
+                DataSourceType dataSourceType = sourceOption.getDataSourceType();
+                String[] primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName, tableName, conn);
                 if (primaryKeys.length == 1) {
                     String primaryKey = primaryKeys[0];
-                    List<Column> columns = JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn);
+                    List<Column> columns = JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn);
                     for (Column column : columns) {
                         if (primaryKey.equals(column.name())) {
                             int type = column.jdbcType();
