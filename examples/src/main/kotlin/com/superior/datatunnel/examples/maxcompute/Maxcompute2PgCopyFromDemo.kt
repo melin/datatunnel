@@ -35,7 +35,7 @@ object Maxcompute2PgCopyFromDemo {
               databaseName = 'postgres',
               schemaName = 'public',
               tableName = 'pg_orders',
-              writeMode = 'copyfrom',
+              writeMode = 'BULKINSERT',
               columns = ["*"])
         """.trimIndent()
 

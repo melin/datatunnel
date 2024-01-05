@@ -73,16 +73,16 @@ object PostgreSqlHelper extends Logging{
   }
 
   def buildUpsertPGSql(tableName: String, tempTableName: String,
-                               columns: util.List[String], primaryKeys: util.List[String]): String = {
+                               columns: util.List[String], upsertKeyColumns: Array[String]): String = {
 
-    val updateColumns = columns.asScala.filter(name => !primaryKeys.contains(name)).map(name => name)
+    val updateColumns = columns.asScala.filter(name => !upsertKeyColumns.contains(name)).map(name => name)
     val excludedColumns = updateColumns.map(name => "excluded." + name)
 
     val sqlBuilder: StringBuilder = new StringBuilder
     sqlBuilder.append("insert into ").append(tableName).append("(").append(StringUtils.join(columns, ",")).append(")\n")
     sqlBuilder.append("select ").append(StringUtils.join(columns, ",")).append("\n")
     sqlBuilder.append("\tfrom ").append(tempTableName).append("\n")
-    sqlBuilder.append("on conflict (").append(StringUtils.join(primaryKeys, ",")).append(")").append("\n")
+    sqlBuilder.append("on conflict (").append(upsertKeyColumns.mkString(",")).append(")").append("\n")
     sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
     sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
     sqlBuilder.toString

@@ -8,7 +8,7 @@ import com.superior.datatunnel.common.util.CommonUtils;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.jdbc.support.Column;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
-import com.superior.datatunnel.plugin.jdbc.support.dialect.DatabaseDialect;
+import com.superior.datatunnel.plugin.jdbc.support.dialect.DefaultDatabaseDialect;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -97,7 +97,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
         Connection connection = buildConnection(jdbcUrl, options);
         JdbcDialect jdbcDialect = JdbcDialects.get(jdbcUrl);
-        DatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, jdbcDialect, dataSourceType.name());
+        DefaultDatabaseDialect dialect = JdbcDialectUtils.getDatabaseDialect(connection, jdbcDialect, dataSourceType.name());
 
         List<String> schemaNames = getSchemaNames(schemaName, dialect);
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dialect);
@@ -170,7 +170,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         return dataset;
     }
 
-    private List<String> getSchemaNames(String schemaName, DatabaseDialect dialect) {
+    private List<String> getSchemaNames(String schemaName, DefaultDatabaseDialect dialect) {
         Predicate<String> predicate = Predicates.includes(schemaName);
         List<String> schemaNames = dialect.getSchemaNames();
 
@@ -186,7 +186,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         return list;
     }
 
-    private List<Pair<String, String>> getTablesNames(List<String> schemaNames, String tableName, DatabaseDialect dialect) {
+    private List<Pair<String, String>> getTablesNames(List<String> schemaNames, String tableName, DefaultDatabaseDialect dialect) {
         Predicate<String> predicate = Predicates.includes(tableName);
         List<Pair<String, String>> list = Lists.newArrayList();
         for (String schemaName : schemaNames) {
@@ -241,9 +241,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             if (StringUtils.isBlank(partitionColumn)) {
                 String dsType = sourceOption.getDataSourceType().name();
-                List<String> primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn);
-                if (primaryKeys.size() == 1) {
-                    String primaryKey = primaryKeys.get(0);
+                String[] primaryKeys = JdbcDialectUtils.queryPrimaryKeys(dsType, schemaName, tableName, conn);
+                if (primaryKeys.length == 1) {
+                    String primaryKey = primaryKeys[0];
                     List<Column> columns = JdbcDialectUtils.queryColumns(dsType, schemaName, tableName, conn);
                     for (Column column : columns) {
                         if (primaryKey.equals(column.name())) {

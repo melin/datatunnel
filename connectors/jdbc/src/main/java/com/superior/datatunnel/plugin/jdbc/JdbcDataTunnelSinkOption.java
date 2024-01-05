@@ -21,12 +21,6 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
-    @OptionDesc("oracle sid。sid和serviceName，只能选择填写一个")
-    private String sid;
-
-    @OptionDesc("oracle serviceName。sid和serviceName，只能选择填写一个")
-    private String serviceName;
-
     @NotBlank(message = "username can not blank")
     private String username;
 
@@ -38,6 +32,9 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
     @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
     private String jdbcUrl;
+
+    @OptionDesc("upsert 写入数据时，指定表主键，如果有多个主键，逗号分隔")
+    private String[] upsertKeyColumns;
 
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")

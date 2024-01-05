@@ -3,17 +3,19 @@ package com.superior.datatunnel.plugin.jdbc.support.dialect
 import com.gitee.melin.bee.core.jdbc.JdbcDialectHolder
 import com.gitee.melin.bee.core.jdbc.enums.DataSourceType
 import com.gitee.melin.bee.core.jdbc.relational.DatabaseVersion
+import com.gitee.melin.bee.util.JdbcUtils
 import com.google.common.collect.Lists
-import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils.columnNotFoundInSchemaError
+import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils._
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.conf
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
+import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{conf, savePartition}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
-import java.sql.{Connection, ResultSet}
+import java.sql.{Connection, Statement}
 import java.util
-
-abstract class DatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String) extends Logging {
+class DefaultDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String) extends Logging {
 
   private val dsType = DataSourceType.valueOf(dataSourceType.toUpperCase)
   private val beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection)
@@ -72,18 +74,6 @@ abstract class DatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect,
     }
   }
 
-  def getKeyFieldNames(schema: String, tableName: String): Array[String] = {
-    var keyFieldNames = new Array[String](0)
-    val rs: ResultSet = connection.getMetaData.getPrimaryKeys(schema, null, tableName)
-    try while (rs.next()) {
-      val columnName: String = rs.getString(4)
-      keyFieldNames = keyFieldNames :+ columnName
-    }
-    finally if (rs != null) rs.close()
-
-    keyFieldNames
-  }
-
   def getInsertStatement(
       table: String,
       rddSchema: StructType,
@@ -95,10 +85,61 @@ abstract class DatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect,
   }
 
   def getUpsertStatement(
-      table: String,
+      destTableName: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType]): String = {
+      tableSchema: Option[StructType],
+      keyColumns: Array[String]): String = {
+    throw new UnsupportedOperationException(s"${dataSourceType} not support operation")
+  }
 
-    return null;
+  def saveTable(
+       df: DataFrame,
+       tableSchema: Option[StructType],
+       isCaseSensitive: Boolean,
+       options: JdbcOptionsInWrite,
+       writeMode: String,
+       primaryKeys: Array[String]): Unit = {
+
+    val table = options.table
+
+    val rddSchema = df.schema
+    val batchSize = options.batchSize
+    val isolationLevel = options.isolationLevel
+
+    val insertStmt = if ("upsert" == writeMode) {
+      this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
+    } else {
+      this.getInsertStatement(table, rddSchema, tableSchema)
+    }
+
+    val repartitionedDF = options.numPartitions match {
+      case Some(n) if n <= 0 => throw invalidJdbcNumPartitionsError(
+        n, JDBCOptions.JDBC_NUM_PARTITIONS)
+      case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
+      case _ => df
+    }
+    repartitionedDF.rdd.foreachPartition { iterator =>
+      savePartition(
+        table, iterator, rddSchema, insertStmt, batchSize, jdbcDialect, isolationLevel, options)
+    }
+  }
+
+  def bulkInsertTable(
+      conn: Connection,
+      df: DataFrame,
+      options: JdbcOptionsInWrite,
+      parameters: Map[String, String],
+      primaryKeys: Array[String]): Unit = {
+    throw new UnsupportedOperationException(s"${dataSourceType} not support operation")
+  }
+
+  protected def executeSql(conn: Connection, sql: String): Unit = {
+    var statement: Statement = null
+    try {
+      statement = conn.createStatement
+      statement.execute(sql)
+    } finally {
+      JdbcUtils.closeStatement(statement)
+    }
   }
 }

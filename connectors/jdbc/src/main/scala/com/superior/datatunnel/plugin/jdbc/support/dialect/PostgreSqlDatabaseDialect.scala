@@ -1,32 +1,104 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
+import com.superior.datatunnel.plugin.jdbc.support.PostgreSqlHelper.buildUpsertPGSql
+import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, PostgreSqlHelper}
+import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
+import scala.collection.JavaConverters._
 
 class PostgreSqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
-  extends DatabaseDialect(connection, jdbcDialect, dataSourceType) {
+  extends DefaultDatabaseDialect(connection, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
-      table: String,
+      destTableName: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType]): String = {
+      tableSchema: Option[StructType],
+      keyColumns: Array[String]): String = {
 
     val columns = getColumns(rddSchema, tableSchema)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
 
-    val items = StringUtils.split(table, ".")
-    val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(jdbcDialect.quoteIdentifier)
-
     val builder = new StringBuilder()
-    val sql = s"INSERT INTO $table (${columns.mkString(",")}) VALUES ($placeholders)"
-    builder.append(sql).append("\nON CONFLICT (" + primaryKeys.mkString(",") + ") \nDO NOTHING;\n")
+    val sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
+    builder.append(sql).append("\nON CONFLICT (" + keyColumns.mkString(",") + ") \nDO NOTHING;\n")
 
-    if (primaryKeys.length == 0) {
+    if (keyColumns.length == 0) {
       throw new IllegalArgumentException("not primary key, not support upsert")
     }
     builder.toString()
+  }
+
+  override def bulkInsertTable(
+        conn: Connection,
+        df: DataFrame,
+        options: JdbcOptionsInWrite,
+        parameters: Map[String, String],
+        primaryKeys: Array[String]): Unit = {
+    val truncate = parameters("truncate").toBoolean
+    val columnsStr = parameters("columns")
+    val dataSourceType = parameters("dataSourceType")
+    val schemaName = parameters("schemaName")
+    val tableName = parameters("tableName")
+    val tableId = options.table;
+
+    val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
+      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+    else StringUtils.split(columnsStr, ",").toList.asJava
+
+    logInfo(s"table ${tableId} primary keys : ${primaryKeys.mkString(",")}")
+    LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.mkString(",")}")
+
+    // 创建临时表名
+    val items = StringUtils.split(tableId, ".")
+    var name = items(items.length - 1)
+    name = "datatunnel_temp_" + name + "_001"
+    items(items.length - 1) = name
+    val tempTableName = items.mkString(".")
+    val tempTableMode = primaryKeys.length > 0 && !truncate // 设置主键，且truncate = false，才需要创建临时表
+
+    if (truncate) {
+      logInfo(s"prepare truncate table: ${tableId}")
+      LogUtils.info(s"prepare truncate table: ${tableId}")
+      val sql = s"truncate table ${tableId}";
+      executeSql(conn, sql)
+    }
+
+    if (tempTableMode) {
+      logInfo(s"prepare temp table: ${tempTableName}")
+      LogUtils.info(s"prepare temp table: ${tempTableName}")
+      var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
+      executeSql(conn, sql)
+
+      logInfo(s"truncat temp table: ${tempTableName}");
+      LogUtils.info(s"truncat temp table: ${tempTableName}")
+      sql = s"TRUNCATE TABLE ${tempTableName}";
+      executeSql(conn, sql)
+    }
+
+    if (tempTableMode) {
+      //先导入临时表
+      PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
+    } else {
+      PostgreSqlHelper.copyIn(parameters)(df, tableId)
+    }
+
+    if (tempTableMode) {
+      // 从临时表导入
+      var sql = buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
+      logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+      LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+      executeSql(conn, sql)
+
+      logInfo(s"drop temp table ${tempTableName}");
+      LogUtils.info(s"drop temp table ${tempTableName}")
+      sql = s"drop table $tempTableName";
+      executeSql(conn, sql)
+    }
   }
 }

@@ -1,45 +1,79 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
+import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, LoadDataSqlHelper}
+import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
+import scala.collection.JavaConverters._
 
 class MySqlDatabaseDialect(connection: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
-  extends DatabaseDialect(connection, jdbcDialect, dataSourceType) {
+  extends DefaultDatabaseDialect(connection, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
-      table: String,
+      destTableName: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType]): String = {
+      tableSchema: Option[StructType],
+      keyColumns: Array[String]): String = {
+
+    if (keyColumns.length == 0) {
+      throw new IllegalArgumentException("not primary key, not support upsert")
+    }
 
     val version = getDatabaseVersion(connection)
-
     val columns = getColumns(rddSchema, tableSchema)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
 
     val builder = new StringBuilder()
-    var sql = s"INSERT INTO $table (${columns.mkString(",")}) VALUES ($placeholders)"
+    var sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
     builder.append(sql)
-
-    val items = StringUtils.split(table, ".")
-    val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(jdbcDialect.quoteIdentifier)
-
-    if (primaryKeys.length == 0) {
-      throw new IllegalArgumentException("not primary key, not support upsert")
-    }
 
     if (version.isSameOrAfter(8, 0, 20)) {
       builder.append("\nAS new ON DUPLICATE KEY UPDATE ")
-      sql = columns.filter(!primaryKeys.contains(_))
+      sql = columns.filter(!keyColumns.contains(_))
         .map(col => s"\t$col = new.$col").mkString(",\n")
       builder.append(sql);
     } else {
       builder.append(sql).append("\nON DUPLICATE KEY UPDATE\n")
-      sql = columns.filter(!primaryKeys.contains(_))
+      sql = columns.filter(!keyColumns.contains(_))
         .map(col => s"\t$col = VALUES($col)").mkString(",\n")
       builder.append(sql);
     }
     builder.toString()
+  }
+
+  override def bulkInsertTable(
+       conn: Connection,
+       df: DataFrame,
+       options: JdbcOptionsInWrite,
+       parameters: Map[String, String],
+       primaryKeys: Array[String]): Unit = {
+
+    val truncate = parameters("truncate").toBoolean
+    val columnsStr = parameters("columns")
+    val schemaName = parameters("schemaName")
+    val tableName = parameters("tableName")
+    val tableId = options.table;
+
+    val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
+      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
+    else StringUtils.split(columnsStr, ",").toList.asJava
+
+    if (truncate) {
+      logInfo(s"prepare truncate table: ${tableId}")
+      LogUtils.info(s"prepare truncate table: ${tableId}")
+      val sql = s"truncate table ${tableId}";
+      executeSql(conn, sql)
+    }
+
+    val loadCommand = s"LOAD DATA LOCAL INFILE 'datatunnel.csv' REPLACE INTO TABLE ${tableId} " +
+      s"FIELDS TERMINATED BY ',' ENCLOSED BY '${'"'}' LINES TERMINATED BY '\n' (${columnNames.asScala.mkString(",")})";
+
+    logInfo(s"load data: ${loadCommand}")
+    LogUtils.info(s"load data: ${loadCommand}")
+    LoadDataSqlHelper.loadData(dataSourceType, parameters)(df, loadCommand)
   }
 }

@@ -92,9 +92,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 throw new DataTunnelException("write mode: Bulk insert, only support: gauss, postgresql, mysql, sqlserver");
             }
 
-            SaveMode mode = SaveMode.Append;
+            SaveMode saveMode = SaveMode.Append;
             if (WriteMode.OVERWRITE == writeMode) {
-                mode = SaveMode.Overwrite;
+                saveMode = SaveMode.Overwrite;
             }
 
             String preactions = sinkOption.getPreActions();
@@ -118,7 +118,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String format = "datatunnel-jdbc";
             DataFrameWriter dataFrameWriter = dataset.write()
                     .format(format)
-                    .mode(mode)
+                    .mode(saveMode)
                     .options(sinkOption.getProperties())
                     .option("url", jdbcUrl)
                     .option("dbtable", fullTableName)
@@ -134,6 +134,10 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("columns", StringUtils.join(sinkOption.getColumns(), ","))
                     .option("dataSourceType", dataSourceType.name())
                     .option("isolationLevel", sinkOption.getIsolationLevel());
+
+            if (sinkOption.getUpsertKeyColumns() != null) {
+                dataFrameWriter.option("upsertKeyColumns", StringUtils.join(sinkOption.getUpsertKeyColumns(), ","));
+            }
 
             dataFrameWriter.save();
 

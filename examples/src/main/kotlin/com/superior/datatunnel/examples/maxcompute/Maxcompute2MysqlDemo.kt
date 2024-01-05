@@ -34,7 +34,7 @@ object Maxcompute2MysqlDemo {
               port = 3306,
               schemaName = 'demos',
               tableName = 'pg_orders',
-              writeMode = 'copyfrom',
+              writeMode = 'BULKINSERT',
               columns = ["*"])
         """.trimIndent()
 

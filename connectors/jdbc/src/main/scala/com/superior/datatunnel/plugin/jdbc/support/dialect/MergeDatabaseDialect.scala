@@ -6,24 +6,22 @@ import org.apache.spark.sql.types.StructType
 
 import java.sql.Connection
 
-class SupportMergeDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
-  extends DatabaseDialect(conn, jdbcDialect, dataSourceType) {
+class MergeDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, dataSourceType: String)
+  extends DefaultDatabaseDialect(conn, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
-      table: String,
+      destTableName: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType]): String = {
+      tableSchema: Option[StructType],
+      keyColumns: Array[String]): String = {
 
-    val columns = getColumns(rddSchema, tableSchema)
-    val items = StringUtils.split(table, ".")
-    val primaryKeys = this.getKeyFieldNames(items(0), items(1)).map(jdbcDialect.quoteIdentifier)
-
-    if (primaryKeys.length == 0) {
+    if (keyColumns.length == 0) {
       throw new IllegalArgumentException("not primary key, not support upsert")
     }
 
+    val columns = getColumns(rddSchema, tableSchema)
     val builder = new StringBuffer()
-    var sql = s"MERGE INTO $table dist \nUSING (\n    SELECT "
+    var sql = s"MERGE INTO $destTableName dist \nUSING (\n    SELECT "
     builder.append(sql);
     sql = columns.map(col => s"? AS $col").mkString(",")
     builder.append(sql);
@@ -36,12 +34,12 @@ class SupportMergeDatabaseDialect(conn: Connection, jdbcDialect: JdbcDialect, da
 
     builder.append("\n) src\n")
     builder.append("on (")
-    sql = primaryKeys.map(key => s"src.${key} = dist.${key}").mkString(" AND ")
+    sql = keyColumns.map(key => s"src.${key} = dist.${key}").mkString(" AND ")
     builder.append(sql);
     builder.append(")\n")
 
     builder.append("WHEN MATCHED THEN\n    UPDATE SET ")
-    sql = columns.filter(!primaryKeys.contains(_))
+    sql = columns.filter(!keyColumns.contains(_))
       .map(key => s"dist.${key} = src.${key}").mkString(", ")
     builder.append(sql);
     builder.append("\nWHEN NOT MATCHED THEN\n")
