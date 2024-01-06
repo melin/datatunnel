@@ -37,10 +37,15 @@ class MergeDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
     builder.append(sql);
     builder.append(")\n")
 
-    builder.append("WHEN MATCHED THEN\n    UPDATE SET ")
-    sql = columns.filter(!keyColumns.contains(_))
-      .map(key => s"dist.${key} = src.${key}").mkString(", ")
-    builder.append(sql);
+    val updateColumns = columns.filter(name => !keyColumns.contains(name)).map(name => name)
+    if (updateColumns.length == 0) {
+      builder.append("WHEN MATCHED THEN\n    DO NOTHING ")
+    } else {
+      builder.append("WHEN MATCHED THEN\n    UPDATE SET ")
+      sql = columns.filter(!keyColumns.contains(_))
+        .map(key => s"dist.${key} = src.${key}").mkString(", ")
+      builder.append(sql);
+    }
     builder.append("\nWHEN NOT MATCHED THEN\n")
     builder.append(s"    insert(${columns.mkString(",")})\n")
     sql = columns.map(col => s"src.${col}").mkString(",")

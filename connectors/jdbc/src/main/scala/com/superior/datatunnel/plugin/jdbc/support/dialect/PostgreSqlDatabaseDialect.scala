@@ -35,8 +35,13 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
     val sqlBuilder = new StringBuilder()
     val sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
     sqlBuilder.append(sql).append("\nON CONFLICT (" + keyColumns.mkString(",") + ") \n")
-    sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
-    sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
+    if (updateColumns.length == 0) {
+      sqlBuilder.append("DO NOTHING \n")
+    } else {
+      sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
+      sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
+    }
+
     sqlBuilder.toString()
   }
 
