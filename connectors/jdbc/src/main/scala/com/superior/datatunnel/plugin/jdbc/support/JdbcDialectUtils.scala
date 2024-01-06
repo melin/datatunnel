@@ -17,12 +17,8 @@ object JdbcDialectUtils {
       new MySqlDatabaseDialect(options, jdbcDialect, dataSourceType)
     } else if (dataSourceType == DataSourceType.POSTGRESQL) {
       new PostgreSqlDatabaseDialect(options, jdbcDialect, dataSourceType)
-    } else if (dataSourceType == DataSourceType.SQLSERVER) {
-      new SqlServerMergeDatabaseDialect(options, jdbcDialect, dataSourceType)
-    } else if (dataSourceType == DataSourceType.ORACLE) {
-      new OracleMergeDatabaseDialect(options, jdbcDialect, dataSourceType)
     } else {
-      new DefaultDatabaseDialect(options, jdbcDialect, dataSourceType)
+      new MergeDatabaseDialect(options, jdbcDialect, dataSourceType)
     }
   }
 
@@ -34,7 +30,8 @@ object JdbcDialectUtils {
 
   def queryPrimaryKeys(dataSourceType: DataSourceType, schemaName: String, tableName: String, conn: Connection): Array[String] = {
     val metaData = conn.getMetaData
-    val rs = if (dataSourceType == DataSourceType.MYSQL) {
+    val rs = if (dataSourceType == DataSourceType.MYSQL ||
+      dataSourceType == DataSourceType.ORACLE) {
       metaData.getPrimaryKeys(schemaName, null, tableName)
     } else {
       metaData.getPrimaryKeys(null, schemaName, tableName)

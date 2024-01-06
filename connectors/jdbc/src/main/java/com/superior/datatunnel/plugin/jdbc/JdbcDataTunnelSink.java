@@ -20,6 +20,7 @@ import scala.collection.JavaConverters;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,18 +137,18 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                     .option("dataSourceType", dataSourceType.name())
                     .option("isolationLevel", sinkOption.getIsolationLevel());
 
-            if (sinkOption.getUpsertKeyColumns() != null) {
-                dataFrameWriter.option("upsertKeyColumns", StringUtils.join(sinkOption.getUpsertKeyColumns(), ","));
-            } else {
-                // 没有设置upsertKeyColumns，自动获取主键
+            String[] upsertKeyColumns = sinkOption.getUpsertKeyColumns();
+            // 没有设置upsertKeyColumns，自动获取主键
+            if (upsertKeyColumns == null || upsertKeyColumns.length == 0) {
                 if (connection == null) {
                     connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
                 }
-                String[] upsertKeyColumns = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName,
+                upsertKeyColumns = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName,
                         sinkOption.getTableName(), connection);
-                if (upsertKeyColumns.length > 0) {
-                    dataFrameWriter.option("upsertKeyColumns", StringUtils.join(upsertKeyColumns, ","));
-                }
+
+            }
+            if (upsertKeyColumns.length > 0) {
+                dataFrameWriter.option("upsertKeyColumns", StringUtils.join(upsertKeyColumns, ","));
             }
 
             dataFrameWriter.save();

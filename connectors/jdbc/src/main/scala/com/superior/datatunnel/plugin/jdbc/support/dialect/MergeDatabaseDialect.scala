@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
-import com.superior.datatunnel.api.DataSourceType
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
@@ -14,8 +14,8 @@ class MergeDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
       tableSchema: Option[StructType],
       keyColumns: Array[String]): String = {
 
-    if (keyColumns.length == 0) {
-      throw new IllegalArgumentException("not primary key, not support upsert")
+    if (keyColumns == null || keyColumns.length == 0) {
+      throw new DataTunnelException(s"Cannot write to table $destTableName with no key fields defined.")
     }
 
     val columns = getColumns(rddSchema, tableSchema)

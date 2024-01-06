@@ -27,7 +27,9 @@ class DataTunnelJdbcRelationProvider extends JdbcRelationProvider with Logging {
     val conn = jdbcDialect.createConnectionFactory(options)(-1)
     val writeMode = parameters.getOrElse("writeMode", "append")
     val dataSourceType = parameters.getOrElse("dataSourceType", "UNKNOW")
-    val upsertKeyColumns = StringUtils.split(parameters.getOrElse("upsertKeyColumns", ""), ",")
+    var upsertKeyColumns = StringUtils.split(parameters.getOrElse("upsertKeyColumns", ""), ",")
+    upsertKeyColumns = upsertKeyColumns.map(jdbcDialect.quoteIdentifier)
+
     val databaseDialect = JdbcDialectUtils.getDatabaseDialect(options, jdbcDialect,
       DataSourceType.valueOf(dataSourceType.toUpperCase))
 

@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 
-import com.superior.datatunnel.api.DataSourceType
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import com.superior.datatunnel.plugin.jdbc.support.PostgreSqlHelper.buildUpsertPGSql
 import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, PostgreSqlHelper}
 import io.github.melin.jobserver.spark.api.LogUtils
@@ -22,17 +22,22 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
       tableSchema: Option[StructType],
       keyColumns: Array[String]): String = {
 
+    if (keyColumns == null || keyColumns.length == 0) {
+      throw new DataTunnelException(s"Cannot write to table $destTableName with no key fields defined.")
+    }
+
     val columns = getColumns(rddSchema, tableSchema)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
 
-    val builder = new StringBuilder()
-    val sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
-    builder.append(sql).append("\nON CONFLICT (" + keyColumns.mkString(",") + ") \nDO NOTHING;\n")
+    val updateColumns = columns.filter(name => !keyColumns.contains(name)).map(name => name)
+    val excludedColumns = updateColumns.map(name => "excluded." + name)
 
-    if (keyColumns.length == 0) {
-      throw new IllegalArgumentException("not primary key, not support upsert")
-    }
-    builder.toString()
+    val sqlBuilder = new StringBuilder()
+    val sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
+    sqlBuilder.append(sql).append("\nON CONFLICT (" + keyColumns.mkString(",") + ") \n")
+    sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
+    sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
+    sqlBuilder.toString()
   }
 
   override def bulkInsertTable(
@@ -72,7 +77,7 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
     if (tempTableMode) {
       logInfo(s"prepare temp table: ${tempTableName}")
       LogUtils.info(s"prepare temp table: ${tempTableName}")
-      var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
+      var sql = s"CREATE TEMPORARY TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
       executeSql(conn, sql)
 
       logInfo(s"truncat temp table: ${tempTableName}");

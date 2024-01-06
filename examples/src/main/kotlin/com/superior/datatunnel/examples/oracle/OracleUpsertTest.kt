@@ -3,9 +3,9 @@ package com.superior.datatunnel.examples.oracle
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object OracleBulkInsertTest {
+object OracleUpsertTest {
 
-    // @JvmStatic
+    @JvmStatic
     fun main(args: Array<String>) {
         System.setProperty("HADOOP_USER_NAME", "hdfs");
 
@@ -25,7 +25,7 @@ object OracleBulkInsertTest {
               port = 5432,
               databaseName = 'postgres',
               schemaName = 'public',
-              tableName = 'interface_call_log',
+              tableName = 'pg_orders',
               columns = ["*"],
               condition = "id < 300000"
               )
@@ -34,10 +34,10 @@ object OracleBulkInsertTest {
               password = "system",
               jdbcUrl = 'jdbc:oracle:thin:@172.18.1.51:1523:XE',
               schemaName = 'FLINKUSER',
-              tableName = 'interface_call_log',
+              tableName = 'PG_ORDERS',
               truncate = true,
               columns = ["*"],
-              writeMode = 'bulkinsert'
+              writeMode = 'upsert'
             )
         """.trimIndent()
 
