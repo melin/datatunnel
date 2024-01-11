@@ -6,7 +6,7 @@ import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.sql.SparkSession
 import java.security.PrivilegedExceptionAction
 
-object Maxcompute2HiveDemo {
+object Maxcompute2HiveSPDemo {
 
     private val KRB5_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/krb5.conf"
     private val KEYTAB_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/superior.keytab"
@@ -31,9 +31,9 @@ object Maxcompute2HiveDemo {
 
             val sql = """
             DATATUNNEL SOURCE("maxcompute") OPTIONS (
-              accessKeyId = 'xx',
-	          secretAccessKey = 'xxx',
-	          endpoint = 'http://service.us-east-1.maxcompute.aliyun.com/api',
+              accessKeyId = 'LTAI5tNvrRiDkqnAWuP9JLs7',
+              secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
+              endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               projectName = "superior",
               tableName = "orders",
               columns = ["*"]
@@ -42,7 +42,7 @@ object Maxcompute2HiveDemo {
               databaseName = "bigdata",
               tableName = 'odps_orders_pt',
               writeMode = 'overwrite',
-              partitionSpec = 'pt=20231102',
+              partitionSpec = 'pt=20231105',
               columns = ["*"]
             )
         """.trimIndent()

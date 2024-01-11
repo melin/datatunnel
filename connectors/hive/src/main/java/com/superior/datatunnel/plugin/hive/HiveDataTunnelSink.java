@@ -110,6 +110,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
                 context.getSparkSession().sql("set spark.sql.parquet.compression.codec=" + sinkOption.getCompression());
             }
 
+            // 避免清空表所有分区
+            context.getSparkSession().sql("set spark.sql.sources.partitionOverwriteMode = dynamic");
             context.getSparkSession().sql(sql);
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);
