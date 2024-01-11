@@ -35,14 +35,15 @@ object Maxcompute2HiveDPDemo {
               secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               projectName = "superior",
-              tableName = "orders",
-              columns = ["*", '20231104']
+              tableName = "ods_orders_pt",
+              columns = ["*"],
+              partitionSpec = "pt>='20230718' and pt<='20230719'"
             )
             SINK("hive") OPTIONS (
               databaseName = "bigdata",
               tableName = 'odps_orders_pt',
               writeMode = 'overwrite',
-              partitionSpec = 'pt',
+              partitionSpec = 'pt=20230719, type',
               columns = ["*"]
             )
         """.trimIndent()
