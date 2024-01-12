@@ -42,6 +42,7 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
       sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
     }
 
+    logInfo("upsert sql: " + sqlBuilder.toString())
     sqlBuilder.toString()
   }
 

@@ -84,7 +84,7 @@ object PostgreSqlHelper extends Logging{
     sqlBuilder.append("\tfrom ").append(tempTableName).append("\n")
     sqlBuilder.append("on conflict (").append(upsertKeyColumns.mkString(",")).append(")").append("\n")
     sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
-    sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
+    sqlBuilder.append("ROW(").append(excludedColumns.mkString(",")).append(")")
     sqlBuilder.toString
   }
 
