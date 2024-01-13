@@ -83,7 +83,7 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
     if (tempTableMode) {
       logInfo(s"prepare temp table: ${tempTableName}")
       LogUtils.info(s"prepare temp table: ${tempTableName}")
-      var sql = s"CREATE TEMPORARY TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
+      var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
       executeSql(conn, sql)
 
       logInfo(s"truncat temp table: ${tempTableName}");
