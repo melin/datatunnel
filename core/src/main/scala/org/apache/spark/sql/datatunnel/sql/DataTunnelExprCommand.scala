@@ -31,11 +31,6 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
     val sinkType = DataSourceType.valueOf(sinkName.toUpperCase)
 
-    if (KAFKA == sourceType && !(HIVE == sinkType || LOG == sinkType || KAFKA == sinkType
-      || DataSourceType.isJdbcDataSource(sinkType))) {
-      throw new DataTunnelException("kafka 数据源只能写入 hive hudi表 或者 jdbc 数据源")
-    }
-
     val (sourceConnector, sinkConnector) = Utils.getDataTunnelConnector(sourceType, sinkType)
     var errorMsg = s"source $sourceName not have parameter: "
     val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(sourceOpts, sourceConnector.getOptionClass, errorMsg)
@@ -88,16 +83,12 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       && StringUtils.isNotBlank(transfromSql)) {
       throw new IllegalArgumentException("transfrom 存在，source 必须指定 resultTableName")
     } else if (StringUtils.isNotBlank(transfromSql)) {
-      if (KAFKA != sourceType) {
-        df.createTempView(sourceOption.getResultTableName)
-        df = sparkSession.sql(transfromSql)
-      }
+      df.createTempView(sourceOption.getResultTableName)
+      df = sparkSession.sql(transfromSql)
     }
 
-    if (KAFKA != sourceType) {
-      sinkConnector.createTable(df, context)
-      sinkConnector.sink(df, context)
-    }
+    sinkConnector.createTable(df, context)
+    sinkConnector.sink(df, context)
     Seq.empty[Row]
   }
 

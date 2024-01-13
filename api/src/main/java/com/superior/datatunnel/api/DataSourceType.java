@@ -20,7 +20,6 @@ public enum DataSourceType {
     STARROCKS,
 
     HIVE,
-    KAFKA,
     CLICKHOUSE,
     CASSANDRA,
     HBASE,

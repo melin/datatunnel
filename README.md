@@ -107,7 +107,6 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 | cassandra     | √         | √            | [读写](doc/cassandra.md)                                                            |
 | elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                     |
 | log           |           | √            | [写](doc/log.md)                                                                   |
-| kafka         | √         | √            | [读写](doc/kafka.md) spark streaming任务，支持写入jdbc，hudi表                               |
 | doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                       |
 | starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                               |
 | redis         |           | √            | [写](doc/redis.md)                                                                 |

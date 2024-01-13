@@ -22,7 +22,8 @@ public class JdbcUtils {
             DataSourceType dsType,
             String host,
             int port,
-            String databaseName) {
+            String databaseName,
+            String schemaName) {
 
         // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
 
@@ -41,6 +42,9 @@ public class JdbcUtils {
                 url += "/" + databaseName;
             }
             url = url + "?reWriteBatchedInserts=true";
+            if (StringUtils.isNotBlank(schemaName)) {
+                url = url + "&currentSchema=" + schemaName;
+            }
         } else if (SQLSERVER == dsType) {
             url = "jdbc:sqlserver://" + host + ":" + port + ";database=" + databaseName + ";trustServerCertificate=true";
         } else if (HANA == dsType) {

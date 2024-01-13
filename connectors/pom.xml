@@ -20,7 +20,6 @@
         <module>elasticsearch</module>
         <module>hive</module>
         <module>jdbc</module>
-        <module>kafka</module>
         <module>doris</module>
         <module>starrocks</module>
         <module>cassandra</module>

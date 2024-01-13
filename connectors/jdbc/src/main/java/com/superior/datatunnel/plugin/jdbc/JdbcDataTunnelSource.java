@@ -90,8 +90,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 throw new DataTunnelException("orcale 数据源请指定 jdbcUrl");
             }
 
-            jdbcUrl = JdbcUtils.buildJdbcUrl(dataSourceType, sourceOption.getHost(),
-                    sourceOption.getPort(), sourceOption.getDatabaseName());
+            jdbcUrl = JdbcUtils.buildJdbcUrl(
+                    dataSourceType,
+                    sourceOption.getHost(),
+                    sourceOption.getPort(),
+                    sourceOption.getDatabaseName(),
+                    sourceOption.getSchemaName());
         }
 
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
