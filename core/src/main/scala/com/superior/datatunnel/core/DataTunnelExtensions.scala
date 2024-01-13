@@ -23,8 +23,7 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
 
         override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
           val metrics = taskEnd.taskMetrics
-          val jobType = session.conf.get("spark.jobserver.superior.jobType", "**")
-          if (metrics == null || StringUtils.isBlank(jobType) || !"data_tunnel".equals(jobType)) {
+          if (metrics == null) {
             return
           }
 

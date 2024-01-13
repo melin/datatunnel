@@ -99,6 +99,7 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
     val table = options.table
     val rddSchema = df.schema
     val insertStmt = this.getInsertStatement(table, rddSchema, tableSchema)
+    logInfo(s"insert sql: $insertStmt")
     val batchSize = options.batchSize
     val isolationLevel = options.isolationLevel
 
@@ -120,7 +121,8 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
                   primaryKeys: Array[String]): Unit = {
     val table = options.table
     val rddSchema = df.schema
-    val insertStmt = this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
+    val upsertStmt = this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
+    logInfo(s"upsert sql: $upsertStmt")
     val batchSize = options.batchSize
     val isolationLevel = options.isolationLevel
 
@@ -132,7 +134,7 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
     }
     repartitionedDF.rdd.foreachPartition { iterator =>
       savePartition(
-        table, iterator, rddSchema, insertStmt, batchSize, jdbcDialect, isolationLevel, options)
+        table, iterator, rddSchema, upsertStmt, batchSize, jdbcDialect, isolationLevel, options)
     }
   }
 
