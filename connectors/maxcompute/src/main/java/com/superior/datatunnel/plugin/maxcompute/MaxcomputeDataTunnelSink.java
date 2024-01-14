@@ -22,7 +22,7 @@ public class MaxcomputeDataTunnelSink implements DataTunnelSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaxcomputeDataTunnelSink.class);
 
-    private static final String ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource.DefaultSource";
+    private static final String ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource";
 
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {

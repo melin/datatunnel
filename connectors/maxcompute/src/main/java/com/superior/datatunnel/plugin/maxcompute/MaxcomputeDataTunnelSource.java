@@ -18,7 +18,7 @@ public class MaxcomputeDataTunnelSource implements DataTunnelSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaxcomputeDataTunnelSource.class);
 
-    private static final String ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource.DefaultSource";
+    private static final String ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource";
 
     @Override
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
