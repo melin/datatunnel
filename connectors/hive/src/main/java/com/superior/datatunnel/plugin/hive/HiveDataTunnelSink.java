@@ -154,12 +154,16 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
         String partitionSpec = sinkOption.getPartitionSpec();
         List<String> partColumnNames = Lists.newArrayList();
+        String[] fieldNames = structType.fieldNames();
         if (StringUtils.isNotBlank(partitionSpec)) {
             // 从 ds=20231102, type='Login' 格式中，解析出分区字段。
             String[] parts = StringUtils.split(partitionSpec, ",");
             for (String partCol : parts) {
                 String colName = StringUtils.split(partCol, "=")[0];
-                colums += (",\n" + colName + " string");
+                //如果映射字段包含 分区字段，需要排除
+                if (!ArrayUtils.contains(fieldNames, colName)) {
+                    colums += (",\n" + colName + " string");
+                }
                 partColumnNames.add(colName);
             }
         }
@@ -179,8 +183,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             sql += "\nPARTITIONED BY (" + StringUtils.join(partColumnNames, ",") + ")";
         }
 
+        LOG.info("create table sql: {}", sql);
         context.getSparkSession().sql(sql);
-
         LogUtils.info("自动创建表: {}，同步表元数据", sinkOption.getFullTableName());
         syncTableMeta(sinkOption.getDatabaseName(), sinkOption.getTableName());
     }
