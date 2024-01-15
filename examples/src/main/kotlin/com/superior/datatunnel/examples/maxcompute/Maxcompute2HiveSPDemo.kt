@@ -35,15 +35,16 @@ object Maxcompute2HiveSPDemo {
               secretAccessKey = 'YVX4Lo2zor5TlQhFn86oLhpY25Azdx',
               endpoint='http://service.us-east-1.maxcompute.aliyun.com/api',
               projectName = "superior",
-              tableName = "orders",
-              columns = ["*"]
+              tableName = "ods_orders_pt",
+              partitionSpec = "pt>='20230718' and pt<='20230719'",
+              columns = ["id", "code", "username", "address", "create_time", "pt", "type"]
             )
             SINK("hive") OPTIONS (
               databaseName = "bigdata",
               tableName = 'odps_orders_pt',
               writeMode = 'overwrite',
-              partitionSpec = 'pt=20231105',
-              columns = ["*"]
+              partitionSpec = 'pt,type',
+              columns = ["id", "code", "username", "address", "create_time", "pt", "type"]
             )
         """.trimIndent()
 

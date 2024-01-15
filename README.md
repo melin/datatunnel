@@ -56,7 +56,7 @@ docker push public.ecr.aws/w6m0k7l2/spark:spark-3.4.2-datatunnel
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 480976988805.dkr.ecr.us-east-1.amazonaws.com
 docker logout public.ecr.aws
 
-docker buildx build --platform linux/amd64 -t emr6.15-serverless-spark .
+docker buildx build --platform linux/amd64 -f Dockerfile-EMR -t emr6.15-serverless-spark .
 docker tag emr6.15-serverless-spark:latest 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.15-serverless-spark:latest
 docker push 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.15-serverless-spark:latest
 ```
