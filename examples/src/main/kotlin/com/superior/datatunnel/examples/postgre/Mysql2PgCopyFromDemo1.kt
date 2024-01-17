@@ -36,7 +36,7 @@ object Mysql2PgCopyFromDemo1 {
               schemaName = 'public',
               tableName = 'pg_orders',
               truncate = true,
-              writeMode = 'upsert',
+              writeMode = 'bulkinsert',
               columns = ["*"])
         """.trimIndent()
 

@@ -1,6 +1,8 @@
 package com.superior.datatunnel.plugin.jdbc.support
 
 import com.gitee.melin.bee.util.JdbcUtils
+import com.google.common.collect.Lists
+import com.superior.datatunnel.plugin.jdbc.Constants
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
@@ -18,40 +20,30 @@ import scala.collection.JavaConverters._
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
 object PostgreSqlHelper extends Logging{
 
-  private val fieldDelimiter = ",";
-
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
     val bytes: Iterator[Byte] = rows.flatMap {
       row => {
         val columns = row.toSeq.map { v =>
           if (v == null) {
-            Array[Byte]('\\', 'N')
+            "\\N".getBytes()
           } else {
             v.toString.getBytes()
           }
         }
 
-        val bytesSize = columns.map(_.length).sum
-        val byteBuffer = ByteBuffer.allocate((bytesSize * 2 + 10).toInt)
+        val bytesSize = columns.filter(_ != null).map(_.length).sum
+        val byteBuffer = ByteBuffer.allocate(bytesSize * 2 + 10)
 
         var index: Int = 0;
         columns.foreach(bytes => {
           if (index > 0) {
-            byteBuffer.put(fieldDelimiter.getBytes)
+            byteBuffer.put(Constants.FIELD_DELIMITER.getBytes)
           }
 
           if (bytes.length == 2 && bytes(0) == '\\'.toByte && bytes(1) == 'N'.toByte) {
             byteBuffer.put(bytes)
           } else {
-            byteBuffer.put('"'.toByte)
-            bytes.foreach(ch => {
-              if (ch == '"'.toByte) {
-                byteBuffer.put('"'.toByte).put('"'.toByte)
-              } else {
-                byteBuffer.put(ch)
-              }
-            })
-            byteBuffer.put('"'.toByte)
+            Constants.handlePgIdentifierBytes(bytes, byteBuffer)
           }
 
           index = index + 1
@@ -84,7 +76,17 @@ object PostgreSqlHelper extends Logging{
     sqlBuilder.append("\tfrom ").append(tempTableName).append("\n")
     sqlBuilder.append("on conflict (").append(upsertKeyColumns.mkString(",")).append(")").append("\n")
     sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
-    sqlBuilder.append("ROW(").append(excludedColumns.mkString(",")).append(")")
+    sqlBuilder.append("ROW(").append(excludedColumns.mkString(",")).append(")\n")
+
+    sqlBuilder.append(" where (\n")
+    val conditions = Lists.newArrayList[String]()
+    for (colName <- updateColumns) {
+      conditions.add(tableName + "." + colName + " != " + "excluded." + colName)
+      conditions.add("(" + tableName + "." + colName + " is null and excluded." + colName + " is not null)")
+    }
+    sqlBuilder.append(StringUtils.join(conditions, "\n\tor "))
+    sqlBuilder.append("\n)\n")
+
     sqlBuilder.toString
   }
 
@@ -95,7 +97,7 @@ object PostgreSqlHelper extends Logging{
       val conn = dialect.createConnectionFactory(options)(-1)
       try {
         val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-        val sql = s"COPY $table FROM STDIN WITH (NULL '\\N', FORMAT CSV, DELIMITER E'${fieldDelimiter}')";
+        val sql = s"COPY $table FROM STDIN DELIMITER '${Constants.FIELD_DELIMITER}' ";
         logInfo(s"copy from sql: $sql")
         //LogUtils.info(s"copy from sql: $sql")
         cm.copyIn(sql, rowsToInputStream(rows))
