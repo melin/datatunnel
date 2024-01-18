@@ -113,15 +113,14 @@ class DataTunnelSqlParser (spark: SparkSession,
 }
 
 class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[AnyRef] with Logging {
+  private val maskSql = DataTunnelUtils.maskDataTunnelSql(sqlText)
+  logInfo(s"Parsing command: $maskSql")
 
   override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan = withOrigin(ctx) {
-    val maskSql = DataTunnelUtils.maskSql(sqlText)
-    logInfo(s"Parsing command: $maskSql")
     DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
   }
 
   override def visitDistCpExpr(ctx: DistCpExprContext): LogicalPlan = withOrigin(ctx) {
-    logInfo(s"Parsing command: $sqlText")
     DistCpCommand(sqlText, ctx: DistCpExprContext)
   }
 

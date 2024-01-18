@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.util.CommonUtils;
+import io.github.melin.superior.common.relational.Statement;
 import io.github.melin.superior.parser.spark.SparkSqlHelper;
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser;
 import io.github.melin.superior.parser.spark.relational.DataTunnelExpr;
@@ -23,15 +24,19 @@ public class DataTunnelUtils {
     private static final String MASK_CHARS = "******";
 
     // 以下字段需要脱敏: password,secretAccessKey,sslKeyPassword,sslTruststorePassword,sslKeystorePassword
-    public static String maskSql(String originSql) {
-        DataTunnelExpr statement = (DataTunnelExpr) SparkSqlHelper.parseStatement(originSql);
-        maskOptions(statement.getSourceOptions());
-        maskOptions(statement.getSinkOptions());
+    public static String maskDataTunnelSql(String originSql) {
+        Statement statement = SparkSqlHelper.parseStatement(originSql);
+        if (!(statement instanceof DataTunnelExpr)) {
+            return originSql;
+        }
+        DataTunnelExpr dataTunnelExpr = (DataTunnelExpr) statement;
+        maskOptions(dataTunnelExpr.getSourceOptions());
+        maskOptions(dataTunnelExpr.getSinkOptions());
 
         StringBuilder sb = new StringBuilder("Datatunnel source('")
-                .append(statement.getSourceType()).append("') OPTIONS(\n");
+                .append(dataTunnelExpr.getSourceType()).append("') OPTIONS(\n");
         int index = 0;
-        for (Map.Entry<String, Object> entry : statement.getSourceOptions().entrySet()) {
+        for (Map.Entry<String, Object> entry : dataTunnelExpr.getSourceOptions().entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (value instanceof String) {
@@ -51,12 +56,12 @@ public class DataTunnelUtils {
             index++;
         }
         sb.append(")\n");
-        sb.append("sink('").append(statement.getSinkType()).append("')");
+        sb.append("sink('").append(dataTunnelExpr.getSinkType()).append("')");
 
-        if (!statement.getSinkOptions().isEmpty()) {
+        if (!dataTunnelExpr.getSinkOptions().isEmpty()) {
             sb.append(" OPTIONS(\n");
             index = 0;
-            for (Map.Entry<String, Object> entry : statement.getSinkOptions().entrySet()) {
+            for (Map.Entry<String, Object> entry : dataTunnelExpr.getSinkOptions().entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (value instanceof String) {
