@@ -37,10 +37,15 @@
                 <exclude>com.google.guava:guava:jar</exclude>
                 <exclude>org.apache.httpcomponents:*:jar</exclude>
                 <exclude>io.netty:*:jar</exclude>
+                <exclude>com.fasterxml.jackson:*:jar</exclude>
                 <exclude>com.fasterxml.jackson.core:*:jar</exclude>
                 <exclude>com.fasterxml.jackson.datatype:*:jar</exclude>
                 <exclude>com.fasterxml.jackson.dataformat:*:jar</exclude>
                 <exclude>org.apache.logging.log4j:*:jar</exclude>
+                <exclude>org.apache.spark:*:jar</exclude>
+                <exclude>org.tukaani:*:jar</exclude>
+                <exclude>com.thoughtworks.paranamer:*:jar</exclude>
+                <exclude>org.jetbrains:*:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
