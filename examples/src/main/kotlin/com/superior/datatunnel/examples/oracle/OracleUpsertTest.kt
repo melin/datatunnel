@@ -26,7 +26,7 @@ object OracleUpsertTest {
               databaseName = 'postgres',
               schemaName = 'public',
               tableName = 'pg_orders',
-              columns = ["*"],
+              columns = ["id", "code", "username", "\"2address\"", "create_time", "pt", "type"],
               condition = "id < 300000"
               )
             SINK("oracle") OPTIONS (
@@ -36,7 +36,7 @@ object OracleUpsertTest {
               schemaName = 'FLINKUSER',
               tableName = 'PG_ORDERS',
               truncate = true,
-              columns = ["*"],
+              columns = ["id", "code", "username", "address", "create_time", "pt", "type"],
               writeMode = 'upsert'
             )
         """.trimIndent()

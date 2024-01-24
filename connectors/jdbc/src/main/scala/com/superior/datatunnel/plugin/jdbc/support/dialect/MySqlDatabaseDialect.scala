@@ -65,9 +65,15 @@ class MySqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
     val tableName = parameters("tableName")
     val tableId = options.table;
 
-    val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
-      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
-    else StringUtils.split(columnsStr, ",").toList.asJava
+    val columnNames: java.util.List[String] = if ("*".equals(columnsStr)) {
+      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn)
+        .asScala.map(col => {
+          jdbcDialect.quoteIdentifier(col.name)
+        }).toList.asJava
+    } else {
+      StringUtils.split(columnsStr, ",")
+        .map(jdbcDialect.quoteIdentifier).toList.asJava
+    }
 
     if (truncate) {
       logInfo(s"prepare truncate table: ${tableId}")

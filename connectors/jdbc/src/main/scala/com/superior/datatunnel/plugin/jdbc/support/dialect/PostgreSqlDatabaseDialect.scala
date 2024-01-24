@@ -58,9 +58,14 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
     val tableName = parameters("tableName")
     val tableId = options.table;
 
-    val columnNames: java.util.List[String] = if ("*".equals(columnsStr))
-      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn).asScala.map(col => col.name).toList.asJava
-    else StringUtils.split(columnsStr, ",").toList.asJava
+    val columnNames: java.util.List[String] = if ("*".equals(columnsStr)) {
+      JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, conn)
+        .asScala.map(col => {
+          jdbcDialect.quoteIdentifier(col.name)
+        }).toList.asJava
+    } else {
+      StringUtils.split(columnsStr, ",").toList.map(colName => jdbcDialect.quoteIdentifier(colName)).asJava
+    }
 
     logInfo(s"table ${tableId} primary keys : ${primaryKeys.mkString(",")}")
     LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.mkString(",")}")
