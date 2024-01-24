@@ -1,4 +1,4 @@
-## 基于spark 打造的数据集成软件
+## 基于spark 的数据集成平台
 目前很多公司使用datax 同步数据，存在如下问题：
 1. hive 表不支持复杂数据类型(array, map, struct)读写，seatunnel 也有类似问题。基于spark 去实现，对数据类型以及数据格式支持，非常成熟
 2. hive 表数据格式支持有限，不支持parquet，数据湖iceberg, hudi, paimon 等。
