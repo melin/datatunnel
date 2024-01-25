@@ -17,8 +17,8 @@ mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.
 
 ### 构建Docker镜像(ARM)
 ```
-aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/w6m0k7l2
 docker logout public.ecr.aws
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/w6m0k7l2
 
 docker build -t spark-datatunnel:3.4.2 .
 docker tag spark-datatunnel:3.4.2 public.ecr.aws/w6m0k7l2/spark-datatunnel:3.4.2
@@ -51,8 +51,8 @@ aws ecr-public get-login-password --region us-east-1 | docker login --username A
 
 ### 构建AWS EMR Serverless镜像(AMD64)
 ```
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 480976988805.dkr.ecr.us-east-1.amazonaws.com
 docker logout public.ecr.aws
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 480976988805.dkr.ecr.us-east-1.amazonaws.com
 
 docker buildx build --platform linux/amd64 -f Dockerfile-EMR -t emr6.15-serverless-spark .
 docker tag emr6.15-serverless-spark:latest 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.15-serverless-spark:latest

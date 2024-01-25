@@ -5,3 +5,4 @@ target
 gen
 dependency-reduced-pom.xml
 kyuubi-extension-spark*
+hudi*
