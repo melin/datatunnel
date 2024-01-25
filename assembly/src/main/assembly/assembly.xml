@@ -4,7 +4,7 @@
     <id>package</id>
     <formats>
         <!-- docker add 支持zip -->
-        <format>zip</format>
+        <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
 
