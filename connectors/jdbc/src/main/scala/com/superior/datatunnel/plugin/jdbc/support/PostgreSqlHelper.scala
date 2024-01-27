@@ -27,7 +27,12 @@ object PostgreSqlHelper extends Logging{
           if (v == null) {
             "\\N".getBytes()
           } else {
-            v.toString.getBytes()
+            v match {
+              case decimal: java.math.BigDecimal =>
+                decimal.toPlainString.getBytes()
+              case _ =>
+                v.toString.getBytes()
+            }
           }
         }
 

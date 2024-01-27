@@ -24,7 +24,12 @@ object LoadDataSqlHelper extends Logging{
           if (v == null) {
             Array[Byte]('\\', 'N')
           } else {
-            v.toString.getBytes()
+            v match {
+              case decimal: java.math.BigDecimal =>
+                decimal.toPlainString.getBytes()
+              case _ =>
+                v.toString.getBytes()
+            }
           }
         }
 
