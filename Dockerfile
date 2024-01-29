@@ -1,7 +1,11 @@
-FROM public.ecr.aws/w6m0k7l2/spark:spark-3.4.2
+FROM public.ecr.aws/emr-serverless/spark/emr-6.15.0:latest
 
-COPY assembly/target/datatunnel-3.4.0/*.jar /opt/spark/jars/
+USER root
+# MODIFICATIONS GO HERE
+COPY assembly/target/datatunnel-3.4.0/*.jar /usr/lib/spark/jars/
 
-#ADD https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark3.4-bundle_2.12/0.14.1/hudi-spark3.4-bundle_2.12-0.14.1.jar /opt/spark/jars
 #ADD https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-4_2.12/1.8.0/kyuubi-extension-spark-3-4_2.12-1.8.0.jar /usr/lib/spark/jars/
-COPY *.jar /opt/spark/jars/
+COPY kyuubi-extension-spark-3-4_2.12-1.8.0.jar /usr/lib/spark/jars/
+
+# EMRS will run the image as hadoop
+USER hadoop:hadoop
