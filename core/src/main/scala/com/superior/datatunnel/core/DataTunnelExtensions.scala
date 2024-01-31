@@ -2,9 +2,8 @@ package com.superior.datatunnel.core
 
 import com.google.common.collect.Maps
 import io.github.melin.jobserver.spark.api.LogUtils
-import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
-import org.apache.spark.scheduler.{SparkListener, SparkListenerTaskEnd}
+import org.apache.spark.scheduler.{SparkListener, SparkListenerJobStart, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions
 
 import java.util.concurrent.ConcurrentMap
@@ -21,9 +20,19 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
         private var lastInputRecords = 0L
         private var lastOutputRecords = 0L
 
+        override def onJobStart(jobStart: SparkListenerJobStart): Unit = {
+          DataTunnelMetrics.resetMetrics()
+        }
+
         override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
           val metrics = taskEnd.taskMetrics
           if (metrics == null) {
+            return
+          }
+
+          val jobType = session.conf.get("spark.jobserver.superior.jobType")
+          logInfo("jobType: " + jobType)
+          if (!"data_tunnel".equals(jobType)) {
             return
           }
 
