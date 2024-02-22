@@ -9,7 +9,7 @@ object Mysql2RedshiftDemo {
     fun main(args: Array<String>) {
         val accessKeyId = ""
         val secretAccessKey = ""
-        val redshiftRoleArn = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
+        val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
                 .builder()
@@ -42,7 +42,7 @@ object Mysql2RedshiftDemo {
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
-                redshiftRoleArn = '${redshiftRoleArn}',
+                iamRole = '${iamRole}',
                 columns = ["*"]
             ) 
         """.trimIndent()

@@ -16,7 +16,7 @@ object Redshift2LogDemo {
     fun main(args: Array<String>) {
         val accessKeyId = "AKIAW77DWNKCQ6EV6AFI"
         val secretAccessKey = "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"
-        val redshiftRoleArn = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
+        val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
                 .builder()
@@ -37,7 +37,7 @@ object Redshift2LogDemo {
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
-                redshiftRoleArn = '${redshiftRoleArn}',
+                iamRole = '${iamRole}',
                 columns = ["*"]
             ) 
             SINK("log")

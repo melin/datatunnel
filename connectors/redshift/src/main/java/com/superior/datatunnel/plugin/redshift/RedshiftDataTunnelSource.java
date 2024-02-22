@@ -40,7 +40,7 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
         String accessKeyId = option.getAccessKeyId();
         String secretAccessKey = option.getSecretAccessKey();
         String region = option.getRegion();
-        String redshiftRoleArn = option.getRedshiftRoleArn();
+        String iamRole = option.getIamRole();
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.access.key", accessKeyId);
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.secret.key", secretAccessKey);
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.endpoint.region", region);
@@ -56,10 +56,10 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
                 .option("tempdir", option.getTempdir());
 
         if (!option.getParams().containsKey("aws_iam_role")) {
-            if (StringUtils.isBlank(redshiftRoleArn)) {
-                throw new DataTunnelException("redshiftRoleArn can not blank");
+            if (StringUtils.isBlank(iamRole)) {
+                throw new DataTunnelException("iamRole can not blank");
             }
-            Credentials credentials = Utils.queryCredentials(accessKeyId, secretAccessKey, region, redshiftRoleArn);
+            Credentials credentials = Utils.queryCredentials(accessKeyId, secretAccessKey, region, iamRole);
             LOGGER.info("aws credentials: " + credentials);
             reader.option("temporary_aws_access_key_id", credentials.accessKeyId())
                     .option("temporary_aws_secret_access_key", credentials.secretAccessKey())

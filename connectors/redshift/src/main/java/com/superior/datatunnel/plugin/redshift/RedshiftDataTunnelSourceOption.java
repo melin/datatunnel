@@ -53,5 +53,5 @@ public class RedshiftDataTunnelSourceOption extends BaseSourceOption {
     private String secretAccessKey;
 
     @OptionDesc("Redshift 关联的 IAM 角色, 需要给该角色添加AK/CK用户ARN sts:AssumeRole 信任, 用于生成临时ak/ck")
-    private String redshiftRoleArn;
+    private String iamRole;
 }

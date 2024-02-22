@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.sts.model.Credentials;
 
 public class Utils {
 
-    public static Credentials queryCredentials(String accessKeyId, String secretAccessKey, String region, String redshiftRoleArn) {
+    public static Credentials queryCredentials(String accessKeyId, String secretAccessKey, String region, String iamRole) {
         StsClient stsClient = StsClient.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
@@ -20,7 +20,7 @@ public class Utils {
                 .build();
 
         AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder()
-                .roleArn(redshiftRoleArn)
+                .roleArn(iamRole)
                 .roleSessionName("DataTunnelRoleSession")
                 .build();
 
