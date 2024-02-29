@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.starrocks</groupId>
             <artifactId>starrocks-spark-connector-3.4_2.12</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>

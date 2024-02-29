@@ -21,14 +21,14 @@
         <dependency>
             <groupId>com.github.housepower</groupId>
             <artifactId>clickhouse-spark-runtime-3.4_2.12</artifactId>
-            <version>0.7.2</version>
+            <version>0.7.3</version>
         </dependency>
 
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <classifier>all</classifier>
-            <version>0.4.6</version>
+            <version>0.6.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
