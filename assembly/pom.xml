@@ -43,6 +43,11 @@
             <artifactId>datatunnel-connector-redshift</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-kafka</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--
        <dependency>
            <groupId>com.superior.datatunnel</groupId>
