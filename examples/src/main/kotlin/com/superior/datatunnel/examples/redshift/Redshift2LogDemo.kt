@@ -15,7 +15,7 @@ object Redshift2LogDemo {
     @JvmStatic
     fun main(args: Array<String>) {
         val accessKeyId = "AKIAW77DWNKCQ6EV6AFI"
-        val secretAccessKey = "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"
+        val secretAccessKey = ""
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession

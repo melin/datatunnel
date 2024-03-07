@@ -30,7 +30,7 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
             return
           }
 
-          val jobType = session.conf.get("spark.jobserver.superior.jobType")
+          val jobType = session.conf.get("spark.jobserver.superior.jobType", "")
           logInfo("jobType: " + jobType)
           if (!"data_tunnel".equals(jobType)) {
             return
