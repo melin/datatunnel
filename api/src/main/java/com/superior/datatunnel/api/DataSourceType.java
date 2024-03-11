@@ -20,6 +20,7 @@ public enum DataSourceType {
     STARROCKS,
 
     HIVE,
+    SPARK, // HIVE 别名
     KAFKA,
     CLICKHOUSE,
     CASSANDRA,

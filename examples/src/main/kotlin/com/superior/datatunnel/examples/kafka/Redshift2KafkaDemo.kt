@@ -37,7 +37,8 @@ object Redshift2KafkaDemo {
             )
             SINK("kafka") OPTIONS (
                 topic = "demos",
-                "kafka.bootstrap.servers" = "172.18.5.46:9092"
+                servers = "172.18.5.146:9092"
+                
             )
         """.trimIndent()
 

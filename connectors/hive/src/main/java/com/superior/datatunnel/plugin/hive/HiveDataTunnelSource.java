@@ -25,7 +25,7 @@ public class HiveDataTunnelSource implements DataTunnelSource {
         if (StringUtils.isBlank(databaseName)) {
             databaseName = sourceOption.getSchemaName();
         }
-        if (StringUtils.isBlank(databaseName)) {
+        if (StringUtils.isBlank(databaseName) && StringUtils.isBlank(sourceOption.getCteSql())) {
             throw new IllegalArgumentException("databaseName can not blank");
         }
 

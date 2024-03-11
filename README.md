@@ -66,83 +66,9 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 | Bigquery      | √         | √            | [读写](doc/bigquery.md)  https://github.com/GoogleCloudDataproc/spark-bigquery-connector     |
 
 ## example
-```sql
--- support cte
-WITH tmp_demo_test2 AS (SELECT * FROM bigdata.test_demo_test2 where name is not null)
-datatunnel SOURCE('hive') OPTIONS(
-    databaseName='bigdata',
-    tableName='tmp_demo_test2',
-    columns=['*'])
-SINK('log') OPTIONS(numRows = 10)
+![Reshift 更新插入 Mysql](doc%2Fimgs%2Fredshift_mysql.png)
 
--- mysql to hive
-DATATUNNEL SOURCE("mysql") OPTIONS (
-  username = "dataworks",
-  password = "dataworks2021",
-  host = '10.5.20.20',
-  port = 3306,
-  databaseName = 'dataworks',
-  tableName = 'dc_dtunnel_datasource',
-  columns = ["*"]
-)
-SINK("hive") OPTIONS (
-  databaseName = "bigdata",
-  tableName = 'hive_dtunnel_datasource',
-  writeMode = 'overwrite',
-  columns = ["*"]
-);
-
--- mysql to hive，数据过滤处理
-DATATUNNEL SOURCE('mysql') OPTIONS (
-  username = 'dataworks',
-  password = 'dataworks2021',
-  host = '10.5.20.20',
-  port = 3306,
-  resultTableName = 'tdl_dc_job',
-  databaseName = 'dataworks',
-  tableName = 'dc_job',
-  columns = ['*']
-)
-TRANSFORM = 'select * from tdl_dc_job where type="spark_sql"'
-SINK('log') OPTIONS (
-  numRows = 10
-);
-
--- hive to mysql，字段映射
-DATATUNNEL SOURCE("hive") OPTIONS (
-  databaseName = 'bigdata',
-  tableName = 'hive_dtunnel_datasource',
-  columns = ['id', 'code', 'type', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
-)
-SINK("mysql") OPTIONS (
-  username = "dataworks",
-  password = "dataworks2021",
-  host = '10.5.20.20',
-  port = 3306,
-  databaseName = 'dataworks',
-  tableName = 'dc_datax_datasource_copy1',
-  writeMode = 'overwrite',
-  truncate = true,
-  columns = ['id', 'code', 'dstype', 'description', 'config', 'gmt_created', 'gmt_modified', 'creater', 'modifier']
-)
-    
--- maxcompute 同步 hive
-DATATUNNEL SOURCE("maxcompute") OPTIONS (
-    projectName = "datac_test2",
-    tableName = "my_table_struct",
-    accessKeyId = 'xxx',
-    secretAccessKey = 'xxxxx',
-    endpoint='http://service.cn-hangzhou.maxcompute.aliyun.com/api',
-    columns = ["*"]
-)
-SINK("hive") OPTIONS (
-  databaseName = "default",
-  tableName = 'my_table_struct',
-  writeMode = 'overwrite',
-  partitionSpec = 'pt=20231102',
-  columns = ["*"]
-)
-```
+[更多实例](examples%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fsuperior%2Fdatatunnel%2Fexamples)
 
 ## Spark DistCp 语法 (计划中)
 
@@ -152,7 +78,6 @@ s3、hdfs、ftp、sftp、ftps 之间直接传输文件
 distCp sourcePath options(键值对参数) 
 TO sinkPath options(键值对参数)
 ```
-
 
 ## 参考
 

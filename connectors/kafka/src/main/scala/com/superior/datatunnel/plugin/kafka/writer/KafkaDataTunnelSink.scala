@@ -18,7 +18,7 @@ class KafkaDataTunnelSink extends DataTunnelSink {
   override def sink(dataset: Dataset[Row], context: DataTunnelContext): Unit = {
     val sinkOption = context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
     val topic = sinkOption.getTopic
-    val options = sinkOption.getParams
+    val options = sinkOption.getProperties
 
     options.put("key.serializer", classOf[StringSerializer].getName)
     options.put("value.serializer", classOf[StringSerializer].getName)

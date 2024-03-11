@@ -1,1 +1,2 @@
 hive=com.superior.datatunnel.plugin.hive.HiveDataTunnelSource
+spark=com.superior.datatunnel.plugin.hive.HiveDataTunnelSource
