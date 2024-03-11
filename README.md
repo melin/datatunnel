@@ -65,10 +65,12 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 | snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake                     |
 | Bigquery      | √         | √            | [读写](doc/bigquery.md)  https://github.com/GoogleCloudDataproc/spark-bigquery-connector     |
 
-## example
+## [example](examples%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fsuperior%2Fdatatunnel%2Fexamples)
+
+> 结合平台管理数据源，避免在sql中直接写入数据源账号信息
+
 ![Reshift 更新插入 Mysql](doc%2Fimgs%2Fredshift_mysql.png)
 
-[更多实例](examples%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fsuperior%2Fdatatunnel%2Fexamples)
 
 ## Spark DistCp 语法 (计划中)
 
