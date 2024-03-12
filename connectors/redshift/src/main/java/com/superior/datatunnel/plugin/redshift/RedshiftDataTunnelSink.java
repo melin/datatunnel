@@ -1,10 +1,12 @@
 package com.superior.datatunnel.plugin.redshift;
 
+import com.gitee.melin.bee.util.RandomUniqueId;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sts.model.Credentials;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class RedshiftDataTunnelSink implements DataTunnelSink {
 
@@ -21,6 +25,59 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         SparkSession sparkSession = context.getSparkSession();
         RedshiftDataTunnelSinkOption option = (RedshiftDataTunnelSinkOption) context.getSinkOption();
+
+        final WriteMode writeMode = option.getWriteMode();
+        if (writeMode == WriteMode.BULKINSERT) {
+            throw new DataTunnelException("reshift writer not support Bulk insert");
+        }
+
+        String[] preactions = option.getPreactions();
+        String[] postactions = option.getPostactions();
+        String[] upsertKeyColumns = option.getUpsertKeyColumns();
+        if (preactions == null) {
+            preactions = new String[]{};
+        }
+        if (postactions == null) {
+            preactions = new String[]{};
+        }
+
+        String schemaName = option.getSchemaName();
+        String tableName = option.getTableName();
+        String dbtable;
+        if (writeMode == WriteMode.UPSERT) {
+            if (upsertKeyColumns == null) {
+                throw new DataTunnelException("UPSERT mode, upsertKeyColumns can not blank");
+            }
+
+            // io.github.spark_redshift_community.spark.redshift.TableName
+            String oldDbtable = "\"" + schemaName + "\".\"" + option.getTableName() + "\"";
+
+            // preactions
+            tableName = tableName + "_" + RandomUniqueId.getNewLowerString(12);
+            dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
+            // RedshiftWriter 自动创建不存在的表
+
+            String where = Arrays.stream(upsertKeyColumns)
+                    .map(col -> dbtable + "." + col + " = " + oldDbtable + "." + col)
+                    .collect(Collectors.joining(" and "));
+
+            // postactions
+            postactions = ArrayUtils.add(postactions, "BEGIN;");
+            String sql = "DELETE FROM " + oldDbtable + " USING " + dbtable + " WHERE " + where + ";";
+            postactions = ArrayUtils.add(postactions, sql);
+            sql = "INSERT INTO " + oldDbtable + " SELECT * FROM " + dbtable + ";";
+            postactions = ArrayUtils.add(postactions, sql);
+            sql = "DROP TABLE IF EXISTS " + dbtable + ";";
+            postactions = ArrayUtils.add(postactions, sql);
+            postactions = ArrayUtils.add(postactions, "END;");
+        } else if (writeMode == WriteMode.OVERWRITE) {
+            dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
+            // preactions
+            String sql = "TRUNCATE TABLE " + dbtable + ";";
+            preactions = ArrayUtils.add(preactions, sql);
+        } else {
+            dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
+        }
 
         String jdbcUrl = option.getJdbcUrl();
         if (StringUtils.isBlank(jdbcUrl)) {
@@ -59,14 +116,16 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                     .option("temporary_aws_session_token", credentials.sessionToken());
         }
 
-        final WriteMode writeMode = option.getWriteMode();
-        SaveMode mode = SaveMode.Append;
-        if (WriteMode.OVERWRITE == writeMode) {
-            mode = SaveMode.Overwrite;
+        if (preactions != null && preactions.length > 0) {
+            dataFrameWriter.option("preactions", StringUtils.join(preactions, ""));
         }
 
-        dataFrameWriter.option("dbtable", option.getSchemaName() + "." + option.getTableName());
-        dataFrameWriter.mode(mode).save();
+        if (postactions != null && postactions.length > 0) {
+            dataFrameWriter.option("postactions", StringUtils.join(postactions, ""));
+        }
+
+        dataFrameWriter.option("dbtable", dbtable);
+        dataFrameWriter.mode(SaveMode.Append).save();
     }
 
     @Override

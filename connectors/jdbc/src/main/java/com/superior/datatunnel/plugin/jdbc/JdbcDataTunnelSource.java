@@ -100,7 +100,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
         Connection connection = buildConnection(jdbcUrl, options);
-        JdbcDialect jdbcDialect = JdbcDialects.get(jdbcUrl);
 
         com.gitee.melin.bee.core.jdbc.enums.DataSourceType dsType =
                 com.gitee.melin.bee.core.jdbc.enums.DataSourceType.valueOf(dataSourceType.name());

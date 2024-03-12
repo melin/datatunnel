@@ -37,6 +37,9 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "writeMode can not null")
     private WriteMode writeMode = WriteMode.APPEND;
 
+    @OptionDesc("upsert 写入数据时，指定表主键，如果有多个主键，逗号分隔")
+    private String[] upsertKeyColumns;
+
     @NotNull(message = "region can not blank")
     private String region;
 
@@ -58,7 +61,7 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
     private String iamRole;
 
     @OptionDesc("Redshift 关联的 IAM 角色, 需要给该角色添加AK/CK用户ARN sts:AssumeRole 信任")
-    private String preactions;
+    private String[] preactions;
 
-    private String postactions;
+    private String[] postactions;
 }

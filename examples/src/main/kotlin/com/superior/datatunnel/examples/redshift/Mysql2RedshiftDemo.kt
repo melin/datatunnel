@@ -7,8 +7,8 @@ object Mysql2RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = ""
-        val secretAccessKey = ""
+        val accessKeyId = "AKIAW77DWNKCQ6EV6AFI"
+        val secretAccessKey = "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"
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
@@ -32,12 +32,12 @@ object Mysql2RedshiftDemo {
             ) 
             SINK("redshift") OPTIONS (
                 username = "admin",
-                password = "Admin2023",
-                host = '',
-                port = 5439,
-                databaseName = 'dev',
+                password = "Admin2024",
+                jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
                 schemaName = 'public',
                 tableName = 'users',
+                writeMode = 'UPSERT',
+                upsertKeyColumns = ['id'],
                 tempdir = 's3a://datacyber/redshift_temp/',
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
