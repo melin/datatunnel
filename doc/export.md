@@ -12,7 +12,7 @@ export table tablename [PARTITION (part_column="value"[, ...])] TO 'export_file_
 -- 导出指定分区数据
 with
 tdl_test_with as (select * from test_users_dt where ds ='20171011')
-export table tdl_test_with TO 'tdl_test_with' options (compression=true)
+export table tdl_test_with TO 's3a:///demos/tdl_test_with.csv'
 
 -- 从mysql 导出数据
 CREATE TEMPORARY VIEW mysql_demos
@@ -23,7 +23,7 @@ OPTIONS (
   user 'root',
   password 'root2023'
 )
-export table mysql_demos TO '/Users/melin/Documents/users.csv' options(delimiter=';')
+export table mysql_demos TO 'hdfs:///Users/melin/Documents/users.csv' options(delimiter=';')
 ```
 
 ### 参数
