@@ -180,4 +180,12 @@ public class CommonUtils {
 
         return result.trim();
     }
+
+    public static String getCurrentDatabase(String schemaName) {
+        if (schemaName != null) {
+            return schemaName;
+        } else {
+            return SparkSession.getActiveSession().get().catalog().currentDatabase();
+        }
+    }
 }
