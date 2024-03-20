@@ -32,6 +32,8 @@ public class HbaseDataTunnelSource implements DataTunnelSource {
         DataFrameReader reader = sparkSession.read().format("org.apache.hadoop.hbase.spark")
                 .option("hbase.table", option.getTableName())
                 .option("hbase.columns.mapping", StringUtils.join(option.getColumns(), ","));
+        option.getProperties().forEach(reader::option);
+
         return reader.load();
     }
 
