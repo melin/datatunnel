@@ -32,13 +32,14 @@
         <spark.version>3.4.2</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <slf4j.version>2.0.12</slf4j.version>
-        <log4j2.version>2.23.0</log4j2.version>
-        <bee.version>1.7.0</bee.version>
+        <log4j2.version>2.23.1</log4j2.version>
+        <bee.version>1.7.2</bee.version>
         <hudi.version>0.14.1</hudi.version>
         <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>
         <jedis.version>4.4.6</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
+        <zip4j.version>2.11.5</zip4j.version>
 
         <awssdk.version>2.21.20</awssdk.version>
         <aws.java.sdk.version>1.12.586</aws.java.sdk.version>
@@ -48,7 +49,7 @@
         <spark-redis.version>3.1.0</spark-redis.version>
         <spark-excel.version>3.4.2_0.20.3</spark-excel.version>
         <spark-elasticsearch.version>7.17.15</spark-elasticsearch.version>
-        <sql-parser.version>4.0.7</sql-parser.version>
+        <sql-parser.version>4.0.8</sql-parser.version>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
     </properties>

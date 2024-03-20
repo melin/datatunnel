@@ -72,6 +72,16 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 ![Reshift 更新插入 Mysql](doc%2Fimgs%2Fredshift_mysql.png)
 
 
+## 数据导出: Export
+
+文档: [export.md](doc%2Fexport.md)
+
+```
+-- 通过文件名后缀，指定导出文件格式，目前支持：txt、csv、json、excel 三种文件
+WITH common_table_expression [ , ... ]
+export table tablename [PARTITION (part_column="value"[, ...])] TO 'export_file_name.[txt|csv|json|xlsx]' [options(key=value)]
+```
+
 ## Spark DistCp 语法 (计划中)
 
 s3、hdfs、ftp、sftp、ftps 之间直接传输文件
@@ -80,6 +90,7 @@ s3、hdfs、ftp、sftp、ftps 之间直接传输文件
 distCp sourcePath options(键值对参数) 
 TO sinkPath options(键值对参数)
 ```
+
 
 ## 参考
 
