@@ -1,0 +1,1 @@
+hbase=com.superior.datatunnel.plugin.hbase.HbaseDataTunnelSource
