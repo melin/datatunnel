@@ -359,7 +359,7 @@
         <profile>
             <id>hadoop3</id>
             <properties>
-                <hadoop.version>3.3.6</hadoop.version>
+                <hadoop.version>3.3.4</hadoop.version>
                 <hive.version>2.3.9</hive.version>
             </properties>
         </profile>

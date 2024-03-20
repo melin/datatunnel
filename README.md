@@ -51,7 +51,7 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 | hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                                |
 | jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，guass，postgresql                 |
 | hive          | √         | √            | [读写](doc/hive.md)                                                                      |
-| hbase         | √         | √            | 读                                                                                      |
+| hbase         | √         | √            | 读  [hbase spark config](https://github.com/apache/hbase-connectors/blob/master/spark/hbase-spark/src/main/scala/org/apache/hadoop/hbase/spark/datasources/HBaseSparkConf.scala)                                                              |
 | clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                               |
 | cassandra     | √         | √            | [读写](doc/cassandra.md)                                                                 |
 | elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                          |
