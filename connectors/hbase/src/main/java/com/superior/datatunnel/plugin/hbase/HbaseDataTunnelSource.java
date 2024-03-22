@@ -1,11 +1,10 @@
 package com.superior.datatunnel.plugin.hbase;
 
 import com.superior.datatunnel.api.DataTunnelContext;
+import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.spark.HBaseContext;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -22,19 +21,21 @@ public class HbaseDataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         SparkSession sparkSession = context.getSparkSession();
         HbaseDataTunnelSourceOption option = (HbaseDataTunnelSourceOption) context.getSourceOption();
-
-        HBaseConfiguration conf = new HBaseConfiguration();
-        option.getProperties().forEach(conf::set);
-        conf.set("hbase.zookeeper.quorum", option.getZookeeperQuorum());
-        // the latest HBaseContext will be used afterwards
-        new HBaseContext(sparkSession.sparkContext(), conf, null);
+        sparkSession.sparkContext().hadoopConfiguration().set("hbase.zookeeper.quorum", option.getZookeeperQuorum());
 
         DataFrameReader reader = sparkSession.read().format("org.apache.hadoop.hbase.spark")
                 .option("hbase.table", option.getTableName())
+                .option("hbase.spark.use.hbasecontext", "false")
                 .option("hbase.columns.mapping", StringUtils.join(option.getColumns(), ","));
         option.getProperties().forEach(reader::option);
 
-        return reader.load();
+        Dataset<Row> df = reader.load();
+        try {
+            df.createTempView("test");
+            return sparkSession.sql("select * from test where col1 = 'value15'");
+        } catch (Exception e) {
+            throw new DataTunnelException("create hbase view: " + e.getMessage(), e);
+        }
     }
 
     @Override

@@ -48,58 +48,58 @@
             <artifactId>datatunnel-connector-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- <dependency>
+             <groupId>com.superior.datatunnel</groupId>
+             <artifactId>datatunnel-connector-hbase</artifactId>
+             <version>${project.version}</version>
+         </dependency>
+
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-hbase</artifactId>
+            <artifactId>datatunnel-connector-snowflake</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-clickhouse</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-ftp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-starrocks</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-doris</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-redis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-elasticsearch</artifactId>
+            <version>${project.version}</version>
+        </dependency>
        <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-snowflake</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-clickhouse</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-ftp</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-starrocks</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-doris</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-redis</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-elasticsearch</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-      <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-s3</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>com.superior.datatunnel</groupId>
-           <artifactId>datatunnel-connector-file</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       -->
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-s3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-file</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        -->
     </dependencies>
 
     <build>
