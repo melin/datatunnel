@@ -46,7 +46,9 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
 
     val cols = options.parameters.get("columns").get
     if (!"*".contains(cols)) {
-      return StringUtils.split(cols, ",")
+      return StringUtils.split(cols, ",").map {col =>
+        jdbcDialect.quoteIdentifier(col)
+      }
     }
 
     if (tableSchema.isEmpty) {
