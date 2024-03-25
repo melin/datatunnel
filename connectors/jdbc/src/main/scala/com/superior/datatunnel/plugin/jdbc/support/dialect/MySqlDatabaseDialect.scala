@@ -1,6 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 import com.gitee.melin.bee.util.JdbcUtils
-import com.superior.datatunnel.api.DataSourceType
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, LoadDataSqlHelper}
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
@@ -30,6 +30,11 @@ class MySqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
       val version = getDatabaseVersion(conn)
       val columns = getColumns(rddSchema, tableSchema)
       val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
+
+      if (columns.length != rddSchema.fields.length) {
+        val msg = s"columns 与 rddSchema.fields 数量不一致, ${columns.length}, ${rddSchema.fields.length}"
+        throw new DataTunnelException(msg)
+      }
 
       val builder = new StringBuilder()
       var sql = s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"

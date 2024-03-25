@@ -4,6 +4,7 @@ import com.gitee.melin.bee.core.jdbc.relational.DatabaseVersion
 import com.gitee.melin.bee.util.JdbcUtils
 import com.superior.datatunnel.api.DataSourceType
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils._
+import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
@@ -42,6 +43,11 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
   protected def getColumns(
       rddSchema: StructType,
       tableSchema: Option[StructType]): Array[String] = {
+
+    val cols = options.parameters.get("columns").get
+    if (!"*".contains(cols)) {
+      return StringUtils.split(cols, ",")
+    }
 
     if (tableSchema.isEmpty) {
       rddSchema.fields.map(x => jdbcDialect.quoteIdentifier(x.name))

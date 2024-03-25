@@ -39,7 +39,7 @@ object Redshift2MysqlDemo {
         //spark.sql("select * from spark_my_table").show()
 
         val sql = """
-            WITH tmp_demo_test2 AS (select id, name as userId, age from spark_my_table)
+            WITH tmp_demo_test2 AS (select id, name userId, age from spark_my_table)
             datatunnel SOURCE('spark') OPTIONS(
                 tableName='tmp_demo_test2')
             SINK("mysql") OPTIONS (
@@ -49,7 +49,8 @@ object Redshift2MysqlDemo {
               port = 3306,
               schemaName = 'demos',
               tableName = 'users',
-              writeMode = 'UPSERT')
+              writeMode = 'UPSERT',
+              columns = ['id', 'userId', 'age'])
         """.trimIndent()
 
         spark.sql(sql)
