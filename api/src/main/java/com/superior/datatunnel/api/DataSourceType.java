@@ -25,6 +25,7 @@ public enum DataSourceType {
     CLICKHOUSE,
     CASSANDRA,
     HBASE,
+    MONGODB,
     LOG,
     EXCEL,
     SFTP,

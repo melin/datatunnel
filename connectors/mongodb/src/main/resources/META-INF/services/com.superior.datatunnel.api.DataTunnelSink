@@ -1,0 +1,2 @@
+mongodb=com.superior.datatunnel.plugin.mongodb.MongodbDataTunnelSink
+
