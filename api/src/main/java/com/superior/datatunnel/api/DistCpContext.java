@@ -1,31 +1,20 @@
 package com.superior.datatunnel.api;
 
-import com.superior.datatunnel.api.model.DistCpBaseSinkOption;
-import com.superior.datatunnel.api.model.DistCpBaseSourceOption;
+import com.superior.datatunnel.api.model.DistCpOption;
 import org.apache.spark.sql.SparkSession;
 
 public class DistCpContext {
 
-    private DistCpBaseSourceOption sourceOption;
-
-    private DistCpBaseSinkOption sinkOption;
+    private DistCpOption option;
 
     private SparkSession sparkSession = SparkSession.active();
 
-    public DistCpBaseSourceOption getSourceOption() {
-        return sourceOption;
+    public DistCpOption getOption() {
+        return option;
     }
 
-    public void setSourceOption(DistCpBaseSourceOption sourceOption) {
-        this.sourceOption = sourceOption;
-    }
-
-    public DistCpBaseSinkOption getSinkOption() {
-        return sinkOption;
-    }
-
-    public void setSinkOption(DistCpBaseSinkOption sinkOption) {
-        this.sinkOption = sinkOption;
+    public void setOption(DistCpOption option) {
+        this.option = option;
     }
 
     public SparkSession getSparkSession() {

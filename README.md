@@ -42,29 +42,31 @@ datatunnel help (source | sink | all) ('数据源类型名称')
 
 JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，支持Copy From 导入数据，Copy From 支持Upsert 能力
 
-| 数据源           | Reader(读) | Writer(写)    | 文档                                                                                     |
-|:--------------|:----------| :------      |:---------------------------------------------------------------------------------------|
-| file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                               |
-| sftp          | √         | √            | [读写](doc/sftp.md) 支持excel, json，csv, parquet、orc、text 文件                               |                       
-| ftp           | √         | √            | [读写](doc/ftp.md)  支持excel, json，csv, parquet、orc、text 文件                               |
-| s3            | √         | √            | [读写](doc/s3.md)  支持excel, json，csv, parquet、orc、text 文件                                |
-| hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                                |
-| jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，guass，postgresql                 |
-| hive          | √         | √            | [读写](doc/hive.md)                                                                      |
-| hbase         | √         | √            | 读  [hbase spark config](https://github.com/apache/hbase-connectors/blob/master/spark/hbase-spark/src/main/scala/org/apache/hadoop/hbase/spark/datasources/HBaseSparkConf.scala)                                                              |
-| clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                               |
-| cassandra     | √         | √            | [读写](doc/cassandra.md)                                                                 |
-| elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                          |
-| log           |           | √            | [写](doc/log.md)                                                                        |
-| kafka         | √         | √            | [写](doc/kafka.md)                                                                      |
-| doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                            |
-| starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                                    |
-| redis         |           | √            | [写](doc/redis.md)                                                                      |
-| aerospike     | √         | √            | [读写](doc/aerospike.md) 相比redis 性能更好                                                    |
-| maxcompute    | √         | √            | [读写](doc/maxcompute.md)                                                                |
-| redshift      | √         | √            | [读写](doc/redshift.md)  https://github.com/spark-redshift-community/spark-redshift      |
-| snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake                 |
-| Bigquery      | √         | √            | [读写](doc/bigquery.md)  https://github.com/GoogleCloudDataproc/spark-bigquery-connector |
+| 数据源           | Reader(读) | Writer(写)    | 文档                                                                                                                                                                              |
+|:--------------|:----------| :------      |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                                                                                                                        |
+| sftp          | √         | √            | [读写](doc/sftp.md) 支持excel, json，csv, parquet、orc、text 文件                                                                                                                        |                       
+| ftp           | √         | √            | [读写](doc/ftp.md)  支持excel, json，csv, parquet、orc、text 文件                                                                                                                        |
+| s3            | √         | √            | [读写](doc/s3.md)  支持excel, json，csv, parquet、orc、text 文件                                                                                                                         |
+| hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                                                                                                                         |
+| jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，guass，postgresql                                                                                                          |
+| hive          | √         | √            | [读写](doc/hive.md)                                                                                                                                                               |
+| hbase         | √         | √            | 读  [hbase spark config](https://github.com/apache/hbase-connectors/blob/master/spark/hbase-spark/src/main/scala/org/apache/hadoop/hbase/spark/datasources/HBaseSparkConf.scala) |
+| clickhouse    | √         | √            | [读写](doc/clickhouse.md) 基于 spark-clickhouse-connector 项目                                                                                                                        |
+| cassandra     | √         | √            | [读写](doc/cassandra.md)                                                                                                                                                          |
+| elasticsearch |           | √            | [读写](doc/elasticsearch.md) elasticsearch 7 版本                                                                                                                                   |
+| log           |           | √            | [写](doc/log.md)                                                                                                                                                                 |
+| kafka         | √         | √            | [写](doc/kafka.md)                                                                                                                                                               |
+| doris         | √         | √            | [读写](doc/doris.md) 基于 doris-spark-connector                                                                                                                                     |
+| starrocks     | √         | √            | [读写](doc/starrocks.md) 基于 starrocks-spark-connector                                                                                                                             |
+| redis         |           | √            | [写](doc/redis.md)                                                                                                                                                               |
+| aerospike     | √         | √            | [读写](doc/aerospike.md) 相比redis 性能更好                                                                                                                                             |
+| maxcompute    | √         | √            | [读写](doc/maxcompute.md)                                                                                                                                                         |
+| redshift      | √         | √            | [读写](doc/redshift.md)  https://github.com/spark-redshift-community/spark-redshift                                                                                               |
+| snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake                                                                                                          |
+| Bigquery      | √         | √            | [读写](doc/bigquery.md)  https://github.com/GoogleCloudDataproc/spark-bigquery-connector                                                                                          |
+| Mongodb       | √         | √            | [读写]                                                                                                                                                                            |
+| HDFS          | √         | √            | [读写] 例如 阿里云 rds 数据导出 oss， 再通过discp 写入到本地hdfs                                                                                                                                    |
 
 ## [example](examples%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fsuperior%2Fdatatunnel%2Fexamples)
 

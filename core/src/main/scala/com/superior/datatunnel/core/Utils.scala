@@ -1,7 +1,7 @@
 package com.superior.datatunnel.core
 
 import com.gitee.melin.bee.core.extension.ExtensionLoader
-import com.superior.datatunnel.api.{DataSourceType, DataTunnelSink, DataTunnelSource, DistCpSink, DistCpSource}
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelSink, DataTunnelSource, DistCpAction}
 
 object Utils {
 
@@ -15,13 +15,8 @@ object Utils {
     (source, sink)
   }
 
-  def getDistCpConnector(sourceType: DataSourceType, sinkType: DataSourceType): (DistCpSource, DistCpSink) = {
-
-    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DistCpSource])
-    val writeLoader = ExtensionLoader.getExtensionLoader(classOf[DistCpSink])
-
-    val source: DistCpSource = readLoader.getExtension(sourceType.name().toLowerCase)
-    val sink: DistCpSink = writeLoader.getExtension(sinkType.name().toLowerCase)
-    (source, sink)
+  def getDistCpAction(): DistCpAction = {
+    val readLoader = ExtensionLoader.getExtensionLoader(classOf[DistCpAction])
+    readLoader.getExtension("distcp")
   }
 }

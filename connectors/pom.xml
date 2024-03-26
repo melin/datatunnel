@@ -33,7 +33,6 @@
         <module>snowflake</module>
         <module>hbase</module>
         <module>mongodb</module>
-        <module>distcp</module>
     </modules>
 
     <dependencies>

@@ -17,6 +17,7 @@
         <module>core</module>
         <module>assembly</module>
         <module>connectors</module>
+        <module>distcp</module>
         <module>examples</module>
     </modules>
 
