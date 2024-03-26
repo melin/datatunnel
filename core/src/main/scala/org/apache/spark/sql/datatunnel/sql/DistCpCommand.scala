@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 case class DistCpCommand(sqlText: String, ctx: DistCpExprContext) extends LeafRunnableCommand with Logging{
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
-    val sourceOpts = DataTunnelUtils.convertOptions(ctx.sourceOpts)
+    val sourceOpts = DataTunnelUtils.convertOptions(ctx.options)
 
     val distCpAction = Utils.getDistCpAction()
     val errorMsg = s"distcp option not have parameter: "
