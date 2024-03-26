@@ -132,6 +132,12 @@
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-hdfs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-s3</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -7,6 +7,7 @@ public enum FileFormat {
     ORC,
     HUDI,
     ICEBERG,
+    PAIMON,
     AVRO,
     EXCEL,
     TEXT

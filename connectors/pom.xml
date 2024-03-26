@@ -17,6 +17,7 @@
         <module>log</module>
         <module>clickhouse</module>
         <module>file</module>
+        <module>hdfs</module>
         <module>elasticsearch</module>
         <module>hive</module>
         <module>jdbc</module>

@@ -40,6 +40,7 @@
         <jedis.version>4.4.6</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
         <zip4j.version>2.11.5</zip4j.version>
+        <hadoop.verison>3.0.0-cdh6.3.2</hadoop.verison>
 
         <awssdk.version>2.21.20</awssdk.version>
         <aws.java.sdk.version>1.12.586</aws.java.sdk.version>
