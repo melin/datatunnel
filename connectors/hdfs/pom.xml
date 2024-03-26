@@ -21,14 +21,14 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <version>${hadoop.verison}</version>
+            <version>${hadoop.version}</version>
             <scope>${libScope}</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aliyun</artifactId>
-            <version>${hadoop.verison}</version>
+            <version>${hadoop.version}</version>
         </dependency>
     </dependencies>
 
