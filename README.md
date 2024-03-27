@@ -85,8 +85,7 @@ WITH common_table_expression [ , ... ]
 export table tablename [PARTITION (part_column="value"[, ...])] TO 'export_file_name.[txt|csv|json|xlsx]' [options(key=value)]
 ```
 
-## Spark DistCp 语法 (计划中)
-
+## Spark DistCp 语法
 s3、hdfs、ftp、sftp、ftps 之间直接传输文件
 
 ```sql
@@ -94,6 +93,35 @@ distCp sourcePath options(键值对参数)
 TO sinkPath options(键值对参数)
 ```
 
+```sql
+set spark.hadoop.fs.oss.endpoint = oss-cn-hangzhou.aliyuncs.com;
+set spark.hadoop.fs.oss.accessKeyId = xxx;
+set spark.hadoop.fs.oss.accessKeySecret = xxx;
+set spark.hadoop.fs.oss.attempts.maximum = 3;
+set spark.hadoop.fs.oss.connection.timeout = 10000;
+set spark.hadoop.fs.oss.connection.establish.timeout = 10000;
+set spark.hadoop.fs.oss.impl = org.apache.hadoop.fs.aliyun.oss.AliyunOSSFileSystem;
+-- mysql 数据导出到 oss
+DATATUNNEL SOURCE("mysql") OPTIONS (
+  username = "root",
+  password = "root2023",
+  host = '172.18.5.44',
+  port = 3306,
+  databaseName = 'demos',
+  tableName = 'orders',
+  columns = ["*"]
+) 
+SINK("hdfs") OPTIONS (
+  filePath = "oss://melin1204/users",
+  writeMode = "overwrite"
+)
+
+-- oss 复制到 hdfs
+DISTCP OPTIONS (
+  srcPaths = ['oss://melin1204/users'],
+  destPath = "hdfs://cdh1:8020/temp"
+)
+```
 
 ## 参考
 

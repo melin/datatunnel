@@ -60,34 +60,34 @@ class Accumulators(sparkSession: SparkSession) extends Serializable {
   def getOutputText: String = {
     val intFormatter = java.text.NumberFormat.getIntegerInstance
     s"""--Raw data--
-       |Data copied: ${FileUtils.byteCountToDisplaySize(bytesCopied.value)}
-       |Data skipped (already existing files, dry-run and failures): ${FileUtils
+       |\tData copied: ${FileUtils.byteCountToDisplaySize(bytesCopied.value)}
+       |\tData skipped (already existing files, dry-run and failures): ${FileUtils
       .byteCountToDisplaySize(bytesSkipped.value)}
        |--Files--
-       |Files copied (new files and overwritten/updated files): ${intFormatter
+       |\tFiles copied (new files and overwritten/updated files): ${intFormatter
       .format(filesCopied.value)}
-       |Files overwritten/updated: ${intFormatter.format(
+       |\tFiles overwritten/updated: ${intFormatter.format(
       filesUpdatedOrOverwritten.value
     )}
-       |Skipped files for copying (already existing files, dry-run and failures): ${intFormatter
+       |\tSkipped files for copying (already existing files, dry-run and failures): ${intFormatter
       .format(filesSkipped.value)}
-       |Failed files during copy: ${intFormatter.format(filesFailed.value)}
+       |\tFailed files during copy: ${intFormatter.format(filesFailed.value)}
        |--Folders--
-       |Folders created: ${intFormatter.format(foldersCreated.value)}
-       |Skipped folder creates (already existing folders, dry-run and failures): ${intFormatter
+       |\tFolders created: ${intFormatter.format(foldersCreated.value)}
+       |\tSkipped folder creates (already existing folders, dry-run and failures): ${intFormatter
       .format(foldersSkipped.value)}
-       |Failed folder creates: ${intFormatter.format(foldersFailed.value)}
+       |\tFailed folder creates: ${intFormatter.format(foldersFailed.value)}
        |--Deletes--
-       |Successful delete operations: ${intFormatter.format(
+       |\tSuccessful delete operations: ${intFormatter.format(
       deleteOperationsSuccessful.value
     )}
-       |Skipped delete operations (files/folders already missing, dry-run and failures): ${intFormatter
+       |\tSkipped delete operations (files/folders already missing, dry-run and failures): ${intFormatter
       .format(deleteOperationsSkipped.value)}
-       |Failed delete operations: ${intFormatter.format(
+       |\tFailed delete operations: ${intFormatter.format(
       deleteOperationsFailed.value
     )}
        |--Exception counts--
-       |""".stripMargin ++
+       |\t""".stripMargin ++
       exceptionCount.value.asScala.toSeq
         .sortWith { case ((_, v1), (_, v2)) => v1 > v2 }
         .map { case (k, v) => s"$k: ${intFormatter.format(v)}" }

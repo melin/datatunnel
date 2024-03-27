@@ -1,7 +1,7 @@
 package com.superior.datatunnel.distcp.utils
 
 import com.superior.datatunnel.api.model.DistCpOption
-import com.superior.datatunnel.distcp.SparkDistCP.KeyedCopyDefinition
+import com.superior.datatunnel.distcp.HdfsDistCpAction.KeyedCopyDefinition
 
 import java.net.URI
 import java.util.UUID

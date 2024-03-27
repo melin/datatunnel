@@ -1,7 +1,8 @@
 package com.superior.datatunnel.distcp.objects
 
+import com.superior.datatunnel.distcp.HdfsDistCpAction.KeyedCopyDefinition
+
 import java.net.URI
-import com.superior.datatunnel.distcp.SparkDistCP.KeyedCopyDefinition
 
 /** Definition of a single copy
   *
