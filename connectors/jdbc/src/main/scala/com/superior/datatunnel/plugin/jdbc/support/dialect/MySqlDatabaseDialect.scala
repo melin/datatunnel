@@ -46,7 +46,7 @@ class MySqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
           .map(col => s"\t$col = new.$col").mkString(",\n")
         builder.append(sql);
       } else {
-        builder.append(sql).append("\nON DUPLICATE KEY UPDATE\n")
+        builder.append("\nON DUPLICATE KEY UPDATE\n")
         sql = columns.filter(!keyColumns.contains(_))
           .map(col => s"\t$col = VALUES($col)").mkString(",\n")
         builder.append(sql);
