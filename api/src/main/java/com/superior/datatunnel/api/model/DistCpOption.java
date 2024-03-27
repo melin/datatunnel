@@ -1,7 +1,6 @@
 package com.superior.datatunnel.api.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class DistCpOption implements Serializable {
 
