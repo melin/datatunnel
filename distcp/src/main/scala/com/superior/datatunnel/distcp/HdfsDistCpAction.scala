@@ -7,6 +7,7 @@ import com.superior.datatunnel.distcp.objects._
 import com.superior.datatunnel.distcp.utils.PathUtils
 import org.apache.hadoop.fs.Path
 import com.superior.datatunnel.distcp.utils._
+import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.spark.{HashPartitioner, TaskContext}
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
@@ -69,7 +70,9 @@ class HdfsDistCpAction extends DistCpAction with Logging {
     val allResults = copyResult union deleteResult
     allResults.foreach(_ => ())
 
-    logInfo("SparkDistCP Run Statistics\n" + accumulators.getOutputText)
+    val outputText = accumulators.getOutputText
+    logInfo(s"Spark DistCP Run Statistics:\n${outputText}")
+    LogUtils.info(s"Spark DistCP Run Statistics:\n${outputText}")
   }
 }
 

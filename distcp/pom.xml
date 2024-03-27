@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <artifactId>datatunnel-api</artifactId>
+            <artifactId>datatunnel-common</artifactId>
             <groupId>com.superior.datatunnel</groupId>
             <version>${project.version}</version>
         </dependency>
