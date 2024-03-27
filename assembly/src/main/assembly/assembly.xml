@@ -22,6 +22,8 @@
                 <exclude>*:commons-io:jar</exclude>
                 <exclude>*:commons-logging:jar</exclude>
                 <exclude>*:commons-net:jar</exclude>
+                <exclude>*:hadoop-client-api:jar</exclude>
+                <exclude>*:hadoop-client-runtime:jar</exclude>
 
                 <exclude>*:superior-*-parser-*:jar</exclude>
                 <exclude>com.alibaba:fastjson:jar</exclude>
