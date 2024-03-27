@@ -103,10 +103,10 @@ TO sinkPath options(键值对参数)
 | dryrun          |                      | Perform a trial run with no changes made           |
 | maxFilesPerTask | 1000                 | Maximum number of files to copy in a single Spark task        |
 | maxBytesPerTask | 1073741824L          | Maximum number of bytes to copy in a single Spark task        |
-| filters          |                      | The path to a file containing a list of pattern strings, one string per line, such that paths matching the pattern will be excluded from the copy.           |
 | numListstatusThreads  | 10   | Number of threads to use for building file listing          |
 | consistentPathBehaviour   | false | Revert the path behaviour when using overwrite or update to the path behaviour of non-overwrite/non-update          |
-| filterNot          |                      |            |
+| includes          |                      | |
+| excludes          |                      | |
 
 ```sql
 set spark.hadoop.fs.oss.endpoint = oss-cn-hangzhou.aliyuncs.com;
@@ -135,7 +135,9 @@ SINK("hdfs") OPTIONS (
 DISTCP OPTIONS (
   srcPaths = ['oss://melin1204/users'],
   destPath = "hdfs://cdh1:8020/temp",
-  overwrite = true
+  overwrite = true,
+  delete = true,
+  excludes = [".*/_SUCCESS"]
 )
 ```
 

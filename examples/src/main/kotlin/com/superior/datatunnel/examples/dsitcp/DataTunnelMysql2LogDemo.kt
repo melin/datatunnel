@@ -40,7 +40,10 @@ object DataTunnelMysql2LogDemo {
         val sql = """
             DISTCP OPTIONS (
               srcPaths = ['oss://melin1204/users'],
-              destPath = "hdfs://cdh1:8020/temp"
+              destPath = "hdfs://cdh1:8020/temp",
+              overwrite = true,
+              delete = true,
+              excludes = [".*/_SUCCESS"]
             )
         """.trimIndent()
 

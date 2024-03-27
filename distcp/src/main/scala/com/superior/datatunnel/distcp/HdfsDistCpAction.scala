@@ -13,7 +13,6 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 
 import java.net.URI
-import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
 class HdfsDistCpAction extends DistCpAction with Logging {
@@ -32,8 +31,11 @@ class HdfsDistCpAction extends DistCpAction with Logging {
       new Path(option.getDestPath)
     )
 
-    val filterNotRegs: List[Regex] = if (option.getFilterNot == null) List.empty else
-      option.getFilterNot.asScala.map(new Regex(_)).toList
+    val includesRegex: List[Regex] = if (option.getIncludes == null) List.empty else
+      option.getIncludes.toList.map(new Regex(_))
+
+    val excludesRegex: List[Regex] = if (option.getExcludes == null) List.empty else
+      option.getExcludes.toList.map(new Regex(_))
 
     val sourceRDD = FileListUtils.getSourceFiles(
       sparkSession.sparkContext,
@@ -41,7 +43,8 @@ class HdfsDistCpAction extends DistCpAction with Logging {
       qualifiedDestinationPath.toUri,
       option.updateOverwritePathBehaviour,
       option.getNumListstatusThreads,
-      filterNotRegs
+      includesRegex,
+      excludesRegex
     )
 
     val destinationRDD = FileListUtils.getDestinationFiles(

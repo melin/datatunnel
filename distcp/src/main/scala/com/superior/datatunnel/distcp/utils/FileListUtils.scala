@@ -29,29 +29,37 @@ object FileListUtils extends Logging {
     override def next(): T = underlying.next()
   }
 
+  private def pathMatches(path: Path, filters: List[Regex]): Boolean = {
+    filters.exists(_.findFirstIn(path.toString).isDefined)
+  }
+
   /** Recursively list files in a given directory on a given FileSystem. This
-    * will be done in parallel depending on the value of `threads`. An optional
-    * list of regex filters to filter out files can be given.
-    *
-    * @param fs
-    *   FileSystem to search
-    * @param path
-    *   Root path to search from
-    * @param threads
-    *   Number of threads to search in parallel
-    * @param includePathRootInDependents
-    *   Whether to include the root path `path` in the search output
-    * @param filterNot
-    *   A list of regex filters that will filter out any results that match one
-    *   or more of the filters
-    */
+   * will be done in parallel depending on the value of `threads`. An optional
+   * list of regex filters to filter out files can be given.
+   *
+   * @param fs
+   *   FileSystem to search
+   * @param path
+   *   Root path to search from
+   * @param threads
+   *   Number of threads to search in parallel
+   * @param includePathRootInDependents
+   *   Whether to include the root path `path` in the search output
+   * @param includes
+   *   A list of regex filters that will select only results that match one
+   *   or more of the filters
+   * @param excludes
+   *   A list of regex filters that will filter out any results that match one
+   *   or more of the filters
+   */
   def listFiles(
-    fs: FileSystem,
-    path: Path,
-    threads: Int,
-    includePathRootInDependents: Boolean,
-    filterNot: List[Regex]
-  ): Seq[(SerializableFileStatus, Seq[SerializableFileStatus])] = {
+     fs: FileSystem,
+     path: Path,
+     threads: Int,
+     includePathRootInDependents: Boolean,
+     includes: List[Regex],
+     excludes: List[Regex]
+   ): Seq[(SerializableFileStatus, Seq[SerializableFileStatus])] = {
 
     assert(threads > 0, "Number of threads must be positive")
 
@@ -95,21 +103,15 @@ object FileListUtils extends Logging {
                     case l if l.isSymlink =>
                       throw new RuntimeException(s"Link [$l] is not supported")
                     case d if d.isDirectory =>
-                      if (
-                        !filterNot.exists(
-                          _.findFirstIn(d.getPath.toString).isDefined
-                        )
-                      ) {
+                      if (!pathMatches(d.getPath, excludes)) {
                         val s = SerializableFileStatus(d)
                         toProcess.addFirst((d.getPath, p._2 :+ s))
                         processed.add((s, p._2))
                       }
                     case f =>
-                      if (
-                        !filterNot.exists(
-                          _.findFirstIn(f.getPath.toString).isDefined
-                        )
-                      ) processed.add((SerializableFileStatus(f), p._2))
+                      if ((includes.isEmpty || pathMatches(f.getPath, includes)) && !pathMatches(f.getPath, excludes)) {
+                        processed.add((SerializableFileStatus(f), p._2))
+                      }
                   }
               } catch {
                 case e: Exception => exceptions.add(e)
@@ -157,18 +159,19 @@ object FileListUtils extends Logging {
   }
 
   /** List all files in the given source URIs. This function will throw an
-    * exception if any source files collide on identical destination locations
-    * and any collisions on any cases where a source files is the same as the
-    * destination file (copying between the same FileSystem)
-    */
+   * exception if any source files collide on identical destination locations
+   * and any collisions on any cases where a source files is the same as the
+   * destination file (copying between the same FileSystem)
+   */
   def getSourceFiles(
-    sparkContext: SparkContext,
-    sourceURIs: Seq[URI],
-    destinationURI: URI,
-    updateOverwritePathBehaviour: Boolean,
-    numListstatusThreads: Int,
-    filterNot: List[Regex]
-  ): RDD[KeyedCopyDefinition] = {
+      sparkContext: SparkContext,
+      sourceURIs: Seq[URI],
+      destinationURI: URI,
+      updateOverwritePathBehaviour: Boolean,
+      numListstatusThreads: Int,
+      includes: List[Regex],
+      excludes: List[Regex]
+    ): RDD[KeyedCopyDefinition] = {
     val sourceRDD = sourceURIs
       .map { sourceURI =>
         val sourceFS =
@@ -180,7 +183,8 @@ object FileListUtils extends Logging {
               new Path(sourceURI),
               numListstatusThreads,
               !updateOverwritePathBehaviour,
-              filterNot
+              includes,
+              excludes
             )
           )
           .map { case (f, d) =>
@@ -213,12 +217,12 @@ object FileListUtils extends Logging {
   }
 
   /** List all files at the destination path
-    */
+   */
   def getDestinationFiles(
-    sparkContext: SparkContext,
-    destinationPath: Path,
-    options: DistCpOption
-  ): RDD[(URI, SerializableFileStatus)] = {
+         sparkContext: SparkContext,
+         destinationPath: Path,
+         options: DistCpOption
+       ): RDD[(URI, SerializableFileStatus)] = {
     val destinationFS =
       destinationPath.getFileSystem(sparkContext.hadoopConfiguration)
     sparkContext
@@ -228,6 +232,7 @@ object FileListUtils extends Logging {
           destinationPath,
           options.getNumListstatusThreads,
           false,
+          List.empty,
           List.empty
         )
       )
@@ -235,8 +240,8 @@ object FileListUtils extends Logging {
   }
 
   /** Throw an exception if any source files collide on identical destination
-    * locations
-    */
+   * locations
+   */
   def handleSourceCollisions(source: RDD[KeyedCopyDefinition]): Unit = {
     val collisions = source
       .groupByKey()

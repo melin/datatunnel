@@ -23,13 +23,13 @@ public class DistCpOption implements Serializable {
 
     private Long maxBytesPerTask = 1073741824L;
 
-    private List<String> filters;
-
     private int numListstatusThreads = 10;
 
     private boolean consistentPathBehaviour = false;
 
-    private List<String> filterNot;
+    private String[] includes;
+
+    private String[] excludes;
 
     public boolean updateOverwritePathBehaviour() {
         return !consistentPathBehaviour && (update || overwrite);
@@ -83,14 +83,6 @@ public class DistCpOption implements Serializable {
         this.consistentPathBehaviour = consistentPathBehaviour;
     }
 
-    public List<String> getFilterNot() {
-        return filterNot;
-    }
-
-    public void setFilterNot(List<String> filterNot) {
-        this.filterNot = filterNot;
-    }
-
     public boolean isDelete() {
         return delete;
     }
@@ -131,11 +123,19 @@ public class DistCpOption implements Serializable {
         this.maxBytesPerTask = maxBytesPerTask;
     }
 
-    public List<String> getFilters() {
-        return filters;
+    public String[] getIncludes() {
+        return includes;
     }
 
-    public void setFilters(List<String> filters) {
-        this.filters = filters;
+    public void setIncludes(String[] includes) {
+        this.includes = includes;
+    }
+
+    public String[] getExcludes() {
+        return excludes;
+    }
+
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
     }
 }
