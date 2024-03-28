@@ -60,8 +60,7 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "iamRole can not blank")
     private String iamRole;
 
-    @OptionDesc("Redshift 关联的 IAM 角色, 需要给该角色添加AK/CK用户ARN sts:AssumeRole 信任")
-    private String[] preactions;
+    private String[] preActions;
 
-    private String[] postactions;
+    private String[] postActions;
 }

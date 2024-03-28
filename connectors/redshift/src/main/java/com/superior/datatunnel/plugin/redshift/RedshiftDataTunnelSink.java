@@ -31,14 +31,14 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
             throw new DataTunnelException("reshift writer not support Bulk insert");
         }
 
-        String[] preactions = option.getPreactions();
-        String[] postactions = option.getPostactions();
+        String[] preActions = option.getPreActions();
+        String[] postActions = option.getPostActions();
         String[] upsertKeyColumns = option.getUpsertKeyColumns();
-        if (preactions == null) {
-            preactions = new String[]{};
+        if (preActions == null) {
+            preActions = new String[]{};
         }
-        if (postactions == null) {
-            preactions = new String[]{};
+        if (postActions == null) {
+            postActions = new String[]{};
         }
 
         String schemaName = option.getSchemaName();
@@ -62,19 +62,19 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                     .collect(Collectors.joining(" and "));
 
             // postactions
-            postactions = ArrayUtils.add(postactions, "BEGIN;");
+            postActions = ArrayUtils.add(postActions, "BEGIN;");
             String sql = "DELETE FROM " + oldDbtable + " USING " + dbtable + " WHERE " + where + ";";
-            postactions = ArrayUtils.add(postactions, sql);
+            postActions = ArrayUtils.add(postActions, sql);
             sql = "INSERT INTO " + oldDbtable + " SELECT * FROM " + dbtable + ";";
-            postactions = ArrayUtils.add(postactions, sql);
+            postActions = ArrayUtils.add(postActions, sql);
             sql = "DROP TABLE IF EXISTS " + dbtable + ";";
-            postactions = ArrayUtils.add(postactions, sql);
-            postactions = ArrayUtils.add(postactions, "END;");
+            postActions = ArrayUtils.add(postActions, sql);
+            postActions = ArrayUtils.add(postActions, "END;");
         } else if (writeMode == WriteMode.OVERWRITE) {
             dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
             // preactions
             String sql = "TRUNCATE TABLE " + dbtable + ";";
-            preactions = ArrayUtils.add(preactions, sql);
+            preActions = ArrayUtils.add(preActions, sql);
         } else {
             dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
         }
@@ -116,12 +116,12 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                     .option("temporary_aws_session_token", credentials.sessionToken());
         }
 
-        if (preactions != null && preactions.length > 0) {
-            dataFrameWriter.option("preactions", StringUtils.join(preactions, ""));
+        if (preActions != null && preActions.length > 0) {
+            dataFrameWriter.option("preactions", StringUtils.join(preActions, ";"));
         }
 
-        if (postactions != null && postactions.length > 0) {
-            dataFrameWriter.option("postactions", StringUtils.join(postactions, ""));
+        if (postActions != null && postActions.length > 0) {
+            dataFrameWriter.option("postactions", StringUtils.join(postActions, ";"));
         }
 
         dataFrameWriter.option("dbtable", dbtable);

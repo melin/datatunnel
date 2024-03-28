@@ -21,15 +21,16 @@ object Mysql2RedshiftDemo {
 
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
-                username = "root",
-                password = "root2023",
-                host = '172.18.5.44',
+                "username" = "admin",
+                "password" = "xxxxx",
+                "host" = "database-1.c8vfm34zprv8.us-east-1.rds.amazonaws.com",
                 port = 3306,
                 databaseName = 'demos',
                 tableName = 'users',
                 columns = ["*"],
                 resultTableName='tdl_users'
             ) 
+            TRANSFORM = 'select id, userid, create_time, age from tdl_users'
             SINK("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2024",
@@ -42,6 +43,7 @@ object Mysql2RedshiftDemo {
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
+                preActions = ["DELETE FROM public.users where id=3"],
                 iamRole = '${iamRole}',
                 columns = ["*"]
             ) 
