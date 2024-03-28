@@ -33,7 +33,7 @@ object Mysql2RedshiftDemo {
             TRANSFORM = 'select id, userid, create_time, age from tdl_users'
             SINK("redshift") OPTIONS (
                 username = "admin",
-                password = "Admin2024",
+                password = "xxxx",
                 jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
                 schemaName = 'public',
                 tableName = 'users',
