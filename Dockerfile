@@ -1,6 +1,10 @@
 FROM public.ecr.aws/emr-serverless/spark/emr-6.15.0:latest
 
 USER root
+
+# 删除 emr 自带的jar
+RUN rm -f /usr/lib/spark/jars/spark-redshift*
+
 # MODIFICATIONS GO HERE
 COPY assembly/target/datatunnel-3.4.0/*.jar /usr/lib/spark/jars/
 
