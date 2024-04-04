@@ -1,7 +1,6 @@
 package com.superior.datatunnel.core
 
 import com.google.common.collect.Maps
-import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.{SparkListener, SparkListenerJobStart, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions
@@ -30,9 +29,9 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
             return
           }
 
-          val jobType = session.conf.get("spark.jobserver.superior.jobType", "")
-          logInfo("jobType: " + jobType)
-          if (!"data_tunnel".equals(jobType)) {
+          val enabled = session.conf.get("spark.datatunnel.metrics.enabled", "true")
+          logInfo("spark.datatunnel.metrics.enabled: " + enabled)
+          if (!"true".equals(enabled)) {
             return
           }
 
@@ -51,13 +50,11 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
             msg = s"datatunnel read records: ${inputRecords}."
             lastInputRecords = inputRecords
             logInfo(msg)
-            LogUtils.warn(msg)
           }
           if (outputRecords > 0 && lastOutputRecords != outputRecords) {
             msg = s"datatunnel write records: ${outputRecords}."
             lastOutputRecords = outputRecords
             logInfo(msg)
-            LogUtils.warn(msg)
           }
         }
       })
