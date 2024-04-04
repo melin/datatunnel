@@ -1,6 +1,7 @@
 package org.apache.spark.sql.datatunnel.sql
 
 import com.superior.datatunnel.common.util.CommonUtils
+import io.github.melin.jobserver.spark.api.LogUtils
 import io.github.melin.superior.common.SQLParserException
 import io.github.melin.superior.common.relational.io.ExportTable
 import org.apache.commons.lang3.StringUtils
@@ -44,6 +45,7 @@ case class ExportTableCommand(
     } else {
       throw new SQLParserException("仅支持导出文件格式: json、xlsx、txt、csv")
     }
+    LogUtils.info("导出文件完成, 存储路径: " + distPath)
     Seq.empty[Row]
   }
 

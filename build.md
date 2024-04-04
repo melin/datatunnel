@@ -8,13 +8,6 @@ mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Phadoop3
 mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Phadoop2
 ```
 
-#### superior 平台打包，排除一些平台已经有的jar
-```
-mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Pcdh6
-mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Phadoop3
-mvn clean package -DlibScope=provided -Dsuperior.libScope=provided -Dmaven.test.skip=true -Phadoop2
-```
-
 ### 构建AWS EMR Serverless镜像(AMD64)
 ```
 docker logout public.ecr.aws
