@@ -46,8 +46,8 @@ case class ExportTableCommand(
       throw new SQLParserException("仅支持导出文件格式: json、xlsx、txt、csv")
     }
 
-    logInfo("导出文件完成, 存储路径: " + distPath)
-    LogUtils.info("导出文件完成, 存储路径: " + distPath)
+    logInfo("导出文件完成: " + distPath)
+    LogUtils.info("导出文件完成: " + distPath)
     Seq.empty[Row]
   }
 
