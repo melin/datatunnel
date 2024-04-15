@@ -7,7 +7,7 @@ object Redshift2MysqlDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = "AKIAW77DWNKCQ6EV6AFI"
+        val accessKeyId = "xxx"
         val secretAccessKey = ""
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
@@ -25,7 +25,7 @@ object Redshift2MysqlDemo {
             OPTIONS (
               user = "admin",
               password = "Admin2024",
-              url = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
+              jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
               dbtable "test.my_table",
               tempdir = 's3a://datacyber/redshift_temp/',
               region = 'us-east-1',
