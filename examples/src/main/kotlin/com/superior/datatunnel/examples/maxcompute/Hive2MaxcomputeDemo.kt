@@ -35,9 +35,11 @@ object Hive2MaxcomputeDemo {
                     .getOrCreate()
 
             val sql = """
+            WITH temp AS (
+                select * from bigdata.test_hudi_orders_pt
+            )
             DATATUNNEL SOURCE("hive") OPTIONS (
-              databaseName = "bigdata",
-              tableName = 'test_hudi_orders_pt',
+              tableName = 'temp',
               partitionSpec = 'pt="20231125", type="redshift"',
               columns = ['id', 'code', 'username', 'address', 'create_time']
             )

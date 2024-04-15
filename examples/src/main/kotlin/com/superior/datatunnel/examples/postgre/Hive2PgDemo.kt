@@ -35,9 +35,10 @@ object Hive2PgDemo {
                     .getOrCreate()
 
             val sql = """
+            WITH temp AS (
+                select * from bigdata.ods_jdbc_orders_002
+            )
             DATATUNNEL SOURCE("hive") OPTIONS (
-              databaseName = "bigdata",
-              tableName = 'ods_jdbc_orders_002',
               columns = ['*']
             )
             SINK("postgresql") OPTIONS (

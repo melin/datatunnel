@@ -28,13 +28,8 @@ object DataTunnelMysql2OssDemo {
 
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
-              username = "root",
-              password = "root2023",
-              host = '172.18.5.44',
-              port = 3306,
-              databaseName = 'demos',
-              tableName = 'orders',
-              columns = ["*"]
+              filePath = "oss://melin1204/users",
+              writeMode = "overwrite"
             ) 
             SINK("hdfs") OPTIONS (
               filePath = "oss://melin1204/users",

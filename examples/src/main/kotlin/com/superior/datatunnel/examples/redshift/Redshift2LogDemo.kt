@@ -29,8 +29,8 @@ object Redshift2LogDemo {
         val sql = """
             DATATUNNEL SOURCE("redshift") OPTIONS (
                 username = "admin",
-                password = "Admin2023",
-                jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cr3sb4otm3vp.us-east-1.redshift.amazonaws.com:5439/dev',
+                password = "Admin2024",
+                url = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
                 schemaName = 'public',
                 tableName = 'category',
                 tempdir = 's3a://datacyber/redshift_temp/',

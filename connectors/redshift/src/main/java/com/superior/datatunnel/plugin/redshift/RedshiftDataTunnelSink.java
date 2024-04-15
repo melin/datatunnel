@@ -116,11 +116,11 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                     .option("temporary_aws_session_token", credentials.sessionToken());
         }
 
-        if (preActions != null && preActions.length > 0) {
+        if (preActions.length > 0) {
             dataFrameWriter.option("preactions", StringUtils.join(preActions, ";"));
         }
 
-        if (postActions != null && postActions.length > 0) {
+        if (postActions.length > 0) {
             dataFrameWriter.option("postactions", StringUtils.join(postActions, ";"));
         }
 

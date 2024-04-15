@@ -1,1 +1,5 @@
 hdfs=com.superior.datatunnel.plugin.hdfs.HdfsDataTunnelSink
+s3=com.superior.datatunnel.plugin.hdfs.HdfsDataTunnelSink
+oss=com.superior.datatunnel.plugin.hdfs.HdfsDataTunnelSink
+minio=com.superior.datatunnel.plugin.hdfs.HdfsDataTunnelSink
+cos=com.superior.datatunnel.plugin.hdfs.HdfsDataTunnelSink

@@ -1,9 +1,9 @@
-package com.superior.datatunnel.examples.redshift
+package com.superior.datatunnel.examples.hdfs
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Mysql2RedshiftDemo {
+object S32RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -12,25 +12,22 @@ object Mysql2RedshiftDemo {
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
-                .builder()
-                .master("local")
-                .enableHiveSupport()
-                .appName("Datatunnel spark example")
-                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
-                .getOrCreate()
+            .builder()
+            .master("local")
+            .enableHiveSupport()
+            .appName("Datatunnel spark example")
+            .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
+
+            .config("spark.hadoop.fs.s3a.access.key", accessKeyId)
+            .config("spark.hadoop.fs.s3a.secret.key", secretAccessKey)
+            .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSyste")
+            .getOrCreate()
 
         val sql = """
-            DATATUNNEL SOURCE("mysql") OPTIONS (
-                "username" = "admin",
-                "password" = "xxxxx",
-                "host" = "database-1.c8vfm34zprv8.us-east-1.rds.amazonaws.com",
-                port = 3306,
-                databaseName = 'demos',
-                tableName = 'users',
-                columns = ["*"],
-                resultTableName='tdl_users'
+            DATATUNNEL SOURCE("s3") OPTIONS (
+                format = 'json‘,
+                filePath= 's3a://datacyber/melin1204/'
             ) 
-            TRANSFORM = 'select id, userid, create_time, age from tdl_users'
             SINK("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2024",
@@ -43,7 +40,6 @@ object Mysql2RedshiftDemo {
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
-                preActions = ["DELETE FROM public.users where id=3"],
                 iamRole = '${iamRole}',
                 columns = ["*"]
             ) 

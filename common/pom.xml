@@ -12,12 +12,6 @@
     <artifactId>datatunnel-common</artifactId>
     <name>Datatunnel : Common</name>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <artifactId>datatunnel-api</artifactId>
