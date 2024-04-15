@@ -27,8 +27,10 @@ object S32RedshiftDemo {
             DATATUNNEL SOURCE("s3") OPTIONS (
                 format = "json",
                 filePath = "s3a://datacyber/melin1204/",
-                region = "us-east-1"
+                region = "us-east-1",
+                resultTableName='tdl_users'
             ) 
+            TRANSFORM = 'select id, userid, age from tdl_users'
             SINK("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2024",
