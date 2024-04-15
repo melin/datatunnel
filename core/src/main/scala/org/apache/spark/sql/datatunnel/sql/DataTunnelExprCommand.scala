@@ -1,6 +1,5 @@
 package org.apache.spark.sql.datatunnel.sql
 
-import com.superior.datatunnel.api.DataSourceType._
 import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
@@ -10,9 +9,9 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SparkSession}
 
-import java.util
 import scala.collection.JavaConverters._
 
 /**
@@ -90,6 +89,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     }
 
     sinkConnector.createTable(df, context)
+    logInfo("source schema: " + df.schema.asInstanceOf[StructType].treeString(Int.MaxValue))
     sinkConnector.sink(df, context)
     Seq.empty[Row]
   }
