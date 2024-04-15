@@ -38,8 +38,12 @@ public class S3DataTunnelSink implements DataTunnelSink {
             }
         });
 
-        hadoopConf.set(S3Configs.ACCESS_KEY, sinkOption.getAccessKey());
-        hadoopConf.set(S3Configs.SECRET_KEY, sinkOption.getSecretKey());
+        if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
+            hadoopConf.set(S3Configs.ACCESS_KEY, sinkOption.getAccessKey());
+        }
+        if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
+            hadoopConf.set(S3Configs.SECRET_KEY, sinkOption.getSecretKey());
+        }
         if (StringUtils.isNotBlank(sinkOption.getRegion())) {
             hadoopConf.set(S3Configs.REGION, sinkOption.getRegion());
         }

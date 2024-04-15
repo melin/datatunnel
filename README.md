@@ -47,8 +47,8 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 | file          | √         | √            | [读写](doc/file.md) 支持excel, json，csv, parquet、orc、text 文件                                                                                                                        |
 | sftp          | √         | √            | [读写](doc/sftp.md) 支持excel, json，csv, parquet、orc、text 文件                                                                                                                        |                       
 | ftp           | √         | √            | [读写](doc/ftp.md)  支持excel, json，csv, parquet、orc、text 文件                                                                                                                        |
-| s3            | √         | √            | [读写](doc/s3.md)  支持excel, json，csv, parquet、orc、text 文件                                                                                                                         |
-| hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件                                                                                                                         |
+| s3            | √         | √            | [读写](doc/s3.md) 别名：oss、cos、minio. 支持excel, json，csv, parquet、orc、text 文件                                                                                                        |
+| hdfs          | √         |              | [读](doc/hdfs.md) 支持excel, json，csv, parquet、orc、text 文件, 例如 阿里云 rds 数据导出 oss， 再通过discp 写入到本地hdfs                                                                                |
 | jdbc          | √         | √            | [读写](doc/jdbc.md) 支持: mysql，oracle，db2，sqlserver，hana，guass，postgresql                                                                                                          |
 | hive          | √         | √            | [读写](doc/hive.md)，别名：spark                                                                                                                                                      |
 | hbase         | √         | √            | 读  [hbase spark config](https://github.com/apache/hbase-connectors/blob/master/spark/hbase-spark/src/main/scala/org/apache/hadoop/hbase/spark/datasources/HBaseSparkConf.scala) |
@@ -66,7 +66,6 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 | snowflake     | √         | √            | [读写](doc/snowflake.md)  https://github.com/snowflakedb/spark-snowflake                                                                                                          |
 | Bigquery      | √         | √            | [读写](doc/bigquery.md)  https://github.com/GoogleCloudDataproc/spark-bigquery-connector                                                                                          |
 | Mongodb       | √         | √            | [读写]                                                                                                                                                                            |
-| HDFS          | √         | √            | [读写] 别名：s3、oss、cos、minio. 例如 阿里云 rds 数据导出 oss， 再通过discp 写入到本地hdfs                                                                                                               |
 
 ## [example](examples%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fsuperior%2Fdatatunnel%2Fexamples)
 

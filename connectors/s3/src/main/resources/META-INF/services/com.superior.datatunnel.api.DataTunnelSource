@@ -1,1 +1,4 @@
 s3=com.superior.datatunnel.plugin.s3.S3DataTunnelSource
+oss=com.superior.datatunnel.plugin.s3.S3DataTunnelSource
+minio=com.superior.datatunnel.plugin.s3.S3DataTunnelSource
+cos=com.superior.datatunnel.plugin.s3.S3DataTunnelSource

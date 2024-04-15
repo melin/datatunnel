@@ -2,13 +2,6 @@ package com.superior.datatunnel.examples.redshift
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
-import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient
-import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.sts.StsClient
-import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
-import software.amazon.awssdk.services.sts.model.GetSessionTokenRequest
 
 object Redshift2LogDemo {
 

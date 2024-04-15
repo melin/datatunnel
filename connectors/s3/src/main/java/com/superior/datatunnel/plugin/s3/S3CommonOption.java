@@ -19,10 +19,8 @@ public class S3CommonOption extends BaseCommonOption
 
     private String region;
 
-    @NotBlank(message = "accessKey can not blank")
     private String accessKey;
 
-    @NotBlank(message = "secretKey can not blank")
     private String secretKey;
 
     private boolean pathStyleAccess = true;

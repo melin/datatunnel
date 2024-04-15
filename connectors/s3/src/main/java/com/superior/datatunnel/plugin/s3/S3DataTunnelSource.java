@@ -39,8 +39,12 @@ public class S3DataTunnelSource implements DataTunnelSource {
             }
         });
 
-        hadoopConf.set(S3Configs.ACCESS_KEY, sourceOption.getAccessKey());
-        hadoopConf.set(S3Configs.SECRET_KEY, sourceOption.getSecretKey());
+        if (StringUtils.isNotBlank(sourceOption.getAccessKey())) {
+            hadoopConf.set(S3Configs.ACCESS_KEY, sourceOption.getAccessKey());
+        }
+        if (StringUtils.isNotBlank(sourceOption.getSecretKey())) {
+            hadoopConf.set(S3Configs.SECRET_KEY, sourceOption.getSecretKey());
+        }
         if (StringUtils.isNotBlank(sourceOption.getRegion())) {
             hadoopConf.set(S3Configs.REGION, sourceOption.getRegion());
         }

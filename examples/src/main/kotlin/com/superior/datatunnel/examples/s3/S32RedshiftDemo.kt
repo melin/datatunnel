@@ -1,4 +1,4 @@
-package com.superior.datatunnel.examples.hdfs
+package com.superior.datatunnel.examples.s3
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
@@ -26,7 +26,7 @@ object S32RedshiftDemo {
         val sql = """
             DATATUNNEL SOURCE("s3") OPTIONS (
                 format = 'json‘,
-                filePath= 's3a://datacyber/melin1204/'
+                filePath = 's3a://datacyber/melin1204/'
             ) 
             SINK("redshift") OPTIONS (
                 username = "admin",
