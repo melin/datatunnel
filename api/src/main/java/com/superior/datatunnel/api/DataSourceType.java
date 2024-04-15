@@ -31,6 +31,9 @@ public enum DataSourceType {
     SFTP,
     FTP,
     S3,
+    OSS,
+    COS,
+    MINIO,
     HDFS,
     REDIS,
     ELASTICSEARCH;

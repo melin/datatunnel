@@ -62,6 +62,8 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
     context.setTransfromSql(transfromSql)
+    context.setSourceType(sourceType)
+    context.setSinkType(sinkType)
 
     if (sourceOption.getCteSql != null) {
       if (sourceConnector.supportCte()) {

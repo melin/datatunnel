@@ -6,13 +6,33 @@ import org.apache.spark.sql.SparkSession;
 
 public class DataTunnelContext {
 
+    private DataSourceType sourceType;
+
     private DataTunnelSourceOption sourceOption;
+
+    private DataSourceType sinkType;
 
     private DataTunnelSinkOption sinkOption;
 
     private String transfromSql;
 
     private SparkSession sparkSession = SparkSession.active();
+
+    public DataSourceType getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(DataSourceType sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public DataSourceType getSinkType() {
+        return sinkType;
+    }
+
+    public void setSinkType(DataSourceType sinkType) {
+        this.sinkType = sinkType;
+    }
 
     public DataTunnelSourceOption getSourceOption() {
         return sourceOption;
