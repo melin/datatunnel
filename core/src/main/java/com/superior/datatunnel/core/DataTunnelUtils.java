@@ -10,6 +10,7 @@ import io.github.melin.superior.parser.spark.SparkSqlHelper;
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser;
 import io.github.melin.superior.parser.spark.relational.DataTunnelExpr;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -56,8 +57,12 @@ public class DataTunnelUtils {
             index++;
         }
         sb.append(")\n");
-        sb.append("sink('").append(dataTunnelExpr.getSinkType()).append("')");
 
+        if (StringUtils.isNotBlank(dataTunnelExpr.getTransformSql())) {
+            sb.append("TRANSFORM = '").append(dataTunnelExpr.getTransformSql()).append("'\n");
+        }
+
+        sb.append("sink('").append(dataTunnelExpr.getSinkType()).append("')");
         if (!dataTunnelExpr.getSinkOptions().isEmpty()) {
             sb.append(" OPTIONS(\n");
             index = 0;

@@ -27,8 +27,10 @@ public class S3DataTunnelSink implements DataTunnelSink {
             throw new DataTunnelException("region 和 endpoint 不能同时为空");
         }
 
-        System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-        System.setProperty(SDKGlobalConfiguration.DEFAULT_METRICS_SYSTEM_PROPERTY, "false");
+        if (context.getSinkType() == DataSourceType.S3) {
+            System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
+            System.setProperty(SDKGlobalConfiguration.DEFAULT_METRICS_SYSTEM_PROPERTY, "false");
+        }
 
         SparkSession sparkSession = context.getSparkSession();
         Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();
@@ -37,23 +39,6 @@ public class S3DataTunnelSink implements DataTunnelSink {
                 hadoopConf.set(key, value);
             }
         });
-
-        if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
-            hadoopConf.set(S3Configs.ACCESS_KEY, sinkOption.getAccessKey());
-        }
-        if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
-            hadoopConf.set(S3Configs.SECRET_KEY, sinkOption.getSecretKey());
-        }
-        if (StringUtils.isNotBlank(sinkOption.getRegion())) {
-            hadoopConf.set(S3Configs.REGION, sinkOption.getRegion());
-        }
-        if (StringUtils.isNotBlank(sinkOption.getEndpoint())) {
-            hadoopConf.set(S3Configs.END_POINT, sinkOption.getEndpoint());
-        }
-
-        if (!sinkOption.getProperties().containsKey(S3Configs.S3A_CLIENT_IMPL)) {
-            hadoopConf.set(S3Configs.S3A_CLIENT_IMPL, sinkOption.getS3aClientImpl());
-        }
 
         String format = sinkOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sinkOption.getFormat()) {
@@ -70,6 +55,8 @@ public class S3DataTunnelSink implements DataTunnelSink {
             }
         });
 
+        setObjConfig(context.getSinkType(), sinkOption, hadoopConf);
+
         if ("csv".equalsIgnoreCase(format)) {
             writer.option("sep", sinkOption.getSep());
             writer.option("encoding", sinkOption.getEncoding());
@@ -78,6 +65,43 @@ public class S3DataTunnelSink implements DataTunnelSink {
 
         writer.option("compression", sinkOption.getCompression());
         writer.save(sinkOption.getFilePath());
+    }
+
+    private void setObjConfig(DataSourceType sinkType, S3DataTunnelSinkOption sinkOption, Configuration hadoopConf) {
+        if (sinkType == DataSourceType.S3 || sinkType == DataSourceType.MINIO) {
+            if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
+                hadoopConf.set(S3Configs.AWS_ACCESS_KEY, sinkOption.getAccessKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
+                hadoopConf.set(S3Configs.AWS_SECRET_KEY, sinkOption.getSecretKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getRegion())) {
+                hadoopConf.set(S3Configs.AWS_REGION, sinkOption.getRegion());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getEndpoint())) {
+                hadoopConf.set(S3Configs.AWS_ENDPOINT, sinkOption.getEndpoint());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getFsClientImpl())) {
+                hadoopConf.set(S3Configs.AWS_S3A_CLIENT_IMPL, sinkOption.getFsClientImpl());
+            }
+        } else if (sinkType == DataSourceType.OSS) {
+            if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
+                hadoopConf.set(S3Configs.OSS_ACCESS_KEY, sinkOption.getAccessKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
+                hadoopConf.set(S3Configs.OSS_SECRET_KEY, sinkOption.getSecretKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getEndpoint())) {
+                hadoopConf.set(S3Configs.OSS_ENDPOINT, sinkOption.getEndpoint());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getFsClientImpl())) {
+                hadoopConf.set(S3Configs.OSS_S3A_CLIENT_IMPL, sinkOption.getFsClientImpl());
+            } else {
+                hadoopConf.set(S3Configs.OSS_S3A_CLIENT_IMPL, "org.apache.hadoop.fs.aliyun.oss.AliyunOSSFileSystem");
+            }
+        } else {
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + " not support type: " + sinkType);
+        }
     }
 
     @Override

@@ -23,9 +23,7 @@ public class S3CommonOption extends BaseCommonOption
 
     private String secretKey;
 
-    private boolean pathStyleAccess = true;
-
-    private String s3aClientImpl = "org.apache.hadoop.fs.s3a.S3AFileSystem";
+    private String fsClientImpl = "org.apache.hadoop.fs.s3a.S3AFileSystem";
 
     private boolean sslEnabled = false;
 

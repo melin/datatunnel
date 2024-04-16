@@ -7,8 +7,8 @@ object S32RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = "xxxx"
-        val secretAccessKey = "xxxx"
+        val accessKeyId = "xx"
+        val secretAccessKey = "xx"
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession

@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.s3;
 
 import com.amazonaws.SDKGlobalConfiguration;
+import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
@@ -39,23 +40,6 @@ public class S3DataTunnelSource implements DataTunnelSource {
             }
         });
 
-        if (StringUtils.isNotBlank(sourceOption.getAccessKey())) {
-            hadoopConf.set(S3Configs.ACCESS_KEY, sourceOption.getAccessKey());
-        }
-        if (StringUtils.isNotBlank(sourceOption.getSecretKey())) {
-            hadoopConf.set(S3Configs.SECRET_KEY, sourceOption.getSecretKey());
-        }
-        if (StringUtils.isNotBlank(sourceOption.getRegion())) {
-            hadoopConf.set(S3Configs.REGION, sourceOption.getRegion());
-        }
-        if (StringUtils.isNotBlank(sourceOption.getEndpoint())) {
-            hadoopConf.set(S3Configs.END_POINT, sourceOption.getEndpoint());
-        }
-
-        if (!sourceOption.getProperties().containsKey(S3Configs.S3A_CLIENT_IMPL)) {
-            hadoopConf.set(S3Configs.S3A_CLIENT_IMPL, sourceOption.getS3aClientImpl());
-        }
-
         String format = sourceOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sourceOption.getFormat()) {
             format = "com.crealytics.spark.excel";
@@ -68,6 +52,8 @@ public class S3DataTunnelSource implements DataTunnelSource {
             }
         });
 
+        setObjConfig(context.getSourceType(), sourceOption, hadoopConf);
+
         if ("csv".equalsIgnoreCase(format)) {
             reader.option("sep", sourceOption.getSep());
             reader.option("encoding", sourceOption.getEncoding());
@@ -75,6 +61,43 @@ public class S3DataTunnelSource implements DataTunnelSource {
         }
 
         return reader.load(sourceOption.getFilePath());
+    }
+
+    private void setObjConfig(DataSourceType sourceType, S3DataTunnelSourceOption sinkOption, Configuration hadoopConf) {
+        if (sourceType == DataSourceType.S3 || sourceType == DataSourceType.MINIO) {
+            if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
+                hadoopConf.set(S3Configs.AWS_ACCESS_KEY, sinkOption.getAccessKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
+                hadoopConf.set(S3Configs.AWS_SECRET_KEY, sinkOption.getSecretKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getRegion())) {
+                hadoopConf.set(S3Configs.AWS_REGION, sinkOption.getRegion());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getEndpoint())) {
+                hadoopConf.set(S3Configs.AWS_ENDPOINT, sinkOption.getEndpoint());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getFsClientImpl())) {
+                hadoopConf.set(S3Configs.AWS_S3A_CLIENT_IMPL, sinkOption.getFsClientImpl());
+            }
+        } else if (sourceType == DataSourceType.OSS) {
+            if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
+                hadoopConf.set(S3Configs.OSS_ACCESS_KEY, sinkOption.getAccessKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
+                hadoopConf.set(S3Configs.OSS_SECRET_KEY, sinkOption.getSecretKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getEndpoint())) {
+                hadoopConf.set(S3Configs.OSS_ENDPOINT, sinkOption.getEndpoint());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getFsClientImpl())) {
+                hadoopConf.set(S3Configs.OSS_S3A_CLIENT_IMPL, sinkOption.getFsClientImpl());
+            } else {
+                hadoopConf.set(S3Configs.OSS_S3A_CLIENT_IMPL, "org.apache.hadoop.fs.aliyun.oss.AliyunOSSFileSystem");
+            }
+        } else {
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + " not support type: " + sourceType);
+        }
     }
 
     @Override
