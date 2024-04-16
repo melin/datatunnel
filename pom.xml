@@ -40,6 +40,7 @@
         <jedis.version>4.4.6</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
         <zip4j.version>2.11.5</zip4j.version>
+        <lombok.version>1.18.32</lombok.version>
 
         <awssdk.version>2.21.20</awssdk.version>
         <aws.java.sdk.version>1.12.586</aws.java.sdk.version>
@@ -50,9 +51,6 @@
         <spark-excel.version>3.4.2_0.20.3</spark-excel.version>
         <spark-elasticsearch.version>7.17.15</spark-elasticsearch.version>
         <sql-parser.version>4.0.12</sql-parser.version>
-
-        <hadoop-client-api.artifact>hadoop-client-api</hadoop-client-api.artifact>
-        <hadoop-client-runtime.artifact>hadoop-client-runtime</hadoop-client-runtime.artifact>
 
         <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
     </properties>
@@ -119,13 +117,13 @@
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
-            <artifactId>${hadoop-client-api.artifact}</artifactId>
+            <artifactId>hadoop-client-api</artifactId>
             <version>${hadoop.version}</version>
             <scope>${libScope}</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
-            <artifactId>${hadoop-client-runtime.artifact}</artifactId>
+            <artifactId>hadoop-client-runtime</artifactId>
             <version>${hadoop.version}</version>
             <scope>${libScope}</scope>
         </dependency>
@@ -183,7 +181,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
+                <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -385,17 +383,6 @@
             <properties>
                 <hadoop.version>3.3.4</hadoop.version>
                 <hive.version>2.3.9</hive.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>hadoop2</id>
-            <properties>
-                <hadoop.version>2.7.7</hadoop.version>
-                <hive.version>2.3.9</hive.version>
-
-                <hadoop-client-api.artifact>hadoop-client</hadoop-client-api.artifact>
-                <hadoop-client-runtime.artifact>hadoop-yarn-api</hadoop-client-runtime.artifact>
             </properties>
         </profile>
 
