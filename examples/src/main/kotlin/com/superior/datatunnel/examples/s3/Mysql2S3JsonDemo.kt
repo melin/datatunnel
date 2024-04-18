@@ -28,7 +28,7 @@ Sink('s3') OPTIONS(
     accessKey='AKIAW77DWNKCQ6EV6AFI',
     secretKey='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',
     format="json",
-    filePath="s3a://superior2023/datatunnel/demos.parquet")
+    path="s3a://superior2023/datatunnel/demos.parquet")
 """
         spark.sql(sql)
     }

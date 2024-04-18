@@ -28,7 +28,7 @@ public class FileDataTunnelSink implements DataTunnelSink {
             writer.option("header", sinkOption.isHeader());
         }
         writer.option("compression", sinkOption.getCompression());
-        writer.save(sinkOption.getFilePath());
+        writer.save(sinkOption.getPath());
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.FileFormat;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -17,9 +16,6 @@ public class FileCommonOption extends BaseCommonOption
 
     @NotNull(message = "format can not null")
     private FileFormat format;
-
-    @NotBlank(message = "filePath can not blank")
-    private String filePath;
 
     @OptionDesc("csv 字段分隔符")
     private String sep = ",";

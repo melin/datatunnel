@@ -26,7 +26,7 @@ public class HdfsDataTunnelSource implements DataTunnelSource {
         DataFrameReader reader = sparkSession.read().format(format);
         sourceOption.getProperties().forEach(reader::option);
         reader.option("wholetext", "true");
-        return reader.load(sourceOption.getFilePath());
+        return reader.load(sourceOption.getPaths());
     }
 
     @Override

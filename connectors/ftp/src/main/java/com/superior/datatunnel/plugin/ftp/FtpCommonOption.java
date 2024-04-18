@@ -41,9 +41,6 @@ public class FtpCommonOption extends BaseCommonOption
     @NotNull(message = "format can not null")
     private FileFormat format;
 
-    @NotBlank(message = "filePath can not blank")
-    private String filePath;
-
     @OptionDesc("sftp keys file")
     private String sshKeyFile;
 

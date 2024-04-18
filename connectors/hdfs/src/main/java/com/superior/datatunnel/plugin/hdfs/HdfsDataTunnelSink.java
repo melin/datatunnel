@@ -35,7 +35,7 @@ public class HdfsDataTunnelSink implements DataTunnelSink {
         } else {
             writer.mode(SaveMode.Append);
         }
-        writer.save(sinkOption.getFilePath());
+        writer.save(sinkOption.getPath());
     }
 
     @Override

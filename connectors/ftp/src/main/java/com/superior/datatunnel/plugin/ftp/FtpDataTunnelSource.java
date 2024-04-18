@@ -94,13 +94,15 @@ public class FtpDataTunnelSource implements DataTunnelSource {
             reader.option("header", sourceOption.isHeader());
         }
 
-        String path = sourceOption.getFilePath();
-        if (FtpProtocol.SFTP == sourceOption.getProtocol()) {
-            path = "sftp://" + path;
-        } else {
-            path = "ftp://" + path;
+        String[] paths = sourceOption.getPaths();
+        for (int i = 0; i < paths.length; i++) {
+            if (FtpProtocol.SFTP == sourceOption.getProtocol()) {
+                paths[i] = "sftp://" + paths[i];
+            } else {
+                paths[i] = "ftp://" + paths[i];
+            }
         }
-        return reader.load(path);
+        return reader.load(paths);
     }
 
     @Override

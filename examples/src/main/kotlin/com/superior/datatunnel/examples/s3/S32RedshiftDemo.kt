@@ -7,8 +7,8 @@ object S32RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = "xx"
-        val secretAccessKey = "xx"
+        val accessKeyId = "xxx"
+        val secretAccessKey = "xxx"
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
@@ -26,7 +26,7 @@ object S32RedshiftDemo {
         val sql = """
             DATATUNNEL SOURCE("s3") OPTIONS (
                 format = "json",
-                filePath = "s3a://datacyber/melin1204/",
+                paths = ["s3a://datacyber/melin1204/"],
                 region = "us-east-1",
                 sourceTempView='tdl_users'
             ) 

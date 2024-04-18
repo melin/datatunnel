@@ -23,7 +23,7 @@ datatunnel SOURCE('ftp') OPTIONS(
     port=22,
     username='centos',
     format="csv",
-    filePath="sftp:///home/centos/*.csv")
+    paths=["sftp:///home/centos/*.csv"])
 SINK('log')
 """
         spark.sql(sql)

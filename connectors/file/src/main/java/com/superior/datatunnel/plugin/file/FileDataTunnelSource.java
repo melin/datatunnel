@@ -31,7 +31,7 @@ public class FileDataTunnelSource implements DataTunnelSource {
             reader.option("encoding", sourceOption.getEncoding());
             reader.option("header", sourceOption.isHeader());
         }
-        return reader.load(sourceOption.getFilePath());
+        return reader.load(sourceOption.getPaths());
     }
 
     @Override

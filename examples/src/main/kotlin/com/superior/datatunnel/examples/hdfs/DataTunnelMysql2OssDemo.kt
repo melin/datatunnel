@@ -32,7 +32,7 @@ object DataTunnelMysql2OssDemo {
               writeMode = "overwrite"
             ) 
             SINK("hdfs") OPTIONS (
-              filePath = "oss://melin1204/users",
+              path = "oss://melin1204/users",
               writeMode = "overwrite"
             )
         """.trimIndent()

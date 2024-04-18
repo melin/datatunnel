@@ -102,7 +102,7 @@ public class FtpDataTunnelSink implements DataTunnelSink {
         }
         writer.option("compression", sinkOption.getCompression());
 
-        String path = sinkOption.getFilePath();
+        String path = sinkOption.getPath();
         if (FtpProtocol.SFTP == sinkOption.getProtocol()) {
             path = "sftp:////" + path;
         } else {

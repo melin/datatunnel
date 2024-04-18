@@ -63,7 +63,7 @@ public class S3DataTunnelSource implements DataTunnelSource {
             reader.option("header", sourceOption.isHeader());
         }
 
-        return reader.load(sourceOption.getFilePath());
+        return reader.load(sourceOption.getPaths());
     }
 
     private void setObjConfig(DataSourceType sourceType, S3DataTunnelSourceOption sinkOption, Configuration hadoopConf) {

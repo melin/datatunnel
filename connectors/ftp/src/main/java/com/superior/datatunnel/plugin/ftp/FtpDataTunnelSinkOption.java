@@ -4,6 +4,7 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -15,4 +16,7 @@ public class FtpDataTunnelSinkOption extends FtpCommonOption {
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")
     private WriteMode writeMode = WriteMode.APPEND;
+
+    @NotBlank(message = "path can not blank")
+    private String path;
 }

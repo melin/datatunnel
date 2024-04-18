@@ -19,7 +19,7 @@ datatunnel SOURCE('s3') OPTIONS(
     accessKey='BxiljVd5YZa3mRUn',
     secretKey='3Mq9dsmdMbN1JipE1TlOF7OuDkuYBYpe',
     format="excel",
-    filePath="s3a://demo-bucket/demo.xlsx",
+    paths=["s3a://demo-bucket/demo.xlsx"],
     'properties.header' = true,
     'properties.inferSchema' = true)
 SINK('log')

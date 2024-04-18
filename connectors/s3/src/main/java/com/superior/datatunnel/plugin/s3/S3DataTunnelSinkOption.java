@@ -15,4 +15,7 @@ public class S3DataTunnelSinkOption extends S3CommonOption {
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")
     private WriteMode writeMode = WriteMode.APPEND;
+
+    @NotNull(message = "path can not blank")
+    private String path;
 }

@@ -29,7 +29,7 @@ SINK('ftp') OPTIONS(
     username='fcftp',
     password="fcftp",
     format="csv",
-    filePath="ftp:///dt-orders")
+    path="ftp:///dt-orders")
 """
         spark.sql(sql)
     }

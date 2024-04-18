@@ -64,7 +64,7 @@ public class S3DataTunnelSink implements DataTunnelSink {
         }
 
         writer.option("compression", sinkOption.getCompression());
-        writer.save(sinkOption.getFilePath());
+        writer.save(sinkOption.getPath());
     }
 
     private void setObjConfig(DataSourceType sinkType, S3DataTunnelSinkOption sinkOption, Configuration hadoopConf) {

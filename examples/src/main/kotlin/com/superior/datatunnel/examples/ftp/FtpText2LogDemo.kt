@@ -20,7 +20,7 @@ datatunnel SOURCE('ftp') OPTIONS(
     username='fcftp',
     password="fcftp",
     format="csv",
-    filePath="ftp:///demo.csv")
+    paths=["ftp:///demo.csv"])
 SINK('log')
 """
         spark.sql(sql)
