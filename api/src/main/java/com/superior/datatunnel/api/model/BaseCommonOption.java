@@ -9,7 +9,7 @@ public class BaseCommonOption implements DataTunnelOption {
 
     private DataSourceType dataSourceType;
 
-    private String resultTableName;
+    private String sourceTempView;
 
     /**
      * key 前缀为 properties. 的参数，全部写入 properties
@@ -24,12 +24,12 @@ public class BaseCommonOption implements DataTunnelOption {
         this.dataSourceType = dataSourceType;
     }
 
-    public String getResultTableName() {
-        return resultTableName;
+    public String getSourceTempView() {
+        return sourceTempView;
     }
 
-    public void setResultTableName(String resultTableName) {
-        this.resultTableName = resultTableName;
+    public void setSourceTempView(String sourceTempView) {
+        this.sourceTempView = sourceTempView;
     }
 
     @Override

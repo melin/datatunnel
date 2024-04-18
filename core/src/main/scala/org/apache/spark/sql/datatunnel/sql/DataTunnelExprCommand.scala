@@ -80,11 +80,11 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     val sql = CommonUtils.genOutputSql(df, sourceOption.getColumns, sinkOption.getColumns, sinkOption.getDataSourceType)
     df = context.getSparkSession.sql(sql)
 
-    if (StringUtils.isBlank(sourceOption.getResultTableName)
+    if (StringUtils.isBlank(sourceOption.getSourceTempView)
       && StringUtils.isNotBlank(transfromSql)) {
-      throw new IllegalArgumentException("transfrom 存在，source 必须指定 resultTableName")
+      throw new IllegalArgumentException("transfrom 存在，source options 必须指定 sourceTempView")
     } else if (StringUtils.isNotBlank(transfromSql)) {
-      df.createTempView(sourceOption.getResultTableName)
+      df.createTempView(sourceOption.getSourceTempView)
       df = sparkSession.sql(transfromSql)
     }
 

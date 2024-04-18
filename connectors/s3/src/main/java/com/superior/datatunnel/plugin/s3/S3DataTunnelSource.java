@@ -25,8 +25,11 @@ public class S3DataTunnelSource implements DataTunnelSource {
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         S3DataTunnelSourceOption sourceOption = (S3DataTunnelSourceOption) context.getSourceOption();
 
-        if (StringUtils.isBlank(sourceOption.getRegion()) && StringUtils.isBlank(sourceOption.getEndpoint())) {
-            throw new DataTunnelException("region 和 endpoint 不能同时为空");
+        // 在aws 运行环境，不需要指定 reigon 和 endpoint, 如果本地调试需要指定 region。
+        if (context.getSourceType() != DataSourceType.S3) {
+            if (StringUtils.isBlank(sourceOption.getRegion()) && StringUtils.isBlank(sourceOption.getEndpoint())) {
+                throw new DataTunnelException("region 和 endpoint 不能同时为空");
+            }
         }
 
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");

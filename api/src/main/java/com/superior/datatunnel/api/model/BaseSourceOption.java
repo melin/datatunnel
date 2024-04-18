@@ -10,7 +10,7 @@ public class BaseSourceOption implements DataTunnelSourceOption {
 
     private DataSourceType dataSourceType;
 
-    private String resultTableName;
+    private String sourceTempView;
 
     private String cteSql;
 
@@ -47,13 +47,13 @@ public class BaseSourceOption implements DataTunnelSourceOption {
     }
 
     @Override
-    public String getResultTableName() {
-        return resultTableName;
+    public String getSourceTempView() {
+        return sourceTempView;
     }
 
     @Override
-    public void setResultTableName(String resultTableName) {
-        this.resultTableName = resultTableName;
+    public void setSourceTempView(String sourceTempView) {
+        this.sourceTempView = sourceTempView;
     }
 
     @Override

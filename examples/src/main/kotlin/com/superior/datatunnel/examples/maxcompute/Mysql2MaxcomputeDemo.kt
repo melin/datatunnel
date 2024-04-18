@@ -26,7 +26,7 @@ object Mysql2MaxcomputeDemo {
                 databaseName = 'demos',
                 tableName = 'users',
                 columns = ["userid", "age"],
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             ) 
             transform = "select userid as name, age, '20230605' as pt from tdl_users"
             SINK("maxcompute") options (

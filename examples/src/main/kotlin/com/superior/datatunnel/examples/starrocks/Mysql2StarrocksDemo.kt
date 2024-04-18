@@ -26,7 +26,7 @@ object Mysql2StarrocksDemo {
                 databaseName = 'demos',
                 tableName = 'users',
                 columns = ["*"],
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             ) 
             transform = "select id, userid as username, age from tdl_users"
             SINK("starrocks") OPTIONS (

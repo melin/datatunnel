@@ -28,7 +28,7 @@ object S32RedshiftDemo {
                 format = "json",
                 filePath = "s3a://datacyber/melin1204/",
                 region = "us-east-1",
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             ) 
             TRANSFORM = 'select id, userid, age from tdl_users'
             SINK("redshift") OPTIONS (

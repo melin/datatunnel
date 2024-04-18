@@ -2,9 +2,9 @@ package com.superior.datatunnel.api.model;
 
 public interface DataTunnelSourceOption extends DataTunnelOption {
 
-    String getResultTableName();
+    String getSourceTempView();
 
-    void setResultTableName(String resultTableName);
+    void setSourceTempView(String sourceTempView);
 
     String[] getColumns();
 }

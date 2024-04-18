@@ -28,7 +28,7 @@ object Mysql2RedshiftDemo {
                 databaseName = 'demos',
                 tableName = 'users',
                 columns = ["*"],
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             ) 
             TRANSFORM = 'select id, userid, create_time, age from tdl_users'
             SINK("redshift") OPTIONS (

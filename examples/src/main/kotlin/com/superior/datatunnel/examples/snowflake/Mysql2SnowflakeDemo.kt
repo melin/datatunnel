@@ -24,7 +24,7 @@ object Mysql2SnowflakeDemo {
                 databaseName = 'demos',
                 tableName = 'users',
                 columns = ["*"],
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             ) 
             SINK("snowflake") OPTIONS (
                 username = "",

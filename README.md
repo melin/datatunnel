@@ -21,15 +21,41 @@
 启动 ./bin/spark-sql，可以直接执行如下SQL 语法
 
 ```sql
--- hive source 支持CTE语法，方便原表数据经过处理过，写入到目标表，其他数据源不支持CTE 语法。
+-- spark source 支持CTE语法，方便原表数据经过处理过，写入到目标表，其他数据源不支持CTE 语法。
 -- 相比 transform 更灵活
 WITH t AS (
     WITH t2 AS (SELECT 1)
     SELECT * FROM t2
 )
-datatunnel source('数据源类型名称') options(键值对参数) 
-    transform(数据加工SQL，可以对数据处理后输出)
-    sink('数据源类型名称') options(键值对参数)
+datatunnel 
+source('数据源类型名称') options(键值对参数) 
+transform '数据加工SQL，可以对数据处理后输出'
+sink('数据源类型名称') options(键值对参数)
+
+-- transform 支持select 语句，对source 输出数据进行ETL 加工处理，需要在source options 中指定 sourceTempView 参数，运行是，对source df注册 spark temp view。TRANSFORM 的 select sql 中使用该temp view
+
+DATATUNNEL SOURCE("s3") OPTIONS (
+    format = "json",
+    filePath = "s3a://datacyber/melin1204/",
+    sourceTempView='tdl_users'
+) 
+TRANSFORM = 'select id, userid, age from tdl_users'
+SINK("redshift") OPTIONS (
+    username = "admin",
+    password = "Admin2024",
+    jdbcUrl = "jdbc:redshift://redshift-cluster-1.xxxx.us-east-1.redshift.amazonaws.com:5439/dev",
+    schemaName = "public",
+    tableName = "users1",
+    writeMode = "UPSERT",
+    upsertKeyColumns = ["id"],
+    tempdir = "s3a://datacyber/redshift_temp/",
+    region = "us-east-1",
+    accessKeyId = "${accessKeyId}",
+    secretAccessKey = "${secretAccessKey}",
+    iamRole = "${iamRole}",
+    columns = ["*"]
+)
+
 ```
 
 ```sql
