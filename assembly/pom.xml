@@ -58,17 +58,12 @@
             <artifactId>datatunnel-connector-hdfs</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- <dependency>
-             <groupId>com.superior.datatunnel</groupId>
-             <artifactId>datatunnel-connector-hbase</artifactId>
-             <version>${project.version}</version>
-         </dependency>
-
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-snowflake</artifactId>
+            <artifactId>datatunnel-connector-s3</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-clickhouse</artifactId>
@@ -94,14 +89,15 @@
             <artifactId>datatunnel-connector-redis</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-elasticsearch</artifactId>
             <version>${project.version}</version>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-s3</artifactId>
+            <artifactId>datatunnel-connector-snowflake</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
