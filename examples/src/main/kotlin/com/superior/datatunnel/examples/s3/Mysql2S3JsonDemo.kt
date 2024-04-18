@@ -25,8 +25,8 @@ datatunnel source('mysql') OPTIONS(
     columns=['*'])
 Sink('s3') OPTIONS(
     region='us-east-1',
-    accessKey='AKIAW77DWNKCQ6EV6AFI',
-    secretKey='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',
+    accessKey='xx',
+    secretKey='xxx',
     format="json",
     path="s3a://superior2023/datatunnel/demos.parquet")
 """
