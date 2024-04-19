@@ -22,6 +22,10 @@ public class HdfsDataTunnelSink implements DataTunnelSink {
         if (FileFormat.EXCEL == sinkOption.getFormat()) {
             format = "com.crealytics.spark.excel";
         }
+        if (sinkOption.getFileCount() != null) {
+            dataset.coalesce(sinkOption.getFileCount());
+        }
+
         DataFrameWriter writer = dataset.write().format(format);
 
         writer.option("compression", sinkOption.getCompression().name().toLowerCase());

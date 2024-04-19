@@ -44,7 +44,7 @@ object Redshift2S3Demo {
                 path = "s3a://datacyber/melin1204/20240419",
                 writeMode = "overwrite",
                 region = "us-east-1",
-                compression = "GZIP"
+                fileCount = 2
             ) 
         """.trimIndent()
 

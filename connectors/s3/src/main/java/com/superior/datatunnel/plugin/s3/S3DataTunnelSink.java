@@ -46,6 +46,10 @@ public class S3DataTunnelSink implements DataTunnelSink {
             format = "com.crealytics.spark.excel";
         }
 
+        if (sinkOption.getFileCount() != null) {
+            dataset.coalesce(sinkOption.getFileCount());
+        }
+
         DataFrameWriter writer = dataset.write()
                 .format(format)
                 .mode(sinkOption.getWriteMode().name().toLowerCase());

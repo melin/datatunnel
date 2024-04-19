@@ -5,6 +5,7 @@ import com.superior.datatunnel.common.enums.Compression;
 import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static com.superior.datatunnel.common.enums.FileFormat.*;
@@ -21,6 +22,9 @@ public class S3DataTunnelSinkOption extends S3CommonOption {
 
     @NotNull(message = "path can not blank")
     private String path;
+
+    @OptionDesc("输出文件数量")
+    private Integer fileCount;
 
     public Compression getCompression() {
         if (compression == null) {

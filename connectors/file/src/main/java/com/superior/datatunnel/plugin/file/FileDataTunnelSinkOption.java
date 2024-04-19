@@ -23,6 +23,9 @@ public class FileDataTunnelSinkOption extends FileCommonOption {
     @NotBlank(message = "path can not blank")
     private String path;
 
+    @OptionDesc("输出文件数量")
+    private Integer fileCount;
+
     public Compression getCompression() {
         if (compression == null) {
             if (this.getFormat() == PARQUET || this.getFormat() == ORC || this.getFormat() == HUDI ||

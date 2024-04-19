@@ -90,6 +90,9 @@ public class FtpDataTunnelSink implements DataTunnelSink {
         if (FileFormat.EXCEL == sinkOption.getFormat()) {
             format = "com.crealytics.spark.excel";
         }
+        if (sinkOption.getFileCount() != null) {
+            dataset.coalesce(sinkOption.getFileCount());
+        }
 
         DataFrameWriter writer = dataset.write()
                 .mode(sinkOption.getWriteMode().name().toLowerCase())
