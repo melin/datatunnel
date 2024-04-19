@@ -24,10 +24,5 @@
             <version>3.13.0</version>
             <scope>${libScope}</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.crealytics</groupId>
-            <artifactId>spark-excel_2.12</artifactId>
-        </dependency>
     </dependencies>
 </project>

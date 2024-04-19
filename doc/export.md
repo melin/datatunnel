@@ -56,7 +56,3 @@ JSON 相关参数，请参考 spark json 文档: https://spark.apache.org/docs/l
 
 Text 相关参数，请参考 spark text 文档: https://spark.apache.org/docs/latest/sql-data-sources-text.html
 
-### 导出 Excel 参数
-
-Excel 相关参数，请参考 spark excel 文档: https://github.com/crealytics/spark-excel
-

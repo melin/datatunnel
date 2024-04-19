@@ -48,7 +48,6 @@
         <hive.version>2.1.1-cdh6.3.2</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
-        <spark-excel.version>3.4.2_0.20.3</spark-excel.version>
         <spark-elasticsearch.version>7.17.15</spark-elasticsearch.version>
         <sql-parser.version>4.0.12</sql-parser.version>
 
@@ -183,26 +182,6 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>com.crealytics</groupId>
-                <artifactId>spark-excel_2.12</artifactId>
-                <version>${spark-excel.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-compress</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.scala-lang</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
