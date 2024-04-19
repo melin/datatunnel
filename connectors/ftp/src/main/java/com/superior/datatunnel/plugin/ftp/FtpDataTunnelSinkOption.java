@@ -28,6 +28,8 @@ public class FtpDataTunnelSinkOption extends FtpCommonOption {
             if (this.getFormat() == PARQUET || this.getFormat() == ORC || this.getFormat() == HUDI ||
                     this.getFormat() == ICEBERG || this.getFormat() == PAIMON) {
                 compression = Compression.ZSTD;
+            } else if (this.getFormat() == AVRO) {
+                compression = Compression.SNAPPY;
             } else {
                 compression = Compression.NONE;
             }
