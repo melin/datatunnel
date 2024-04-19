@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -100,7 +101,7 @@ public class FtpDataTunnelSink implements DataTunnelSink {
             writer.option("encoding", sinkOption.getEncoding());
             writer.option("header", sinkOption.isHeader());
         }
-        writer.option("compression", sinkOption.getCompression());
+        writer.option("compression", sinkOption.getCompression().name().toLowerCase(Locale.ROOT));
 
         String path = sinkOption.getPath();
         if (FtpProtocol.SFTP == sinkOption.getProtocol()) {

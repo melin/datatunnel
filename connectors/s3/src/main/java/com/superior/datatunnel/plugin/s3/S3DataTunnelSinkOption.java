@@ -1,16 +1,19 @@
 package com.superior.datatunnel.plugin.s3;
 
 import com.superior.datatunnel.common.annotation.OptionDesc;
+import com.superior.datatunnel.common.enums.Compression;
 import com.superior.datatunnel.common.enums.WriteMode;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 
+import static com.superior.datatunnel.common.enums.FileFormat.*;
+
 @Data
 public class S3DataTunnelSinkOption extends S3CommonOption {
 
-    @OptionDesc("文件压缩，支持：none, bzip2, gzip, lz4, snappy and deflate")
-    private String compression = "none";
+    @OptionDesc("文件压缩，不同文件格式, 支持压缩算法有差异，请参考spark 官方文档")
+    private Compression compression;
 
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")
@@ -18,4 +21,17 @@ public class S3DataTunnelSinkOption extends S3CommonOption {
 
     @NotNull(message = "path can not blank")
     private String path;
+
+    public Compression getCompression() {
+        if (compression == null) {
+            if (this.getFormat() == PARQUET || this.getFormat() == ORC || this.getFormat() == HUDI ||
+                    this.getFormat() == ICEBERG || this.getFormat() == PAIMON) {
+                compression = Compression.ZSTD;
+            } else {
+                compression = Compression.NONE;
+            }
+        }
+
+        return compression;
+    }
 }

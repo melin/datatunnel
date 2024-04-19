@@ -9,6 +9,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.io.IOException;
+import java.util.Locale;
 
 public class FileDataTunnelSink implements DataTunnelSink {
 
@@ -27,7 +28,7 @@ public class FileDataTunnelSink implements DataTunnelSink {
             writer.option("encoding", sinkOption.getEncoding());
             writer.option("header", sinkOption.isHeader());
         }
-        writer.option("compression", sinkOption.getCompression());
+        writer.option("compression", sinkOption.getCompression().name().toLowerCase(Locale.ROOT));
         writer.save(sinkOption.getPath());
     }
 

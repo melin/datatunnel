@@ -24,10 +24,7 @@ public class HdfsDataTunnelSink implements DataTunnelSink {
         }
         DataFrameWriter writer = dataset.write().format(format);
 
-        if ((FileFormat.ORC == sinkOption.getFormat() ||
-                FileFormat.PARQUET == sinkOption.getFormat())) {
-            writer.option("compression", sinkOption.getCompression().name().toLowerCase());
-        }
+        writer.option("compression", sinkOption.getCompression().name().toLowerCase());
 
         sinkOption.getProperties().forEach(writer::option);
         if (WriteMode.OVERWRITE == sinkOption.getWriteMode()) {
