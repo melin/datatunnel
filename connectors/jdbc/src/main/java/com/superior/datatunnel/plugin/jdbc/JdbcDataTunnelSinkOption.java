@@ -33,7 +33,7 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("jdbc 连接地址，如果填写jdbcUrl, 就不需要填写host & port")
     private String jdbcUrl;
 
-    @OptionDesc("upsert 写入数据时，指定表主键，如果有多个主键，逗号分隔")
+    @OptionDesc("upsert 写入数据，指定表主键")
     private String[] upsertKeyColumns;
 
     @OptionDesc("数据写入模式")

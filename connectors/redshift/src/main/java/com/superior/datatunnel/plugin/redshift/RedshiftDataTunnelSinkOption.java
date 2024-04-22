@@ -37,7 +37,7 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "writeMode can not null")
     private WriteMode writeMode = WriteMode.APPEND;
 
-    @OptionDesc("upsert 写入数据时，指定表主键，如果有多个主键，逗号分隔")
+    @OptionDesc("upsert 写入数据，指定表主键")
     private String[] upsertKeyColumns;
 
     @NotNull(message = "region can not blank")
