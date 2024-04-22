@@ -24,8 +24,11 @@ public class S3DataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         S3DataTunnelSinkOption sinkOption = (S3DataTunnelSinkOption) context.getSinkOption();
 
-        if (StringUtils.isBlank(sinkOption.getRegion()) && StringUtils.isBlank(sinkOption.getEndpoint())) {
-            throw new DataTunnelException("region 和 endpoint 不能同时为空");
+        // 在aws 运行环境，不需要指定 reigon 和 endpoint, 如果本地调试需要指定 region。
+        if (context.getSourceType() != DataSourceType.S3) {
+            if (StringUtils.isBlank(sinkOption.getRegion()) && StringUtils.isBlank(sinkOption.getEndpoint())) {
+                throw new DataTunnelException("region 和 endpoint 不能同时为空");
+            }
         }
 
         if (context.getSinkType() == DataSourceType.S3) {
