@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.ftp
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Mysql2FtpDemo {
+object Ftp2MysqlDemo {
     @JvmStatic
     fun main(args: Array<String>) {
         val spark = SparkSession
@@ -14,24 +14,25 @@ object Mysql2FtpDemo {
             .getOrCreate()
 
         val sql = """
-datatunnel SOURCE("mysql") OPTIONS (
+datatunnel SOURCE("ftp") OPTIONS(
+    protocol = 'ftp',
+    host='172.18.1.52',
+    port=21,
+    username='fcftp',
+    password="fcftp",
+    format="csv",
+    paths=["/datatunnel/orders"])
+SINK('mysql') OPTIONS (
     username = "root",
     password = "root2023",
     host = '172.18.5.44',
     port = 3306,
     databaseName = 'demos',
     tableName = 'orders',
-    columns = ["*"]
+    columns = ["*"],
+    writeMode = 'UPSERT',
+    upsertKeyColumns = ['id']
 )
-SINK('ftp') OPTIONS(
-    protocol = 'ftp',
-    host='172.18.1.52',
-    port=21,
-    username='fcftp',
-    password="fcftp",
-    writeMode="OVERWRITE",
-    format="csv",
-    path="/datatunnel/orders")
 """
         spark.sql(sql)
     }

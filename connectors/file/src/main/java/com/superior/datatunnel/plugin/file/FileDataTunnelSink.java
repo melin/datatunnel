@@ -32,6 +32,8 @@ public class FileDataTunnelSink implements DataTunnelSink {
             writer.option("encoding", sinkOption.getEncoding());
             writer.option("header", sinkOption.isHeader());
         }
+
+        writer.option("timestampFormat", sinkOption.getTimestampFormat());
         writer.option("compression", sinkOption.getCompression().name().toLowerCase(Locale.ROOT));
         writer.save(sinkOption.getPath());
     }

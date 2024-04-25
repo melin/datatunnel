@@ -53,7 +53,9 @@ public class FtpCommonOption extends BaseCommonOption
     private String encoding = "UTF-8";
 
     @OptionDesc("csv 文件，第一行是否为字段名")
-    private boolean header = false;
+    private boolean header = true;
+
+    private String timestampFormat = "yyyy-MM-dd HH:mm:ss[.SSS]";
 
     @NotEmpty(message = "columns can not empty")
     private String[] columns = new String[]{"*"};

@@ -31,7 +31,7 @@ SINK('ftp') OPTIONS(
     password="test2023",
     format="csv",
     writeMode="OVERWRITE",
-    path="sftp:///ftpdata/csv/orders")
+    path="/ftpdata/csv/orders")
 """
         spark.sql(sql)
     }

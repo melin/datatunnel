@@ -71,6 +71,7 @@ public class S3DataTunnelSink implements DataTunnelSink {
             writer.option("header", sinkOption.isHeader());
         }
 
+        writer.option("timestampFormat", sinkOption.getTimestampFormat());
         writer.option("compression", sinkOption.getCompression().name().toLowerCase(Locale.ROOT));
         writer.save(sinkOption.getPath());
     }

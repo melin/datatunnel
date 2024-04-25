@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
+import io.github.melin.jobserver.spark.api.LogUtils
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelExprContext
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
@@ -89,7 +90,9 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     }
 
     sinkConnector.createTable(df, context)
-    logInfo("source schema: " + df.schema.asInstanceOf[StructType].treeString(Int.MaxValue))
+    val schemaInfo = df.schema.treeString(Int.MaxValue)
+    logInfo("source schema: \n" + schemaInfo)
+    LogUtils.info("source schema: \n" + schemaInfo)
     sinkConnector.sink(df, context)
     Seq.empty[Row]
   }
