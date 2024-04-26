@@ -105,9 +105,9 @@ JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，�
 文档: [export.md](doc%2Fexport.md)
 
 ```
--- 通过文件名后缀，指定导出文件格式，目前支持：txt、csv、json、excel 四种文件
+-- 指定导出文件目录，通过后缀信息，指定导出文件格式，目前支持：txt、csv、json、excel 四种文件
 WITH common_table_expression [ , ... ]
-export table tablename [PARTITION (part_column="value"[, ...])] TO 'export_file_name.[txt|csv|json|xlsx]' [options(key=value)]
+export table tablename [PARTITION (part_column="value"[, ...])] TO 'export_data_dir.[txt|csv|json|xlsx]' [options(key=value)]
 ```
 
 ## Spark DistCp 语法
