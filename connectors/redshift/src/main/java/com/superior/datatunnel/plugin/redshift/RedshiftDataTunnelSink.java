@@ -70,7 +70,7 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
             sql = "DROP TABLE IF EXISTS " + dbtable + ";";
             postActions = ArrayUtils.add(postActions, sql);
             postActions = ArrayUtils.add(postActions, "END;");
-            LOGGER.info("postActions: {}", StringUtils.join(postActions, " "));
+            LOGGER.info("postActions: \n{}", StringUtils.join(postActions, "\n"));
         } else if (writeMode == WriteMode.OVERWRITE) {
             dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
             // preactions
