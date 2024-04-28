@@ -21,9 +21,9 @@ object Mysql2RedshiftDemo {
 
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
-                "username" = "admin",
-                "password" = "xxxxx",
-                "host" = "database-1.c8vfm34zprv8.us-east-1.rds.amazonaws.com",
+                username = "root",
+                password = "root2023",
+                host = '172.18.5.44',
                 port = 3306,
                 databaseName = 'demos',
                 tableName = 'users',
@@ -37,7 +37,7 @@ object Mysql2RedshiftDemo {
                 jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
                 schemaName = 'public',
                 tableName = 'users',
-                writeMode = 'UPSERT',
+                writeMode = 'upsert',
                 upsertKeyColumns = ['id'],
                 tempdir = 's3a://datacyber/redshift_temp/',
                 region = 'us-east-1',
