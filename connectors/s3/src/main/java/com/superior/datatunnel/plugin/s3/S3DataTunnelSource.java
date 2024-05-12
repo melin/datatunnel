@@ -62,7 +62,7 @@ public class S3DataTunnelSource implements DataTunnelSource {
             reader.option("encoding", sourceOption.getEncoding());
             reader.option("header", sourceOption.isHeader());
         }
-        if ("text".equalsIgnoreCase(format) && StringUtils.isNotBlank(sourceOption.getLineSep())) {
+        if (StringUtils.isNotBlank(sourceOption.getLineSep())) {
             reader.option("lineSep", sourceOption.getLineSep());
         }
 
