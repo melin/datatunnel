@@ -104,6 +104,9 @@ public class FtpDataTunnelSink implements DataTunnelSink {
             writer.option("encoding", sinkOption.getEncoding());
             writer.option("header", sinkOption.isHeader());
         }
+        if ("text".equalsIgnoreCase(format) && StringUtils.isNotBlank(sinkOption.getLineSep())) {
+            writer.option("lineSep", sinkOption.getLineSep());
+        }
         writer.option("timestampFormat", sinkOption.getTimestampFormat());
         writer.option("compression", sinkOption.getCompression().name().toLowerCase(Locale.ROOT));
 

@@ -29,11 +29,11 @@
 
         <scala.version>2.12.17</scala.version>
         <scala.bin.version>2.12</scala.bin.version>
-        <spark.version>3.4.2</spark.version>
+        <spark.version>3.4.3</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <slf4j.version>2.0.12</slf4j.version>
         <log4j2.version>2.23.1</log4j2.version>
-        <bee.version>1.7.5</bee.version>
+        <bee.version>1.7.6</bee.version>
         <hudi.version>0.14.1</hudi.version>
         <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>

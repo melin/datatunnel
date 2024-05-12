@@ -40,6 +40,9 @@ public class S3CommonOption extends BaseCommonOption
     @OptionDesc("csv 文件，第一行是否为字段名")
     private boolean header = true;
 
+    @OptionDesc("text 文件，行分隔符")
+    private String lineSep;
+
     private String timestampFormat = "yyyy-MM-dd HH:mm:ss[.SSS]";
 
     @NotEmpty(message = "columns can not empty")

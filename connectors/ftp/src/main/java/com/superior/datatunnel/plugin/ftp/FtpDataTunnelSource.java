@@ -93,6 +93,9 @@ public class FtpDataTunnelSource implements DataTunnelSource {
             reader.option("encoding", sourceOption.getEncoding());
             reader.option("header", sourceOption.isHeader());
         }
+        if ("text".equalsIgnoreCase(format) && StringUtils.isNotBlank(sourceOption.getLineSep())) {
+            reader.option("lineSep", sourceOption.getLineSep());
+        }
 
         String[] paths = sourceOption.getPaths();
         for (int i = 0; i < paths.length; i++) {

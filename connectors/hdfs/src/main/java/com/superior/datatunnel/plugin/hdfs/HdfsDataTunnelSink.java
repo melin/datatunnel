@@ -5,12 +5,14 @@ import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 
 import java.io.IOException;
+import java.util.Locale;
 
 public class HdfsDataTunnelSink implements DataTunnelSink {
 
@@ -28,7 +30,17 @@ public class HdfsDataTunnelSink implements DataTunnelSink {
 
         DataFrameWriter writer = dataset.write().format(format);
 
-        writer.option("compression", sinkOption.getCompression().name().toLowerCase());
+        if ("csv".equalsIgnoreCase(format)) {
+            writer.option("sep", sinkOption.getSep());
+            writer.option("encoding", sinkOption.getEncoding());
+            writer.option("header", sinkOption.isHeader());
+        }
+        if ("text".equalsIgnoreCase(format) && StringUtils.isNotBlank(sinkOption.getLineSep())) {
+            writer.option("lineSep", sinkOption.getLineSep());
+        }
+
+        writer.option("timestampFormat", sinkOption.getTimestampFormat());
+        writer.option("compression", sinkOption.getCompression().name().toLowerCase(Locale.ROOT));
 
         sinkOption.getProperties().forEach(writer::option);
         if (WriteMode.OVERWRITE == sinkOption.getWriteMode()) {

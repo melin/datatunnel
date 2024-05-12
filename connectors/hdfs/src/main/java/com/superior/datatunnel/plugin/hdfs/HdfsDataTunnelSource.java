@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.enums.FileFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -25,7 +26,16 @@ public class HdfsDataTunnelSource implements DataTunnelSource {
         SparkSession sparkSession = context.getSparkSession();
         DataFrameReader reader = sparkSession.read().format(format);
         sourceOption.getProperties().forEach(reader::option);
-        reader.option("wholetext", "true");
+
+        if ("csv".equalsIgnoreCase(format)) {
+            reader.option("sep", sourceOption.getSep());
+            reader.option("encoding", sourceOption.getEncoding());
+            reader.option("header", sourceOption.isHeader());
+        }
+        if ("text".equalsIgnoreCase(format) && StringUtils.isNotBlank(sourceOption.getLineSep())) {
+            reader.option("lineSep", sourceOption.getLineSep());
+        }
+
         return reader.load(sourceOption.getPaths());
     }
 
