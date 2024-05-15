@@ -50,7 +50,7 @@ public class S3DataTunnelSink implements DataTunnelSink {
         }
 
         if (sinkOption.getFileCount() != null) {
-            dataset.coalesce(sinkOption.getFileCount());
+            dataset = dataset.coalesce(sinkOption.getFileCount());
         }
 
         DataFrameWriter writer = dataset.write()
