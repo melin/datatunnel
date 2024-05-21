@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sts.model.Credentials;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class RedshiftDataTunnelSink implements DataTunnelSink {
@@ -43,14 +45,12 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
 
         String schemaName = option.getSchemaName();
         String tableName = option.getTableName();
+        String oldDbtable = "\"" + schemaName + "\".\"" + option.getTableName() + "\"";
         String dbtable;
         if (writeMode == WriteMode.UPSERT) {
             if (upsertKeyColumns == null) {
                 throw new DataTunnelException("UPSERT mode, upsertKeyColumns can not blank");
             }
-
-            // io.github.spark_redshift_community.spark.redshift.TableName
-            String oldDbtable = "\"" + schemaName + "\".\"" + option.getTableName() + "\"";
 
             // preactions
             tableName = tableName + "_" + RandomUniqueId.getNewLowerString(12);
@@ -98,6 +98,17 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.secret.key", secretAccessKey);
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.endpoint.region", region);
 
+        // 如果输入表字段和输出表字段位置不一致，调整位置。
+        Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
+        String[] sinkColumns = RedshiftUtils.queryTableColumnNames(connection, oldDbtable);
+        String[] sourceColumns = dataset.schema().fieldNames();
+        if (sinkColumns.length == sourceColumns.length) {
+            throw new DataTunnelException("source 和 sink 字段数量不一致");
+        }
+        if (!Arrays.equals(sinkColumns, sourceColumns)) {
+            dataset = dataset.selectExpr(sinkColumns);
+        }
+
         DataFrameWriter dataFrameWriter = dataset.write()
                 .format("io.github.spark_redshift_community.spark.redshift")
                 .options(option.getProperties())
@@ -111,7 +122,7 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
             if (StringUtils.isBlank(iamRole)) {
                 throw new DataTunnelException("iamRole can not blank");
             }
-            Credentials credentials = Utils.queryCredentials(accessKeyId, secretAccessKey, region, iamRole);
+            Credentials credentials = RedshiftUtils.queryCredentials(accessKeyId, secretAccessKey, region, iamRole);
             dataFrameWriter.option("temporary_aws_access_key_id", credentials.accessKeyId())
                     .option("temporary_aws_secret_access_key", credentials.secretAccessKey())
                     .option("temporary_aws_session_token", credentials.sessionToken());

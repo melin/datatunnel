@@ -7,7 +7,7 @@ object Mysql2RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = "xxx"
+        val accessKeyId = "xx"
         val secretAccessKey = "xxx"
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
@@ -30,7 +30,6 @@ object Mysql2RedshiftDemo {
                 columns = ["*"],
                 sourceTempView='tdl_users'
             ) 
-            TRANSFORM = 'select id, userid, create_time, age from tdl_users'
             SINK("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2024",
