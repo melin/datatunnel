@@ -102,7 +102,7 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
         String[] sinkColumns = RedshiftUtils.queryTableColumnNames(connection, oldDbtable);
         String[] sourceColumns = dataset.schema().fieldNames();
-        if (sinkColumns.length == sourceColumns.length) {
+        if (sinkColumns.length != sourceColumns.length) {
             throw new DataTunnelException("source 和 sink 字段数量不一致");
         }
         if (!Arrays.equals(sinkColumns, sourceColumns)) {
