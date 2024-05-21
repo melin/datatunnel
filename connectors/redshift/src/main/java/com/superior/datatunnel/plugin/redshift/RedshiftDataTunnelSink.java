@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.sts.model.Credentials;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class RedshiftDataTunnelSink implements DataTunnelSink {
