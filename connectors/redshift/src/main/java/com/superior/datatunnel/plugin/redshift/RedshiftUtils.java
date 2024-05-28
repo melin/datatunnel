@@ -27,6 +27,7 @@ public class RedshiftUtils {
 
         AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder()
                 .roleArn(iamRole)
+                .durationSeconds(3600) // 最大只能是 3600
                 .roleSessionName("DataTunnelRoleSession")
                 .build();
 
