@@ -56,4 +56,12 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
     private boolean pushDownAggregate = true;
 
     private boolean pushDownLimit = true;
+
+    public Integer getPartitionRecordCount() {
+        if (partitionRecordCount > 10000) {
+            return partitionRecordCount;
+        } else {
+            return 10000;
+        }
+    }
 }

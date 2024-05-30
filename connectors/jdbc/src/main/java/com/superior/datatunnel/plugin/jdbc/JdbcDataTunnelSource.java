@@ -10,6 +10,7 @@ import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.jdbc.support.Column;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.superior.datatunnel.api.DataSourceType.ORACLE;
 import static java.sql.Types.*;
@@ -45,6 +47,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSource.class);
 
     private static final String META_TABLE_NAME_FIELD = "dt_meta_table";
+
+    private static final String ORALCE_ROWID_ALIAS = "rowid_hash";
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
@@ -114,7 +118,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         Dataset<Row> dataset = null;
         for (int i = 0, len = tableNames.size(); i < len; i++) {
             Pair<String, String> pair = tableNames.get(i);
-            statTable(connection, sourceOption, pair.getLeft(), pair.getRight());
+            if (dataSourceType == ORACLE) {
+                statOracleTable(connection, sourceOption, pair.getLeft(), pair.getRight());
+            } else {
+                statTable(connection, sourceOption, pair.getLeft(), pair.getRight());
+            }
 
             String fullTableName = pair.getLeft() + "." + pair.getRight();
             String[] newColumns = Arrays.copyOf(columns, columns.length);
@@ -124,6 +132,17 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     newColumns[index] = "'" + fullTableName + "' as " + newColumns[index];
                     break;
                 }
+            }
+
+            if (dataSourceType == ORACLE) {
+                if (newColumns.length == 1 && "*".equals(newColumns[0])) {
+                    newColumns = JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, connection)
+                            .stream()
+                            .map(Column::name)
+                            .toArray(String[]::new);
+                }
+
+                newColumns = ArrayUtils.addFirst(newColumns, "ORA_HASH(ROWID) AS " + ORALCE_ROWID_ALIAS);
             }
 
             String condition = StringUtils.trim(sourceOption.getCondition());
@@ -173,6 +192,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
 
         JdbcUtils.close(connection);
+
+        if (dataSourceType == ORACLE) {
+            dataset = dataset.drop(ORALCE_ROWID_ALIAS);
+        }
         return dataset;
     }
 
@@ -203,6 +226,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         for (String schemaName : schemaNames) {
             String schema = CommonUtils.cleanQuote(schemaName);
             List<String> tableNames = dialect.getTableNames(schema);
+
             for (String name : tableNames) {
                 if (predicate.test(name)) {
                     list.add(Pair.of(schemaName, name));
@@ -339,6 +363,62 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             }
 
             sourceOption.setPartitionColumn(partitionColumn);
+            sourceOption.setNumPartitions(numPartitions);
+            LOG.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
+            LogUtils.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
+        } catch (SQLException e) {
+            throw new DataTunnelException(e.getMessage(), e);
+        } finally {
+            JdbcUtils.close(stmt);
+        }
+    }
+
+    private void statOracleTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String schemaName, String tableName) {
+        PreparedStatement stmt = null;
+        try {
+            Integer partitionRecordCount = sourceOption.getPartitionRecordCount();
+            String fullTableName = schemaName + "." + tableName;
+            String sql = "select count(1) as num , max(ORA_HASH(ROWID)) max_value, min(ORA_HASH(ROWID)) min_value " +
+                    "from " + fullTableName;
+
+            String condition = StringUtils.trim(sourceOption.getCondition());
+            if (StringUtils.isNotBlank(condition)) {
+                if (StringUtils.startsWithIgnoreCase(condition, "where")) {
+                    sql = sql + " " + condition;
+                } else {
+                    sql = sql + " where " + condition;
+                }
+            }
+
+            StopWatch stopWatch = StopWatch.createStarted();
+            stmt = conn.prepareStatement(sql);
+            ResultSet resultSet = stmt.executeQuery();
+            resultSet.next();
+            long count = Long.parseLong(resultSet.getString("num"));
+            stopWatch.stop();
+            String execTimes = stopWatch.formatTime();
+
+            LOG.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
+            LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
+
+            String minValue = String.valueOf(resultSet.getObject("min_value"));
+            LOG.info("table {} min rowid hash value: {}", fullTableName, minValue);
+            LogUtils.info("table {} min rowid hash value: {}", fullTableName, minValue);
+            sourceOption.setLowerBound(minValue);
+
+            String maxValue = String.valueOf(resultSet.getObject("max_value"));
+            LOG.info("table {} max rowid hash value: {}", fullTableName, maxValue);
+            LogUtils.info("table {} max rowid hash value: {}", fullTableName, maxValue);
+            sourceOption.setUpperBound(maxValue);
+
+            int numPartitions = (int) Math.ceil((double) count / partitionRecordCount);
+            if (numPartitions == 0) {
+                numPartitions = 1;
+            }
+
+            sourceOption.setPartitionColumn(ORALCE_ROWID_ALIAS);
             sourceOption.setNumPartitions(numPartitions);
             LOG.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
                     sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
