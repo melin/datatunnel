@@ -21,6 +21,7 @@ import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
+import scala.collection.Map$;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -218,8 +219,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         params.remove("upperBound");
         params.remove("numPartitions");
         params.put("user", sourceOption.getUsername());
-        return new JDBCOptions(url, dbtable, JavaConverters.mapAsScalaMapConverter(params).asScala()
-                        .toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
+        return new JDBCOptions(url, dbtable, javaMapToScala(params));
+    }
+
+    private static scala.collection.immutable.Map<String, String> javaMapToScala(Map<String, String> params) {
+        scala.collection.mutable.Map scalaMap = JavaConverters.mapAsScalaMap(params);
+        Object obj = Map$.MODULE$.<String, String>newBuilder().$plus$plus$eq(scalaMap.toSeq());
+        Object result = ((scala.collection.mutable.Builder<?, ?>) obj).result();
+        return (scala.collection.immutable.Map<String, String>) result;
     }
 
     private Connection buildConnection(String url, JDBCOptions options) {
