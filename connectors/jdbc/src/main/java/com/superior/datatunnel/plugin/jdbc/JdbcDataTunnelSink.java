@@ -75,6 +75,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();
+            if (StringUtils.isBlank(password)) {
+                LogUtils.warn("password is blank");
+            }
 
             String jdbcUrl = sinkOption.getJdbcUrl();
             if (StringUtils.isBlank(jdbcUrl)) {

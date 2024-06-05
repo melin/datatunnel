@@ -160,6 +160,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             int queryTimeout = sourceOption.getQueryTimeout();
             String username = sourceOption.getUsername();
             String password = sourceOption.getPassword();
+            if (StringUtils.isBlank(password)) {
+                LogUtils.warn("password is blank");
+            }
 
             DataFrameReader reader = context.getSparkSession().read()
                     .format("jdbc")
