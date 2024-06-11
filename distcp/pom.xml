@@ -6,7 +6,7 @@
     <parent>
         <artifactId>datatunnel</artifactId>
         <groupId>com.superior.datatunnel</groupId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
     </parent>
 
     <artifactId>datatunnel-distcp</artifactId>
