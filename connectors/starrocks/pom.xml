@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>com.starrocks</groupId>
-            <artifactId>starrocks-spark-connector-3.4_2.12</artifactId>
+            <artifactId>starrocks-spark-connector-3.5_2.12</artifactId>
             <version>1.1.2</version>
             <exclusions>
                 <exclusion>

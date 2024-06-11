@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.functions._
@@ -262,7 +262,7 @@ case class ExportTableCommand(
 
       val clazz = classOf[Dataset[Row]]
       val constructor = clazz.getDeclaredConstructor(classOf[SparkSession], classOf[LogicalPlan], classOf[Encoder[_]])
-      dataFrame = constructor.newInstance(sparkSession, logicPlan, RowEncoder.apply(execution.analyzed.schema))
+      dataFrame = constructor.newInstance(sparkSession, logicPlan, ExpressionEncoder.apply(execution.analyzed.schema))
     } else {
       throw new SQLParserException(String.format("table %s is neither exists in database %s nor in the temp view!", tableName, db))
     }

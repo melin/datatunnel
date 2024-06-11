@@ -1,7 +1,7 @@
 package com.superior.datatunnel.plugin.jdbc;
 
 import com.clearspring.analytics.util.Lists;
-import com.gitee.melin.bee.core.jdbc.JdbcDialectHolder;
+import com.gitee.melin.bee.core.jdbc.dialect.JdbcDialectHolder;
 import com.gitee.melin.bee.util.Predicates;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
@@ -107,7 +107,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         com.gitee.melin.bee.core.jdbc.enums.DataSourceType dsType =
                 com.gitee.melin.bee.core.jdbc.enums.DataSourceType.valueOf(dataSourceType.name());
-        com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, connection);
+        com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, null, connection);
         List<String> schemaNames = getSchemaNames(schemaName, beeJdbcDialect);
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, beeJdbcDialect);
         if (tableNames.isEmpty()) {

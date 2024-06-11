@@ -15,8 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_2.12</artifactId>
-            <version>3.4.1</version>
+            <artifactId>spark-cassandra-connector_${scala.bin.version}</artifactId>
+            <version>${cassandra-connector.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>

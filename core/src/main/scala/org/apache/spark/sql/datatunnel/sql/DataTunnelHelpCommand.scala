@@ -27,7 +27,6 @@ case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) ex
     StructField("description", DataTypes.StringType, nullable = true, Metadata.empty)
   ))
 
-  override def output: Seq[Attribute] = OUTPUT_TYPE.toAttributes
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val datasourceType = DataSourceType.valueOf(CommonUtils.cleanQuote(ctx.value.getText).toUpperCase)
