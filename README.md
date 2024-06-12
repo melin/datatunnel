@@ -1,11 +1,15 @@
 ## 基于spark 的数据集成平台
-目前很多公司使用datax 同步数据，存在如下问题：
-1. hive 表不支持复杂数据类型(array, map, struct)读写，seatunnel 也有类似问题。基于spark 去实现，对数据类型以及数据格式支持，非常成熟
-2. hive 表数据格式支持有限，不支持parquet，数据湖iceberg, hudi, paimon 等。
-3. hive 同步直接读取数据文件，不能获取分区信息，不能把分区信息同步到 sink 表。
-4. 需要自己管理datax 任务资源，例如：同步任务数量比较多，怎么控制同时运行任务数量，同一个节点运行太多，可能导致CPU 使用过高，触发运维监控。
-5. 如果是出海用户，使用redshift、snowflake、bigquery 产品(国产很多数仓缺少大数据引擎connector，例如hashdata，gauss dws)，基于datax api 方式去实现，效率非常低。redshift，snowflake 提供spark connector。底层提供基于copy form/into 命令批量导入数据，效率高。
-6. JDBC 缺少bulk insert，效率不高
+
+DataTunnel 是一个基于spark引擎的超高性能的分布式数据集成组，支持海量数据的同步。基于spark extensions 扩展的DSL语法，结合的Spark SQL，更加便捷融入数据 ETLT 过程中，简单易用。
+
+DataTunnel 特性：
+1. Spark 是一个非常成熟大数据引擎，有非常成熟的connector，例如 es、mongodb、redshift、snowflake、cassandra 等产品官方维护了spark connector
+2. 插件式设计让用户可以轻松开发自己的Connector并将其集成到Datatunnel中。
+3. 支持多表或全库同步。
+4. 高吞吐量、低延迟，持并行读写，提供稳定可靠的高吞吐量、低延迟的数据同步能力。
+5. 支持两种作业开发方法：spark sql运行方式，以及向导模式。
+6. 支持bulk insert(pg, mysql, oceanbase等)
+
 
 ## Build
 [build.md](build.md)
