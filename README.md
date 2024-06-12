@@ -1,6 +1,6 @@
 ## 基于spark 的数据集成平台
 
-DataTunnel 是一个基于spark引擎的超高性能的分布式数据集成组，支持海量数据的同步。基于spark extensions 扩展的DSL语法，结合的Spark SQL，更加便捷融入数据 ETLT 过程中，简单易用。
+DataTunnel 是一个基于spark引擎的超高性能的分布式数据集成软件，支持海量数据的同步。基于spark extensions 扩展的DSL语法，结合的Spark SQL，更加便捷融入数仓 ETLT 过程中，简单易用。
 
 DataTunnel 特性：
 1. Spark 是一个非常成熟大数据引擎，有非常成熟的connector，例如 es、mongodb、redshift、snowflake、cassandra 等产品官方维护了spark connector
