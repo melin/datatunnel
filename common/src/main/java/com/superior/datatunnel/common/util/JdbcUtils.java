@@ -110,6 +110,25 @@ public class JdbcUtils {
         }
     }
 
+    public static String[] queryTableColumnNames(Connection connection, String dbtable) {
+        try {
+            String sql = "select * from " + dbtable + " where 1 = 0";
+            ResultSetMetaData rsmd = connection.prepareStatement(sql).getMetaData();
+
+            int ncols = rsmd.getColumnCount();
+            String[] columns = new String[ncols];
+            int i = 0;
+            while (i < ncols) {
+                String columnName = rsmd.getColumnLabel(i + 1);
+                columns[i] = columnName;
+                i++;
+            }
+            return columns;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void close(Connection x) {
         if (x == null) {
             return;

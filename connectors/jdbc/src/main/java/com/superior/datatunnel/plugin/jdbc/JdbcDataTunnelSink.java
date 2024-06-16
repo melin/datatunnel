@@ -20,6 +20,7 @@ import scala.collection.JavaConverters;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,15 +108,27 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             String preactions = sinkOption.getPreActions();
             String postactions = sinkOption.getPostActions();
-            if (StringUtils.isNotBlank(preactions) || StringUtils.isNotBlank(postactions)) {
-                connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
-            }
+            connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
 
             if (StringUtils.isNotBlank(preactions)) {
                 List<String> sqls = SqlUtils.splitMultiSql(preactions);
                 for (String presql : sqls) {
                     LOG.info("exec pre sql: " + presql);
                     execute(connection, presql);
+                }
+            }
+
+            // 如果输入表字段和输出表字段位置不一致，调整位置。
+            String[] sinkColumns = sinkOption.getColumns();
+            if (sinkOption.getColumns().length == 1 && sinkOption.getColumns()[0].equals("*")) {
+                sinkColumns = JdbcUtils.queryTableColumnNames(connection, fullTableName);
+                String[] sourceColumns = dataset.schema().fieldNames();
+                if (sinkColumns.length != sourceColumns.length) {
+                    throw new DataTunnelException("source 和 sink 字段数量不一致");
+                }
+                if (!Arrays.equals(sinkColumns, sourceColumns)) {
+                    dataset = dataset.selectExpr(sinkColumns);
+                    LogUtils.info("source和sink字段顺序不一致，自动按照名称匹配顺序");
                 }
             }
 

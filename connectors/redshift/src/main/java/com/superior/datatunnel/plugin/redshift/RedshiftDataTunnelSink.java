@@ -98,14 +98,17 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.endpoint.region", region);
 
         // 如果输入表字段和输出表字段位置不一致，调整位置。
-        Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
-        String[] sinkColumns = RedshiftUtils.queryTableColumnNames(connection, oldDbtable);
-        String[] sourceColumns = dataset.schema().fieldNames();
-        if (sinkColumns.length != sourceColumns.length) {
-            throw new DataTunnelException("source 和 sink 字段数量不一致");
-        }
-        if (!Arrays.equals(sinkColumns, sourceColumns)) {
-            dataset = dataset.selectExpr(sinkColumns);
+        String[] sinkColumns = option.getColumns();
+        if (option.getColumns().length == 1 && option.getColumns()[0].equals("*")) {
+            Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
+            sinkColumns = RedshiftUtils.queryTableColumnNames(connection, oldDbtable);
+            String[] sourceColumns = dataset.schema().fieldNames();
+            if (sinkColumns.length != sourceColumns.length) {
+                throw new DataTunnelException("source 和 sink 字段数量不一致");
+            }
+            if (!Arrays.equals(sinkColumns, sourceColumns)) {
+                dataset = dataset.selectExpr(sinkColumns);
+            }
         }
 
         DataFrameWriter dataFrameWriter = dataset.write()

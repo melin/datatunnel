@@ -20,10 +20,10 @@ object Mysql2OracleDemo {
         val sql = """
             Datatunnel source('mysql') OPTIONS(
                 "username" = "root"
-                ,"password" = "epbw1902"
-                ,"jdbcUrl" = "jdbc:mysql://172.18.1.51:3306/pipeline"
-                ,"schemaName" = "pipeline"
-                ,"tableName" = "cyj_test1"
+                ,"password" = "root2023"
+                ,"jdbcUrl" = "jdbc:mysql://172.18.5.44:3306"
+                ,"schemaName" = "demos"
+                ,"tableName" = "test_1"
                 ,"columns" = ["*"]
             )
             sink('oracle') OPTIONS(
