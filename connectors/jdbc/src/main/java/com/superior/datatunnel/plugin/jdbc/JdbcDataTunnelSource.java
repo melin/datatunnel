@@ -296,7 +296,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                                     || type == NUMERIC || type == DECIMAL) {
 
                                 partitionColumn = primaryKey;
-                                LOG.info("自动推测 partitionColumn: {}", primaryKey);
                                 LogUtils.info("自动推测 partitionColumn: {}", primaryKey);
                                 break;
                             }
@@ -332,12 +331,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String execTimes = stopWatch.formatTime();
 
             if (StringUtils.isBlank(partitionColumn)) {
-                LOG.info("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
-                        execTimes, fullTableName, count);
                 LogUtils.warn("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
                         execTimes, fullTableName, count);
             } else {
-                LOG.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
                 LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
             }
 
@@ -345,13 +341,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             if (StringUtils.isNotBlank(partitionColumn)) {
                 if (StringUtils.isBlank(lowerBound)) {
                     String minValue = String.valueOf(resultSet.getObject("min_value"));
-                    LOG.info("table {} min value: {}", fullTableName, minValue);
                     LogUtils.info("table {} min value: {}", fullTableName, minValue);
                     sourceOption.setLowerBound(minValue);
                 }
                 if (StringUtils.isBlank(upperBound)) {
                     String maxValue = String.valueOf(resultSet.getObject("max_value"));
-                    LOG.info("table {} max value: {}", fullTableName, maxValue);
                     LogUtils.info("table {} max value: {}", fullTableName, maxValue);
                     sourceOption.setUpperBound(maxValue);
                 }
@@ -366,8 +360,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             sourceOption.setPartitionColumn(partitionColumn);
             sourceOption.setNumPartitions(numPartitions);
-            LOG.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
-                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
             LogUtils.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
                     sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
         } catch (SQLException e) {
@@ -402,16 +394,13 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             stopWatch.stop();
             String execTimes = stopWatch.formatTime();
 
-            LOG.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
             LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
 
             String minValue = String.valueOf(resultSet.getObject("min_value"));
-            LOG.info("table {} min rowid hash value: {}", fullTableName, minValue);
             LogUtils.info("table {} min rowid hash value: {}", fullTableName, minValue);
             sourceOption.setLowerBound(minValue);
 
             String maxValue = String.valueOf(resultSet.getObject("max_value"));
-            LOG.info("table {} max rowid hash value: {}", fullTableName, maxValue);
             LogUtils.info("table {} max rowid hash value: {}", fullTableName, maxValue);
             sourceOption.setUpperBound(maxValue);
 
@@ -422,8 +411,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             sourceOption.setPartitionColumn(ORALCE_ROWID_ALIAS);
             sourceOption.setNumPartitions(numPartitions);
-            LOG.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
-                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
             LogUtils.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
                     sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
         } catch (SQLException e) {

@@ -91,7 +91,6 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
 
     sinkConnector.createTable(df, context)
     val schemaInfo = df.schema.treeString(Int.MaxValue)
-    logInfo("source schema: \n" + schemaInfo)
     LogUtils.info("source schema: \n" + schemaInfo)
     sinkConnector.sink(df, context)
     Seq.empty[Row]

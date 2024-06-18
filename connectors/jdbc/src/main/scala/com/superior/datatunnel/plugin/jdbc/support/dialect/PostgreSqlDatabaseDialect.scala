@@ -67,7 +67,6 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
       StringUtils.split(columnsStr, ",").toList.map(colName => jdbcDialect.quoteIdentifier(colName)).asJava
     }
 
-    logInfo(s"table ${tableId} primary keys : ${primaryKeys.mkString(",")}")
     LogUtils.info(s"table ${tableId} primary keys : ${primaryKeys.mkString(",")}")
 
     // 创建临时表名
@@ -79,19 +78,16 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
     val tempTableMode = primaryKeys.length > 0 && !truncate // 设置主键，且truncate = false，才需要创建临时表
 
     if (truncate) {
-      logInfo(s"prepare truncate table: ${tableId}")
       LogUtils.info(s"prepare truncate table: ${tableId}")
       val sql = s"truncate table ${tableId}";
       executeSql(conn, sql)
     }
 
     if (tempTableMode) {
-      logInfo(s"prepare temp table: ${tempTableName}")
       LogUtils.info(s"prepare temp table: ${tempTableName}")
       var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
       executeSql(conn, sql)
 
-      logInfo(s"truncat temp table: ${tempTableName}");
       LogUtils.info(s"truncat temp table: ${tempTableName}")
       sql = s"TRUNCATE TABLE ${tempTableName}";
       executeSql(conn, sql)
@@ -107,11 +103,9 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
     if (tempTableMode) {
       // 从临时表导入
       var sql = buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
-      logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
       LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
       executeSql(conn, sql)
 
-      logInfo(s"drop temp table ${tempTableName}");
       LogUtils.info(s"drop temp table ${tempTableName}")
       sql = s"drop table $tempTableName";
       executeSql(conn, sql)

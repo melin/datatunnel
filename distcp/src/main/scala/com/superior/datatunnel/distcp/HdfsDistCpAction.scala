@@ -74,7 +74,6 @@ class HdfsDistCpAction extends DistCpAction with Logging {
     allResults.foreach(_ => ())
 
     val outputText = accumulators.getOutputText
-    logInfo(s"Spark DistCP Run Statistics:\n${outputText}")
     LogUtils.info(s"Spark DistCP Run Statistics:\n${outputText}")
   }
 }

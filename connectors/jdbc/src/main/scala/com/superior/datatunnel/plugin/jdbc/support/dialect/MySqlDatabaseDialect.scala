@@ -81,7 +81,6 @@ class MySqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
     }
 
     if (truncate) {
-      logInfo(s"prepare truncate table: ${tableId}")
       LogUtils.info(s"prepare truncate table: ${tableId}")
       val sql = s"truncate table ${tableId}";
       executeSql(conn, sql)
@@ -90,7 +89,6 @@ class MySqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
     val loadCommand = s"LOAD DATA LOCAL INFILE 'datatunnel.csv' REPLACE INTO TABLE ${tableId} " +
       s"FIELDS TERMINATED BY ',' ENCLOSED BY '${'"'}' LINES TERMINATED BY '\n' (${columnNames.asScala.mkString(",")})";
 
-    logInfo(s"load data: ${loadCommand}")
     LogUtils.info(s"load data: ${loadCommand}")
     LoadDataSqlHelper.loadData(dataSourceType, parameters)(df, loadCommand)
   }

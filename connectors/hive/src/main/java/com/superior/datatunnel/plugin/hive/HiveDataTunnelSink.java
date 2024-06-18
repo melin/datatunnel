@@ -210,7 +210,6 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             HttpClientUtils.postRequet(superiorUrl, params);
         } else {
-            LOG.warn("请求同步失败: superiorUrl: {}, userId: {}", superiorUrl, userId);
             LogUtils.warn("请求同步失败: superiorUrl: {}, userId: {}", superiorUrl, userId);
         }
     }
