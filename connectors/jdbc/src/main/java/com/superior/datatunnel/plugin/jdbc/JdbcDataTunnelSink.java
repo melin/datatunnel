@@ -55,6 +55,7 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
         options.add("keytab");
         options.add("principal");
         options.add("refreshKrb5Config");
+        options.add("driver");
         return options;
     }
 
