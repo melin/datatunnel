@@ -13,8 +13,8 @@ object PathUtils {
     * Hadoop Configuration is used.
     */
   def pathToQualifiedPath(
-    hadoopConfiguration: Configuration,
-    path: Path
+      hadoopConfiguration: Configuration,
+      path: Path
   ): Path = {
     val fs = FileSystem.get(hadoopConfiguration)
     path.makeQualified(fs.getUri, fs.getWorkingDirectory)
@@ -38,10 +38,10 @@ object PathUtils {
     *   Source file path URI mapped to the destination FileSystem
     */
   def sourceURIToDestinationURI(
-    file: URI,
-    sourceURI: URI,
-    destinationURI: URI,
-    updateOverwritePathBehaviour: Boolean
+      file: URI,
+      sourceURI: URI,
+      destinationURI: URI,
+      updateOverwritePathBehaviour: Boolean
   ): URI = {
     val sourceFolderURI: URI = {
       if (updateOverwritePathBehaviour) sourceURI

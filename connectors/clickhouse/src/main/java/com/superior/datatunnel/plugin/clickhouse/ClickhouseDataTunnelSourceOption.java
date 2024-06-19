@@ -2,9 +2,8 @@ package com.superior.datatunnel.plugin.clickhouse;
 
 import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Data
 public class ClickhouseDataTunnelSourceOption extends BaseSourceOption {

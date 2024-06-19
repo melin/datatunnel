@@ -19,10 +19,9 @@
 
 package com.aliyun.odps.cupid.table.v1.util;
 
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import sun.misc.Unsafe;
 
 public final class Platform {
 
@@ -53,8 +52,7 @@ public final class Platform {
             flag = true;
         } else {
             try {
-                Class<?> bitsClass =
-                        Class.forName("java.nio.Bits", false, ClassLoader.getSystemClassLoader());
+                Class<?> bitsClass = Class.forName("java.nio.Bits", false, ClassLoader.getSystemClassLoader());
                 Method unalignedMethod = bitsClass.getDeclaredMethod("unaligned");
                 unalignedMethod.setAccessible(true);
                 flag = Boolean.TRUE.equals(unalignedMethod.invoke(null));
@@ -162,8 +160,7 @@ public final class Platform {
         _UNSAFE.setMemory(address, size, value);
     }
 
-    public static void copyMemory(
-            Object src, long srcOffset, Object dst, long dstOffset, long length) {
+    public static void copyMemory(Object src, long srcOffset, Object dst, long dstOffset, long length) {
         // Check if dstOffset is before or after srcOffset to determine if we should copy
         // forward or backwards. This is necessary in case src and dst overlap.
         if (dstOffset < srcOffset) {
@@ -184,7 +181,6 @@ public final class Platform {
                 _UNSAFE.copyMemory(src, srcOffset, dst, dstOffset, size);
                 length -= size;
             }
-
         }
     }
 

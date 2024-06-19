@@ -29,13 +29,12 @@ import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
 import com.aliyun.odps.tunnel.io.TunnelRecordReader;
 import com.aliyun.odps.type.TypeInfoParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TunnelReader implements SplitReader<ArrayRecord> {
 
@@ -93,14 +92,16 @@ public class TunnelReader implements SplitReader<ArrayRecord> {
         if (requiredColumns.isEmpty()) {
             List<Attribute> dataColumns = inputSplit.getDataColumns();
             if (!dataColumns.isEmpty()) {
-                readDataColumns.add(new Column(dataColumns.get(0).getName(), TypeInfoParser.getTypeInfoFromTypeString(dataColumns.get(0).getType())));
+                readDataColumns.add(new Column(
+                        dataColumns.get(0).getName(),
+                        TypeInfoParser.getTypeInfoFromTypeString(
+                                dataColumns.get(0).getType())));
             } else {
                 throw new RuntimeException("Empty column is not supported by tunnel table provider");
             }
         }
         try {
-            reader = session.openRecordReader(
-                    startIndex, numRecord, true, readDataColumns);
+            reader = session.openRecordReader(startIndex, numRecord, true, readDataColumns);
         } catch (TunnelException e) {
             throw new IOException(e);
         }

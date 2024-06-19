@@ -21,5 +21,4 @@ package com.aliyun.odps.cupid.table.v1.tunnel.impl;
 
 import com.aliyun.odps.cupid.table.v1.writer.WriterCommitMessage;
 
-public class TunnelWriteMsg implements WriterCommitMessage {
-}
+public class TunnelWriteMsg implements WriterCommitMessage {}

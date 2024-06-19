@@ -3,12 +3,11 @@ package com.superior.datatunnel.common.util;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
-import org.apache.spark.sql.DataFrameReader;
-import org.apache.spark.sql.DataFrameWriter;
-
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.spark.sql.DataFrameReader;
+import org.apache.spark.sql.DataFrameWriter;
 
 public class ReflectionUtils {
 
@@ -25,8 +24,7 @@ public class ReflectionUtils {
         while (Object.class != searchType && searchType != null) {
             Field[] fields = getDeclaredFields(searchType);
             for (Field field : fields) {
-                if ((name == null || name.equals(field.getName())) &&
-                        (type == null || type.equals(field.getType()))) {
+                if ((name == null || name.equals(field.getName())) && (type == null || type.equals(field.getType()))) {
                     return field;
                 }
             }
@@ -41,17 +39,17 @@ public class ReflectionUtils {
             try {
                 result = clazz.getDeclaredFields();
                 declaredFieldsCache.put(clazz, (result.length == 0 ? EMPTY_FIELD_ARRAY : result));
-            }
-            catch (Throwable ex) {
-                throw new IllegalStateException("Failed to introspect Class [" + clazz.getName() +
-                        "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
+            } catch (Throwable ex) {
+                throw new IllegalStateException(
+                        "Failed to introspect Class [" + clazz.getName() + "] from ClassLoader ["
+                                + clazz.getClassLoader() + "]",
+                        ex);
             }
         }
         return result;
     }
 
-    public static void setDataFrameReaderOptions(
-            DataFrameReader reader, DataTunnelSourceOption option) {
+    public static void setDataFrameReaderOptions(DataFrameReader reader, DataTunnelSourceOption option) {
         try {
             Field[] fields = option.getClass().getDeclaredFields();
             for (Field field : fields) {
@@ -66,8 +64,7 @@ public class ReflectionUtils {
         }
     }
 
-    public static void setDataFrameWriterOptions(
-            DataFrameWriter writer, DataTunnelSinkOption option) {
+    public static void setDataFrameWriterOptions(DataFrameWriter writer, DataTunnelSinkOption option) {
         try {
             Field[] fields = option.getClass().getDeclaredFields();
             for (Field field : fields) {

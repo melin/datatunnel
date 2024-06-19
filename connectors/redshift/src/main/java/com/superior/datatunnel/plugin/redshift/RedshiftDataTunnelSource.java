@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
@@ -12,8 +13,6 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sts.model.Credentials;
-
-import java.io.IOException;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -30,8 +29,10 @@ public class RedshiftDataTunnelSource implements DataTunnelSource {
         String jdbcUrl = option.getJdbcUrl();
         if (StringUtils.isBlank(jdbcUrl)) {
             if (StringUtils.isNotBlank(option.getHost())
-                    && option.getPort() != null && StringUtils.isNotBlank(option.getDatabaseName())) {
-                jdbcUrl = "jdbc:redshift://" + option.getHost() + ":" + option.getPort() + "/" + option.getDatabaseName();
+                    && option.getPort() != null
+                    && StringUtils.isNotBlank(option.getDatabaseName())) {
+                jdbcUrl =
+                        "jdbc:redshift://" + option.getHost() + ":" + option.getPort() + "/" + option.getDatabaseName();
             } else {
                 throw new IllegalArgumentException("Redshift 不正确，添加jdbcUrl 或者 host & port & databaseName");
             }

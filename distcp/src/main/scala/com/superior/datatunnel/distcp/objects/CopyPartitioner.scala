@@ -40,7 +40,7 @@ case class CopyPartitioner(indexes: Array[(Int, Int)]) extends Partitioner {
 
 object CopyPartitioner {
   def apply(
-    rdd: RDD[((Int, Int), CopyDefinitionWithDependencies)]
+      rdd: RDD[((Int, Int), CopyDefinitionWithDependencies)]
   ): CopyPartitioner = new CopyPartitioner(
     rdd.map(_._1).reduceByKey(_ max _).collect()
   )

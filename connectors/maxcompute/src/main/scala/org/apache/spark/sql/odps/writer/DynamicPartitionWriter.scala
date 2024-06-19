@@ -1,7 +1,11 @@
 package org.apache.spark.sql.odps.writer
 
 import com.aliyun.odps.Column
-import com.aliyun.odps.cupid.table.v1.writer.{FileWriter, FileWriterBuilder, WriteSessionInfo}
+import com.aliyun.odps.cupid.table.v1.writer.{
+  FileWriter,
+  FileWriterBuilder,
+  WriteSessionInfo
+}
 import com.aliyun.odps.data.ArrayRecord
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.write.{DataWriter, WriterCommitMessage}
@@ -9,17 +13,20 @@ import org.apache.spark.sql.odps.converter.TypesConverter
 
 import scala.collection.JavaConverters._
 
-/**
-  * @author renxiang
-  * @date 2021-12-23
+/** @author
+  *   renxiang
+  * @date
+  *   2021-12-23
   */
-class DynamicPartitionWriter(partitionId: Int,
-                             converters: List[Object => AnyRef],
-                             writeSessionInfo: WriteSessionInfo,
-                             columns: java.util.List[Column],
-                             partitions: java.util.List[Column]
-                            ) extends DataWriter[InternalRow] {
-  private var _currentPartitionSpec: Option[java.util.Map[String, String]] = None
+class DynamicPartitionWriter(
+    partitionId: Int,
+    converters: List[Object => AnyRef],
+    writeSessionInfo: WriteSessionInfo,
+    columns: java.util.List[Column],
+    partitions: java.util.List[Column]
+) extends DataWriter[InternalRow] {
+  private var _currentPartitionSpec: Option[java.util.Map[String, String]] =
+    None
   private var _currentWriter: FileWriter[ArrayRecord] = null
   private val _commitMsg = new SparkCommitMessage
 
@@ -61,7 +68,8 @@ class DynamicPartitionWriter(partitionId: Int,
       val value = if (row.isNullAt(i)) {
         null
       } else {
-        val sparkType = TypesConverter.odpsType2SparkType(columns.get(i).getTypeInfo)
+        val sparkType =
+          TypesConverter.odpsType2SparkType(columns.get(i).getTypeInfo)
         converters(i)(row.get(i, sparkType))
       }
       _arrayRecord.set(i, value)
@@ -70,11 +78,18 @@ class DynamicPartitionWriter(partitionId: Int,
     _arrayRecord
   }
 
-  private def newWriterIfNewPartition(row: InternalRow) : FileWriter[ArrayRecord] = {
+  private def newWriterIfNewPartition(
+      row: InternalRow
+  ): FileWriter[ArrayRecord] = {
     val partitionSpec = extractPartitionSpec(row)
 
     var shouldNewWriter = _currentPartitionSpec.isEmpty
-    if (_currentPartitionSpec.isDefined && !mapEquals(partitionSpec, _currentPartitionSpec.get)) {
+    if (
+      _currentPartitionSpec.isDefined && !mapEquals(
+        partitionSpec,
+        _currentPartitionSpec.get
+      )
+    ) {
       val msg = _currentWriter.commitWithResult()
       _currentWriter.close()
       _commitMsg.addMsg(msg)
@@ -91,26 +106,36 @@ class DynamicPartitionWriter(partitionId: Int,
     _currentWriter
   }
 
-  private def mapEquals(srcM: java.util.Map[String, String], destM: java.util.Map[String, String]): Boolean = {
-    srcM.asScala.forall{case (k, v) => destM.containsKey(k) && destM.get(k) == v}
+  private def mapEquals(
+      srcM: java.util.Map[String, String],
+      destM: java.util.Map[String, String]
+  ): Boolean = {
+    srcM.asScala.forall { case (k, v) =>
+      destM.containsKey(k) && destM.get(k) == v
+    }
   }
 
-  private def extractPartitionSpec(row: InternalRow): java.util.Map[String, String] = {
+  private def extractPartitionSpec(
+      row: InternalRow
+  ): java.util.Map[String, String] = {
     val baseIdx = columns.size()
 
-    partitions.asScala
-      .zipWithIndex
-      .map{case (f, idx) => {
-        val rowIdx = baseIdx + idx
-        val sparkType = TypesConverter.odpsType2SparkType(f.getTypeInfo)
-        val sparkData = row.get(rowIdx, sparkType)
+    partitions.asScala.zipWithIndex
+      .map {
+        case (f, idx) => {
+          val rowIdx = baseIdx + idx
+          val sparkType = TypesConverter.odpsType2SparkType(f.getTypeInfo)
+          val sparkData = row.get(rowIdx, sparkType)
 
-        val name = f.getName
-        val typeinfo = f.getTypeInfo
-        val odpsData = TypesConverter.sparkData2OdpsData(typeinfo)(sparkData).asInstanceOf[String]
+          val name = f.getName
+          val typeinfo = f.getTypeInfo
+          val odpsData = TypesConverter
+            .sparkData2OdpsData(typeinfo)(sparkData)
+            .asInstanceOf[String]
 
-        (name, odpsData)
-      }}
+          (name, odpsData)
+        }
+      }
       .toMap
       .asJava
   }

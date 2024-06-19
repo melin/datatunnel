@@ -1,5 +1,8 @@
 package com.superior.datatunnel.plugin.jdbc;
 
+import static com.superior.datatunnel.api.DataSourceType.*;
+import static com.superior.datatunnel.common.util.JdbcUtils.*;
+
 import com.gitee.melin.bee.util.SqlUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
@@ -7,6 +10,12 @@ import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
@@ -18,16 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.superior.datatunnel.api.DataSourceType.*;
-import static com.superior.datatunnel.common.util.JdbcUtils.*;
-
 /**
  * @author melin 2021/7/27 11:06 上午
  */
@@ -35,9 +34,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcDataTunnelSink.class);
 
-    private static final DataSourceType[] SUPPORT_BULKINSERT = new DataSourceType[] {
-            SQLSERVER, MYSQL, GAUSSDWS, POSTGRESQL, REDSHIFT, OCEANBASE
-    };
+    private static final DataSourceType[] SUPPORT_BULKINSERT =
+            new DataSourceType[] {SQLSERVER, MYSQL, GAUSSDWS, POSTGRESQL, REDSHIFT, OCEANBASE};
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSinkOption().getDataSourceType();
@@ -99,7 +97,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             final WriteMode writeMode = sinkOption.getWriteMode();
             if (!ArrayUtils.contains(SUPPORT_BULKINSERT, dataSourceType) && writeMode == WriteMode.BULKINSERT) {
-                throw new DataTunnelException("write mode: Bulk insert, only support: gauss, postgresql, mysql, sqlserver");
+                throw new DataTunnelException(
+                        "write mode: Bulk insert, only support: gauss, postgresql, mysql, sqlserver");
             }
 
             SaveMode saveMode = SaveMode.Append;
@@ -163,9 +162,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 if (connection == null) {
                     connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
                 }
-                upsertKeyColumns = JdbcDialectUtils.queryPrimaryKeys(dataSourceType, schemaName,
-                        sinkOption.getTableName(), connection);
-
+                upsertKeyColumns = JdbcDialectUtils.queryPrimaryKeys(
+                        dataSourceType, schemaName, sinkOption.getTableName(), connection);
             }
             if (upsertKeyColumns.length > 0) {
                 dataFrameWriter.option("upsertKeyColumns", StringUtils.join(upsertKeyColumns, ","));
@@ -191,8 +189,12 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
         try {
             Map<String, String> params = sinkOption.getParams();
             params.put("user", sinkOption.getUsername());
-            JDBCOptions options = new JDBCOptions(url, dbtable,
-                    JavaConverters.mapAsScalaMapConverter(params).asScala().toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
+            JDBCOptions options = new JDBCOptions(
+                    url,
+                    dbtable,
+                    JavaConverters.mapAsScalaMapConverter(params)
+                            .asScala()
+                            .toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
 
             JdbcDialect dialect = JdbcDialects.get(url);
             return dialect.createConnectionFactory(options).apply(-1);

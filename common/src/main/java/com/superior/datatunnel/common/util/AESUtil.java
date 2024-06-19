@@ -1,18 +1,17 @@
 package com.superior.datatunnel.common.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AESUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(AESUtil.class);
 
-    private static final String ENCRYPT_KEY = "dataworker123456"; //长度必须是16
+    private static final String ENCRYPT_KEY = "dataworker123456"; // 长度必须是16
 
     /**
      * 加密

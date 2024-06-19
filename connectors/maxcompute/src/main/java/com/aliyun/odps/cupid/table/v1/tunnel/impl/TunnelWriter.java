@@ -29,7 +29,6 @@ import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
 import com.aliyun.odps.tunnel.io.TunnelBufferedWriter;
 import com.aliyun.odps.tunnel.io.TunnelRecordWriter;
-
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Map;
@@ -72,8 +71,7 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
     private void init() throws IOException {
         try {
             uploadId = sessionInfo.getUploadId();
-            isBufferWriter = sessionInfo.getOptions().
-                    getOrDefault(Util.WRITER_BUFFER_ENABLE, false);
+            isBufferWriter = sessionInfo.getOptions().getOrDefault(Util.WRITER_BUFFER_ENABLE, false);
             if (sessionInfo.isDynamicPartition()) {
                 initDynamicWriter();
             } else {
@@ -108,10 +106,7 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
     public WriterCommitMessage commitWithResult() throws IOException {
         close();
         if (sessionInfo.isDynamicPartition()) {
-            return new TunnelDynamicWriteMsg(sessionInfo.getProject(),
-                    sessionInfo.getTable(),
-                    partitionSpec,
-                    uploadId);
+            return new TunnelDynamicWriteMsg(sessionInfo.getProject(), sessionInfo.getTable(), partitionSpec, uploadId);
         } else {
             return new TunnelWriteMsg();
         }
@@ -142,7 +137,8 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
             TableTunnel tunnel = Util.getTableTunnel(sessionInfo.getOptions());
             PartitionSpec odpsPartitionSpec = Util.toOdpsPartitionSpec(partitionSpec);
             Util.createPartition(sessionInfo.getProject(), sessionInfo.getTable(), odpsPartitionSpec, odps);
-            session = Util.createUploadSession(sessionInfo.getProject(),
+            session = Util.createUploadSession(
+                    sessionInfo.getProject(),
                     sessionInfo.getTable(),
                     odpsPartitionSpec,
                     sessionInfo.isOverwrite(),
@@ -151,8 +147,10 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
         }
         if (isBufferWriter) {
             writer = session.openBufferedWriter(true);
-            ((TunnelBufferedWriter) writer).setBufferSize(
-                    sessionInfo.getOptions().getOrDefault(Util.WRITER_BUFFER_SIZE, Util.DEFAULT_WRITER_BUFFER_SIZE));
+            ((TunnelBufferedWriter) writer)
+                    .setBufferSize(sessionInfo
+                            .getOptions()
+                            .getOrDefault(Util.WRITER_BUFFER_SIZE, Util.DEFAULT_WRITER_BUFFER_SIZE));
         } else {
             writer = session.openRecordWriter(0, true);
         }
@@ -172,8 +170,10 @@ public class TunnelWriter implements FileWriter<ArrayRecord> {
                 this.session = tunnel.getUploadSession(project, table, odpsPartitionSpec, uploadId, shares, blockId);
             }
             writer = session.openBufferedWriter(true);
-            ((TunnelBufferedWriter) writer).setBufferSize(
-                    sessionInfo.getOptions().getOrDefault(Util.WRITER_BUFFER_SIZE, Util.DEFAULT_WRITER_BUFFER_SIZE));
+            ((TunnelBufferedWriter) writer)
+                    .setBufferSize(sessionInfo
+                            .getOptions()
+                            .getOrDefault(Util.WRITER_BUFFER_SIZE, Util.DEFAULT_WRITER_BUFFER_SIZE));
 
         } else {
             if (partitionSpec == null || partitionSpec.isEmpty()) {

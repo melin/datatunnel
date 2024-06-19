@@ -7,14 +7,13 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.enums.FileFormat;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
-import java.io.IOException;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -69,7 +68,8 @@ public class S3DataTunnelSource implements DataTunnelSource {
         return reader.load(sourceOption.getPaths());
     }
 
-    private void setObjConfig(DataSourceType sourceType, S3DataTunnelSourceOption sinkOption, Configuration hadoopConf) {
+    private void setObjConfig(
+            DataSourceType sourceType, S3DataTunnelSourceOption sinkOption, Configuration hadoopConf) {
         if (sourceType == DataSourceType.S3 || sourceType == DataSourceType.MINIO) {
             if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
                 hadoopConf.set(S3Configs.AWS_ACCESS_KEY, sinkOption.getAccessKey());

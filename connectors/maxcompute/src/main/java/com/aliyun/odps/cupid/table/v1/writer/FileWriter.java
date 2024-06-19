@@ -37,8 +37,7 @@ public interface FileWriter<T> {
         throw new UnsupportedOperationException();
     }
 
-    default void flush() throws IOException {
-    }
+    default void flush() throws IOException {}
 
     default long getBufferBytes() {
         throw new UnsupportedOperationException();

@@ -31,7 +31,6 @@ import com.aliyun.odps.cupid.table.v1.writer.FileWriter;
 import com.aliyun.odps.type.AbstractCharTypeInfo;
 import com.aliyun.odps.type.DecimalTypeInfo;
 import com.aliyun.odps.type.TypeInfo;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -211,14 +210,16 @@ public class ColDataRowWriter {
     }
 
     private boolean isString(OdpsType odpsType) {
-        return odpsType == OdpsType.STRING || odpsType == OdpsType.VARCHAR ||
-                odpsType == OdpsType.BINARY || odpsType == OdpsType.CHAR;
+        return odpsType == OdpsType.STRING
+                || odpsType == OdpsType.VARCHAR
+                || odpsType == OdpsType.BINARY
+                || odpsType == OdpsType.CHAR;
     }
 
     private boolean isOldDecimal(TypeInfo odpsTypeInfo) {
-        return odpsTypeInfo.getOdpsType() == OdpsType.DECIMAL &&
-                ((DecimalTypeInfo) odpsTypeInfo).getPrecision() == 54 &&
-                ((DecimalTypeInfo) odpsTypeInfo).getScale() == 18;
+        return odpsTypeInfo.getOdpsType() == OdpsType.DECIMAL
+                && ((DecimalTypeInfo) odpsTypeInfo).getPrecision() == 54
+                && ((DecimalTypeInfo) odpsTypeInfo).getScale() == 18;
     }
 
     private void trans(TypeInfo odpsTypeInfo, Row rec, int ind, int rCnt) throws UnsupportedEncodingException {
@@ -239,8 +240,7 @@ public class ColDataRowWriter {
                         utf8String = rec.getString(ind);
                         break;
                 }
-                if (odpsTypeInfo.getOdpsType() == OdpsType.CHAR
-                        || odpsTypeInfo.getOdpsType() == OdpsType.VARCHAR) {
+                if (odpsTypeInfo.getOdpsType() == OdpsType.CHAR || odpsTypeInfo.getOdpsType() == OdpsType.VARCHAR) {
                     AbstractCharTypeInfo ti = (AbstractCharTypeInfo) odpsTypeInfo;
                     int maxLength = ti.getLength();
                     if (utf8String.length() > maxLength) {
@@ -255,8 +255,12 @@ public class ColDataRowWriter {
                 System.arraycopy(deepBuf[ind], 0, newArray, 0, stringColSizeMap.get(ind));
                 deepBuf[ind] = newArray;
             }
-            Platform.copyMemory(utf8bytes, Platform.BYTE_ARRAY_OFFSET,
-                    deepBuf[ind], Platform.BYTE_ARRAY_OFFSET + stringColSizeMap.get(ind), numBytes);
+            Platform.copyMemory(
+                    utf8bytes,
+                    Platform.BYTE_ARRAY_OFFSET,
+                    deepBuf[ind],
+                    Platform.BYTE_ARRAY_OFFSET + stringColSizeMap.get(ind),
+                    numBytes);
             stringColSizeMap.put(ind, stringColSizeMap.get(ind) + numBytes);
             Platform.putInt(dataBuf[ind], Platform.BYTE_ARRAY_OFFSET + rCnt * 4, numBytes);
         } else {
@@ -277,10 +281,16 @@ public class ColDataRowWriter {
                     Platform.putInt(dataBuf[ind], Platform.BYTE_ARRAY_OFFSET + rCnt * 4, rec.getInt(ind));
                     break;
                 case DATE:
-                    Platform.putLong(dataBuf[ind], Platform.BYTE_ARRAY_OFFSET + rCnt * 8, DateUtils.getDayOffset(rec.getDate(ind)));
+                    Platform.putLong(
+                            dataBuf[ind],
+                            Platform.BYTE_ARRAY_OFFSET + rCnt * 8,
+                            DateUtils.getDayOffset(rec.getDate(ind)));
                     break;
                 case DATETIME:
-                    Platform.putLong(dataBuf[ind], Platform.BYTE_ARRAY_OFFSET + rCnt * 8, DateUtils.date2ms(rec.getDatetime(ind)));
+                    Platform.putLong(
+                            dataBuf[ind],
+                            Platform.BYTE_ARRAY_OFFSET + rCnt * 8,
+                            DateUtils.date2ms(rec.getDatetime(ind)));
                     break;
                 case TIMESTAMP:
                     Timestamp timeStamp = rec.getTimeStamp(ind);
@@ -313,7 +323,10 @@ public class ColDataRowWriter {
                         byte[] byteArray = decimal.unscaledValue().toByteArray();
                         int length = byteArray.length;
                         for (int i = 0; i < length; i++) {
-                            Platform.putByte(dataBuf[ind], Platform.BYTE_ARRAY_OFFSET + rCnt * 16 + i, byteArray[length - i - 1]);
+                            Platform.putByte(
+                                    dataBuf[ind],
+                                    Platform.BYTE_ARRAY_OFFSET + rCnt * 16 + i,
+                                    byteArray[length - i - 1]);
                         }
                         if (decimal.signum() == -1) {
                             for (int i = length; i < 16; i++) {
@@ -321,14 +334,20 @@ public class ColDataRowWriter {
                             }
                         }
                     } else if (decimalInfo.getPrecision() > 9) {
-                        Platform.putLong(dataBuf[ind],
-                                Platform.BYTE_ARRAY_OFFSET + rCnt * 8, decimal.unscaledValue().longValue());
+                        Platform.putLong(
+                                dataBuf[ind],
+                                Platform.BYTE_ARRAY_OFFSET + rCnt * 8,
+                                decimal.unscaledValue().longValue());
                     } else if (decimalInfo.getPrecision() > 4) {
-                        Platform.putInt(dataBuf[ind],
-                                Platform.BYTE_ARRAY_OFFSET + rCnt * 4, decimal.unscaledValue().intValue());
+                        Platform.putInt(
+                                dataBuf[ind],
+                                Platform.BYTE_ARRAY_OFFSET + rCnt * 4,
+                                decimal.unscaledValue().intValue());
                     } else {
-                        Platform.putShort(dataBuf[ind],
-                                Platform.BYTE_ARRAY_OFFSET + rCnt * 2, decimal.unscaledValue().shortValue());
+                        Platform.putShort(
+                                dataBuf[ind],
+                                Platform.BYTE_ARRAY_OFFSET + rCnt * 2,
+                                decimal.unscaledValue().shortValue());
                     }
                     break;
                 default:

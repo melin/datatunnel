@@ -1,19 +1,26 @@
 package com.superior.datatunnel.hadoop.fs.ftp;
 
+import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
+import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
+import com.superior.datatunnel.hadoop.fs.common.DirTree;
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
-
+import java.util.TimeZone;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -22,18 +29,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.net.NetUtils;
-import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
-import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
-import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
-import com.superior.datatunnel.hadoop.fs.common.DirTree;
-import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.util.TimeZone;
-
-import org.apache.commons.net.ftp.FTPSClient;
 
 /**
  * Communication channel which uses org.apache.commons.net.ftp package
@@ -89,8 +86,7 @@ public class FTPChannel extends AbstractChannel {
         switch (info.getProxyType()) {
             case SOCKS4:
             case SOCKS5:
-                LOG.error(
-                        info.logWithInfo("SOCKS proxy is not support for ftp connection"));
+                LOG.error(info.logWithInfo("SOCKS proxy is not support for ftp connection"));
                 return null;
             case NONE:
                 if (isFtp) {
@@ -101,11 +97,10 @@ public class FTPChannel extends AbstractChannel {
                 break;
             case HTTP:
                 if (isFtp) {
-                    client = new FTPHTTPTimeoutClient(proxyHost, info.getProxyPort(),
-                            info.getProxyUser(), info.getProxyPassword());
+                    client = new FTPHTTPTimeoutClient(
+                            proxyHost, info.getProxyPort(), info.getProxyUser(), info.getProxyPassword());
                 } else {
-                    LOG.error(
-                            info.logWithInfo("HTTP proxy is not support for ftps connection"));
+                    LOG.error(info.logWithInfo("HTTP proxy is not support for ftps connection"));
                     return null;
                 }
                 break;
@@ -126,15 +121,13 @@ public class FTPChannel extends AbstractChannel {
             int reply = client.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 // Connection can't be initiated
-                throw NetUtils.wrapException(host, port,
-                        NetUtils.UNKNOWN_HOST, 0,
-                        new ConnectException("Server response " + reply));
+                throw NetUtils.wrapException(
+                        host, port, NetUtils.UNKNOWN_HOST, 0, new ConnectException("Server response " + reply));
             }
             String user = info.getFtpUser();
             String password = info.getFtpPassword();
             if (client.login(user, password)) {
-                long keepAlive = info.isUseKeepAlive() ? (keepAliveMultiplier *
-                        info.getKeepAlivePeriod()) : 0;
+                long keepAlive = info.isUseKeepAlive() ? (keepAliveMultiplier * info.getKeepAlivePeriod()) : 0;
                 client.setControlKeepAliveTimeout(keepAlive);
                 // 30s timeout for data connection (get/put)
                 // timeout means it waits in every data socket operation for this time
@@ -150,8 +143,8 @@ public class FTPChannel extends AbstractChannel {
                     ((FTPSClient) client).execPROT("P");
                 }
             } else {
-                throw new IOException("Login failed on server - " + host + ", port - " +
-                        port + " as user '" + user + "'");
+                throw new IOException(
+                        "Login failed on server - " + host + ", port - " + port + " as user '" + user + "'");
             }
             return new FTPChannel(client, info);
         } catch (IOException e) {
@@ -170,9 +163,7 @@ public class FTPChannel extends AbstractChannel {
                 return res;
             }
         } catch (IOException ex) {
-            LOG.error(
-                    getConnectionInfo().logWithInfo(
-                            String.format(ErrorStrings.E_CREATE_DIR, parentDir + name)), ex);
+            LOG.error(getConnectionInfo().logWithInfo(String.format(ErrorStrings.E_CREATE_DIR, parentDir + name)), ex);
         }
         return false;
     }
@@ -189,8 +180,7 @@ public class FTPChannel extends AbstractChannel {
                 return client.rename(src, dst);
             }
         } catch (IOException ex) {
-            LOG.error(getConnectionInfo().logWithInfo(
-                    String.format(ErrorStrings.E_RENAME, src, dst)), ex);
+            LOG.error(getConnectionInfo().logWithInfo(String.format(ErrorStrings.E_RENAME, src, dst)), ex);
         }
         return false;
     }
@@ -200,8 +190,7 @@ public class FTPChannel extends AbstractChannel {
         try {
             return client.deleteFile(src);
         } catch (IOException ex) {
-            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_FILE),
-                    src, ex);
+            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_FILE), src, ex);
         }
         return false;
     }
@@ -215,8 +204,7 @@ public class FTPChannel extends AbstractChannel {
             }
             return client.removeDirectory(src);
         } catch (IOException ex) {
-            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_DIR),
-                    src, ex);
+            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_DIR), src, ex);
         }
         return false;
     }
@@ -239,8 +227,7 @@ public class FTPChannel extends AbstractChannel {
     }
 
     @Override
-    public FileStatus getFileStatus(Path file, Set<FileStatus> dirContentList)
-            throws IOException {
+    public FileStatus getFileStatus(Path file, Set<FileStatus> dirContentList) throws IOException {
         Path parentPath = file.getParent();
         // Get the special treatment for root directory
         if (parentPath == null) {
@@ -269,17 +256,22 @@ public class FTPChannel extends AbstractChannel {
                     // Ok, it seems the file doesn't really exists or
                     // we dont have rights to access it
                     // In any case return error
-                    throw new FileNotFoundException(String.format(
-                            ErrorStrings.E_FILE_NOTFOUND, file));
-                } else if (ftpFiles.length > 1 || !ftpFiles[0].getName().equals(
-                        file.getName())) {
+                    throw new FileNotFoundException(String.format(ErrorStrings.E_FILE_NOTFOUND, file));
+                } else if (ftpFiles.length > 1 || !ftpFiles[0].getName().equals(file.getName())) {
                     // Hidden directory - we must just hope that the file doesn't
                     // have the same name as dir
                     // as we are not able distinguishe between them at this stage
-                    fileStat = new FileStatus(0, true, 1, DEFAULT_BLOCK_SIZE, -1,
-                            -1, getPermissions(ftpFiles[0]), ftpFiles[0].getUser(),
-                            ftpFiles[0].getGroup(), file.makeQualified(
-                            getConnectionInfo().getURI(), workingDir));
+                    fileStat = new FileStatus(
+                            0,
+                            true,
+                            1,
+                            DEFAULT_BLOCK_SIZE,
+                            -1,
+                            -1,
+                            getPermissions(ftpFiles[0]),
+                            ftpFiles[0].getUser(),
+                            ftpFiles[0].getGroup(),
+                            file.makeQualified(getConnectionInfo().getURI(), workingDir));
                 } else {
                     // Very likely hidden file
                     fileStat = getFileStatus(ftpFiles[0], parentPath);
@@ -289,8 +281,7 @@ public class FTPChannel extends AbstractChannel {
             return fileStat;
         } else {
             // There are no files in the directory
-            throw new FileNotFoundException(
-                    String.format(ErrorStrings.E_FILE_NOTFOUND, file));
+            throw new FileNotFoundException(String.format(ErrorStrings.E_FILE_NOTFOUND, file));
         }
     }
 
@@ -298,26 +289,22 @@ public class FTPChannel extends AbstractChannel {
      * Convert the file information obtained as FTPFile to a {@link FileStatus}
      * object.
      */
-    private FileStatus getFileStatus(FTPFile ftpFile, Path origParent) throws
-            IOException {
+    private FileStatus getFileStatus(FTPFile ftpFile, Path origParent) throws IOException {
         Path symLink = null;
         Path parentPath = origParent;
         FTPFile linkFile = ftpFile;
         while (linkFile.isSymbolicLink()) {
             // Let's found the real file which we are pointed to by symbolic link
             String link = ftpFile.getLink();
-            Path linkPath = new Path(link).makeQualified(getConnectionInfo().getURI(),
-                    parentPath);
-            FTPFile[] files = client.listFiles(linkPath.getParent()
-                    .toUri().getPath());
+            Path linkPath = new Path(link).makeQualified(getConnectionInfo().getURI(), parentPath);
+            FTPFile[] files = client.listFiles(linkPath.getParent().toUri().getPath());
             boolean found = false;
             for (FTPFile file : files) {
                 if (file.getName().equals(linkPath.getName())) {
                     linkFile = file;
-                    symLink = linkPath.makeQualified(getConnectionInfo().getURI(),
-                            parentPath);
-                    parentPath = symLink.makeQualified(getConnectionInfo().getURI(),
-                            parentPath).getParent();
+                    symLink = linkPath.makeQualified(getConnectionInfo().getURI(), parentPath);
+                    parentPath = symLink.makeQualified(getConnectionInfo().getURI(), parentPath)
+                            .getParent();
                     found = true;
                     break;
                 }
@@ -338,9 +325,16 @@ public class FTPChannel extends AbstractChannel {
         String group = linkFile.getGroup();
         long length = ftpFile.getSize();
         Path filePath = new Path(parentPath, linkFile.getName());
-        FileStatus fs = new FileStatus(length, isDir, blockReplication, blockSize,
+        FileStatus fs = new FileStatus(
+                length,
+                isDir,
+                blockReplication,
+                blockSize,
                 modTime,
-                accessTime, permission, user, group,
+                accessTime,
+                permission,
+                user,
+                group,
                 filePath.makeQualified(getConnectionInfo().getURI(), workingDir));
         fs.setSymlink(symLink);
         return fs;
@@ -358,7 +352,8 @@ public class FTPChannel extends AbstractChannel {
      */
     private FsPermission getPermissions(FTPFile ftpFile) {
         String listing = ftpFile.getRawListing();
-        return new FsPermission(getPermission(listing.substring(1, 4)),
+        return new FsPermission(
+                getPermission(listing.substring(1, 4)),
                 getPermission(listing.substring(4, 7)),
                 getPermission(listing.substring(7, 10)));
     }
@@ -380,8 +375,7 @@ public class FTPChannel extends AbstractChannel {
     }
 
     @Override
-    public FSDataOutputStream put(Path file, DirTree dirTree,
-                                  FileSystem.Statistics statistics) throws IOException {
+    public FSDataOutputStream put(Path file, DirTree dirTree, FileSystem.Statistics statistics) throws IOException {
         // Get the data stream
         OutputStream os = client.storeFileStream(file.toUri().getPath());
         if (os != null) {
@@ -402,8 +396,7 @@ public class FTPChannel extends AbstractChannel {
                         } else {
                             // Update the cache so it includes uploaded file
                             dirTree.addNode(FTPChannel.this, file);
-                            LOG.debug("Closing data connection, " +
-                                    "control connection kept open");
+                            LOG.debug("Closing data connection, " + "control connection kept open");
                             disconnect(false);
                         }
                     }
@@ -415,20 +408,16 @@ public class FTPChannel extends AbstractChannel {
     }
 
     @Override
-    public FSDataInputStream get(FileStatus file,
-                                 FileSystem.Statistics statistics) throws IOException {
+    public FSDataInputStream get(FileStatus file, FileSystem.Statistics statistics) throws IOException {
         LOG.debug("Getting data stream for: " + file.getPath());
         // Get the data stream
         InputStream is = getDataStream(file);
         if (is != null) {
             // All extra handling is done in FTPInputStream
-            return new FSDataInputStream(
-                    new FTPInputStream(is, this, file, statistics));
+            return new FSDataInputStream(new FTPInputStream(is, this, file, statistics));
         } else {
-            LOG.error(getConnectionInfo().logWithInfo("Input stream for file: "
-                    + file.toString() + " not available"));
-            throw new IOException(String.format(ErrorStrings.E_CREATE_FILE,
-                    file.getPath()));
+            LOG.error(getConnectionInfo().logWithInfo("Input stream for file: " + file.toString() + " not available"));
+            throw new IOException(String.format(ErrorStrings.E_CREATE_FILE, file.getPath()));
         }
     }
 
@@ -441,12 +430,9 @@ public class FTPChannel extends AbstractChannel {
     public void setTimes(Path p, long mtime, long atime) throws IOException {
         DateFormat tm = new SimpleDateFormat("yyyyMMddHHmmss");
         tm.setTimeZone(TimeZone.getTimeZone("GMT"));
-        if (!client.setModificationTime(p.toUri().getPath(),
-                tm.format(new Date(mtime)))) {
-            LOG.error(getConnectionInfo().logWithInfo("Time for file: "
-                    + p.toString() + " can not be modified"));
-            throw new FileNotFoundException(String.format(ErrorStrings.E_MODIFY_TIME,
-                    p));
+        if (!client.setModificationTime(p.toUri().getPath(), tm.format(new Date(mtime)))) {
+            LOG.error(getConnectionInfo().logWithInfo("Time for file: " + p.toString() + " can not be modified"));
+            throw new FileNotFoundException(String.format(ErrorStrings.E_MODIFY_TIME, p));
         }
     }
 }

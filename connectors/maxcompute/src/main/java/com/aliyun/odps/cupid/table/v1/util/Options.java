@@ -34,8 +34,7 @@ public class Options implements Serializable {
         this.configs = new HashMap<>();
     }
 
-    public Options(OdpsConf odpsConf,
-                   Map<String, String> configs) {
+    public Options(OdpsConf odpsConf, Map<String, String> configs) {
         this.odpsConf = odpsConf;
         this.configs = configs;
     }
@@ -78,10 +77,7 @@ public class Options implements Serializable {
 
     @Override
     public String toString() {
-        return "Options {" +
-                "odpsConf='" + odpsConf + '\'' +
-                ", configs='" + configs.toString() + '\'' +
-                '}';
+        return "Options {" + "odpsConf='" + odpsConf + '\'' + ", configs='" + configs.toString() + '\'' + '}';
     }
 
     @Override
@@ -93,15 +89,12 @@ public class Options implements Serializable {
             return false;
         }
         Options that = (Options) o;
-        return odpsConf.equals(that.odpsConf)
-                && configs.equals(that.configs);
+        return odpsConf.equals(that.odpsConf) && configs.equals(that.configs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                odpsConf,
-                configs);
+        return Objects.hash(odpsConf, configs);
     }
 
     public static class OptionsBuilder {
@@ -145,10 +138,7 @@ public class Options implements Serializable {
         }
 
         public Options build() {
-            return new Options(
-                    odpsConf,
-                    configs
-            );
+            return new Options(odpsConf, configs);
         }
     }
 }

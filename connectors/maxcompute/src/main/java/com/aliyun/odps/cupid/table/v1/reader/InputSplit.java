@@ -21,7 +21,6 @@ package com.aliyun.odps.cupid.table.v1.reader;
 
 import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.reader.filter.FilterExpression;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +39,13 @@ public abstract class InputSplit implements Serializable {
 
     private final Map<String, String> partitionSpec;
 
-    protected InputSplit(String project,
-                         String table,
-                         List<Attribute> dataColumns,
-                         List<Attribute> partitionColumns,
-                         List<Attribute> readDataColumns,
-                         Map<String, String> partitionSpec) {
+    protected InputSplit(
+            String project,
+            String table,
+            List<Attribute> dataColumns,
+            List<Attribute> partitionColumns,
+            List<Attribute> readDataColumns,
+            Map<String, String> partitionSpec) {
         this.project = project;
         this.table = table;
         this.dataColumns = dataColumns;

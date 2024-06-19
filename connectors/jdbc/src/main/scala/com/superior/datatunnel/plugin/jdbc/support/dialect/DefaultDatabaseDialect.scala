@@ -7,15 +7,25 @@ import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils._
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{conf, savePartition}
+import org.apache.spark.sql.execution.datasources.jdbc.{
+  JDBCOptions,
+  JdbcOptionsInWrite
+}
+import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{
+  conf,
+  savePartition
+}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
 import java.sql.{Connection, Statement}
 
-class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType)
-  extends Serializable with Logging {
+class DefaultDatabaseDialect(
+    options: JDBCOptions,
+    jdbcDialect: JdbcDialect,
+    dataSourceType: DataSourceType
+) extends Serializable
+    with Logging {
 
   protected def getDatabaseVersion(connection: Connection): DatabaseVersion = {
     val metaData = connection.getMetaData
@@ -42,11 +52,12 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
 
   protected def getColumns(
       rddSchema: StructType,
-      tableSchema: Option[StructType]): Array[String] = {
+      tableSchema: Option[StructType]
+  ): Array[String] = {
 
     val cols = options.parameters.get("columns").get
     if (!"*".contains(cols)) {
-      return StringUtils.split(cols, ",").map {col =>
+      return StringUtils.split(cols, ",").map { col =>
         jdbcDialect.quoteIdentifier(col)
       }
     }
@@ -60,9 +71,10 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
       // RDD column names for user convenience.
       val tableColumnNames = tableSchema.get.fieldNames
       rddSchema.fields.map { col =>
-        val normalizedName = tableColumnNames.find(f => conf.resolver(f, col.name)).getOrElse {
-          throw columnNotFoundInSchemaError(col, tableSchema)
-        }
+        val normalizedName =
+          tableColumnNames.find(f => conf.resolver(f, col.name)).getOrElse {
+            throw columnNotFoundInSchemaError(col, tableSchema)
+          }
         jdbcDialect.quoteIdentifier(normalizedName)
       }
     }
@@ -71,7 +83,8 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
   def getInsertStatement(
       table: String,
       rddSchema: StructType,
-      tableSchema: Option[StructType]): String = {
+      tableSchema: Option[StructType]
+  ): String = {
 
     val columns = getColumns(rddSchema, tableSchema)
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
@@ -82,17 +95,21 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
       destTableName: String,
       rddSchema: StructType,
       tableSchema: Option[StructType],
-      keyColumns: Array[String]): String = {
-    throw new UnsupportedOperationException(s"${dataSourceType} not support operation")
+      keyColumns: Array[String]
+  ): String = {
+    throw new UnsupportedOperationException(
+      s"${dataSourceType} not support operation"
+    )
   }
 
   def saveTable(
-       df: DataFrame,
-       tableSchema: Option[StructType],
-       isCaseSensitive: Boolean,
-       options: JdbcOptionsInWrite,
-       writeMode: String,
-       primaryKeys: Array[String]): Unit = {
+      df: DataFrame,
+      tableSchema: Option[StructType],
+      isCaseSensitive: Boolean,
+      options: JdbcOptionsInWrite,
+      writeMode: String,
+      primaryKeys: Array[String]
+  ): Unit = {
 
     if ("upsert" == writeMode) {
       this.upsertTable(df, tableSchema, options, primaryKeys)
@@ -101,9 +118,11 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
     }
   }
 
-  private def insertTable(df: DataFrame,
-                  tableSchema: Option[StructType],
-                  options: JdbcOptionsInWrite): Unit = {
+  private def insertTable(
+      df: DataFrame,
+      tableSchema: Option[StructType],
+      options: JdbcOptionsInWrite
+  ): Unit = {
     val table = options.table
     val rddSchema = df.schema
     val insertStmt = this.getInsertStatement(table, rddSchema, tableSchema)
@@ -112,37 +131,56 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
     val isolationLevel = options.isolationLevel
 
     val repartitionedDF = options.numPartitions match {
-      case Some(n) if n <= 0 => throw invalidJdbcNumPartitionsError(
-        n, JDBCOptions.JDBC_NUM_PARTITIONS)
+      case Some(n) if n <= 0 =>
+        throw invalidJdbcNumPartitionsError(n, JDBCOptions.JDBC_NUM_PARTITIONS)
       case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
-      case _ => df
+      case _                                      => df
     }
     repartitionedDF.rdd.foreachPartition { iterator =>
       savePartition(
-        table, iterator, rddSchema, insertStmt, batchSize, jdbcDialect, isolationLevel, options)
+        table,
+        iterator,
+        rddSchema,
+        insertStmt,
+        batchSize,
+        jdbcDialect,
+        isolationLevel,
+        options
+      )
     }
   }
 
-  private def upsertTable(df: DataFrame,
-                  tableSchema: Option[StructType],
-                  options: JdbcOptionsInWrite,
-                  primaryKeys: Array[String]): Unit = {
+  private def upsertTable(
+      df: DataFrame,
+      tableSchema: Option[StructType],
+      options: JdbcOptionsInWrite,
+      primaryKeys: Array[String]
+  ): Unit = {
     val table = options.table
     val rddSchema = df.schema
-    val upsertStmt = this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
+    val upsertStmt =
+      this.getUpsertStatement(table, rddSchema, tableSchema, primaryKeys)
     logInfo(s"upsert sql: $upsertStmt")
     val batchSize = options.batchSize
     val isolationLevel = options.isolationLevel
 
     val repartitionedDF = options.numPartitions match {
-      case Some(n) if n <= 0 => throw invalidJdbcNumPartitionsError(
-        n, JDBCOptions.JDBC_NUM_PARTITIONS)
+      case Some(n) if n <= 0 =>
+        throw invalidJdbcNumPartitionsError(n, JDBCOptions.JDBC_NUM_PARTITIONS)
       case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
-      case _ => df
+      case _                                      => df
     }
     repartitionedDF.rdd.foreachPartition { iterator =>
       savePartition(
-        table, iterator, rddSchema, upsertStmt, batchSize, jdbcDialect, isolationLevel, options)
+        table,
+        iterator,
+        rddSchema,
+        upsertStmt,
+        batchSize,
+        jdbcDialect,
+        isolationLevel,
+        options
+      )
     }
   }
 
@@ -151,8 +189,11 @@ class DefaultDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dat
       df: DataFrame,
       options: JdbcOptionsInWrite,
       parameters: Map[String, String],
-      primaryKeys: Array[String]): Unit = {
-    throw new UnsupportedOperationException(s"${dataSourceType} not support operation")
+      primaryKeys: Array[String]
+  ): Unit = {
+    throw new UnsupportedOperationException(
+      s"${dataSourceType} not support operation"
+    )
   }
 
   protected def executeSql(conn: Connection, sql: String): Unit = {

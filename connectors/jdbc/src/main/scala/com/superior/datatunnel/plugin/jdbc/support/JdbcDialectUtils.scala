@@ -12,7 +12,11 @@ import java.sql.Connection
 
 object JdbcDialectUtils {
 
-  def getDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType): DefaultDatabaseDialect = {
+  def getDatabaseDialect(
+      options: JDBCOptions,
+      jdbcDialect: JdbcDialect,
+      dataSourceType: DataSourceType
+  ): DefaultDatabaseDialect = {
     if (dataSourceType == DataSourceType.MYSQL) {
       new MySqlDatabaseDialect(options, jdbcDialect, dataSourceType)
     } else if (dataSourceType == DataSourceType.POSTGRESQL) {
@@ -22,20 +26,32 @@ object JdbcDialectUtils {
     }
   }
 
-  def invalidJdbcNumPartitionsError(n: Int, jdbcNumPartitions: String): Throwable = {
+  def invalidJdbcNumPartitionsError(
+      n: Int,
+      jdbcNumPartitions: String
+  ): Throwable = {
     new IllegalArgumentException(
       s"Invalid value `$n` for parameter `$jdbcNumPartitions` in table writing " +
-        "via JDBC. The minimum value is 1.")
+        "via JDBC. The minimum value is 1."
+    )
   }
 
-  def queryPrimaryKeys(dataSourceType: DataSourceType, schemaName: String, tableName: String, conn: Connection): Array[String] = {
+  def queryPrimaryKeys(
+      dataSourceType: DataSourceType,
+      schemaName: String,
+      tableName: String,
+      conn: Connection
+  ): Array[String] = {
     val metaData = conn.getMetaData
-    val rs = if (dataSourceType == DataSourceType.MYSQL ||
-      dataSourceType == DataSourceType.ORACLE) {
-      metaData.getPrimaryKeys(schemaName, null, tableName)
-    } else {
-      metaData.getPrimaryKeys(null, schemaName, tableName)
-    }
+    val rs =
+      if (
+        dataSourceType == DataSourceType.MYSQL ||
+        dataSourceType == DataSourceType.ORACLE
+      ) {
+        metaData.getPrimaryKeys(schemaName, null, tableName)
+      } else {
+        metaData.getPrimaryKeys(null, schemaName, tableName)
+      }
     val keys: java.util.List[String] = Lists.newArrayList();
     try {
       while (rs.next) {
@@ -49,10 +65,12 @@ object JdbcDialectUtils {
     keys.toArray(new Array[String](0))
   }
 
-  def queryColumns(dataSourceType: DataSourceType,
-                   schemaName: String,
-                   tableName: String,
-                   conn: Connection): java.util.List[Column] = {
+  def queryColumns(
+      dataSourceType: DataSourceType,
+      schemaName: String,
+      tableName: String,
+      conn: Connection
+  ): java.util.List[Column] = {
 
     val metaData = conn.getMetaData
     val rs = if (dataSourceType == DataSourceType.MYSQL) {
@@ -74,8 +92,12 @@ object JdbcDialectUtils {
   }
 
   def columnNotFoundInSchemaError(
-      col: StructField, tableSchema: Option[StructType]): Throwable = {
-    new DataTunnelException(s"""Column "${col.name}" not found in schema $tableSchema""")
+      col: StructField,
+      tableSchema: Option[StructType]
+  ): Throwable = {
+    new DataTunnelException(
+      s"""Column "${col.name}" not found in schema $tableSchema"""
+    )
   }
 }
 

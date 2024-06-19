@@ -8,6 +8,10 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.ParamKey;
 import com.superior.datatunnel.api.model.DataTunnelOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
+import java.lang.reflect.Field;
+import java.util.Map;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
@@ -17,11 +21,6 @@ import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.validation.Validation;
-import javax.validation.Validator;
-import java.lang.reflect.Field;
-import java.util.Map;
 
 /**
  * @author melin 2021/7/27 11:48 上午
@@ -55,13 +54,12 @@ public class CommonUtils {
         }
     }
 
-    //https://stackoverflow.com/questions/24386771/javax-validation-validationexception-hv000183-unable-to-load-javax-el-express
-    public static final Validator VALIDATOR =
-            Validation.byDefaultProvider()
-                    .configure()
-                    .messageInterpolator(new ParameterMessageInterpolator())
-                    .buildValidatorFactory()
-                    .getValidator();
+    // https://stackoverflow.com/questions/24386771/javax-validation-validationexception-hv000183-unable-to-load-javax-el-express
+    public static final Validator VALIDATOR = Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(new ParameterMessageInterpolator())
+            .buildValidatorFactory()
+            .getValidator();
 
     public static <T> T toJavaBean(Map<String, String> map, Class<T> clazz, String msg) throws Exception {
         T beanInstance = clazz.getConstructor().newInstance();
@@ -125,10 +123,8 @@ public class CommonUtils {
 
     @NotNull
     public static String genOutputSql(
-            Dataset<Row> dataset,
-            String[] sourceColumns,
-            String[] sinkColumns,
-            DataSourceType dataSourceType) throws AnalysisException {
+            Dataset<Row> dataset, String[] sourceColumns, String[] sinkColumns, DataSourceType dataSourceType)
+            throws AnalysisException {
 
         String tdlName = "tdl_datatunnel_" + dataSourceType.name().toLowerCase() + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);

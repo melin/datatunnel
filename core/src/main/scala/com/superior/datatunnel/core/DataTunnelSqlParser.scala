@@ -2,10 +2,24 @@ package com.superior.datatunnel.core
 
 import com.gitee.melin.bee.util.SqlUtils
 import io.github.melin.superior.common.relational.io.ExportTable
-import io.github.melin.superior.parser.spark.{SparkSqlHelper, SparkSqlPostProcessor}
+import io.github.melin.superior.parser.spark.{
+  SparkSqlHelper,
+  SparkSqlPostProcessor
+}
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser._
-import io.github.melin.superior.parser.spark.antlr4.{SparkSqlLexer, SparkSqlParser, SparkSqlParserBaseVisitor}
-import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream, misc}
+import io.github.melin.superior.parser.spark.antlr4.{
+  SparkSqlLexer,
+  SparkSqlParser,
+  SparkSqlParserBaseVisitor
+}
+import org.antlr.v4.runtime.{
+  CharStream,
+  CharStreams,
+  CodePointCharStream,
+  CommonTokenStream,
+  IntStream,
+  misc
+}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}
 import org.apache.commons.lang3.StringUtils
@@ -13,32 +27,44 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{AnalysisException, SparkSession}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.{FunctionIdentifier, TableIdentifier}
-import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException, ParserInterface}
+import org.apache.spark.sql.catalyst.parser.{
+  ParseErrorListener,
+  ParseException,
+  ParserInterface
+}
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
-import org.apache.spark.sql.datatunnel.sql.{DataTunnelExprCommand, DataTunnelHelpCommand, DistCpCommand, ExportTableCommand}
+import org.apache.spark.sql.datatunnel.sql.{
+  DataTunnelExprCommand,
+  DataTunnelHelpCommand,
+  DistCpCommand,
+  ExportTableCommand
+}
 import org.apache.spark.sql.types.{DataType, StructType}
 
 import scala.collection.JavaConverters._
 
-/**
- * huaixin 2021/12/27 2:48 PM
- */
-class DataTunnelSqlParser (spark: SparkSession,
-                      val delegate: ParserInterface) extends ParserInterface with Logging {
+/** huaixin 2021/12/27 2:48 PM
+  */
+class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface)
+    extends ParserInterface
+    with Logging {
 
-  override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
-    val sql = StringUtils.trim(SqlUtils.cleanSqlComment(sqlText))
-    val builder = new DtunnelAstBuilder(sql)
-    builder.visit(parser.singleStatement()) match {
-      case plan: LogicalPlan => plan
-      case _ => delegate.parsePlan(sqlText)
-    }
+  override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) {
+    parser =>
+      val sql = StringUtils.trim(SqlUtils.cleanSqlComment(sqlText))
+      val builder = new DtunnelAstBuilder(sql)
+      builder.visit(parser.singleStatement()) match {
+        case plan: LogicalPlan => plan
+        case _                 => delegate.parsePlan(sqlText)
+      }
   }
 
   protected def parse[T](command: String)(toResult: SparkSqlParser => T): T = {
-    val lexer = new SparkSqlLexer(new UpperCaseCharStream(CharStreams.fromString(command)))
+    val lexer = new SparkSqlLexer(
+      new UpperCaseCharStream(CharStreams.fromString(command))
+    )
     lexer.removeErrorListeners()
     lexer.addErrorListener(ParseErrorListener)
 
@@ -53,8 +79,7 @@ class DataTunnelSqlParser (spark: SparkSession,
         // first, try parsing with potentially faster SLL mode
         parser.getInterpreter.setPredictionMode(PredictionMode.SLL)
         toResult(parser)
-      }
-      catch {
+      } catch {
         case e: ParseCancellationException =>
           // if we fail, parse with LL mode
           tokenStream.seek(0) // rewind input stream
@@ -64,16 +89,21 @@ class DataTunnelSqlParser (spark: SparkSession,
           parser.getInterpreter.setPredictionMode(PredictionMode.LL)
           toResult(parser)
       }
-    }
-    catch {
+    } catch {
       case e: ParseException if e.command.isDefined =>
         throw e
       case e: ParseException =>
         throw e.withCommand(command)
       case e: AnalysisException =>
         val position = Origin(e.line, e.startPosition)
-        throw new ParseException(Option(command), e.message, position, position,
-          e.errorClass, e.messageParameters)
+        throw new ParseException(
+          Option(command),
+          e.message,
+          position,
+          position,
+          e.errorClass,
+          e.messageParameters
+        )
     }
   }
 
@@ -102,10 +132,9 @@ class DataTunnelSqlParser (spark: SparkSession,
     delegate.parseMultipartIdentifier(sqlText)
   }
 
-  /**
-   * Creates StructType for a given SQL string, which is a comma separated list of field
-   * definitions which will preserve the correct Hive metadata.
-   */
+  /** Creates StructType for a given SQL string, which is a comma separated list
+    * of field definitions which will preserve the correct Hive metadata.
+    */
   override def parseTableSchema(sqlText: String): StructType = {
     delegate.parseTableSchema(sqlText)
   }
@@ -115,47 +144,55 @@ class DataTunnelSqlParser (spark: SparkSession,
   }
 }
 
-class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[AnyRef] with Logging {
+class DtunnelAstBuilder(val sqlText: String)
+    extends SparkSqlParserBaseVisitor[AnyRef]
+    with Logging {
 
-  override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan = withOrigin(ctx) {
-    val maskSql = DataTunnelUtils.maskDataTunnelSql(sqlText)
-    logInfo(s"Datatunnel SQL: $maskSql")
-    DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
-  }
-
-  override def visitDistCpExpr(ctx: DistCpExprContext): LogicalPlan = withOrigin(ctx) {
-    DistCpCommand(sqlText, ctx: DistCpExprContext)
-  }
-
-  override def visitDatatunnelHelp(ctx: DatatunnelHelpContext): LogicalPlan = withOrigin(ctx) {
-    logInfo(s"Datatunnel SQL: $sqlText")
-    DataTunnelHelpCommand(sqlText, ctx: DatatunnelHelpContext)
-  }
-
-  override def visitExportTable(ctx: ExportTableContext): LogicalPlan = withOrigin(ctx) {
-    logInfo(s"export table SQL: $sqlText")
-    val exportTable = SparkSqlHelper.parseStatement(sqlText).asInstanceOf[ExportTable]
-    val subqueryAlias =
-      if (ctx.ctes() != null) {
-        withCTE(ctx.ctes())
-      } else {
-        Seq[(String, String)]()
-      }
-
-    ExportTableCommand(exportTable, subqueryAlias)
-  }
-
-  override def visitNamedQuery(ctx: NamedQueryContext): (String, String) = withOrigin(ctx) {
-    val subQuery: String = {
-      val queryContext = ctx.query()
-      val s = queryContext.start.getStartIndex
-      val e = queryContext.stop.getStopIndex
-      val interval = new misc.Interval(s, e)
-      val viewSql = ctx.start.getInputStream.getText(interval)
-      viewSql
+  override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan =
+    withOrigin(ctx) {
+      val maskSql = DataTunnelUtils.maskDataTunnelSql(sqlText)
+      logInfo(s"Datatunnel SQL: $maskSql")
+      DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
     }
-    (ctx.name.getText, subQuery)
-  }
+
+  override def visitDistCpExpr(ctx: DistCpExprContext): LogicalPlan =
+    withOrigin(ctx) {
+      DistCpCommand(sqlText, ctx: DistCpExprContext)
+    }
+
+  override def visitDatatunnelHelp(ctx: DatatunnelHelpContext): LogicalPlan =
+    withOrigin(ctx) {
+      logInfo(s"Datatunnel SQL: $sqlText")
+      DataTunnelHelpCommand(sqlText, ctx: DatatunnelHelpContext)
+    }
+
+  override def visitExportTable(ctx: ExportTableContext): LogicalPlan =
+    withOrigin(ctx) {
+      logInfo(s"export table SQL: $sqlText")
+      val exportTable =
+        SparkSqlHelper.parseStatement(sqlText).asInstanceOf[ExportTable]
+      val subqueryAlias =
+        if (ctx.ctes() != null) {
+          withCTE(ctx.ctes())
+        } else {
+          Seq[(String, String)]()
+        }
+
+      ExportTableCommand(exportTable, subqueryAlias)
+    }
+
+  override def visitNamedQuery(ctx: NamedQueryContext): (String, String) =
+    withOrigin(ctx) {
+      val subQuery: String = {
+        val queryContext = ctx.query()
+        val s = queryContext.start.getStartIndex
+        val e = queryContext.stop.getStopIndex
+        val interval = new misc.Interval(s, e)
+        val viewSql = ctx.start.getInputStream.getText(interval)
+        viewSql
+      }
+      (ctx.name.getText, subQuery)
+    }
 
   private def withCTE(ctx: CtesContext): Seq[(String, String)] = {
     val ctes = ctx.namedQuery.asScala.map { nCtx =>
@@ -166,14 +203,16 @@ class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[A
     if (duplicates.nonEmpty) {
       throw new ParseException(
         s"CTE definition can't have duplicate names: ${duplicates.mkString("'", "', '", "'")}.",
-        ctx)
+        ctx
+      )
     }
     ctes
   }
 
-  override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan = withOrigin(ctx) {
-    visit(ctx.statement).asInstanceOf[LogicalPlan]
-  }
+  override def visitSingleStatement(ctx: SingleStatementContext): LogicalPlan =
+    withOrigin(ctx) {
+      visit(ctx.statement).asInstanceOf[LogicalPlan]
+    }
 }
 
 class UpperCaseCharStream(wrapped: CodePointCharStream) extends CharStream {

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>datatunnel-connectors</artifactId>
         <groupId>com.superior.datatunnel</groupId>
+        <artifactId>datatunnel-connectors</artifactId>
         <version>3.5.0</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>datatunnel-connector-clickhouse</artifactId>
     <name>Datatunnel : Connectors : Clickhouse</name>
@@ -27,8 +26,8 @@
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <classifier>all</classifier>
             <version>0.6.0</version>
+            <classifier>all</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

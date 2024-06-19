@@ -87,13 +87,12 @@ public class OdpsConf implements Serializable {
 
     @Override
     public String toString() {
-        return "OdpsConf {" +
-                "accessId='" + accessId + '\'' +
-                ", accessKey='" + accessKey + '\'' +
-                ", endpoint='" + endpoint + '\'' +
-                ", project='" + project + '\'' +
-                ", tunnelEndpoint='" + tunnelEndpoint + '\'' +
-                '}';
+        return "OdpsConf {" + "accessId='"
+                + accessId + '\'' + ", accessKey='"
+                + accessKey + '\'' + ", endpoint='"
+                + endpoint + '\'' + ", project='"
+                + project + '\'' + ", tunnelEndpoint='"
+                + tunnelEndpoint + '\'' + '}';
     }
 
     @Override
@@ -114,11 +113,6 @@ public class OdpsConf implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                project,
-                accessId,
-                accessKey,
-                endpoint,
-                tunnelEndpoint);
+        return Objects.hash(project, accessId, accessKey, endpoint, tunnelEndpoint);
     }
 }

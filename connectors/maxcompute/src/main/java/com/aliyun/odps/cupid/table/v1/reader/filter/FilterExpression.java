@@ -20,7 +20,6 @@
 package com.aliyun.odps.cupid.table.v1.reader.filter;
 
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.io.Serializable;
 import java.util.Arrays;
 

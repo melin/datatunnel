@@ -7,8 +7,7 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 /**
  * Factory for creating pool objects.
  */
-class ChannelObjectFactory extends
-        BaseKeyedPooledObjectFactory<ConnectionInfo, Channel> {
+class ChannelObjectFactory extends BaseKeyedPooledObjectFactory<ConnectionInfo, Channel> {
 
     @Override
     public Channel create(ConnectionInfo k) throws Exception {
@@ -23,8 +22,7 @@ class ChannelObjectFactory extends
     }
 
     @Override
-    public void destroyObject(ConnectionInfo key, PooledObject<Channel> p) throws
-            Exception {
+    public void destroyObject(ConnectionInfo key, PooledObject<Channel> p) throws Exception {
         Channel channel = p.getObject();
         if (channel.isConnected()) {
             channel.destroy();

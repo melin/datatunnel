@@ -1,13 +1,12 @@
 package com.superior.datatunnel.hadoop.fs.common;
 
+import static com.superior.datatunnel.hadoop.fs.common.ConnectionInfo.DEFAULT_MAX_CONNECTION;
+
 import java.io.IOException;
 import java.util.HashSet;
-
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.superior.datatunnel.hadoop.fs.common.ConnectionInfo.DEFAULT_MAX_CONNECTION;
 
 /**
  * ConnectionPool keeps the list of connection to the remote server and reuse
@@ -30,7 +29,8 @@ public final class ConnectionPool {
     private final HashSet<ConnectionInfo> closedInfos = new HashSet<>();
 
     // Store of pooled objects
-    private final GenericKeyedObjectPool<ConnectionInfo, Channel> keyedPool = new GenericKeyedObjectPool<>(new ChannelObjectFactory());
+    private final GenericKeyedObjectPool<ConnectionInfo, Channel> keyedPool =
+            new GenericKeyedObjectPool<>(new ChannelObjectFactory());
 
     /**
      * Initialize connection pool.
@@ -80,8 +80,7 @@ public final class ConnectionPool {
      * @return communication channel if in pool, null if not
      * @throws IOException communication problem
      */
-    private synchronized Channel getFromPool(ConnectionInfo info) throws
-            IOException {
+    private synchronized Channel getFromPool(ConnectionInfo info) throws IOException {
         Channel channel;
         if (closedInfos.contains(info)) {
             throw new IOException("File system closed for: " + info.toString());
@@ -141,9 +140,7 @@ public final class ConnectionPool {
     public synchronized void shutdown(ConnectionInfo info) {
         keyedPool.clear(info);
         closedInfos.add(info);
-        LOG.debug(
-                "Pool shutdown for " + info + ". " + keyedPool.getNumActive(info) +
-                        " connectionns still active");
+        LOG.debug("Pool shutdown for " + info + ". " + keyedPool.getNumActive(info) + " connectionns still active");
     }
 
     /**
@@ -181,13 +178,11 @@ public final class ConnectionPool {
             LOG.debug("Not pooled connection obtained");
             channel = info.getConnectionSupplier().apply(info);
             if (channel == null) {
-                throw new IOException("Connection to:" + info.toString() +
-                        " can't be created");
+                throw new IOException("Connection to:" + info.toString() + " can't be created");
             }
         }
 
-        LOG.debug("Current connections after connect:" +
-                keyedPool.getNumActive(info));
+        LOG.debug("Current connections after connect:" + keyedPool.getNumActive(info));
         return channel;
     }
 
@@ -203,8 +198,7 @@ public final class ConnectionPool {
      *                  closed if maxConnection limit is reached.
      * @throws IOException communication problem when closing connection
      */
-    public void disconnect(Channel channel, boolean hardClose)
-            throws IOException {
+    public void disconnect(Channel channel, boolean hardClose) throws IOException {
         if (channel != null) {
             if (hardClose) {
                 // Do the real close
@@ -212,8 +206,7 @@ public final class ConnectionPool {
                     try {
                         keyedPool.invalidateObject(channel.getConnectionInfo(), channel);
                     } catch (Exception ex) {
-                        LOG.error(channel.getConnectionInfo()
-                                .logWithInfo("Should never happen"), ex);
+                        LOG.error(channel.getConnectionInfo().logWithInfo("Should never happen"), ex);
                     }
                 } else {
                     if (channel.isConnected()) {
@@ -229,5 +222,4 @@ public final class ConnectionPool {
         LOG.debug("Connections actively in use: " + keyedPool.getNumActive());
         LOG.debug("Connections waiting in pool: " + keyedPool.getNumIdle());
     }
-
 }

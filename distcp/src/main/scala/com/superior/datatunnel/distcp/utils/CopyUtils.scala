@@ -27,11 +27,11 @@ object CopyUtils extends Logging {
     *   Spark task attempt ID (used to create a unique temporary file)
     */
   def handleCopy(
-    sourceFS: FileSystem,
-    destFS: FileSystem,
-    definition: SingleCopyDefinition,
-    options: DistCpOption,
-    taskAttemptID: Long
+      sourceFS: FileSystem,
+      destFS: FileSystem,
+      definition: SingleCopyDefinition,
+      options: DistCpOption,
+      taskAttemptID: Long
   ): DistCPResult = {
 
     val r = {
@@ -59,9 +59,9 @@ object CopyUtils extends Logging {
     *   DistCP options
     */
   def handleDelete(
-    fs: FileSystem,
-    uri: URI,
-    options: DistCpOption
+      fs: FileSystem,
+      uri: URI,
+      options: DistCpOption
   ): DeleteResult = {
 
     val path = new Path(uri)
@@ -75,9 +75,9 @@ object CopyUtils extends Logging {
   /** Internal delete function
     */
   private[utils] def deleteFile(
-    fs: FileSystem,
-    path: Path,
-    options: DistCpOption
+      fs: FileSystem,
+      path: Path,
+      options: DistCpOption
   ): DeleteResult = {
     if (!fs.exists(path)) {
       DeleteResult(path.toUri, DeleteActionResult.SkippedDoesNotExists)
@@ -108,9 +108,9 @@ object CopyUtils extends Logging {
   /** Internal create directory function
     */
   private[utils] def createDirectory(
-    destFS: FileSystem,
-    definition: SingleCopyDefinition,
-    options: DistCpOption
+      destFS: FileSystem,
+      definition: SingleCopyDefinition,
+      options: DistCpOption
   ): DirectoryCopyResult = {
     val destPath = new Path(definition.destination)
     if (destFS.exists(destPath)) {
@@ -167,11 +167,11 @@ object CopyUtils extends Logging {
   /** Internal copy file function
     */
   private[utils] def copyFile(
-    sourceFS: FileSystem,
-    destFS: FileSystem,
-    definition: SingleCopyDefinition,
-    options: DistCpOption,
-    taskAttemptID: Long
+      sourceFS: FileSystem,
+      destFS: FileSystem,
+      definition: SingleCopyDefinition,
+      options: DistCpOption,
+      taskAttemptID: Long
   ): FileCopyResult = {
     val destPath = new Path(definition.destination)
     Try(destFS.getFileStatus(destPath)) match {
@@ -283,10 +283,10 @@ object CopyUtils extends Logging {
     * the checksums are None, then checksums are not used for comparison.
     */
   private[utils] def filesAreIdentical(
-    f1: SerializableFileStatus,
-    mc1: => Option[FileChecksum],
-    f2: SerializableFileStatus,
-    mc2: => Option[FileChecksum]
+      f1: SerializableFileStatus,
+      mc1: => Option[FileChecksum],
+      f2: SerializableFileStatus,
+      mc2: => Option[FileChecksum]
   ): Boolean = {
     if (f1.getLen != f2.getLen) {
       logDebug(
@@ -317,13 +317,13 @@ object CopyUtils extends Logging {
     * actually exists
     */
   def performCopy(
-    sourceFS: FileSystem,
-    sourceFile: SerializableFileStatus,
-    destFS: FileSystem,
-    dest: URI,
-    removeExisting: Boolean,
-    ignoreErrors: Boolean,
-    taskAttemptID: Long
+      sourceFS: FileSystem,
+      sourceFile: SerializableFileStatus,
+      destFS: FileSystem,
+      dest: URI,
+      removeExisting: Boolean,
+      ignoreErrors: Boolean,
+      taskAttemptID: Long
   ): FileCopyResult = {
 
     val destPath = new Path(dest)

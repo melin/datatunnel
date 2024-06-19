@@ -1,12 +1,11 @@
 package com.superior.datatunnel.hadoop.fs.ftp;
 
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPHTTPClient;
 
@@ -27,8 +26,7 @@ public class FTPHTTPTimeoutClient extends FTPHTTPClient {
         super(proxyHost, proxyPort);
     }
 
-    public FTPHTTPTimeoutClient(String proxyHost, int proxyPort, String proxyUser,
-                                String proxyPass) {
+    public FTPHTTPTimeoutClient(String proxyHost, int proxyPort, String proxyUser, String proxyPass) {
         super(proxyHost, proxyPort, proxyUser, proxyPass);
     }
 
@@ -45,8 +43,7 @@ public class FTPHTTPTimeoutClient extends FTPHTTPClient {
                 changeWorkingDirectory(wd);
                 return ftpFiles;
             } else {
-                throw new FileNotFoundException(String.format(
-                        ErrorStrings.E_SPATH_NOTEXIST, pathname));
+                throw new FileNotFoundException(String.format(ErrorStrings.E_SPATH_NOTEXIST, pathname));
             }
         } else {
             return super.listFiles(pathname);
@@ -54,8 +51,7 @@ public class FTPHTTPTimeoutClient extends FTPHTTPClient {
     }
 
     @Override
-    protected Socket _openDataConnection_(String command, String arg) throws
-            IOException {
+    protected Socket _openDataConnection_(String command, String arg) throws IOException {
         // Intercept data socket creation
         Socket socket = super._openDataConnection_(command, arg);
         if (timeout >= 0 && socket != null) {

@@ -1,14 +1,13 @@
 package com.superior.datatunnel.plugin.ftp;
 
+import static com.superior.datatunnel.common.enums.FileFormat.*;
+
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.Compression;
 import com.superior.datatunnel.common.enums.WriteMode;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
-import static com.superior.datatunnel.common.enums.FileFormat.*;
+import lombok.Data;
 
 @Data
 public class FtpDataTunnelSinkOption extends FtpCommonOption {
@@ -28,8 +27,11 @@ public class FtpDataTunnelSinkOption extends FtpCommonOption {
 
     public Compression getCompression() {
         if (compression == null) {
-            if (this.getFormat() == PARQUET || this.getFormat() == ORC || this.getFormat() == HUDI ||
-                    this.getFormat() == ICEBERG || this.getFormat() == PAIMON) {
+            if (this.getFormat() == PARQUET
+                    || this.getFormat() == ORC
+                    || this.getFormat() == HUDI
+                    || this.getFormat() == ICEBERG
+                    || this.getFormat() == PAIMON) {
                 compression = Compression.ZSTD;
             } else if (this.getFormat() == AVRO) {
                 compression = Compression.SNAPPY;

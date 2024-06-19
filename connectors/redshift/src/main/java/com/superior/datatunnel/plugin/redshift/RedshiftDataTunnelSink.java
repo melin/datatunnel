@@ -6,17 +6,16 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sts.model.Credentials;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class RedshiftDataTunnelSink implements DataTunnelSink {
 
@@ -36,10 +35,10 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         String[] postActions = option.getPostActions();
         String[] upsertKeyColumns = option.getUpsertKeyColumns();
         if (preActions == null) {
-            preActions = new String[]{};
+            preActions = new String[] {};
         }
         if (postActions == null) {
-            postActions = new String[]{};
+            postActions = new String[] {};
         }
 
         String schemaName = option.getSchemaName();
@@ -82,8 +81,10 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         String jdbcUrl = option.getJdbcUrl();
         if (StringUtils.isBlank(jdbcUrl)) {
             if (StringUtils.isNotBlank(option.getHost())
-                    && option.getPort() != null && StringUtils.isNotBlank(option.getDatabaseName())) {
-                jdbcUrl = "jdbc:redshift://" + option.getHost() + ":" + option.getPort() + "/" + option.getDatabaseName();
+                    && option.getPort() != null
+                    && StringUtils.isNotBlank(option.getDatabaseName())) {
+                jdbcUrl =
+                        "jdbc:redshift://" + option.getHost() + ":" + option.getPort() + "/" + option.getDatabaseName();
             } else {
                 throw new IllegalArgumentException("Redshift 不正确，添加jdbcUrl 或者 host & port & databaseName");
             }
@@ -125,7 +126,8 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                 throw new DataTunnelException("iamRole can not blank");
             }
             Credentials credentials = RedshiftUtils.queryCredentials(accessKeyId, secretAccessKey, region, iamRole);
-            dataFrameWriter.option("temporary_aws_access_key_id", credentials.accessKeyId())
+            dataFrameWriter
+                    .option("temporary_aws_access_key_id", credentials.accessKeyId())
                     .option("temporary_aws_secret_access_key", credentials.secretAccessKey())
                     .option("temporary_aws_session_token", credentials.sessionToken());
         }

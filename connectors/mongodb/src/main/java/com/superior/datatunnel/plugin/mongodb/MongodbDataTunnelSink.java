@@ -1,18 +1,17 @@
 package com.superior.datatunnel.plugin.mongodb;
 
+import static com.mongodb.spark.sql.connector.config.MongoConfig.*;
+import static com.mongodb.spark.sql.connector.config.MongoConfig.CLIENT_FACTORY_CONFIG;
+import static com.mongodb.spark.sql.connector.config.WriteConfig.*;
+
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-
-import java.io.IOException;
-
-import static com.mongodb.spark.sql.connector.config.MongoConfig.*;
-import static com.mongodb.spark.sql.connector.config.MongoConfig.CLIENT_FACTORY_CONFIG;
-import static com.mongodb.spark.sql.connector.config.WriteConfig.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -23,7 +22,9 @@ public class MongodbDataTunnelSink implements DataTunnelSink {
     public void sink(Dataset<Row> dataFrame, DataTunnelContext context) throws IOException {
         MongodbDataTunnelSinkOption option = (MongodbDataTunnelSinkOption) context.getSourceOption();
 
-        DataFrameWriter dfWriter = dataFrame.write().format("mongodb")
+        DataFrameWriter dfWriter = dataFrame
+                .write()
+                .format("mongodb")
                 .mode(option.getWriteMode().name().toLowerCase())
                 .option(CONNECTION_STRING_CONFIG, option.getConnectionUri())
                 .option(DATABASE_NAME_CONFIG, option.getDatabase())

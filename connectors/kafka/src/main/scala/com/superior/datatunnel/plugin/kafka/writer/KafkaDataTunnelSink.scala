@@ -10,13 +10,13 @@ import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
 
-/**
- * huaixin 2021/12/7 8:12 PM
- */
+/** huaixin 2021/12/7 8:12 PM
+  */
 class KafkaDataTunnelSink extends DataTunnelSink {
 
   override def sink(dataset: Dataset[Row], context: DataTunnelContext): Unit = {
-    val sinkOption = context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
+    val sinkOption =
+      context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
     val topic = sinkOption.getTopic
     val options = sinkOption.getProperties
 
@@ -24,7 +24,9 @@ class KafkaDataTunnelSink extends DataTunnelSink {
     options.put("value.serializer", classOf[StringSerializer].getName)
     options.put("bootstrap.servers", sinkOption.getServers)
 
-    val map = options.asScala.filter{ case (key, _) => !key.startsWith("__") && key != "topic" }
+    val map = options.asScala.filter { case (key, _) =>
+      !key.startsWith("__") && key != "topic"
+    }
     val config = collection.immutable.Map(map.toSeq: _*)
     dataset.writeToKafka(
       config,
@@ -41,5 +43,6 @@ class KafkaDataTunnelSink extends DataTunnelSink {
     }
   }
 
-  override def getOptionClass: Class[_ <: DataTunnelSinkOption] = classOf[KafkaDataTunnelSinkOption]
+  override def getOptionClass: Class[_ <: DataTunnelSinkOption] =
+    classOf[KafkaDataTunnelSinkOption]
 }

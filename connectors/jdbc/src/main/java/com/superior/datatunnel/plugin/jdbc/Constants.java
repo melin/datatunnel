@@ -6,7 +6,7 @@ public class Constants {
 
     public static final String FIELD_DELIMITER = "\u0001";
 
-    public static void handlePgIdentifierBytes(byte[] bytes, ByteBuffer buffer){
+    public static void handlePgIdentifierBytes(byte[] bytes, ByteBuffer buffer) {
         for (byte aByte : bytes) {
             switch (aByte) {
                 case '\\':

@@ -35,7 +35,8 @@ public class ProviderRegistry {
     }
 
     public static TableProvider lookup(String shortName) throws ClassNotFoundException {
-        ServiceLoader<TableProvider> loader = ServiceLoader.load(TableProvider.class, ProviderRegistry.class.getClassLoader());
+        ServiceLoader<TableProvider> loader =
+                ServiceLoader.load(TableProvider.class, ProviderRegistry.class.getClassLoader());
         for (TableProvider provider : loader) {
             providerStore.put(provider.getShortName(), provider);
         }

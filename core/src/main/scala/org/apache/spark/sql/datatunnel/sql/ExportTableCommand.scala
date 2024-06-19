@@ -24,14 +24,15 @@ case class ExportTableCommand(
     nameAndQuery: Seq[(String, String)]
 ) extends LeafRunnableCommand {
 
-  private final val logger = LoggerFactory.getLogger(classOf[ExportTableCommand])
+  private final val logger =
+    LoggerFactory.getLogger(classOf[ExportTableCommand])
 
   private val exportFileName = exportData.getPath
   private val options = exportData.getProperties
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val distPath = genDistPath(sparkSession)
-    //cte 语法支持
+    // cte 语法支持
     val dataFrame = cteQueryAction(sparkSession)
 
     if (StringUtils.endsWithIgnoreCase(exportFileName, ".json")) {
@@ -69,13 +70,15 @@ case class ExportTableCommand(
 
     logger.info("export excel file in " + distPath)
     if (!overwrite) {
-      dataFrame.write.format("com.crealytics.spark.excel")
+      dataFrame.write
+        .format("com.crealytics.spark.excel")
         .option("dataAddress", "MyTable[#All]")
         .option("useHeader", "true")
         .mode(SaveMode.Append)
         .save(distPath)
     } else {
-      dataFrame.write.format("com.crealytics.spark.excel")
+      dataFrame.write
+        .format("com.crealytics.spark.excel")
         .option("dataAddress", "MyTable[#All]")
         .option("useHeader", "true")
         .mode(SaveMode.Overwrite)
@@ -110,7 +113,10 @@ case class ExportTableCommand(
     if (!overwrite) {
       writer.option("inferSchema", "true").mode(SaveMode.Append).save(distPath)
     } else {
-      writer.option("inferSchema", "true").mode(SaveMode.Overwrite).save(distPath)
+      writer
+        .option("inferSchema", "true")
+        .mode(SaveMode.Overwrite)
+        .save(distPath)
     }
   }
 
@@ -132,7 +138,8 @@ case class ExportTableCommand(
       val complexTypeNames = new util.ArrayList[String]()
       dataFrame.schema.fields.foreach(field => {
         field.dataType match {
-          case _: ArrayType | _: MapType | _: StructType => complexTypeNames.add(field.name)
+          case _: ArrayType | _: MapType | _: StructType =>
+            complexTypeNames.add(field.name)
           case _ =>
         }
       })
@@ -150,18 +157,28 @@ case class ExportTableCommand(
     } else true
 
     for (entry <- options.entrySet().asScala) {
-      if (!StringUtils.equalsIgnoreCase(entry.getKey, "header")
+      if (
+        !StringUtils.equalsIgnoreCase(entry.getKey, "header")
         && !StringUtils.equalsIgnoreCase(entry.getKey, "inferSchema")
-        && !StringUtils.equalsIgnoreCase(entry.getKey, "fileCount")) {
+        && !StringUtils.equalsIgnoreCase(entry.getKey, "fileCount")
+      ) {
         writer = writer.option(entry.getKey, entry.getValue)
       }
     }
 
     logger.info("export csv file in " + distPath)
     if (!overwrite) {
-      writer.option("header", "true").option("inferSchema", "true").mode(SaveMode.Append).save(distPath)
+      writer
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .mode(SaveMode.Append)
+        .save(distPath)
     } else {
-      writer.option("header", "true").option("inferSchema", "true").mode(SaveMode.Overwrite).save(distPath)
+      writer
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .mode(SaveMode.Overwrite)
+        .save(distPath)
     }
   }
 
@@ -182,27 +199,43 @@ case class ExportTableCommand(
     } else true
 
     for (entry <- options.entrySet().asScala) {
-      if (!StringUtils.equalsIgnoreCase(entry.getKey, "header")
+      if (
+        !StringUtils.equalsIgnoreCase(entry.getKey, "header")
         && !StringUtils.equalsIgnoreCase(entry.getKey, "inferSchema")
-        && !StringUtils.equalsIgnoreCase(entry.getKey, "fileCount")) {
+        && !StringUtils.equalsIgnoreCase(entry.getKey, "fileCount")
+      ) {
         writer = writer.option(entry.getKey, entry.getValue)
       }
     }
 
     logger.info("export csv file in " + distPath)
     if (!overwrite) {
-      writer.option("header", "true").option("inferSchema", "true").mode(SaveMode.Append).text(distPath)
+      writer
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .mode(SaveMode.Append)
+        .text(distPath)
     } else {
-      writer.option("header", "true").option("inferSchema", "true").mode(SaveMode.Overwrite).text(distPath)
+      writer
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .mode(SaveMode.Overwrite)
+        .text(distPath)
     }
   }
 
   private def getPartitionCondition(catalogTable: CatalogTable): String = {
-    if (catalogTable.partitionColumnNames.isEmpty && exportData.getPartitionVals.size() > 0) {
+    if (
+      catalogTable.partitionColumnNames.isEmpty && exportData.getPartitionVals
+        .size() > 0
+    ) {
       throw new SQLParserException("非分区表，不用指定分区")
     }
 
-    if (catalogTable.partitionColumnNames.nonEmpty && exportData.getPartitionVals.size() == 0) {
+    if (
+      catalogTable.partitionColumnNames.nonEmpty && exportData.getPartitionVals
+        .size() == 0
+    ) {
       throw new SQLParserException("分区表导出请指定具体分区")
     }
 
@@ -214,15 +247,22 @@ case class ExportTableCommand(
         if (catalogTable.partitionColumnNames.contains(key)) {
           map.put(key, value)
         } else {
-          throw new SQLParserException(s"当前表没有分区字段: $key, 分区字段为: " + catalogTable.partitionColumnNames.mkString(","))
+          throw new SQLParserException(
+            s"当前表没有分区字段: $key, 分区字段为: " + catalogTable.partitionColumnNames
+              .mkString(",")
+          )
         }
       }
 
       if (map.keySet().size() != catalogTable.partitionColumnNames.size) {
-        throw new SQLParserException("当前表分区字段为: " + catalogTable.partitionColumnNames.mkString(","))
+        throw new SQLParserException(
+          "当前表分区字段为: " + catalogTable.partitionColumnNames.mkString(",")
+        )
       }
 
-      exportData.getPartitionVals.asScala.map { case (key, value) => key + " = " + value }.mkString(" and ")
+      exportData.getPartitionVals.asScala
+        .map { case (key, value) => key + " = " + value }
+        .mkString(" and ")
     } else {
       null
     }
@@ -236,14 +276,18 @@ case class ExportTableCommand(
     val dbTable = TableIdentifier(tableName, Option(db))
     // 如果有 cte 语法，先注册临时表
     if (nameAndQuery.nonEmpty) {
-      nameAndQuery.foreach {
-        case (name, query) =>
-          sparkSession.sql(query).createOrReplaceTempView(name)
+      nameAndQuery.foreach { case (name, query) =>
+        sparkSession.sql(query).createOrReplaceTempView(name)
       }
       dataFrame = sparkSession.table(tableName)
     } else if (catalog.tableExists(dbTable)) {
       val catalogTable = catalog.getTableMetadata(dbTable)
-      logger.info("table {} type {}, location: {}", tableName, catalogTable.tableType, catalogTable.location.getPath)
+      logger.info(
+        "table {} type {}, location: {}",
+        tableName,
+        catalogTable.tableType,
+        catalogTable.location.getPath
+      )
 
       val condition = getPartitionCondition(catalogTable)
       val sql = if (StringUtils.isBlank(condition)) {
@@ -260,10 +304,24 @@ case class ExportTableCommand(
       execution.assertAnalyzed()
 
       val clazz = classOf[Dataset[Row]]
-      val constructor = clazz.getDeclaredConstructor(classOf[SparkSession], classOf[LogicalPlan], classOf[Encoder[_]])
-      dataFrame = constructor.newInstance(sparkSession, logicPlan, ExpressionEncoder.apply(execution.analyzed.schema))
+      val constructor = clazz.getDeclaredConstructor(
+        classOf[SparkSession],
+        classOf[LogicalPlan],
+        classOf[Encoder[_]]
+      )
+      dataFrame = constructor.newInstance(
+        sparkSession,
+        logicPlan,
+        ExpressionEncoder.apply(execution.analyzed.schema)
+      )
     } else {
-      throw new SQLParserException(String.format("table %s is neither exists in database %s nor in the temp view!", tableName, db))
+      throw new SQLParserException(
+        String.format(
+          "table %s is neither exists in database %s nor in the temp view!",
+          tableName,
+          db
+        )
+      )
     }
 
     dataFrame

@@ -33,10 +33,7 @@ public class TunnelDynamicWriteMsg implements WriterCommitMessage {
 
     private final String uploadId;
 
-    public TunnelDynamicWriteMsg(String project,
-                          String table,
-                          Map<String, String> partitionSpec,
-                          String uploadId) {
+    public TunnelDynamicWriteMsg(String project, String table, Map<String, String> partitionSpec, String uploadId) {
         this.project = project;
         this.table = table;
         this.partitionSpec = partitionSpec;
@@ -90,10 +87,6 @@ public class TunnelDynamicWriteMsg implements WriterCommitMessage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                project,
-                table,
-                partitionSpec,
-                uploadId);
+        return Objects.hash(project, table, partitionSpec, uploadId);
     }
 }

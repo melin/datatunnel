@@ -1,27 +1,5 @@
 package com.superior.datatunnel.hadoop.fs.sftp;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Set;
-import java.util.List;
-
-import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
-import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
-import com.superior.datatunnel.hadoop.fs.common.DirTree;
-import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
-import org.apache.hadoop.fs.permission.FsPermission;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -32,10 +10,29 @@ import com.jcraft.jsch.ProxySOCKS5;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
-
+import com.superior.datatunnel.hadoop.fs.common.AbstractChannel;
+import com.superior.datatunnel.hadoop.fs.common.AbstractFTPFileSystem;
+import com.superior.datatunnel.hadoop.fs.common.ConnectionInfo;
+import com.superior.datatunnel.hadoop.fs.common.DirTree;
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Communication channel which uses link com.jcraft.jsch package to
@@ -91,11 +88,10 @@ public class SFTPChannel extends AbstractChannel {
         try {
             session = jsch.getSession(user, host, port);
             if (password == null || password.isEmpty()) {
-                //First try to get key private key from credentials provider
+                // First try to get key private key from credentials provider
                 byte[] key = info.getKey();
                 if (key != null) {
-                    jsch.addIdentity(user, key,
-                            null, info.getKeyPassPhrase());
+                    jsch.addIdentity(user, key, null, info.getKeyPassPhrase());
                 }
             } else {
                 session.setPassword(password);
@@ -149,8 +145,7 @@ public class SFTPChannel extends AbstractChannel {
     }
 
     @Override
-    public FSDataOutputStream put(Path file, DirTree dirTree,
-                                  FileSystem.Statistics statistics) throws IOException {
+    public FSDataOutputStream put(Path file, DirTree dirTree, FileSystem.Statistics statistics) throws IOException {
         try {
             // Get the data stream
             OutputStream os = client.put(file.toUri().getPath());
@@ -166,8 +161,7 @@ public class SFTPChannel extends AbstractChannel {
                             super.close();
                             // Update the cache so it includes uploaded file
                             dirTree.addNode(SFTPChannel.this, file);
-                            LOG.debug("Closing data connection, " +
-                                    "control connection kept open");
+                            LOG.debug("Closing data connection, " + "control connection kept open");
                             disconnect(false);
                         }
                     }
@@ -176,8 +170,7 @@ public class SFTPChannel extends AbstractChannel {
                 throw new IOException("Output stream not available: " + file);
             }
         } catch (SftpException ex) {
-            throw new IOException(ex.toString() + " " +
-                    String.format(ErrorStrings.E_CREATE_FILE, file), ex);
+            throw new IOException(ex.toString() + " " + String.format(ErrorStrings.E_CREATE_FILE, file), ex);
         }
     }
 
@@ -187,8 +180,7 @@ public class SFTPChannel extends AbstractChannel {
             client.cd(parentDir);
             client.mkdir(name);
         } catch (SftpException e) {
-            LOG.error(getConnectionInfo().logWithInfo(
-                    String.format(ErrorStrings.E_CREATE_DIR, parentDir + name)), e);
+            LOG.error(getConnectionInfo().logWithInfo(String.format(ErrorStrings.E_CREATE_DIR, parentDir + name)), e);
             return false;
         }
         return true;
@@ -200,8 +192,7 @@ public class SFTPChannel extends AbstractChannel {
             client.cd("/");
             client.rename(src, dst);
         } catch (SftpException ex) {
-            LOG.error(getConnectionInfo().logWithInfo(
-                    String.format(ErrorStrings.E_RENAME, src, dst)), ex);
+            LOG.error(getConnectionInfo().logWithInfo(String.format(ErrorStrings.E_RENAME, src, dst)), ex);
             return false;
         }
         return true;
@@ -212,8 +203,7 @@ public class SFTPChannel extends AbstractChannel {
         try {
             return client.pwd();
         } catch (SftpException ex) {
-            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_FAILED_GETHOME),
-                    ex);
+            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_FAILED_GETHOME), ex);
             throw new IOException(ex.toString(), ex);
         }
     }
@@ -224,8 +214,7 @@ public class SFTPChannel extends AbstractChannel {
             client.rm(src);
             return true;
         } catch (SftpException e) {
-            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_FILE),
-                    src, e);
+            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_FILE), src, e);
         }
         return false;
     }
@@ -240,8 +229,7 @@ public class SFTPChannel extends AbstractChannel {
             client.rmdir(src);
             return true;
         } catch (SftpException e) {
-            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_DIR),
-                    src, e);
+            LOG.error(getConnectionInfo().logWithInfo(ErrorStrings.E_REMOVE_DIR), src, e);
         }
         return false;
     }
@@ -251,7 +239,7 @@ public class SFTPChannel extends AbstractChannel {
         List<ChannelSftp.LsEntry> sftpFiles;
         try {
             // Get the full list of files for given directory from remote server
-            //(no caching)
+            // (no caching)
             sftpFiles = client.ls(dir.toUri().getPath());
         } catch (SftpException e) {
             throw new IOException(e.toString(), e);
@@ -272,8 +260,7 @@ public class SFTPChannel extends AbstractChannel {
      * Convert the file information as received from remote server to a
      * {@link FileStatus} object.
      */
-    private FileStatus getFileStatus(ChannelSftp.LsEntry sftpFile,
-                                     Path origParent) throws IOException {
+    private FileStatus getFileStatus(ChannelSftp.LsEntry sftpFile, Path origParent) throws IOException {
 
         Path parentPath = origParent;
         SftpATTRS attr = sftpFile.getAttrs();
@@ -282,8 +269,8 @@ public class SFTPChannel extends AbstractChannel {
         while (attr.isLink()) {
             // Let's found the real file which we are pointed to by symbolic link
             try {
-                Path qualified = new Path(client.readlink(link)).makeQualified(
-                        getConnectionInfo().getURI(), parentPath);
+                Path qualified = new Path(client.readlink(link))
+                        .makeQualified(getConnectionInfo().getURI(), parentPath);
                 symLink = qualified.toUri().getPath();
                 link = symLink;
                 parentPath = qualified.getParent();
@@ -309,12 +296,21 @@ public class SFTPChannel extends AbstractChannel {
         String group = getGroup(longName, attr);
         Path filePath = new Path(parentPath, sftpFile.getFilename());
 
-        FileStatus fs = new FileStatus(length, isDir, blockReplication, blockSize,
+        FileStatus fs = new FileStatus(
+                length,
+                isDir,
+                blockReplication,
+                blockSize,
                 modTime,
-                accessTime, permission, user, group,
+                accessTime,
+                permission,
+                user,
+                group,
                 filePath.makeQualified(getConnectionInfo().getURI(), workingDir));
-        fs.setSymlink(symLink != null ? new Path(symLink).makeQualified(
-                getConnectionInfo().getURI(), parentPath) : null);
+        fs.setSymlink(
+                symLink != null
+                        ? new Path(symLink).makeQualified(getConnectionInfo().getURI(), parentPath)
+                        : null);
         return fs;
     }
 
@@ -339,8 +335,7 @@ public class SFTPChannel extends AbstractChannel {
     }
 
     @Override
-    public FileStatus getFileStatus(Path file, Set<FileStatus> dirContentList)
-            throws IOException {
+    public FileStatus getFileStatus(Path file, Set<FileStatus> dirContentList) throws IOException {
         Path parentPath = file.getParent();
         // Get the special treatment for root directory
         if (parentPath == null) {
@@ -355,21 +350,18 @@ public class SFTPChannel extends AbstractChannel {
         } catch (SftpException e) {
             LOG.debug("Error when listing files", e);
             if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                throw new FileNotFoundException(String.format(
-                        ErrorStrings.E_FILE_NOTFOUND, file));
+                throw new FileNotFoundException(String.format(ErrorStrings.E_FILE_NOTFOUND, file));
             } else {
                 throw new IOException(e.toString(), e);
             }
         }
         FileStatus fileStat = null;
         if (sftpFiles != null) {
-            Path qParent = parentPath.makeQualified(getConnectionInfo().getURI(),
-                    parentPath);
+            Path qParent = parentPath.makeQualified(getConnectionInfo().getURI(), parentPath);
             for (ChannelSftp.LsEntry sftpFile : sftpFiles) {
                 FileStatus item = getFileStatus(sftpFile, parentPath);
                 // Some servers may return "." and ".." which we don't want to process
-                if (!item.getPath().equals(qParent) &&
-                        !item.getPath().equals(qParent.getParent())) {
+                if (!item.getPath().equals(qParent) && !item.getPath().equals(qParent.getParent())) {
                     dirContentList.add(item);
                 }
                 if (sftpFile.getFilename().equals(file.getName())) {
@@ -378,12 +370,10 @@ public class SFTPChannel extends AbstractChannel {
                 }
             }
             if (fileStat == null) {
-                throw new FileNotFoundException(String.format(
-                        ErrorStrings.E_FILE_NOTFOUND, file));
+                throw new FileNotFoundException(String.format(ErrorStrings.E_FILE_NOTFOUND, file));
             }
         } else {
-            throw new FileNotFoundException(
-                    String.format(ErrorStrings.E_FILE_NOTFOUND, file));
+            throw new FileNotFoundException(String.format(ErrorStrings.E_FILE_NOTFOUND, file));
         }
         return fileStat;
     }
@@ -399,8 +389,7 @@ public class SFTPChannel extends AbstractChannel {
     }
 
     @Override
-    public FSDataInputStream get(FileStatus file,
-                                 FileSystem.Statistics statistics) throws IOException {
+    public FSDataInputStream get(FileStatus file, FileSystem.Statistics statistics) throws IOException {
         LOG.debug("Getting data stream for: " + file.getPath());
         // Get the data stream
         InputStream is = getDataStream(file);
@@ -408,8 +397,7 @@ public class SFTPChannel extends AbstractChannel {
             // All extra handling is done in SFTPInputStream
             return new FSDataInputStream(new SFTPInputStream(is, this, file, statistics));
         } else {
-            throw new IOException(String.format(ErrorStrings.E_CREATE_FILE,
-                    file.getPath()));
+            throw new IOException(String.format(ErrorStrings.E_CREATE_FILE, file.getPath()));
         }
     }
 

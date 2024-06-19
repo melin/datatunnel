@@ -3,10 +3,9 @@ package com.superior.datatunnel.plugin.redshift;
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.WriteMode;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class SnowflakeDataTunnelSinkOption extends BaseSinkOption {
@@ -35,5 +34,4 @@ public class SnowflakeDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("数据写入模式")
     @NotNull(message = "writeMode can not null")
     private WriteMode writeMode = WriteMode.APPEND;
-
 }

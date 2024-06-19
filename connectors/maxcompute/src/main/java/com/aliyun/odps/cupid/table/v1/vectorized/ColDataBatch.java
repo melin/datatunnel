@@ -20,7 +20,6 @@
 package com.aliyun.odps.cupid.table.v1.vectorized;
 
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.util.Arrays;
 
 public final class ColDataBatch {

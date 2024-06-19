@@ -31,7 +31,6 @@ import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.cupid.table.v1.util.Validator;
 import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.utils.StringUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +54,13 @@ public class TunnelReadSession extends TableReadSession {
 
     private Odps odps;
 
-    TunnelReadSession(String project,
-                      String table,
-                      TableSchema tableSchema,
-                      RequiredSchema readDataColumns,
-                      List<Map<String, String>> partitionSpecs,
-                      Options options) {
+    TunnelReadSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> partitionSpecs,
+            Options options) {
         super(project, table, options, tableSchema, readDataColumns, partitionSpecs);
         initOdps();
     }
@@ -78,8 +78,7 @@ public class TunnelReadSession extends TableReadSession {
     @Override
     public InputSplit[] getOrCreateInputSplits() throws IOException {
         if (this.splitParallelism > 0) {
-            throw new UnsupportedOperationException(
-                    "split by parallelism is not supported by tunnel provider");
+            throw new UnsupportedOperationException("split by parallelism is not supported by tunnel provider");
         } else {
             return getOrCreateInputSplits(this.splitSizeInMB);
         }
@@ -115,19 +114,17 @@ public class TunnelReadSession extends TableReadSession {
         if (partitionSpecs == null || partitionSpecs.isEmpty()) {
             long size = odps.tables().get(project, table).getSize();
             TableTunnel.DownloadSession session = Util.createDownloadSession(project, table, null, tunnel);
-            splits.addAll(
-                    getInputSplitsInternal(session, size, splitSizeInMB, null));
+            splits.addAll(getInputSplitsInternal(session, size, splitSizeInMB, null));
         } else {
             for (Map<String, String> partitionSpec : partitionSpecs) {
                 PartitionSpec odpsPartitionSpec = Util.toOdpsPartitionSpec(partitionSpec);
-                long size = odps.tables().get(project, table).getPartition(odpsPartitionSpec).getSize();
-                TableTunnel.DownloadSession session = Util.createDownloadSession(
-                        project,
-                        table,
-                        odpsPartitionSpec,
-                        tunnel);
-                splits.addAll(
-                        getInputSplitsInternal(session, size, splitSizeInMB, partitionSpec));
+                long size = odps.tables()
+                        .get(project, table)
+                        .getPartition(odpsPartitionSpec)
+                        .getSize();
+                TableTunnel.DownloadSession session =
+                        Util.createDownloadSession(project, table, odpsPartitionSpec, tunnel);
+                splits.addAll(getInputSplitsInternal(session, size, splitSizeInMB, partitionSpec));
             }
         }
 
@@ -157,12 +154,9 @@ public class TunnelReadSession extends TableReadSession {
         }
         requiredColumns = new ArrayList<>();
         if (readDataColumns.getType().equals(RequiredSchema.Type.COLUMNS_SPECIFIED)) {
-            Set<String> readColumnsName = readDataColumns.toList()
-                    .stream()
-                    .map(Attribute::getName)
-                    .collect(Collectors.toSet());
-            requiredColumns = this.dataColumns
-                    .stream()
+            Set<String> readColumnsName =
+                    readDataColumns.toList().stream().map(Attribute::getName).collect(Collectors.toSet());
+            requiredColumns = this.dataColumns.stream()
                     .filter(attr -> readColumnsName.contains(attr.getName()))
                     .collect(Collectors.toList());
         } else {
@@ -170,10 +164,8 @@ public class TunnelReadSession extends TableReadSession {
         }
     }
 
-    private List<InputSplit> getInputSplitsInternal(TableTunnel.DownloadSession session,
-                                                    long size,
-                                                    int splitSizeInMB,
-                                                    Map<String, String> partitionSpec) {
+    private List<InputSplit> getInputSplitsInternal(
+            TableTunnel.DownloadSession session, long size, int splitSizeInMB, Map<String, String> partitionSpec) {
         List<InputSplit> splits = new ArrayList<>();
         String downloadId = session.getId();
         long recordCount = session.getRecordCount();
@@ -196,17 +188,33 @@ public class TunnelReadSession extends TableReadSession {
         long remainder = recordCount % numRecordPerSplit;
         for (long i = 0; i < numSplits; i++) {
             long startIndex = i * numRecordPerSplit;
-            TunnelInputSplit split = new TunnelInputSplit(project, table, dataColumns,
-                    partitionColumns, requiredColumns, partitionSpec, downloadId, startIndex,
-                    numRecordPerSplit, options);
+            TunnelInputSplit split = new TunnelInputSplit(
+                    project,
+                    table,
+                    dataColumns,
+                    partitionColumns,
+                    requiredColumns,
+                    partitionSpec,
+                    downloadId,
+                    startIndex,
+                    numRecordPerSplit,
+                    options);
             splits.add(split);
         }
 
         if (remainder != 0) {
             long startIndex = numSplits * numRecordPerSplit;
-            TunnelInputSplit lastSplit = new TunnelInputSplit(project, table, dataColumns,
-                    partitionColumns, requiredColumns, partitionSpec, downloadId, startIndex,
-                    remainder, options);
+            TunnelInputSplit lastSplit = new TunnelInputSplit(
+                    project,
+                    table,
+                    dataColumns,
+                    partitionColumns,
+                    requiredColumns,
+                    partitionSpec,
+                    downloadId,
+                    startIndex,
+                    remainder,
+                    options);
             splits.add(lastSplit);
         }
 

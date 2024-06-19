@@ -12,8 +12,8 @@ import java.net.URI
   *   Destination to copy to
   */
 case class SingleCopyDefinition(
-  source: SerializableFileStatus,
-  destination: URI
+    source: SerializableFileStatus,
+    destination: URI
 )
 
 /** Definition of a copy that includes any copying of parent folders this
@@ -27,9 +27,9 @@ case class SingleCopyDefinition(
   *   Any dependent folder copies this file/folder depends on
   */
 case class CopyDefinitionWithDependencies(
-  source: SerializableFileStatus,
-  destination: URI,
-  dependentFolders: Seq[SingleCopyDefinition]
+    source: SerializableFileStatus,
+    destination: URI,
+    dependentFolders: Seq[SingleCopyDefinition]
 ) {
 
   def toKeyedDefinition: KeyedCopyDefinition = (destination, this)

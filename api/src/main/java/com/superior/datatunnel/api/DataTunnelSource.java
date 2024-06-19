@@ -2,14 +2,13 @@ package com.superior.datatunnel.api;
 
 import com.gitee.melin.bee.core.extension.SPI;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Set;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 
 /**
  * @author melin 2021/7/27 10:47 上午
@@ -21,7 +20,7 @@ public interface DataTunnelSource extends Serializable {
 
     Class<? extends DataTunnelSourceOption> getOptionClass();
 
-    default boolean supportCte()  {
+    default boolean supportCte() {
         return false;
     }
 

@@ -2,9 +2,8 @@ package com.superior.datatunnel.api.model;
 
 import com.google.common.collect.Maps;
 import com.superior.datatunnel.api.DataSourceType;
-
-import javax.validation.constraints.NotEmpty;
 import java.util.Map;
+import javax.validation.constraints.NotEmpty;
 
 public class BaseSourceOption implements DataTunnelSourceOption {
 
@@ -29,7 +28,7 @@ public class BaseSourceOption implements DataTunnelSourceOption {
      * 8. true为布尔值。
      */
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String[] columns = new String[] {"*"};
 
     /**
      * key 前缀为 properties. 的参数，全部写入 properties

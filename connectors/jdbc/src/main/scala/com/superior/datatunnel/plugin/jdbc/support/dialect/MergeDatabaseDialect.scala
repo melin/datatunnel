@@ -5,17 +5,23 @@ import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 
-class MergeDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataSourceType: DataSourceType)
-  extends DefaultDatabaseDialect(options, jdbcDialect, dataSourceType) {
+class MergeDatabaseDialect(
+    options: JDBCOptions,
+    jdbcDialect: JdbcDialect,
+    dataSourceType: DataSourceType
+) extends DefaultDatabaseDialect(options, jdbcDialect, dataSourceType) {
 
   override def getUpsertStatement(
       destTableName: String,
       rddSchema: StructType,
       tableSchema: Option[StructType],
-      keyColumns: Array[String]): String = {
+      keyColumns: Array[String]
+  ): String = {
 
     if (keyColumns == null || keyColumns.length == 0) {
-      throw new DataTunnelException(s"Cannot write to table $destTableName with no key fields defined.")
+      throw new DataTunnelException(
+        s"Cannot write to table $destTableName with no key fields defined."
+      )
     }
 
     val columns = getColumns(rddSchema, tableSchema)
@@ -37,13 +43,16 @@ class MergeDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, dataS
     builder.append(sql);
     builder.append(")\n")
 
-    val updateColumns = columns.filter(name => !keyColumns.contains(name)).map(name => name)
+    val updateColumns =
+      columns.filter(name => !keyColumns.contains(name)).map(name => name)
     if (updateColumns.length == 0) {
       builder.append("WHEN MATCHED THEN\n    DO NOTHING ")
     } else {
       builder.append("WHEN MATCHED THEN\n    UPDATE SET ")
-      sql = columns.filter(!keyColumns.contains(_))
-        .map(key => s"dist.${key} = src.${key}").mkString(", ")
+      sql = columns
+        .filter(!keyColumns.contains(_))
+        .map(key => s"dist.${key} = src.${key}")
+        .mkString(", ")
       builder.append(sql);
     }
     builder.append("\nWHEN NOT MATCHED THEN\n")

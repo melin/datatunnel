@@ -5,14 +5,12 @@ import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.FileFormat;
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
-public class S3CommonOption extends BaseCommonOption
-        implements DataTunnelSourceOption, DataTunnelSinkOption {
+public class S3CommonOption extends BaseCommonOption implements DataTunnelSourceOption, DataTunnelSinkOption {
 
     private String endpoint;
 
@@ -46,7 +44,7 @@ public class S3CommonOption extends BaseCommonOption
     private String timestampFormat = "yyyy-MM-dd HH:mm:ss[.SSS]";
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String[] columns = new String[] {"*"};
 
     @Override
     public String[] getColumns() {

@@ -22,7 +22,6 @@ package com.aliyun.odps.cupid.table.v1.writer;
 import com.aliyun.odps.TableSchema;
 import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.cupid.table.v1.util.TableUtils;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +40,12 @@ public abstract class TableWriteSession {
 
     protected Options options;
 
-    protected TableWriteSession(String project,
-                                String table,
-                                TableSchema tableSchema,
-                                Map<String, String> partitionSpec,
-                                boolean overwrite) {
+    protected TableWriteSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean overwrite) {
         this.project = project;
         this.table = table;
         this.tableSchema = tableSchema == null ? getTableSchema() : tableSchema;
@@ -53,12 +53,13 @@ public abstract class TableWriteSession {
         this.overwrite = overwrite;
     }
 
-    protected TableWriteSession(String project,
-                                String table,
-                                Options options,
-                                TableSchema tableSchema,
-                                Map<String, String> partitionSpec,
-                                boolean overwrite) {
+    protected TableWriteSession(
+            String project,
+            String table,
+            Options options,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean overwrite) {
         this.project = project;
         this.table = table;
         this.options = options;

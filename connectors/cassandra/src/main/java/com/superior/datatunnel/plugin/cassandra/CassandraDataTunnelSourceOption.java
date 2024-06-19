@@ -2,10 +2,9 @@ package com.superior.datatunnel.plugin.cassandra;
 
 import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class CassandraDataTunnelSourceOption extends BaseSourceOption {

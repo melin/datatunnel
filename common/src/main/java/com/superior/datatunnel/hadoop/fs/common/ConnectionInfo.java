@@ -1,17 +1,15 @@
 package com.superior.datatunnel.hadoop.fs.common;
 
+import static com.google.common.base.Preconditions.*;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-
+import java.util.function.Function;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-
-import java.util.function.Function;
-
-import static com.google.common.base.Preconditions.*;
 
 /**
  * Various connection parameters. Default values: PORTS: FTP 21/SFTP 22 PROXY
@@ -98,27 +96,25 @@ public class ConnectionInfo extends Configured {
      */
     public ConnectionInfo(
             Function<ConnectionInfo, ? extends AbstractChannel> supplier,
-            URI uriInfo, Configuration conf, int defaultPort) throws IOException {
+            URI uriInfo,
+            Configuration conf,
+            int defaultPort)
+            throws IOException {
         super(conf);
         this.uri = uriInfo;
         this.supplier = supplier;
         // get host information from URI
         String host = uriInfo.getHost();
         // Host specified in file system URI has precedence
-        ftpHost = (host == null) ? conf.get(getPropertyName(FSParameter.FS_FTP_HOST,
-                uriInfo), null) : host;
+        ftpHost = (host == null) ? conf.get(getPropertyName(FSParameter.FS_FTP_HOST, uriInfo), null) : host;
         checkNotNull(ftpHost, ErrorStrings.E_HOST_NULL);
         conf.set(getPropertyName(FSParameter.FS_FTP_HOST, uriInfo), ftpHost);
 
         // Port specified in file system URI has precedence
         int port = uriInfo.getPort();
-        ftpPort = (port == -1)
-                ? conf.getInt(
-                getPropertyName(FSParameter.FS_FTP_HOST_PORT, uriInfo),
-                defaultPort)
-                : port;
-        conf.setInt(
-                getPropertyName(FSParameter.FS_FTP_HOST_PORT, uriInfo), ftpPort);
+        ftpPort =
+                (port == -1) ? conf.getInt(getPropertyName(FSParameter.FS_FTP_HOST_PORT, uriInfo), defaultPort) : port;
+        conf.setInt(getPropertyName(FSParameter.FS_FTP_HOST_PORT, uriInfo), ftpPort);
 
         // get user/password information from URI
         String userAndPwdFromUri = uriInfo.getUserInfo();
@@ -126,19 +122,16 @@ public class ConnectionInfo extends Configured {
             String[] userPasswdInfo = userAndPwdFromUri.split(":");
             String user = userPasswdInfo[0];
             user = URLDecoder.decode(user, "UTF-8");
-            conf.set(getPropertyName(FSParameter.FS_FTP_USER_PREFIX, uriInfo) +
-                    ftpHost, user);
+            conf.set(getPropertyName(FSParameter.FS_FTP_USER_PREFIX, uriInfo) + ftpHost, user);
             if (userPasswdInfo.length > 1) {
-                conf.set(getPropertyName(FSParameter.FS_FTP_PASSWORD_PREFIX, uriInfo) +
-                        ftpHost + "." +
-                        user, userPasswdInfo[1]);
+                conf.set(
+                        getPropertyName(FSParameter.FS_FTP_PASSWORD_PREFIX, uriInfo) + ftpHost + "." + user,
+                        userPasswdInfo[1]);
             }
         }
 
-        ftpUser = conf.get(
-                getPropertyName(FSParameter.FS_FTP_USER_PREFIX, uriInfo) + ftpHost);
-        checkArgument(ftpUser != null && !ftpUser.isEmpty(),
-                ErrorStrings.E_USER_NULL);
+        ftpUser = conf.get(getPropertyName(FSParameter.FS_FTP_USER_PREFIX, uriInfo) + ftpHost);
+        checkArgument(ftpUser != null && !ftpUser.isEmpty(), ErrorStrings.E_USER_NULL);
     }
 
     /**
@@ -149,8 +142,7 @@ public class ConnectionInfo extends Configured {
      * in -Dproperty=value
      */
     static String getPropertyName(FSParameter name, URI uri) {
-        return String.format(FILE_SYSTEM_PROPERTY,
-                uri.getScheme(), name.getValue());
+        return String.format(FILE_SYSTEM_PROPERTY, uri.getScheme(), name.getValue());
     }
 
     /**
@@ -213,9 +205,8 @@ public class ConnectionInfo extends Configured {
     }
 
     public AbstractFTPFileSystem.ProxyType getProxyType() {
-        return getConf().getEnum(
-                getPropertyName(FSParameter.FS_FTP_PROXY_TYPE, uri),
-                AbstractFTPFileSystem.ProxyType.NONE);
+        return getConf()
+                .getEnum(getPropertyName(FSParameter.FS_FTP_PROXY_TYPE, uri), AbstractFTPFileSystem.ProxyType.NONE);
     }
 
     public String getProxyHost() {
@@ -224,11 +215,15 @@ public class ConnectionInfo extends Configured {
 
     public int getProxyPort() {
         AbstractFTPFileSystem.ProxyType proxyType = getProxyType();
-        return getConf().getInt(getPropertyName(FSParameter.FS_FTP_PROXY_PORT, uri),
-                proxyType == AbstractFTPFileSystem.ProxyType.HTTP
-                        ? DEFAULT_HTTP_PROXY_PORT
-                        : ((proxyType == AbstractFTPFileSystem.ProxyType.SOCKS4 || proxyType ==
-                        AbstractFTPFileSystem.ProxyType.SOCKS5) ? DEFAULT_SOCKS_PROXY_PORT : -1));
+        return getConf()
+                .getInt(
+                        getPropertyName(FSParameter.FS_FTP_PROXY_PORT, uri),
+                        proxyType == AbstractFTPFileSystem.ProxyType.HTTP
+                                ? DEFAULT_HTTP_PROXY_PORT
+                                : ((proxyType == AbstractFTPFileSystem.ProxyType.SOCKS4
+                                                || proxyType == AbstractFTPFileSystem.ProxyType.SOCKS5)
+                                        ? DEFAULT_SOCKS_PROXY_PORT
+                                        : -1));
     }
 
     public String getProxyUser() {
@@ -236,8 +231,7 @@ public class ConnectionInfo extends Configured {
     }
 
     public String getProxyPassword() {
-        return getConf().get(
-                getPropertyName(FSParameter.FS_FTP_PROXY_PASSWORD, uri));
+        return getConf().get(getPropertyName(FSParameter.FS_FTP_PROXY_PASSWORD, uri));
     }
 
     public String getFtpHost() {
@@ -253,9 +247,7 @@ public class ConnectionInfo extends Configured {
     }
 
     public String getFtpPassword() {
-        String pass = getConf().get(
-                getPropertyName(FSParameter.FS_FTP_PASSWORD_PREFIX, uri) + ftpHost +
-                        "." + ftpUser);
+        String pass = getConf().get(getPropertyName(FSParameter.FS_FTP_PASSWORD_PREFIX, uri) + ftpHost + "." + ftpUser);
         try {
             if (pass == null) {
                 char[] p = getConf().getPassword(ftpHost + "_" + ftpUser + "_password");
@@ -268,30 +260,27 @@ public class ConnectionInfo extends Configured {
     }
 
     public int getMaxConnections() {
-        return getConf().getInt(getPropertyName(FSParameter.FS_FTP_CONNECTION_MAX,
-                uri), DEFAULT_MAX_CONNECTION);
+        return getConf().getInt(getPropertyName(FSParameter.FS_FTP_CONNECTION_MAX, uri), DEFAULT_MAX_CONNECTION);
     }
 
     public int getKeepAlivePeriod() {
-        return getConf().getInt(getPropertyName(FSParameter.FS_FTP_KEEPALIVE_PERIOD,
-                uri), DEFAULT_KEEPALIVE_PERIOD);
+        return getConf().getInt(getPropertyName(FSParameter.FS_FTP_KEEPALIVE_PERIOD, uri), DEFAULT_KEEPALIVE_PERIOD);
     }
 
     public boolean isCacheDirectories() {
-        return getConf().getBoolean(getPropertyName(
-                        FSParameter.FS_FTP_CACHE_DIRECTORIES, uri) + ftpHost,
-                DEFAULT_CACHE_DIRECTORIES);
+        return getConf()
+                .getBoolean(
+                        getPropertyName(FSParameter.FS_FTP_CACHE_DIRECTORIES, uri) + ftpHost,
+                        DEFAULT_CACHE_DIRECTORIES);
     }
 
     public boolean isUseKeepAlive() {
-        return getConf().getBoolean(
-                getPropertyName(FSParameter.FS_FTP_USE_KEEPALIVE, uri),
-                DEFAULT_USE_KEEPALIVE);
+        return getConf().getBoolean(getPropertyName(FSParameter.FS_FTP_USE_KEEPALIVE, uri), DEFAULT_USE_KEEPALIVE);
     }
 
     public AbstractFTPFileSystem.GlobType getGlobType() {
-        return getConf().getEnum(getPropertyName(FSParameter.FS_FTP_GLOB_TYPE, uri),
-                AbstractFTPFileSystem.GlobType.UNIX);
+        return getConf()
+                .getEnum(getPropertyName(FSParameter.FS_FTP_GLOB_TYPE, uri), AbstractFTPFileSystem.GlobType.UNIX);
     }
 
     public String logWithInfo(String message) {
@@ -299,15 +288,13 @@ public class ConnectionInfo extends Configured {
     }
 
     public byte[] getKey() {
-        return KeyUtils.getKey(this,
-                getConf().get(getPropertyName(FSParameter.FS_FTP_KEYFILE_PREFIX,
-                        uri) + ftpHost + "." + ftpUser));
+        return KeyUtils.getKey(
+                this, getConf().get(getPropertyName(FSParameter.FS_FTP_KEYFILE_PREFIX, uri) + ftpHost + "." + ftpUser));
     }
 
     public byte[] getKeyPassPhrase() {
-        String passphrase = getConf().get(
-                getPropertyName(FSParameter.FS_FTP_KEY_PASSPHRASE_PREFIX, uri)
-                        + ftpHost + "." + ftpUser);
+        String passphrase =
+                getConf().get(getPropertyName(FSParameter.FS_FTP_KEY_PASSPHRASE_PREFIX, uri) + ftpHost + "." + ftpUser);
         if (passphrase == null) {
             char[] p = KeyUtils.getKeyPassphrase(this);
             return p == null ? null : new String(p).getBytes(StandardCharsets.UTF_8);

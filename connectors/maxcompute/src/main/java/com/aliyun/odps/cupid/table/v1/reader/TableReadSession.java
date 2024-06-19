@@ -24,7 +24,6 @@ import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.reader.filter.FilterExpression;
 import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.cupid.table.v1.util.TableUtils;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +49,12 @@ public abstract class TableReadSession {
 
     protected boolean splitAtBucketLevel;
 
-    protected TableReadSession(String project,
-                               String table,
-                               TableSchema tableSchema,
-                               RequiredSchema readDataColumns,
-                               List<Map<String, String>> partitionSpecs) {
+    protected TableReadSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> partitionSpecs) {
         this.project = project;
         this.table = table;
         this.tableSchema = tableSchema == null ? getTableSchema() : tableSchema;
@@ -64,12 +64,13 @@ public abstract class TableReadSession {
                 .collect(Collectors.toList());
     }
 
-    protected TableReadSession(String project,
-                               String table,
-                               Options options,
-                               TableSchema tableSchema,
-                               RequiredSchema readDataColumns,
-                               List<Map<String, String>> partitionSpecs) {
+    protected TableReadSession(
+            String project,
+            String table,
+            Options options,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> partitionSpecs) {
         this.project = project;
         this.table = table;
         this.options = options;

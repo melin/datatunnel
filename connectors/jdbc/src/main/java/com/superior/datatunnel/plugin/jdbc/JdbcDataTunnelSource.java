@@ -1,5 +1,8 @@
 package com.superior.datatunnel.plugin.jdbc;
 
+import static com.superior.datatunnel.api.DataSourceType.ORACLE;
+import static java.sql.Types.*;
+
 import com.clearspring.analytics.util.Lists;
 import com.gitee.melin.bee.core.jdbc.dialect.JdbcDialectHolder;
 import com.gitee.melin.bee.util.Predicates;
@@ -10,6 +13,16 @@ import com.superior.datatunnel.common.util.JdbcUtils;
 import com.superior.datatunnel.plugin.jdbc.support.Column;
 import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -23,20 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConverters;
 import scala.collection.Map$;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import static com.superior.datatunnel.api.DataSourceType.ORACLE;
-import static java.sql.Types.*;
 
 /**
  * @author melin 2021/7/27 11:06 上午O
@@ -107,7 +106,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
         com.gitee.melin.bee.core.jdbc.enums.DataSourceType dsType =
                 com.gitee.melin.bee.core.jdbc.enums.DataSourceType.valueOf(dataSourceType.name());
-        com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect = JdbcDialectHolder.buildJdbcDialect(dsType, null, connection);
+        com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect =
+                JdbcDialectHolder.buildJdbcDialect(dsType, null, connection);
         List<String> schemaNames = getSchemaNames(schemaName, beeJdbcDialect);
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, beeJdbcDialect);
         if (tableNames.isEmpty()) {
@@ -135,10 +135,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             if (dataSourceType == ORACLE) {
                 if (newColumns.length == 1 && "*".equals(newColumns[0])) {
-                    newColumns = JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, connection)
-                            .stream()
-                            .map(Column::name)
-                            .toArray(String[]::new);
+                    newColumns =
+                            JdbcDialectUtils.queryColumns(dataSourceType, schemaName, tableName, connection).stream()
+                                    .map(Column::name)
+                                    .toArray(String[]::new);
                 }
 
                 newColumns = ArrayUtils.addFirst(newColumns, "ORA_HASH(ROWID) AS " + ORALCE_ROWID_ALIAS);
@@ -147,12 +147,15 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String condition = StringUtils.trim(sourceOption.getCondition());
             if (StringUtils.isNotBlank(condition)) {
                 if (StringUtils.startsWithIgnoreCase(condition, "where")) {
-                    fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + " " + condition + ") tdl_datatunnel";
+                    fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + " "
+                            + condition + ") tdl_datatunnel";
                 } else {
-                    fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + " where " + condition + ") tdl_datatunnel";
+                    fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName
+                            + " where " + condition + ") tdl_datatunnel";
                 }
             } else {
-                fullTableName = "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
+                fullTableName =
+                        "(SELECT " + StringUtils.join(newColumns, ",") + " FROM " + fullTableName + ") tdl_datatunnel";
             }
             LOG.info("read table: {}", fullTableName);
 
@@ -164,7 +167,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 LogUtils.warn("password is blank");
             }
 
-            DataFrameReader reader = context.getSparkSession().read()
+            DataFrameReader reader = context.getSparkSession()
+                    .read()
                     .format("jdbc")
                     .options(sourceOption.getProperties())
                     .option("url", jdbcUrl)
@@ -188,7 +192,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             if (i == 0) {
                 dataset = result;
-            } else  {
+            } else {
                 dataset = dataset.unionAll(result);
             }
         }
@@ -201,9 +205,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         return dataset;
     }
 
-    private List<String> getSchemaNames(
-            String schemaName,
-            com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
+    private List<String> getSchemaNames(String schemaName, com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
 
         Predicate<String> predicate = Predicates.includes(schemaName);
         List<String> schemaNames = dialect.getSchemas();
@@ -215,14 +217,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             }
         }
         if (list.isEmpty()) {
-            throw new DataTunnelException("没有找到匹配的schema: " + schemaName + ", schemas: " + StringUtils.join(schemaNames, ","));
+            throw new DataTunnelException(
+                    "没有找到匹配的schema: " + schemaName + ", schemas: " + StringUtils.join(schemaNames, ","));
         }
         return list;
     }
 
     private List<Pair<String, String>> getTablesNames(
-            List<String> schemaNames, String tableName,
-            com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
+            List<String> schemaNames, String tableName, com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
         Predicate<String> predicate = Predicates.includes(tableName);
         List<Pair<String, String>> list = Lists.newArrayList();
         for (String schemaName : schemaNames) {
@@ -265,7 +267,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
     }
 
-    private void statTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String schemaName, String tableName) {
+    private void statTable(
+            Connection conn, JdbcDataTunnelSourceOption sourceOption, String schemaName, String tableName) {
         PreparedStatement stmt = null;
         try {
             String partitionColumn = sourceOption.getPartitionColumn();
@@ -291,9 +294,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     for (Column column : columns) {
                         if (primaryKey.equals(column.name())) {
                             int type = column.jdbcType();
-                            if (type == TINYINT || type == SMALLINT || type == INTEGER
-                                    || type == BIGINT || type == FLOAT || type == DOUBLE
-                                    || type == NUMERIC || type == DECIMAL) {
+                            if (type == TINYINT
+                                    || type == SMALLINT
+                                    || type == INTEGER
+                                    || type == BIGINT
+                                    || type == FLOAT
+                                    || type == DOUBLE
+                                    || type == NUMERIC
+                                    || type == DECIMAL) {
 
                                 partitionColumn = primaryKey;
                                 LogUtils.info("自动推测 partitionColumn: {}", primaryKey);
@@ -307,8 +315,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String fullTableName = schemaName + "." + tableName;
             String sql;
             if (StringUtils.isNotBlank(partitionColumn)) {
-                sql = "select count(1) as num , max(" + partitionColumn + ") max_value, min(" + partitionColumn + ") min_value " +
-                        "from " + fullTableName;
+                sql = "select count(1) as num , max(" + partitionColumn + ") max_value, min(" + partitionColumn
+                        + ") min_value " + "from " + fullTableName;
             } else {
                 sql = "select count(1) as num from " + fullTableName;
             }
@@ -331,8 +339,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String execTimes = stopWatch.formatTime();
 
             if (StringUtils.isBlank(partitionColumn)) {
-                LogUtils.warn("ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
-                        execTimes, fullTableName, count);
+                LogUtils.warn(
+                        "ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
+                        execTimes,
+                        fullTableName,
+                        count);
             } else {
                 LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
             }
@@ -360,8 +371,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             sourceOption.setPartitionColumn(partitionColumn);
             sourceOption.setNumPartitions(numPartitions);
-            LogUtils.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
-                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
+            LogUtils.info(
+                    "lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(),
+                    sourceOption.getUpperBound(),
+                    partitionRecordCount,
+                    numPartitions);
         } catch (SQLException e) {
             throw new DataTunnelException(e.getMessage(), e);
         } finally {
@@ -369,13 +384,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
     }
 
-    private void statOracleTable(Connection conn, JdbcDataTunnelSourceOption sourceOption, String schemaName, String tableName) {
+    private void statOracleTable(
+            Connection conn, JdbcDataTunnelSourceOption sourceOption, String schemaName, String tableName) {
         PreparedStatement stmt = null;
         try {
             Integer partitionRecordCount = sourceOption.getPartitionRecordCount();
             String fullTableName = schemaName + "." + tableName;
-            String sql = "select count(1) as num , max(ORA_HASH(ROWID)) max_value, min(ORA_HASH(ROWID)) min_value " +
-                    "from " + fullTableName;
+            String sql = "select count(1) as num , max(ORA_HASH(ROWID)) max_value, min(ORA_HASH(ROWID)) min_value "
+                    + "from " + fullTableName;
 
             String condition = StringUtils.trim(sourceOption.getCondition());
             if (StringUtils.isNotBlank(condition)) {
@@ -411,8 +427,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             sourceOption.setPartitionColumn(ORALCE_ROWID_ALIAS);
             sourceOption.setNumPartitions(numPartitions);
-            LogUtils.info("lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
-                    sourceOption.getLowerBound(), sourceOption.getUpperBound(), partitionRecordCount, numPartitions);
+            LogUtils.info(
+                    "lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    sourceOption.getLowerBound(),
+                    sourceOption.getUpperBound(),
+                    partitionRecordCount,
+                    numPartitions);
         } catch (SQLException e) {
             throw new DataTunnelException(e.getMessage(), e);
         } finally {

@@ -1,5 +1,9 @@
 package com.superior.datatunnel.plugin.redshift;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSetMetaData;
+import java.util.Properties;
 import org.apache.spark.sql.execution.datasources.jdbc.DriverRegistry;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -10,18 +14,14 @@ import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 import software.amazon.awssdk.services.sts.model.AssumeRoleResponse;
 import software.amazon.awssdk.services.sts.model.Credentials;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSetMetaData;
-import java.util.Properties;
-
 public class RedshiftUtils {
 
-    public static Credentials queryCredentials(String accessKeyId, String secretAccessKey, String region, String iamRole) {
+    public static Credentials queryCredentials(
+            String accessKeyId, String secretAccessKey, String region, String iamRole) {
         StsClient stsClient = StsClient.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
                 .httpClient(UrlConnectionHttpClient.builder().build())
                 .build();
 

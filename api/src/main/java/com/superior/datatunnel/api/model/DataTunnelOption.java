@@ -1,7 +1,6 @@
 package com.superior.datatunnel.api.model;
 
 import com.superior.datatunnel.api.DataSourceType;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +32,7 @@ public interface DataTunnelOption {
         return null;
     }
 
-    default void setCteSql(String cteSql) {
-    }
+    default void setCteSql(String cteSql) {}
 
     Map<String, String> getProperties();
 }

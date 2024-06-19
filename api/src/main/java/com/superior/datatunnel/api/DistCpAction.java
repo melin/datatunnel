@@ -1,7 +1,6 @@
 package com.superior.datatunnel.api;
 
 import com.gitee.melin.bee.core.extension.SPI;
-
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -12,5 +11,4 @@ import java.io.Serializable;
 public interface DistCpAction extends Serializable {
 
     void run(DistCpContext context) throws IOException;
-
 }

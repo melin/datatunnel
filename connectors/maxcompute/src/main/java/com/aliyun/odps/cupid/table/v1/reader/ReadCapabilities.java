@@ -27,9 +27,8 @@ public final class ReadCapabilities {
 
     private final boolean supportPushDownFunctionCalls;
 
-    public ReadCapabilities(boolean supportBuckets,
-                            boolean supportPushDownFilters,
-                            boolean supportPushDownFunctionCalls) {
+    public ReadCapabilities(
+            boolean supportBuckets, boolean supportPushDownFilters, boolean supportPushDownFunctionCalls) {
         this.supportBuckets = supportBuckets;
         this.supportPushDownFilters = supportPushDownFilters;
         this.supportPushDownFunctionCalls = supportPushDownFunctionCalls;

@@ -100,24 +100,17 @@ public class Validator {
         checkMapList(arg, 1, 1, name);
     }
 
-    public static void checkMapList(List<Map<String, String>> arg,
-                                    int listMinSize,
-                                    int mapMinSize,
-                                    String name) {
+    public static void checkMapList(List<Map<String, String>> arg, int listMinSize, int mapMinSize, String name) {
         checkNotNull(arg, name);
         if (arg.size() < listMinSize) {
-            throw new IllegalArgumentException(
-                    name + " must has at least " + listMinSize + "items");
+            throw new IllegalArgumentException(name + " must has at least " + listMinSize + "items");
         }
         for (Map<String, String> map : arg) {
             checkMap(map, mapMinSize, name + "[x]");
         }
     }
 
-    public static void checkIntList(List<Integer> arg,
-                                    int minSize,
-                                    int minValue,
-                                    String name) {
+    public static void checkIntList(List<Integer> arg, int minSize, int minValue, String name) {
         checkNotNull(arg, name);
         if (arg.size() < minSize) {
             throw new IllegalArgumentException(name + " must has at least " + minSize + "items");
@@ -127,8 +120,7 @@ public class Validator {
         }
     }
 
-    public static void checkBucketFileIndices(Map<Integer, List<Integer>> arg,
-                                              String name) {
+    public static void checkBucketFileIndices(Map<Integer, List<Integer>> arg, String name) {
         if (arg == null || arg.isEmpty()) {
             throw new IllegalArgumentException(name + " is null or empty map!");
         }

@@ -1,15 +1,14 @@
 package com.superior.datatunnel.common.util;
 
-import com.superior.datatunnel.api.DataSourceType;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.superior.datatunnel.api.DataSourceType.*;
 
+import com.superior.datatunnel.api.DataSourceType;
 import java.sql.*;
 import java.util.Collections;
 import java.util.List;
-
-import static com.superior.datatunnel.api.DataSourceType.*;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author melin 2021/11/8 4:19 下午
@@ -19,18 +18,15 @@ public class JdbcUtils {
     private static final Logger LOG = LoggerFactory.getLogger(JdbcUtils.class);
 
     public static String buildJdbcUrl(
-            DataSourceType dsType,
-            String host,
-            int port,
-            String databaseName,
-            String schemaName) {
+            DataSourceType dsType, String host, int port, String databaseName, String schemaName) {
 
         // https://stackoverflow.com/questions/2993251/jdbc-batch-insert-performance/10617768#10617768
 
         String url = "";
         if (MYSQL == dsType) {
             url = "jdbc:mysql://" + host + ":" + port;
-            url = url + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
+            url = url
+                    + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
         } else if (DB2 == dsType) {
             url = "jdbc:db2://" + host + ":" + port;
             if (StringUtils.isNotBlank(databaseName)) {
@@ -46,7 +42,8 @@ public class JdbcUtils {
                 url = url + "&currentSchema=" + schemaName;
             }
         } else if (SQLSERVER == dsType) {
-            url = "jdbc:sqlserver://" + host + ":" + port + ";database=" + databaseName + ";trustServerCertificate=true";
+            url = "jdbc:sqlserver://" + host + ":" + port + ";database=" + databaseName
+                    + ";trustServerCertificate=true";
         } else if (HANA == dsType) {
             url = "jdbc:sap://" + host + ":" + port + "?reconnect=true";
         } else if (GREENPLUM == dsType) {
@@ -57,8 +54,8 @@ public class JdbcUtils {
         } else if (DAMENG == dsType) {
             url = "jdbc:dm://" + host + ":" + port + "/" + databaseName;
         } else if (OCEANBASE == dsType) {
-            url = "jdbc:oceanbase://" + host + ":" + port + "/" + databaseName +
-                    "?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true&allowMultiQueries=true";
+            url = "jdbc:oceanbase://" + host + ":" + port + "/" + databaseName
+                    + "?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true&allowMultiQueries=true";
         }
 
         return url;
@@ -98,9 +95,7 @@ public class JdbcUtils {
         } catch (Exception e) {
             boolean printError = true;
 
-            if (e instanceof java.sql.SQLRecoverableException
-                    && "Closed Connection".equals(e.getMessage())
-            ) {
+            if (e instanceof java.sql.SQLRecoverableException && "Closed Connection".equals(e.getMessage())) {
                 printError = false;
             }
 

@@ -1,22 +1,29 @@
 package org.apache.spark.sql.odps.writer
 
 import com.aliyun.odps.Column
-import com.aliyun.odps.cupid.table.v1.writer.{FileWriter, FileWriterBuilder, WriteSessionInfo}
+import com.aliyun.odps.cupid.table.v1.writer.{
+  FileWriter,
+  FileWriterBuilder,
+  WriteSessionInfo
+}
 import com.aliyun.odps.data.ArrayRecord
 import org.apache.spark.sql.odps.converter.TypesConverter
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.write.{DataWriter, WriterCommitMessage}
 
-/**
-  * @author renxiang
-  * @date 2021-12-23
+/** @author
+  *   renxiang
+  * @date
+  *   2021-12-23
   */
-class SinglePartitionWriter(partitionId: Int,
-                            converters: List[Object => AnyRef],
-                            writeSessionInfo: WriteSessionInfo,
-                            columns: java.util.List[Column]) extends DataWriter[InternalRow] {
+class SinglePartitionWriter(
+    partitionId: Int,
+    converters: List[Object => AnyRef],
+    writeSessionInfo: WriteSessionInfo,
+    columns: java.util.List[Column]
+) extends DataWriter[InternalRow] {
 
-  private val _MAX_RECORD_SIZE = 80*1024*1024*1024
+  private val _MAX_RECORD_SIZE = 80 * 1024 * 1024 * 1024
   private val _MIN_FILE_LINE = 10000
   private val _MAX_FILE_LOCATION = 1000
 
@@ -37,9 +44,7 @@ class SinglePartitionWriter(partitionId: Int,
     _statsRecordCount += 1
   }
 
-  override def close(): Unit = {
-
-  }
+  override def close(): Unit = {}
 
   override def commit(): WriterCommitMessage = {
     if (_currentWriter.isDefined) {
@@ -61,7 +66,8 @@ class SinglePartitionWriter(partitionId: Int,
       val value = if (row.isNullAt(i)) {
         null
       } else {
-        val sparkType = TypesConverter.odpsType2SparkType(columns.get(i).getTypeInfo)
+        val sparkType =
+          TypesConverter.odpsType2SparkType(columns.get(i).getTypeInfo)
         converters(i)(row.get(i, sparkType))
       }
       _arrayRecord.set(i, value)
@@ -75,7 +81,8 @@ class SinglePartitionWriter(partitionId: Int,
       _currentWriter = Option(newWriter())
     } else if (_statsRecordCount > _MIN_FILE_LINE) {
       if (_averageSizeOneRow == 0) {
-        _averageSizeOneRow = _currentWriter.get.getBytesWritten / _currentWriter.get.getRowsWritten
+        _averageSizeOneRow =
+          _currentWriter.get.getBytesWritten / _currentWriter.get.getRowsWritten
       }
 
       val totalSize = _averageSizeOneRow * _statsRecordCount
@@ -103,6 +110,5 @@ class SinglePartitionWriter(partitionId: Int,
     writer.commitWithResult()
     writer.close()
   }
-
 
 }

@@ -2,10 +2,9 @@ package com.superior.datatunnel.plugin.redshift;
 
 import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import lombok.Data;
 
 @Data
 public class SnowflakeDataTunnelSourceOption extends BaseSourceOption {
@@ -25,7 +24,7 @@ public class SnowflakeDataTunnelSourceOption extends BaseSourceOption {
     private String query;
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String[] columns = new String[] {"*"};
 
     private String username;
 

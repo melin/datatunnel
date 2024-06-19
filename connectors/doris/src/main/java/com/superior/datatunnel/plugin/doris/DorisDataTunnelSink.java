@@ -3,14 +3,13 @@ package com.superior.datatunnel.plugin.doris;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import java.io.IOException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
-
-import java.io.IOException;
 
 public class DorisDataTunnelSink implements DataTunnelSink {
 
@@ -28,7 +27,8 @@ public class DorisDataTunnelSink implements DataTunnelSink {
         }
 
         String fullTableId = databaseName + "." + sinkOption.getTableName();
-        DataFrameWriter dataFrameWriter = dataset.write().format("doris")
+        DataFrameWriter dataFrameWriter = dataset.write()
+                .format("doris")
                 .options(sinkOption.getProperties())
                 .option("doris.fenodes", sinkOption.getFeEnpoints())
                 .option("user", sinkOption.getUsername())

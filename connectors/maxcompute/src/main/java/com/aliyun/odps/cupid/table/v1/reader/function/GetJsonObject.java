@@ -23,7 +23,7 @@ import com.aliyun.odps.cupid.table.v1.util.Validator;
 
 public final class GetJsonObject extends FunctionCall {
     public GetJsonObject(String root, String path) {
-        super("get_json_object", root, new String[]{path});
+        super("get_json_object", root, new String[] {path});
         Validator.checkString(root, "GetJsonObject: root");
         Validator.checkString(path, "GetJsonObject: path");
     }

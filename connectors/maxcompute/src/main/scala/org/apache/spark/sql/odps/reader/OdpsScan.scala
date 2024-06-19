@@ -16,17 +16,20 @@ import org.apache.spark.sql.types.StructType
 
 import scala.collection.JavaConverters._
 
-class OdpsScan(provider: String,
-                    //read schema containing both fields and partition fields
-                    readDataSchema: StructType,
-                    //only partition fields
-                    partitionSchema: StructType,
-                    options: Options,
-                    splitSize: Int,
-                    table: String,
-                    partitionFilters: Option[Array[Filter]],
-                    allowFullScan: Boolean)
-  extends Scan with Batch with PartitionReaderFactory {
+class OdpsScan(
+    provider: String,
+    // read schema containing both fields and partition fields
+    readDataSchema: StructType,
+    // only partition fields
+    partitionSchema: StructType,
+    options: Options,
+    splitSize: Int,
+    table: String,
+    partitionFilters: Option[Array[Filter]],
+    allowFullScan: Boolean
+) extends Scan
+    with Batch
+    with PartitionReaderFactory {
 
   override def readSchema(): StructType = {
     val size = readDataSchema.fields.size
@@ -43,18 +46,23 @@ class OdpsScan(provider: String,
 
   override def createReaderFactory(): PartitionReaderFactory = this
 
-  override def createReader(partition: InputPartition): PartitionReader[InternalRow] = {
+  override def createReader(
+      partition: InputPartition
+  ): PartitionReader[InternalRow] = {
     val inputSplit = partition.asInstanceOf[OdpsScanPartition].inputSplit
 
     val recordReader = new SplitReaderBuilder(inputSplit).buildRecordReader()
 
-    /**
-      * table schema what was composed of both partition schema and output DataSchema
-      * was different from output DataSchema.
+    /** table schema what was composed of both partition schema and output
+      * DataSchema was different from output DataSchema.
       */
-    val outputDataSchema = TableUtils.toColumnArray(inputSplit.getReadDataColumns).map(_.getTypeInfo).toList
+    val outputDataSchema = TableUtils
+      .toColumnArray(inputSplit.getReadDataColumns)
+      .map(_.getTypeInfo)
+      .toList
 
-    val sparkDataConverters = outputDataSchema.map(TypesConverter.odpsData2SparkData)
+    val sparkDataConverters =
+      outputDataSchema.map(TypesConverter.odpsData2SparkData)
 
     val partitionSpec = if (Objects.nonNull(inputSplit)) {
       inputSplit.getPartitionSpec
@@ -74,7 +82,8 @@ class OdpsScan(provider: String,
       partitionSpec,
       outputDataSchema,
       sparkDataConverters,
-      recordReader)
+      recordReader
+    )
   }
 
   private def createPartitions(): Array[InputPartition] = {
@@ -105,12 +114,15 @@ class OdpsScan(provider: String,
       readSchema().fields
         .filter(f => !partitionNameSet.contains(f.name))
         .map(f => new Attribute(f.name, f.dataType.catalogString))
-        .toList.asJava)
+        .toList
+        .asJava
+    )
 
-    val sessionBuilder = new TableReadSessionBuilder(provider, odpsTable.getProject, table)
-      .readDataColumns(dataSchema)
-      .options(options)
-      .splitBySize(splitSize)
+    val sessionBuilder =
+      new TableReadSessionBuilder(provider, odpsTable.getProject, table)
+        .readDataColumns(dataSchema)
+        .options(options)
+        .splitBySize(splitSize)
 
     if (partitionSchema.fields.nonEmpty) {
       if (!allowFullScan && partitionFilters.isEmpty) {
@@ -130,8 +142,8 @@ class OdpsScan(provider: String,
         return Array.empty
       }
 
-      val partSpecs = prunedPartitions.map {
-        partSpec => new PartitionSpecWithBucketFilter(partSpec.asJava)
+      val partSpecs = prunedPartitions.map { partSpec =>
+        new PartitionSpecWithBucketFilter(partSpec.asJava)
       }
       sessionBuilder.readPartitions(partSpecs.asJava)
     }
@@ -143,7 +155,8 @@ class OdpsScan(provider: String,
   }
 
   private def filterPartition(odpsPartition: Partition, f: Filter): Boolean = {
-    val partitionMap: Map[String, String] = TypesConverter.odpsPartition2SparkMap(odpsPartition)
+    val partitionMap: Map[String, String] =
+      TypesConverter.odpsPartition2SparkMap(odpsPartition)
 
     f match {
       case EqualTo(attr, value) =>
@@ -164,19 +177,27 @@ class OdpsScan(provider: String,
 
       case LessThanOrEqual(attr, value) =>
         val columnValue = partitionMap.get(attr)
-        columnValue.exists(TypesConverter.partitionValueLessThanOrEqualTo(_, value))
+        columnValue.exists(
+          TypesConverter.partitionValueLessThanOrEqualTo(_, value)
+        )
 
       case GreaterThanOrEqual(attr, value) =>
         val columnValue = partitionMap.get(attr)
-        columnValue.exists(TypesConverter.partitionValueGreaterThanOrEqualTo(_, value))
+        columnValue.exists(
+          TypesConverter.partitionValueGreaterThanOrEqualTo(_, value)
+        )
 
       case IsNull(attr) =>
         val columnValue = partitionMap.get(attr)
-        columnValue.isEmpty || !partitionMap.contains(attr) || columnValue == null
+        columnValue.isEmpty || !partitionMap.contains(
+          attr
+        ) || columnValue == null
 
       case IsNotNull(attr) =>
         val columnValue = partitionMap.get(attr)
-        columnValue.isDefined && partitionMap.contains(attr) && columnValue != null
+        columnValue.isDefined && partitionMap.contains(
+          attr
+        ) && columnValue != null
 
       case StringStartsWith(attr, value) =>
         val columnValue = partitionMap.get(attr)
@@ -199,7 +220,8 @@ class OdpsScan(provider: String,
           false
         }
         val strValue = columnValue.getOrElse("")
-        value.asInstanceOf[Array[Any]]
+        value
+          .asInstanceOf[Array[Any]]
           .exists(TypesConverter.partitionValueEqualTo(strValue, _))
 
       case Not(f: Filter) =>

@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.LoggerFactory;
@@ -23,8 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CachedDirTree implements DirTree {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(
-            CachedDirTree.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(CachedDirTree.class);
 
     private final INode root;
 
@@ -53,8 +51,7 @@ public class CachedDirTree implements DirTree {
             // We check the existance of particular file after adding
             // all found to the cache
             if (status == null) {
-                throw new FileNotFoundException(String.format("File %s/%s not found",
-                        n.status.getPath(), p.getName()));
+                throw new FileNotFoundException(String.format("File %s/%s not found", n.status.getPath(), p.getName()));
             }
         }
         return n.nodes.get(p.getName());
@@ -78,8 +75,7 @@ public class CachedDirTree implements DirTree {
         if (c == null && n.completed) {
             // looked up path is not in the cache but cache claims to contain
             // all existing paths
-            throw new FileNotFoundException(String.format("File %s not found",
-                    p.toString()));
+            throw new FileNotFoundException(String.format("File %s not found", p.toString()));
         }
         return c;
     }
@@ -94,13 +90,10 @@ public class CachedDirTree implements DirTree {
                 if (n != null) {
                     ret = n.nodes.remove(p.getName()) != null;
                 } else {
-                    LOG.warn("File {} not found in the cache while deleting",
-                            p.toString());
+                    LOG.warn("File {} not found in the cache while deleting", p.toString());
                 }
             } catch (FileNotFoundException ex) {
-                LOG.warn("File {} not found in the cache while deleting", p.toString(),
-                        ex);
-
+                LOG.warn("File {} not found in the cache while deleting", p.toString(), ex);
             }
         }
         return ret;
@@ -108,8 +101,7 @@ public class CachedDirTree implements DirTree {
 
     private final class Node implements INode {
 
-        private final Map<String, Node> nodes = Collections.synchronizedMap(
-                new HashMap<>());
+        private final Map<String, Node> nodes = Collections.synchronizedMap(new HashMap<>());
 
         private final FileStatus status;
 
@@ -132,8 +124,7 @@ public class CachedDirTree implements DirTree {
         public void addAll(FileStatus[] files) {
             // If this node is not a directory than we can't add children to it
             if (!status.isDirectory()) {
-                throw new IllegalStateException("The file can't contain other files: " +
-                        status.getPath());
+                throw new IllegalStateException("The file can't contain other files: " + status.getPath());
             }
             // Add all specified files to the node
             for (FileStatus file : files) {
@@ -163,6 +154,5 @@ public class CachedDirTree implements DirTree {
         private void addNode(Node parent, Node child) {
             nodes.put(child.status.getPath().getName(), child);
         }
-
     }
 }

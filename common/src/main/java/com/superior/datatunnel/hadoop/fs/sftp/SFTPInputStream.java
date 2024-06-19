@@ -1,18 +1,16 @@
 package com.superior.datatunnel.hadoop.fs.sftp;
 
+import static com.google.common.base.Preconditions.*;
+import static com.superior.datatunnel.hadoop.fs.common.ErrorStrings.E_NULL_INPUTSTREAM;
+import static com.superior.datatunnel.hadoop.fs.common.ErrorStrings.E_STREAM_CLOSED;
+
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.superior.datatunnel.hadoop.fs.common.ErrorStrings.E_NULL_INPUTSTREAM;
-import static com.superior.datatunnel.hadoop.fs.common.ErrorStrings.E_STREAM_CLOSED;
-
-import static com.google.common.base.Preconditions.*;
 
 /**
  * SFTP FileSystem input stream. We don't do any special handling for
@@ -22,8 +20,7 @@ import static com.google.common.base.Preconditions.*;
  */
 class SFTPInputStream extends FSInputStream {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SFTPInputStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SFTPInputStream.class);
 
     // Data stream
     private InputStream wrappedStream;
@@ -43,8 +40,8 @@ class SFTPInputStream extends FSInputStream {
     // Communication channel to the remote server
     private SFTPChannel channel;
 
-    SFTPInputStream(InputStream stream, SFTPChannel channel,
-                    FileStatus file, FileSystem.Statistics stats) throws IOException {
+    SFTPInputStream(InputStream stream, SFTPChannel channel, FileStatus file, FileSystem.Statistics stats)
+            throws IOException {
 
         checkNotNull(stream, E_NULL_INPUTSTREAM);
         this.wrappedStream = stream;
@@ -54,8 +51,8 @@ class SFTPInputStream extends FSInputStream {
         this.closed = false;
         this.channel = channel;
         this.file = file;
-        this.fs = (SFTPFileSystem) file.getPath().getFileSystem(
-                channel.getConnectionInfo().getConf());
+        this.fs = (SFTPFileSystem)
+                file.getPath().getFileSystem(channel.getConnectionInfo().getConf());
         this.realLength = file.getLen();
     }
 
@@ -92,8 +89,7 @@ class SFTPInputStream extends FSInputStream {
     }
 
     @Override
-    public synchronized int read(byte[] buf, int off, int len)
-            throws IOException {
+    public synchronized int read(byte[] buf, int off, int len) throws IOException {
         if (closed) {
             throw new IOException(E_STREAM_CLOSED);
         }
@@ -117,7 +113,7 @@ class SFTPInputStream extends FSInputStream {
         try {
             wrappedStream.close();
             closed = true;
-            //channel.disconnect(false);
+            // channel.disconnect(false);
             channel.destroy();
         } catch (IOException e) {
             LOG.debug("Failed to close connection", e);

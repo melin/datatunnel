@@ -21,7 +21,6 @@ package com.aliyun.odps.cupid.table.v1.writer.adaptor;
 
 import com.aliyun.odps.data.Char;
 import com.aliyun.odps.data.Varchar;
-
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;

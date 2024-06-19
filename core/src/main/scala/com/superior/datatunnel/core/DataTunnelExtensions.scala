@@ -2,19 +2,23 @@ package com.superior.datatunnel.core
 
 import com.google.common.collect.Maps
 import org.apache.spark.internal.Logging
-import org.apache.spark.scheduler.{SparkListener, SparkListenerJobStart, SparkListenerTaskEnd}
+import org.apache.spark.scheduler.{
+  SparkListener,
+  SparkListenerJobStart,
+  SparkListenerTaskEnd
+}
 import org.apache.spark.sql.SparkSessionExtensions
 
 import java.util.concurrent.ConcurrentMap
 import scala.collection.JavaConverters._
 
-/**
- * huaixin 2021/12/27 2:47 PM
- */
-class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Logging {
+/** huaixin 2021/12/27 2:47 PM
+  */
+class DataTunnelExtensions()
+    extends (SparkSessionExtensions => Unit)
+    with Logging {
   override def apply(extensions: SparkSessionExtensions): Unit = {
     extensions.injectParser { (session, parser) =>
-
       session.sparkContext.addSparkListener(new SparkListener() {
         private var lastInputRecords = 0L
         private var lastOutputRecords = 0L
@@ -29,17 +33,22 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
             return
           }
 
-          val enabled = session.conf.get("spark.datatunnel.metrics.enabled", "true")
+          val enabled =
+            session.conf.get("spark.datatunnel.metrics.enabled", "true")
           logInfo("spark.datatunnel.metrics.enabled: " + enabled)
           if (!"true".equals(enabled)) {
             return
           }
 
           if (metrics.inputMetrics != null) {
-            DataTunnelMetrics.inputTaskRecords.put(taskEnd.taskInfo.taskId, metrics.inputMetrics.recordsRead)
+            DataTunnelMetrics.inputTaskRecords
+              .put(taskEnd.taskInfo.taskId, metrics.inputMetrics.recordsRead)
           }
           if (metrics.outputMetrics != null) {
-            DataTunnelMetrics.outputTaskRecords.put(taskEnd.taskInfo.taskId, metrics.outputMetrics.recordsWritten)
+            DataTunnelMetrics.outputTaskRecords.put(
+              taskEnd.taskInfo.taskId,
+              metrics.outputMetrics.recordsWritten
+            )
           }
 
           val inputRecords: Long = DataTunnelMetrics.inputRecords()

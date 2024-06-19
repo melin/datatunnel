@@ -62,30 +62,30 @@ class Accumulators(sparkSession: SparkSession) extends Serializable {
     s"""--Raw data--
        |\tData copied: ${FileUtils.byteCountToDisplaySize(bytesCopied.value)}
        |\tData skipped (already existing files, dry-run and failures): ${FileUtils
-      .byteCountToDisplaySize(bytesSkipped.value)}
+        .byteCountToDisplaySize(bytesSkipped.value)}
        |--Files--
        |\tFiles copied (new files and overwritten/updated files): ${intFormatter
-      .format(filesCopied.value)}
+        .format(filesCopied.value)}
        |\tFiles overwritten/updated: ${intFormatter.format(
-      filesUpdatedOrOverwritten.value
-    )}
+        filesUpdatedOrOverwritten.value
+      )}
        |\tSkipped files for copying (already existing files, dry-run and failures): ${intFormatter
-      .format(filesSkipped.value)}
+        .format(filesSkipped.value)}
        |\tFailed files during copy: ${intFormatter.format(filesFailed.value)}
        |--Folders--
        |\tFolders created: ${intFormatter.format(foldersCreated.value)}
        |\tSkipped folder creates (already existing folders, dry-run and failures): ${intFormatter
-      .format(foldersSkipped.value)}
+        .format(foldersSkipped.value)}
        |\tFailed folder creates: ${intFormatter.format(foldersFailed.value)}
        |--Deletes--
        |\tSuccessful delete operations: ${intFormatter.format(
-      deleteOperationsSuccessful.value
-    )}
+        deleteOperationsSuccessful.value
+      )}
        |\tSkipped delete operations (files/folders already missing, dry-run and failures): ${intFormatter
-      .format(deleteOperationsSkipped.value)}
+        .format(deleteOperationsSkipped.value)}
        |\tFailed delete operations: ${intFormatter.format(
-      deleteOperationsFailed.value
-    )}
+        deleteOperationsFailed.value
+      )}
        |--Exception counts--
        |\t""".stripMargin ++
       exceptionCount.value.asScala.toSeq

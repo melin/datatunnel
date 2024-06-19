@@ -3,13 +3,12 @@ package com.superior.datatunnel.plugin.elasticsearch;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
+import java.io.IOException;
+import java.util.Map;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.elasticsearch.spark.sql.EsSparkSQL;
 import scala.collection.JavaConverters;
-
-import java.io.IOException;
-import java.util.Map;
 
 public class ElasticsearchDataTunnelSink implements DataTunnelSink {
 

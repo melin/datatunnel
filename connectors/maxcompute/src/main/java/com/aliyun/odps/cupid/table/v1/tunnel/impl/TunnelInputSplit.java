@@ -22,7 +22,6 @@ package com.aliyun.odps.cupid.table.v1.tunnel.impl;
 import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.reader.InputSplit;
 import com.aliyun.odps.cupid.table.v1.util.Options;
-
 import java.util.List;
 import java.util.Map;
 
@@ -36,16 +35,17 @@ public class TunnelInputSplit extends InputSplit {
 
     private Options options;
 
-    protected TunnelInputSplit(String project,
-                               String table,
-                               List<Attribute> dataColumns,
-                               List<Attribute> partitionColumns,
-                               List<Attribute> readDataColumns,
-                               Map<String, String> partitionSpec,
-                               String downloadId,
-                               long startIndex,
-                               long numRecord,
-                               Options options) {
+    protected TunnelInputSplit(
+            String project,
+            String table,
+            List<Attribute> dataColumns,
+            List<Attribute> partitionColumns,
+            List<Attribute> readDataColumns,
+            Map<String, String> partitionSpec,
+            String downloadId,
+            long startIndex,
+            long numRecord,
+            Options options) {
         super(project, table, dataColumns, partitionColumns, readDataColumns, partitionSpec);
         this.downloadId = downloadId;
         this.startIndex = startIndex;

@@ -21,7 +21,6 @@ package com.aliyun.odps.cupid.table.v1.writer;
 
 import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.util.Options;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -42,30 +41,33 @@ public abstract class WriteSessionInfo implements Serializable {
 
     private final Options options;
 
-    protected WriteSessionInfo(String project,
-                               String table,
-                               List<Attribute> dataColumns,
-                               List<Attribute> partitionColumns,
-                               Map<String, String> partitionSpec) {
+    protected WriteSessionInfo(
+            String project,
+            String table,
+            List<Attribute> dataColumns,
+            List<Attribute> partitionColumns,
+            Map<String, String> partitionSpec) {
         this(project, table, dataColumns, partitionColumns, partitionSpec, false);
     }
 
-    protected WriteSessionInfo(String project,
-                               String table,
-                               List<Attribute> dataColumns,
-                               List<Attribute> partitionColumns,
-                               Map<String, String> partitionSpec,
-                               boolean overwrite) {
+    protected WriteSessionInfo(
+            String project,
+            String table,
+            List<Attribute> dataColumns,
+            List<Attribute> partitionColumns,
+            Map<String, String> partitionSpec,
+            boolean overwrite) {
         this(project, table, dataColumns, partitionColumns, partitionSpec, false, null);
     }
 
-    protected WriteSessionInfo(String project,
-                               String table,
-                               List<Attribute> dataColumns,
-                               List<Attribute> partitionColumns,
-                               Map<String, String> partitionSpec,
-                               boolean overwrite,
-                               Options options) {
+    protected WriteSessionInfo(
+            String project,
+            String table,
+            List<Attribute> dataColumns,
+            List<Attribute> partitionColumns,
+            Map<String, String> partitionSpec,
+            boolean overwrite,
+            Options options) {
         this.project = project;
         this.table = table;
         this.dataColumns = dataColumns;
@@ -116,5 +118,4 @@ public abstract class WriteSessionInfo implements Serializable {
     public Options getOptions() {
         return options;
     }
-
 }

@@ -5,14 +5,12 @@ import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.FileFormat;
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
-public class HdfsCommonOption extends BaseCommonOption
-        implements DataTunnelSourceOption, DataTunnelSinkOption {
+public class HdfsCommonOption extends BaseCommonOption implements DataTunnelSourceOption, DataTunnelSinkOption {
 
     @NotNull(message = "format can not null")
     private FileFormat format;
@@ -32,7 +30,7 @@ public class HdfsCommonOption extends BaseCommonOption
     private String timestampFormat = "yyyy-MM-dd HH:mm:ss[.SSS]";
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String[] columns = new String[] {"*"};
 
     @Override
     public String[] getColumns() {

@@ -20,7 +20,6 @@
 package com.aliyun.odps.cupid.table.v1.reader;
 
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.util.*;
 
 public final class PartitionSpecWithBucketFilter {

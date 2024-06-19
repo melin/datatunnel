@@ -11,7 +11,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.List;
-
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,8 +29,7 @@ import org.slf4j.LoggerFactory;
 public final class KeyUtils {
     private static final Logger LOG = LoggerFactory.getLogger(KeyUtils.class);
 
-    private KeyUtils() {
-    }
+    private KeyUtils() {}
 
     static byte[] getKey(ConnectionInfo info, String path) {
         byte[] key = null;
@@ -47,8 +45,7 @@ public final class KeyUtils {
 
     static char[] getKeyPassphrase(ConnectionInfo info) {
         try {
-            return info.getConf().getPassword(info.getFtpHost() + "_" +
-                    info.getFtpUser() + "_key_passphrase");
+            return info.getConf().getPassword(info.getFtpHost() + "_" + info.getFtpUser() + "_key_passphrase");
         } catch (IOException ex) {
             return null;
         }
@@ -80,20 +77,18 @@ public final class KeyUtils {
                 if (provider instanceof AbstractJavaKeyStoreProvider) {
                     AbstractJavaKeyStoreProvider jks = (AbstractJavaKeyStoreProvider) provider;
                     KeyStore ks = jks.getKeyStore();
-                    Key key = ks.getKey(info.getFtpHost() + "_" + info.getFtpUser() +
-                            "_key", getKeystorePassword(info));
+                    Key key =
+                            ks.getKey(info.getFtpHost() + "_" + info.getFtpUser() + "_key", getKeystorePassword(info));
                     if (key != null) {
                         StringWriter stringWriter = new StringWriter();
                         try (PemWriter pemWriter = new PemWriter(stringWriter)) {
-                            pemWriter.writeObject(new PemObject("PRIVATE KEY",
-                                    key.getEncoded()));
+                            pemWriter.writeObject(new PemObject("PRIVATE KEY", key.getEncoded()));
                         }
                         return stringWriter.toString().getBytes(StandardCharsets.UTF_8);
                     }
                 }
             }
-        } catch (IOException | KeyStoreException | NoSuchAlgorithmException |
-                 UnrecoverableKeyException ex) {
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException ex) {
             LOG.error(info.logWithInfo("Key can't be obtained"), ex);
         }
         return null;
@@ -102,15 +97,12 @@ public final class KeyUtils {
     /**
      * Returns password associated with the key store.
      */
-    private static char[] getKeystorePassword(ConnectionInfo info) throws
-            IOException {
+    private static char[] getKeystorePassword(ConnectionInfo info) throws IOException {
         char[] password = ProviderUtils.locatePassword(
                 AbstractJavaKeyStoreProvider.CREDENTIAL_PASSWORD_ENV_VAR,
-                info.getConf()
-                        .get(AbstractJavaKeyStoreProvider.CREDENTIAL_PASSWORD_FILE_KEY));
+                info.getConf().get(AbstractJavaKeyStoreProvider.CREDENTIAL_PASSWORD_FILE_KEY));
         if (password == null) {
-            password = AbstractJavaKeyStoreProvider.CREDENTIAL_PASSWORD_DEFAULT
-                    .toCharArray();
+            password = AbstractJavaKeyStoreProvider.CREDENTIAL_PASSWORD_DEFAULT.toCharArray();
         }
         return password;
     }

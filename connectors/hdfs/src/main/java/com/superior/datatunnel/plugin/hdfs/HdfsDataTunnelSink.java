@@ -5,6 +5,8 @@ import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
+import java.io.IOException;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
@@ -12,9 +14,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Locale;
 
 public class HdfsDataTunnelSink implements DataTunnelSink {
 

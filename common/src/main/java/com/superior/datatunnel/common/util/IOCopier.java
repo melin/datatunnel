@@ -1,10 +1,9 @@
 package com.superior.datatunnel.common.util;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
 import java.io.*;
 import java.nio.file.Files;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 public class IOCopier {
     public static void joinFiles(File destination, File[] sources) throws IOException {
@@ -20,13 +19,11 @@ public class IOCopier {
         }
     }
 
-    private static BufferedOutputStream createAppendableStream(File destination)
-            throws FileNotFoundException {
+    private static BufferedOutputStream createAppendableStream(File destination) throws FileNotFoundException {
         return new BufferedOutputStream(new FileOutputStream(destination, true));
     }
 
-    private static void appendFile(OutputStream output, File source)
-            throws IOException {
+    private static void appendFile(OutputStream output, File source) throws IOException {
         InputStream input = null;
         try {
             input = new BufferedInputStream(Files.newInputStream(source.toPath()));

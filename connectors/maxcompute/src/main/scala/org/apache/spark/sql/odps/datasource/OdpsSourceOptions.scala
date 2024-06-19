@@ -1,8 +1,9 @@
 package org.apache.spark.sql.odps.datasource
 
-/**
-  * @author renxiang
-  * @date 2021-12-26
+/** @author
+  *   renxiang
+  * @date
+  *   2021-12-26
   */
 private[spark] object OdpsSourceOptions {
 
@@ -31,7 +32,7 @@ private[spark] object OdpsSourceOptions {
   // 如果用户打开了overwrite，需要保证queryPlan的分区与目标表分区完全相同。
   val ODPS_DYNAMIC_PARTITION_MODE = "spark.sql.odps.dynamic.insert.mode"
 
-  //format partition_column1=xx,partition_column2=yy,...
+  // format partition_column1=xx,partition_column2=yy,...
   val ODPS_PARTITION_SPEC = "spark.sql.odps.partition.spec"
 
 }

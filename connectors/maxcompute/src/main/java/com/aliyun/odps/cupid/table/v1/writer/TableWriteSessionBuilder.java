@@ -24,7 +24,6 @@ import com.aliyun.odps.cupid.table.v1.util.Builder;
 import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.cupid.table.v1.util.ProviderRegistry;
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.util.*;
 
 public final class TableWriteSessionBuilder extends Builder {
@@ -54,8 +53,7 @@ public final class TableWriteSessionBuilder extends Builder {
         this.table = table;
     }
 
-    public static WriteCapabilities getProviderCapabilities(String provider)
-            throws ClassNotFoundException {
+    public static WriteCapabilities getProviderCapabilities(String provider) throws ClassNotFoundException {
         Validator.checkString(provider, "provider");
         return ProviderRegistry.lookup(provider).getWriteCapabilities();
     }
@@ -90,10 +88,10 @@ public final class TableWriteSessionBuilder extends Builder {
     }
 
     public TableWriteSession build() throws ClassNotFoundException {
-        if (writeSessionInfo == null){
+        if (writeSessionInfo == null) {
             sanitize();
-            return ProviderRegistry.lookup(provider).createWriteSession(
-                    project, table, tableSchema, partitionSpec, overwrite, options);
+            return ProviderRegistry.lookup(provider)
+                    .createWriteSession(project, table, tableSchema, partitionSpec, overwrite, options);
         } else {
             markBuilt();
             return ProviderRegistry.lookup(provider).getWriteSession(writeSessionInfo);

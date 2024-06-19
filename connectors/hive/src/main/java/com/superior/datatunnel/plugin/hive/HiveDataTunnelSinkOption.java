@@ -5,10 +5,9 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.Compression;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class HiveDataTunnelSinkOption extends BaseSinkOption {

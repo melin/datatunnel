@@ -1,11 +1,10 @@
 package com.superior.datatunnel.hadoop.fs.ftp;
 
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
 
@@ -32,8 +31,7 @@ public class FTPSPatchedClient extends FTPSClient {
                 changeWorkingDirectory(wd);
                 return ftpFiles;
             } else {
-                throw new FileNotFoundException(String.format(
-                        ErrorStrings.E_SPATH_NOTEXIST, pathname));
+                throw new FileNotFoundException(String.format(ErrorStrings.E_SPATH_NOTEXIST, pathname));
             }
         } else {
             return super.listFiles(pathname);

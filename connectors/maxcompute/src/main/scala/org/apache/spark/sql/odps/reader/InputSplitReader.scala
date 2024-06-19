@@ -13,17 +13,19 @@ import org.apache.spark.sql.connector.read.PartitionReader
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
-/**
-  * @author renxiang
-  * @date 2021-12-20
+/** @author
+  *   renxiang
+  * @date
+  *   2021-12-20
   */
 class InputSplitReader(
-                        readSchema: StructType,
-                        partitionSchema: util.List[Attribute],
-                        partitionSpec: util.Map[String, String],
-                        outputDataSchema: List[TypeInfo],
-                        converters: List[Object => Any],
-                        recordReader: SplitReader[ArrayRecord]) extends PartitionReader[InternalRow]{
+    readSchema: StructType,
+    partitionSchema: util.List[Attribute],
+    partitionSpec: util.Map[String, String],
+    outputDataSchema: List[TypeInfo],
+    converters: List[Object => Any],
+    recordReader: SplitReader[ArrayRecord]
+) extends PartitionReader[InternalRow] {
 
   private val currentRow = {
     val row = new Array[Any](readSchema.fields.length)
@@ -47,7 +49,9 @@ class InputSplitReader(
         case ByteType =>
           row.update(offset + i, value.toByte)
         case dt: DataType =>
-          throw new SparkException(s"Unsupported partition column type: ${dt.simpleString}")
+          throw new SparkException(
+            s"Unsupported partition column type: ${dt.simpleString}"
+          )
       }
       i += 1
     }

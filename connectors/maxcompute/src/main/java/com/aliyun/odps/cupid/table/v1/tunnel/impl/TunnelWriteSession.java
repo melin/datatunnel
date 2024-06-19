@@ -19,6 +19,8 @@
 
 package com.aliyun.odps.cupid.table.v1.tunnel.impl;
 
+import static com.aliyun.odps.cupid.table.v1.tunnel.impl.Util.WRITER_STREAM_ENABLE;
+
 import com.aliyun.odps.*;
 import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.util.Options;
@@ -31,15 +33,12 @@ import com.aliyun.odps.cupid.table.v1.writer.WriterCommitMessage;
 import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
 import com.aliyun.odps.utils.StringUtils;
-
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.aliyun.odps.cupid.table.v1.tunnel.impl.Util.WRITER_STREAM_ENABLE;
 
 public class TunnelWriteSession extends TableWriteSession {
 
@@ -53,18 +52,20 @@ public class TunnelWriteSession extends TableWriteSession {
 
     private Odps odps;
 
-    TunnelWriteSession(String project,
-                       String table,
-                       TableSchema tableSchema,
-                       Map<String, String> partitionSpec,
-                       boolean overwrite,
-                       Options options) {
+    TunnelWriteSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean overwrite,
+            Options options) {
         super(project, table, options, tableSchema, partitionSpec, overwrite);
         initOdps();
     }
 
     TunnelWriteSession(WriteSessionInfo writeSessionInfo) {
-        super(writeSessionInfo.getProject(),
+        super(
+                writeSessionInfo.getProject(),
                 writeSessionInfo.getTable(),
                 writeSessionInfo.getOptions(),
                 TableUtils.toTableSchema(writeSessionInfo),
@@ -92,7 +93,8 @@ public class TunnelWriteSession extends TableWriteSession {
                 session = tunnel.getUploadSession(project, table, ((TunnelWriteSessionInfo) sessionInfo).getUploadId());
             } else {
                 PartitionSpec odpsPartitionSpec = Util.toOdpsPartitionSpec(partitionSpec);
-                session = tunnel.getUploadSession(project, table, odpsPartitionSpec, ((TunnelWriteSessionInfo) sessionInfo).getUploadId());
+                session = tunnel.getUploadSession(
+                        project, table, odpsPartitionSpec, ((TunnelWriteSessionInfo) sessionInfo).getUploadId());
             }
         } catch (TunnelException e) {
             throw new RuntimeException(e);
@@ -133,12 +135,7 @@ public class TunnelWriteSession extends TableWriteSession {
             this.sessionInfo = getSessionInfoInternal("", isDynamicPartition, true);
         } else {
             if (partitionSpec.isEmpty()) {
-                this.session = Util.createUploadSession(
-                        project,
-                        table,
-                        null,
-                        overwrite,
-                        tunnel);
+                this.session = Util.createUploadSession(project, table, null, overwrite, tunnel);
                 this.sessionInfo = getSessionInfoInternal(session.getId(), false, false);
             } else {
                 if (isDynamicPartition) {
@@ -146,11 +143,7 @@ public class TunnelWriteSession extends TableWriteSession {
                     this.sessionInfo = getSessionInfoInternal("", true, false);
                 } else {
                     this.session = Util.createUploadSession(
-                            project,
-                            table,
-                            Util.toOdpsPartitionSpec(partitionSpec),
-                            overwrite,
-                            tunnel);
+                            project, table, Util.toOdpsPartitionSpec(partitionSpec), overwrite, tunnel);
                     this.sessionInfo = getSessionInfoInternal(session.getId(), false, false);
                 }
             }
@@ -178,9 +171,7 @@ public class TunnelWriteSession extends TableWriteSession {
         }
     }
 
-    private WriteSessionInfo getSessionInfoInternal(String sessionId,
-                                                    boolean isDynamicPartition,
-                                                    boolean isStream) {
+    private WriteSessionInfo getSessionInfoInternal(String sessionId, boolean isDynamicPartition, boolean isStream) {
         return new TunnelWriteSessionInfo(
                 project,
                 table,

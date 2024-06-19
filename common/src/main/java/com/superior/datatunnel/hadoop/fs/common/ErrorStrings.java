@@ -59,7 +59,5 @@ public final class ErrorStrings {
 
     public static final String E_MODIFY_TIME = "Time of file %s can't be set";
 
-    private ErrorStrings() {
-    }
-
+    private ErrorStrings() {}
 }

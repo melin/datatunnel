@@ -2,10 +2,9 @@ package com.superior.datatunnel.plugin.redshift;
 
 import com.superior.datatunnel.api.model.BaseSourceOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class RedshiftDataTunnelSourceOption extends BaseSourceOption {
@@ -22,7 +21,7 @@ public class RedshiftDataTunnelSourceOption extends BaseSourceOption {
     private String query;
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String[] columns = new String[] {"*"};
 
     private String username;
 
@@ -39,8 +38,9 @@ public class RedshiftDataTunnelSourceOption extends BaseSourceOption {
     @OptionDesc("AWS region")
     private String region;
 
-    @OptionDesc("A writeable location in Amazon S3, to be used for unloaded data when reading and Avro data to be loaded into Redshift when writing. " +
-            "If you're using Redshift data source for Spark as part of a regular ETL pipeline, it can be useful to set a Lifecycle Policy on a bucket and use that as a temp location for this data.")
+    @OptionDesc(
+            "A writeable location in Amazon S3, to be used for unloaded data when reading and Avro data to be loaded into Redshift when writing. "
+                    + "If you're using Redshift data source for Spark as part of a regular ETL pipeline, it can be useful to set a Lifecycle Policy on a bucket and use that as a temp location for this data.")
     @NotNull(message = "tempdir can not blank")
     private String tempdir;
 

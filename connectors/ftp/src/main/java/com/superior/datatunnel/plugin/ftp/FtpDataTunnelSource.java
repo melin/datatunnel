@@ -9,14 +9,13 @@ import com.superior.datatunnel.hadoop.fs.ftp.FTPFileSystem;
 import com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem;
 import com.superior.datatunnel.plugin.ftp.enums.AuthType;
 import com.superior.datatunnel.plugin.ftp.enums.FtpProtocol;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
-import java.io.IOException;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -39,7 +38,7 @@ public class FtpDataTunnelSource implements DataTunnelSource {
         String port = String.valueOf(sourceOption.getPort());
         String prefix = "fs.ftp.";
         if (sourceOption.getProtocol() == FtpProtocol.SFTP) {
-            prefix =  "fs.sftp.";
+            prefix = "fs.sftp.";
         }
 
         hadoopConf.set(prefix + "host", host);
@@ -54,15 +53,19 @@ public class FtpDataTunnelSource implements DataTunnelSource {
                     throw new DataTunnelException("sshkey 认证方式，sshKeyFile 不能为空");
                 }
 
-                hadoopConf.set(prefix + "key.file." + host + "." + sourceOption.getUsername(), sourceOption.getSshKeyFile());
+                hadoopConf.set(
+                        prefix + "key.file." + host + "." + sourceOption.getUsername(), sourceOption.getSshKeyFile());
                 if (StringUtils.isNotBlank(sourceOption.getSshPassphrase())) {
-                    hadoopConf.set(prefix + "key.passphrase." + host + "." + sourceOption.getUsername(), sourceOption.getSshPassphrase());
+                    hadoopConf.set(
+                            prefix + "key.passphrase." + host + "." + sourceOption.getUsername(),
+                            sourceOption.getSshPassphrase());
                 }
             } else {
                 if (StringUtils.isBlank(sourceOption.getPassword())) {
                     throw new DataTunnelException("password can not blank");
                 }
-                hadoopConf.set(prefix + "password." + host + "." + sourceOption.getUsername(), sourceOption.getPassword());
+                hadoopConf.set(
+                        prefix + "password." + host + "." + sourceOption.getUsername(), sourceOption.getPassword());
             }
         } else {
             hadoopConf.set(prefix + "impl", FTPFileSystem.class.getName());

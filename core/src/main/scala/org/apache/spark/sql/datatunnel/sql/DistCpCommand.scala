@@ -11,19 +11,24 @@ import org.apache.spark.sql.{Row, SparkSession}
 
 import scala.collection.JavaConverters._
 
-case class DistCpCommand(sqlText: String, ctx: DistCpExprContext) extends LeafRunnableCommand with Logging{
+case class DistCpCommand(sqlText: String, ctx: DistCpExprContext)
+    extends LeafRunnableCommand
+    with Logging {
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceOpts = DataTunnelUtils.convertOptions(ctx.options)
 
     val distCpAction = Utils.getDistCpAction()
     val errorMsg = s"distcp option not have parameter: "
-    val option: DistCpOption = CommonUtils.toJavaBean(sourceOpts, classOf[DistCpOption], errorMsg)
+    val option: DistCpOption =
+      CommonUtils.toJavaBean(sourceOpts, classOf[DistCpOption], errorMsg)
 
     // 校验 Option
     val optionViolations = CommonUtils.VALIDATOR.validate(option)
     if (!optionViolations.isEmpty) {
-      val msg = optionViolations.asScala.map(validator => validator.getMessage).mkString("\n")
+      val msg = optionViolations.asScala
+        .map(validator => validator.getMessage)
+        .mkString("\n")
       throw new DataTunnelException("distcp param is incorrect: \n" + msg)
     }
 

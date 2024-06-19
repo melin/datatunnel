@@ -3,10 +3,9 @@ package com.superior.datatunnel.plugin.redshift;
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.WriteMode;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
@@ -43,8 +42,9 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
     @NotNull(message = "region can not blank")
     private String region;
 
-    @OptionDesc("A writeable location in Amazon S3, to be used for unloaded data when reading and Avro data to be loaded into Redshift when writing. " +
-            "If you're using Redshift data source for Spark as part of a regular ETL pipeline, it can be useful to set a Lifecycle Policy on a bucket and use that as a temp location for this data.")
+    @OptionDesc(
+            "A writeable location in Amazon S3, to be used for unloaded data when reading and Avro data to be loaded into Redshift when writing. "
+                    + "If you're using Redshift data source for Spark as part of a regular ETL pipeline, it can be useful to set a Lifecycle Policy on a bucket and use that as a temp location for this data.")
     @NotNull(message = "tempdir can not blank")
     private String tempdir;
 

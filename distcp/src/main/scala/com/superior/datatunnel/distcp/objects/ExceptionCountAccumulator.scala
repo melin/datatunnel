@@ -38,7 +38,7 @@ class ExceptionCountAccumulator
   }
 
   override def merge(
-    other: AccumulatorV2[String, util.Map[String, Long]]
+      other: AccumulatorV2[String, util.Map[String, Long]]
   ): Unit = {
     other match {
       case e: ExceptionCountAccumulator =>

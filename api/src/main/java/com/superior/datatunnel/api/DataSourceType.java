@@ -39,9 +39,14 @@ public enum DataSourceType {
     ELASTICSEARCH;
 
     public static boolean isJdbcDataSource(DataSourceType dsType) {
-        if (dsType == MYSQL || dsType == ORACLE || dsType == SQLSERVER
-                || dsType == POSTGRESQL || dsType == DB2
-                || dsType == GAUSSDWS || dsType == GREENPLUM  || dsType == HANA
+        if (dsType == MYSQL
+                || dsType == ORACLE
+                || dsType == SQLSERVER
+                || dsType == POSTGRESQL
+                || dsType == DB2
+                || dsType == GAUSSDWS
+                || dsType == GREENPLUM
+                || dsType == HANA
                 || dsType == DAMENG) {
             return true;
         } else {

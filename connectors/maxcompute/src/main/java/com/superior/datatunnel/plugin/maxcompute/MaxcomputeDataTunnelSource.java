@@ -4,12 +4,11 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author melin 2021/7/27 11:06 上午O
@@ -32,7 +31,9 @@ public class MaxcomputeDataTunnelSource implements DataTunnelSource {
             throw new IllegalArgumentException("projectName can not blank");
         }
 
-        Dataset<Row> dataset = context.getSparkSession().read().format(ODPS_DATA_SOURCE)
+        Dataset<Row> dataset = context.getSparkSession()
+                .read()
+                .format(ODPS_DATA_SOURCE)
                 .option("spark.hadoop.odps.access.id", sourceOption.getAccessKeyId())
                 .option("spark.hadoop.odps.access.key", sourceOption.getSecretAccessKey())
                 .option("spark.hadoop.odps.end.point", sourceOption.getEndpoint())

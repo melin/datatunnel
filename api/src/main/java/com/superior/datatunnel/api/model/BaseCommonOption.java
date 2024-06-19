@@ -2,7 +2,6 @@ package com.superior.datatunnel.api.model;
 
 import com.google.common.collect.Maps;
 import com.superior.datatunnel.api.DataSourceType;
-
 import java.util.Map;
 
 public class BaseCommonOption implements DataTunnelOption {

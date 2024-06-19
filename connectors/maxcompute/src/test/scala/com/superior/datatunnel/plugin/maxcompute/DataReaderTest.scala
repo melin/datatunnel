@@ -2,9 +2,10 @@ package com.superior.datatunnel.plugin.maxcompute
 
 import org.apache.spark.sql.SparkSession
 
-/**
-  * @author renxiang
-  * @date 2021-12-20
+/** @author
+  *   renxiang
+  * @date
+  *   2021-12-20
   */
 object DataReaderTest {
 
@@ -25,7 +26,8 @@ object DataReaderTest {
 
     import spark._
 
-    val df = spark.read.format(ODPS_DATA_SOURCE)
+    val df = spark.read
+      .format(ODPS_DATA_SOURCE)
       .option("spark.hadoop.odps.project.name", odpsProject)
       .option("spark.hadoop.odps.access.id", odpsAkId)
       .option("spark.hadoop.odps.access.key", odpsAkKey)

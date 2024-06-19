@@ -3,10 +3,9 @@ package com.superior.datatunnel.plugin.jdbc;
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.WriteMode;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class JdbcDataTunnelSinkOption extends BaseSinkOption {

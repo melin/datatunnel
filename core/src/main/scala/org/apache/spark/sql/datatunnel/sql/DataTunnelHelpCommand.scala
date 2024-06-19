@@ -13,24 +13,49 @@ import org.apache.spark.sql.{Row, SparkSession}
 
 import java.util
 
-/**
- *
- * @author melin 2021/6/28 2:23 下午
- */
-case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) extends LeafRunnableCommand with Logging{
+/** @author
+  *   melin 2021/6/28 2:23 下午
+  */
+case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext)
+    extends LeafRunnableCommand
+    with Logging {
 
-  private val OUTPUT_TYPE = new StructType(Array[StructField](
-    StructField("type", DataTypes.StringType, nullable = true, Metadata.empty),
-    StructField("key", DataTypes.StringType, nullable = true, Metadata.empty),
-    StructField("notBlank", DataTypes.BooleanType, nullable = true, Metadata.empty),
-    StructField("default", DataTypes.StringType, nullable = true, Metadata.empty),
-    StructField("description", DataTypes.StringType, nullable = true, Metadata.empty)
-  ))
-
+  private val OUTPUT_TYPE = new StructType(
+    Array[StructField](
+      StructField(
+        "type",
+        DataTypes.StringType,
+        nullable = true,
+        Metadata.empty
+      ),
+      StructField("key", DataTypes.StringType, nullable = true, Metadata.empty),
+      StructField(
+        "notBlank",
+        DataTypes.BooleanType,
+        nullable = true,
+        Metadata.empty
+      ),
+      StructField(
+        "default",
+        DataTypes.StringType,
+        nullable = true,
+        Metadata.empty
+      ),
+      StructField(
+        "description",
+        DataTypes.StringType,
+        nullable = true,
+        Metadata.empty
+      )
+    )
+  )
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
-    val datasourceType = DataSourceType.valueOf(CommonUtils.cleanQuote(ctx.value.getText).toUpperCase)
-    val (sourceConnector, sinkConnector) = Utils.getDataTunnelConnector(datasourceType, datasourceType)
+    val datasourceType = DataSourceType.valueOf(
+      CommonUtils.cleanQuote(ctx.value.getText).toUpperCase
+    )
+    val (sourceConnector, sinkConnector) =
+      Utils.getDataTunnelConnector(datasourceType, datasourceType)
 
     val rows = if (ctx.SOURCE() != null) {
       if (sourceConnector == null) {
@@ -45,10 +70,17 @@ case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) ex
     } else {
       val list: util.ArrayList[Row] = Lists.newArrayList()
       if (sourceConnector != null) {
-        list.addAll(DataTunnelUtils.getConnectorDoc("Source", sourceConnector.getOptionClass))
+        list.addAll(
+          DataTunnelUtils.getConnectorDoc(
+            "Source",
+            sourceConnector.getOptionClass
+          )
+        )
       }
       if (sinkConnector != null) {
-        list.addAll(DataTunnelUtils.getConnectorDoc("Sink", sinkConnector.getOptionClass))
+        list.addAll(
+          DataTunnelUtils.getConnectorDoc("Sink", sinkConnector.getOptionClass)
+        )
       }
 
       list

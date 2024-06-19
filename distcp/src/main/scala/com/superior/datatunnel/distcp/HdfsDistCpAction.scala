@@ -23,7 +23,10 @@ class HdfsDistCpAction extends DistCpAction with Logging {
 
     val qualifiedSourcePaths = option.getSrcPaths.map(path =>
       PathUtils
-        .pathToQualifiedPath(sparkSession.sparkContext.hadoopConfiguration, new Path(path))
+        .pathToQualifiedPath(
+          sparkSession.sparkContext.hadoopConfiguration,
+          new Path(path)
+        )
     )
 
     val qualifiedDestinationPath = PathUtils.pathToQualifiedPath(
@@ -31,11 +34,15 @@ class HdfsDistCpAction extends DistCpAction with Logging {
       new Path(option.getDestPath)
     )
 
-    val includesRegex: List[Regex] = if (option.getIncludes == null) List.empty else
-      option.getIncludes.toList.map(new Regex(_))
+    val includesRegex: List[Regex] =
+      if (option.getIncludes == null) List.empty
+      else
+        option.getIncludes.toList.map(new Regex(_))
 
-    val excludesRegex: List[Regex] = if (option.getExcludes == null) List.empty else
-      option.getExcludes.toList.map(new Regex(_))
+    val excludesRegex: List[Regex] =
+      if (option.getExcludes == null) List.empty
+      else
+        option.getExcludes.toList.map(new Regex(_))
 
     val sourceRDD = FileListUtils.getSourceFiles(
       sparkSession.sparkContext,
@@ -83,12 +90,12 @@ object HdfsDistCpAction extends Logging {
   type KeyedCopyDefinition = (URI, CopyDefinitionWithDependencies)
 
   /** Perform the copy portion of the DistCP
-   */
+    */
   private[distcp] def doCopy(
-                              sourceRDD: RDD[CopyDefinitionWithDependencies],
-                              accumulators: Accumulators,
-                              options: DistCpOption
-                            ): RDD[DistCPResult] = {
+      sourceRDD: RDD[CopyDefinitionWithDependencies],
+      accumulators: Accumulators,
+      options: DistCpOption
+  ): RDD[DistCPResult] = {
 
     val serConfig = new ConfigSerDeser(
       sourceRDD.sparkContext.hadoopConfiguration
@@ -123,12 +130,12 @@ object HdfsDistCpAction extends Logging {
   }
 
   /** Perform the delete from destination portion of the DistCP
-   */
+    */
   private[distcp] def doDelete(
-                                destRDD: RDD[URI],
-                                accumulators: Accumulators,
-                                options: DistCpOption
-                              ): RDD[DistCPResult] = {
+      destRDD: RDD[URI],
+      accumulators: Accumulators,
+      options: DistCpOption
+  ): RDD[DistCPResult] = {
     val serConfig = new ConfigSerDeser(destRDD.sparkContext.hadoopConfiguration)
     val count = destRDD.count()
     destRDD
@@ -149,27 +156,27 @@ object HdfsDistCpAction extends Logging {
   }
 
   /** DistCP helper implicits on iterators
-   */
+    */
   private[distcp] implicit class DistCPIteratorImplicit[B](
-                                                            iterator: Iterator[B]
-                                                          ) {
+      iterator: Iterator[B]
+  ) {
 
     /** Scan over an iterator, mapping as we go with `action`, but making a
-     * decision on which objects to actually keep using a set of what objects
-     * have been seen and the `skip` function. Similar to a combining `collect`
-     * and `foldLeft`.
-     *
-     * @param skip
-     *   Should a mapped version of this element not be included in the output
-     * @param action
-     *   Function to map the element
-     * @return
-     *   An iterator
-     */
+      * decision on which objects to actually keep using a set of what objects
+      * have been seen and the `skip` function. Similar to a combining `collect`
+      * and `foldLeft`.
+      *
+      * @param skip
+      *   Should a mapped version of this element not be included in the output
+      * @param action
+      *   Function to map the element
+      * @return
+      *   An iterator
+      */
     def collectMapWithEmptyCollection(
-                                       skip: (B, Set[B]) => Boolean,
-                                       action: B => DistCPResult
-                                     ): Iterator[DistCPResult] = {
+        skip: (B, Set[B]) => Boolean,
+        action: B => DistCPResult
+    ): Iterator[DistCPResult] = {
 
       iterator
         .scanLeft((Set.empty[B], None: Option[DistCPResult])) {
@@ -184,15 +191,15 @@ object HdfsDistCpAction extends Logging {
   }
 
   /** Batch the given RDD into groups of files depending on
-   * [[SparkDistCPOptions.maxFilesPerTask]] and
-   * [[SparkDistCPOptions.maxBytesPerTask]] and repartition the RDD so files in
-   * the same batches are in the same partitions
-   */
+    * [[SparkDistCPOptions.maxFilesPerTask]] and
+    * [[SparkDistCPOptions.maxBytesPerTask]] and repartition the RDD so files in
+    * the same batches are in the same partitions
+    */
   private[distcp] def batchAndPartitionFiles(
-                                              rdd: RDD[CopyDefinitionWithDependencies],
-                                              maxFilesPerTask: Int,
-                                              maxBytesPerTask: Long
-                                            ): RDD[((Int, Int), CopyDefinitionWithDependencies)] = {
+      rdd: RDD[CopyDefinitionWithDependencies],
+      maxFilesPerTask: Int,
+      maxBytesPerTask: Long
+  ): RDD[((Int, Int), CopyDefinitionWithDependencies)] = {
     val partitioner =
       rdd.partitioner.getOrElse(new HashPartitioner(rdd.partitions.length))
     val sorted = rdd
@@ -207,13 +214,13 @@ object HdfsDistCpAction extends Logging {
   }
 
   /** Key the RDD within partitions based on batches of files based on
-   * [[SparkDistCPOptions.maxFilesPerTask]] and
-   * [[SparkDistCPOptions.maxBytesPerTask]] thresholds
-   */
+    * [[SparkDistCPOptions.maxFilesPerTask]] and
+    * [[SparkDistCPOptions.maxBytesPerTask]] thresholds
+    */
   private[distcp] def generateBatchedFileKeys(
-                                               maxFilesPerTask: Int,
-                                               maxBytesPerTask: Long
-                                             ): (Int, Iterator[CopyDefinitionWithDependencies]) => Iterator[
+      maxFilesPerTask: Int,
+      maxBytesPerTask: Long
+  ): (Int, Iterator[CopyDefinitionWithDependencies]) => Iterator[
     ((Int, Int), CopyDefinitionWithDependencies)
   ] = { (partition, iterator) =>
     iterator
@@ -236,4 +243,3 @@ object HdfsDistCpAction extends Logging {
   }
 
 }
-

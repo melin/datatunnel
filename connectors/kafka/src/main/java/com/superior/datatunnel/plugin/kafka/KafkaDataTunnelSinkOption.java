@@ -1,7 +1,6 @@
 package com.superior.datatunnel.plugin.kafka;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
-
 import javax.validation.constraints.NotBlank;
 
 public class KafkaDataTunnelSinkOption extends BaseSinkOption {

@@ -22,7 +22,6 @@ package com.aliyun.odps.cupid.table.v1.reader;
 import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.util.Schema;
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.util.List;
 
 public final class RequiredSchema extends Schema {

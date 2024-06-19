@@ -1,33 +1,30 @@
 package com.superior.datatunnel.hadoop.fs.common;
 
+import static com.superior.datatunnel.hadoop.fs.common.Channel.DEFAULT_BLOCK_SIZE;
+
+import com.superior.datatunnel.hadoop.fs.common.DirTree.INode;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.CreateFlag;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
-import com.superior.datatunnel.hadoop.fs.common.DirTree.INode;
-
-import java.util.function.Function;
-
-import org.apache.hadoop.fs.CreateFlag;
-import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Progressable;
-
-import static com.superior.datatunnel.hadoop.fs.common.Channel.DEFAULT_BLOCK_SIZE;
 
 /**
  * Abstract base for FTP like FileSystems. Basically all the functionality for
@@ -47,7 +44,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
     private static final Pattern ENDING_SLASH = Pattern.compile("//$");
 
     // Connection pool associate with the file system. Keeps list of open
-    //(but unused) communication channels
+    // (but unused) communication channels
     private ConnectionPool connectionPool;
 
     private URI uri;
@@ -100,9 +97,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
         // Modification time of root directory not known.
         long modTime = -1;
         Path root = new Path("/");
-        return new FileStatus(length, isDir, blockReplication, blockSize,
-                modTime,
-                root.makeQualified(uri, root));
+        return new FileStatus(length, isDir, blockReplication, blockSize, modTime, root.makeQualified(uri, root));
     }
 
     @Override
@@ -119,13 +114,10 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @param conf    hadoop configuration
      * @throws IOException URI or configuration is invalid
      */
-    protected void setConfigurationFromURI(URI uriInfo, Configuration conf)
-            throws IOException {
+    protected void setConfigurationFromURI(URI uriInfo, Configuration conf) throws IOException {
         uri = uriInfo;
-        connectionInfo = new ConnectionInfo(getChannelSupplier(), uri, conf,
-                getDefaultPort());
-        connectionPool = ConnectionPool.getConnectionPool(
-                connectionInfo.getMaxConnections());
+        connectionInfo = new ConnectionInfo(getChannelSupplier(), uri, conf, getDefaultPort());
+        connectionPool = ConnectionPool.getConnectionPool(connectionInfo.getMaxConnections());
         connectionPool.init(connectionInfo);
     }
 
@@ -145,8 +137,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      *
      * @return method which is able to create Channel for given file system
      */
-    protected abstract Function<ConnectionInfo, ? extends AbstractChannel>
-    getChannelSupplier();
+    protected abstract Function<ConnectionInfo, ? extends AbstractChannel> getChannelSupplier();
 
     @Override
     public URI getUri() {
@@ -158,8 +149,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
         super.initialize(uriInfo, conf);
         setConfigurationFromURI(uriInfo, conf);
         setConf(conf);
-        dirTree = connectionInfo.isCacheDirectories() ? new CachedDirTree(uriInfo)
-                : new NotCachedDirTree();
+        dirTree = connectionInfo.isCacheDirectories() ? new CachedDirTree(uriInfo) : new NotCachedDirTree();
     }
 
     @Override
@@ -169,9 +159,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
     }
 
     @Override
-    public FSDataOutputStream append(Path f, int bufferSize,
-                                     Progressable progress)
-            throws IOException {
+    public FSDataOutputStream append(Path f, int bufferSize, Progressable progress) throws IOException {
         throw new IOException(ErrorStrings.E_NOT_SUPPORTED);
     }
 
@@ -196,12 +184,10 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @return true if rename operation was successful
      * @throws IOException communication problem
      */
-    protected boolean rename(Channel channel, Path src, Path dst)
-            throws IOException {
+    protected boolean rename(Channel channel, Path src, Path dst) throws IOException {
         Path absoluteSrc = makeAbsolute(channel, src);
         if (!exists(channel, absoluteSrc)) {
-            throw new FileNotFoundException(String.format(
-                    ErrorStrings.E_SPATH_NOTEXIST, src));
+            throw new FileNotFoundException(String.format(ErrorStrings.E_SPATH_NOTEXIST, src));
         }
 
         Path absoluteDst = makeAbsolute(channel, dst);
@@ -213,18 +199,16 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
                 absoluteDst = new Path(absoluteDst, absoluteSrc.getName());
             }
             if (exists(channel, absoluteDst)) {
-                throw new FileAlreadyExistsException(String.format(
-                        ErrorStrings.E_DPATH_EXIST, dst));
+                throw new FileAlreadyExistsException(String.format(ErrorStrings.E_DPATH_EXIST, dst));
             }
         }
 
         if (isParentOf(absoluteSrc, absoluteDst)) {
-            throw new IOException("Cannot rename " + absoluteSrc + " under itself" +
-                    " : " + absoluteDst);
+            throw new IOException("Cannot rename " + absoluteSrc + " under itself" + " : " + absoluteDst);
         }
 
-        boolean renamed = channel.rename(absoluteSrc.toUri().getPath(),
-                absoluteDst.toUri().getPath());
+        boolean renamed = channel.rename(
+                absoluteSrc.toUri().getPath(), absoluteDst.toUri().getPath());
         if (renamed) {
             // We need to change the dirTree cache so it contains valid information
             dirTree.removeNode(absoluteSrc);
@@ -273,8 +257,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @return true if delete operation succeeds
      * @throws IOException communication problem
      */
-    protected boolean delete(Channel channel, Path file, boolean recursive)
-            throws IOException {
+    protected boolean delete(Channel channel, Path file, boolean recursive) throws IOException {
         Path absolute = makeAbsolute(channel, file);
         FileStatus fileStat;
         try {
@@ -293,13 +276,11 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
             if (dirEntries != null && dirEntries.length > 0) {
                 if (!recursive) {
                     // Can't delete not empty directory
-                    throw new IOException(
-                            String.format(ErrorStrings.E_DIR_NOTEMPTY, file));
+                    throw new IOException(String.format(ErrorStrings.E_DIR_NOTEMPTY, file));
                 }
                 for (int i = 0; i < dirEntries.length; ++i) {
                     // delete all items from the directory
-                    delete(channel, new Path(absolute, dirEntries[i].getPath()),
-                            recursive);
+                    delete(channel, new Path(absolute, dirEntries[i].getPath()), recursive);
                 }
             }
             result = channel.rmdir(pathName);
@@ -332,8 +313,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @return true if the the directory was created or already exists
      * @throws IOException communication problem or dir is not a directory
      */
-    protected boolean mkdirs(Channel channel, Path dir)
-            throws IOException {
+    protected boolean mkdirs(Channel channel, Path dir) throws IOException {
         boolean created = true;
         Path absolute = makeAbsolute(channel, dir);
         String pathName = absolute.getName();
@@ -349,8 +329,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
                 }
             }
         } else if (getFileStatus(channel, absolute).isFile()) {
-            throw new IOException(String.format(ErrorStrings.E_DIR_CREATE_FROMFILE,
-                    absolute));
+            throw new IOException(String.format(ErrorStrings.E_DIR_CREATE_FROMFILE, absolute));
         }
         return created;
     }
@@ -386,8 +365,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
             channel = connect();
             return getWorkingDirectory(channel);
         } catch (IOException ioe) {
-            LOG.error(connectionInfo.logWithInfo("Home directory can't be resolved"),
-                    ioe);
+            LOG.error(connectionInfo.logWithInfo("Home directory can't be resolved"), ioe);
             return null;
         } finally {
             try {
@@ -419,8 +397,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @throws IOException when communication problem, FileNotFound when file is
      *                     not found
      */
-    protected FileStatus getFileStatus(Channel channel, Path f)
-            throws IOException {
+    protected FileStatus getFileStatus(Channel channel, Path f) throws IOException {
         // Check if we don't have file already in the cache
         DirTree.INode n = dirTree.findNode(f);
         if (n == null) {
@@ -449,8 +426,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
     }
 
     @Override
-    public BlockLocation[] getFileBlockLocations(Path p,
-                                                 long start, long len) throws IOException {
+    public BlockLocation[] getFileBlockLocations(Path p, long start, long len) throws IOException {
         BlockLocation[] loc = {BLOCK};
         return loc;
     }
@@ -529,28 +505,27 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * the file if is not a directory
      * @throws IOException communication problem
      */
-    protected FileStatus[] listStatus(Channel channel, Path file)
-            throws IOException {
+    protected FileStatus[] listStatus(Channel channel, Path file) throws IOException {
         // try to find info in the cache
         INode n = dirTree.findNode(file);
         if (n == null || !n.isCompleted()) {
             // not found
-            LOG.debug("Complete listing of " + file +
-                    " directory not found in cache");
+            LOG.debug("Complete listing of " + file + " directory not found in cache");
             Path absolute = makeAbsolute(channel, file);
             n = dirTree.addNode(channel, absolute);
             FileStatus fileStat = n.getStatus();
             if (!fileStat.isDirectory()) {
-                return new FileStatus[]{fileStat};
+                return new FileStatus[] {fileStat};
             }
             FileStatus[] all = channel.listFiles(absolute);
             n.addAll(all);
             return all;
         } else {
             return n.getStatus().isDirectory()
-                    ? n.getChildren(channel).stream().map(
-                    node -> node.getStatus()).toArray(FileStatus[]::new)
-                    : new FileStatus[]{n.getStatus()};
+                    ? n.getChildren(channel).stream()
+                            .map(node -> node.getStatus())
+                            .toArray(FileStatus[]::new)
+                    : new FileStatus[] {n.getStatus()};
         }
     }
 
@@ -613,8 +588,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
         if (fileStat.isDirectory()) {
             // Can't open a path denoting directory
             channel.disconnect();
-            throw new FileNotFoundException(
-                    String.format(ErrorStrings.E_PATH_DIR, f));
+            throw new FileNotFoundException(String.format(ErrorStrings.E_PATH_DIR, f));
         }
         try {
             // let's traverse symlinks
@@ -624,8 +598,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
             return channel.get(fileStat, statistics);
         } catch (IOException e) {
             LOG.error(connectionInfo.logWithInfo(
-                    "Can't initialize data connection. " +
-                            "Closing the channel and will try again later"));
+                    "Can't initialize data connection. " + "Closing the channel and will try again later"));
             channel.disconnect(true);
             throw e;
         }
@@ -639,9 +612,15 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
      * @throws IOException communication problem
      */
     @Override
-    public FSDataOutputStream create(Path f, FsPermission permission,
-                                     boolean overwrite, int bufferSize, short replication, long blockSize,
-                                     Progressable progress) throws IOException {
+    public FSDataOutputStream create(
+            Path f,
+            FsPermission permission,
+            boolean overwrite,
+            int bufferSize,
+            short replication,
+            long blockSize,
+            Progressable progress)
+            throws IOException {
         final Channel channel = connect();
         if (exists(channel, f)) {
             // let's handle if we can overwrite original file
@@ -650,8 +629,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
                 delete(channel, f, false);
             } else {
                 channel.disconnect();
-                throw new FileAlreadyExistsException(String.format(
-                        ErrorStrings.E_FILE_EXIST, f));
+                throw new FileAlreadyExistsException(String.format(ErrorStrings.E_FILE_EXIST, f));
             }
         }
 
@@ -681,9 +659,15 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
     }
 
     @Override
-    public FSDataOutputStream createNonRecursive(Path f, FsPermission permission,
-                                                 EnumSet<CreateFlag> flags, int bufferSize, short replication,
-                                                 long blockSize, Progressable progress) throws IOException {
+    public FSDataOutputStream createNonRecursive(
+            Path f,
+            FsPermission permission,
+            EnumSet<CreateFlag> flags,
+            int bufferSize,
+            short replication,
+            long blockSize,
+            Progressable progress)
+            throws IOException {
         final Channel channel = connect();
         Path absolute = makeAbsolute(channel, f);
         Path parent = absolute.getParent();
@@ -692,8 +676,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
             // we can't create parent directory for the file
             parent = (parent == null) ? new Path("/") : parent;
             channel.disconnect();
-            throw
-                    new IOException(String.format(ErrorStrings.E_FILE_NOTFOUND, parent));
+            throw new IOException(String.format(ErrorStrings.E_FILE_NOTFOUND, parent));
         }
 
         if (exists(channel, f)) {
@@ -703,8 +686,7 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
                 delete(channel, f, false);
             } else {
                 channel.disconnect();
-                throw new FileAlreadyExistsException(String.format(
-                        ErrorStrings.E_FILE_EXIST, f));
+                throw new FileAlreadyExistsException(String.format(ErrorStrings.E_FILE_EXIST, f));
             }
         }
 
@@ -726,5 +708,4 @@ public abstract class AbstractFTPFileSystem extends FileSystem {
             channel.disconnect();
         }
     }
-
 }

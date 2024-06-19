@@ -24,11 +24,10 @@ import com.aliyun.odps.cupid.table.v1.writer.FileWriter;
 import com.aliyun.odps.cupid.table.v1.writer.WriterCommitMessage;
 import com.aliyun.odps.data.ArrayRecord;
 import com.aliyun.odps.tunnel.TableTunnel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TunnelStreamWriter implements FileWriter<ArrayRecord> {
 
@@ -46,8 +45,7 @@ public class TunnelStreamWriter implements FileWriter<ArrayRecord> {
 
     private PartitionSpec partition;
 
-    TunnelStreamWriter(TunnelWriteSessionInfo sessionInfo,
-                       Map<String, String> partitionSpec) {
+    TunnelStreamWriter(TunnelWriteSessionInfo sessionInfo, Map<String, String> partitionSpec) {
         this.sessionInfo = sessionInfo;
         this.partition = Util.toOdpsPartitionSpec(partitionSpec);
         try {
@@ -72,10 +70,10 @@ public class TunnelStreamWriter implements FileWriter<ArrayRecord> {
     public void flush() throws IOException {
         if (this.pack.getRecordCount() != 0L) {
             TableTunnel.FlushResult result = this.pack.flush(new TableTunnel.FlushOption());
-            LOG.info("Trace ID:" + result.getTraceId() +
-                    ", Size:" + result.getFlushSize() +
-                    ", Record Count:" + result.getRecordCount() +
-                    ", Partition:" + partition);
+            LOG.info("Trace ID:" + result.getTraceId() + ", Size:"
+                    + result.getFlushSize() + ", Record Count:"
+                    + result.getRecordCount() + ", Partition:"
+                    + partition);
             this.rowsWritten += result.getRecordCount();
             this.bytesWritten += result.getFlushSize();
         }

@@ -7,14 +7,13 @@ import com.superior.datatunnel.hadoop.fs.ftp.FTPFileSystem;
 import com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem;
 import com.superior.datatunnel.plugin.ftp.enums.AuthType;
 import com.superior.datatunnel.plugin.ftp.enums.FtpProtocol;
+import java.io.IOException;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Locale;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -23,8 +22,7 @@ public class FtpDataTunnelSink implements DataTunnelSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FtpDataTunnelSink.class);
 
-    private void validateOptions(DataTunnelContext context) {
-    }
+    private void validateOptions(DataTunnelContext context) {}
 
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
@@ -44,7 +42,7 @@ public class FtpDataTunnelSink implements DataTunnelSink {
         String port = String.valueOf(sinkOption.getPort());
         String prefix = "fs.ftp.";
         if (sinkOption.getProtocol() == FtpProtocol.SFTP) {
-            prefix =  "fs.sftp.";
+            prefix = "fs.sftp.";
         }
 
         hadoopConf.set(prefix + "host", host);
@@ -58,9 +56,12 @@ public class FtpDataTunnelSink implements DataTunnelSink {
                     throw new DataTunnelException("sshkey 认证方式，sshKeyFile 不能为空");
                 }
 
-                hadoopConf.set(prefix + "key.file." + host + "." + sinkOption.getUsername(), sinkOption.getSshKeyFile());
+                hadoopConf.set(
+                        prefix + "key.file." + host + "." + sinkOption.getUsername(), sinkOption.getSshKeyFile());
                 if (StringUtils.isNotBlank(sinkOption.getSshPassphrase())) {
-                    hadoopConf.set(prefix + "key.passphrase." + host + "." + sinkOption.getUsername(), sinkOption.getSshPassphrase());
+                    hadoopConf.set(
+                            prefix + "key.passphrase." + host + "." + sinkOption.getUsername(),
+                            sinkOption.getSshPassphrase());
                 }
             } else {
                 if (StringUtils.isBlank(sinkOption.getPassword())) {

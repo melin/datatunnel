@@ -19,6 +19,8 @@
 
 package com.aliyun.odps.cupid.table.v1.vectorized;
 
+import static com.aliyun.odps.cupid.table.v1.util.TableUtils.getTypeInfoFromString;
+
 import com.aliyun.odps.OdpsType;
 import com.aliyun.odps.commons.util.DateUtils;
 import com.aliyun.odps.cupid.table.v1.Attribute;
@@ -26,13 +28,10 @@ import com.aliyun.odps.cupid.table.v1.util.Platform;
 import com.aliyun.odps.cupid.table.v1.util.Validator;
 import com.aliyun.odps.type.DecimalTypeInfo;
 import com.aliyun.odps.type.TypeInfo;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-
-import static com.aliyun.odps.cupid.table.v1.util.TableUtils.getTypeInfoFromString;
 
 public final class ColDataVector {
 
@@ -58,11 +57,7 @@ public final class ColDataVector {
 
     private boolean isOldDecimal;
 
-    public ColDataVector(Attribute column,
-                         byte[] dataBuf,
-                         int dataBufSize,
-                         byte[] nulls,
-                         byte[] deepBuf) {
+    public ColDataVector(Attribute column, byte[] dataBuf, int dataBufSize, byte[] nulls, byte[] deepBuf) {
         Validator.checkNotNull(column, "column");
         this.column = column;
         this.dataBuf = dataBuf;
@@ -192,11 +187,17 @@ public final class ColDataVector {
             BigInteger bigInteger = new BigInteger(int128Byte);
             return new BigDecimal(bigInteger, scale);
         } else if (precision > 9) {
-            return new BigDecimal(new BigInteger(String.valueOf(Platform.getLong(dataBuf, Platform.BYTE_ARRAY_OFFSET + rowId * 8))), scale);
+            return new BigDecimal(
+                    new BigInteger(String.valueOf(Platform.getLong(dataBuf, Platform.BYTE_ARRAY_OFFSET + rowId * 8))),
+                    scale);
         } else if (precision > 4) {
-            return new BigDecimal(new BigInteger(String.valueOf(Platform.getLong(dataBuf, Platform.BYTE_ARRAY_OFFSET + rowId * 4))), scale);
+            return new BigDecimal(
+                    new BigInteger(String.valueOf(Platform.getLong(dataBuf, Platform.BYTE_ARRAY_OFFSET + rowId * 4))),
+                    scale);
         } else {
-            return new BigDecimal(new BigInteger(String.valueOf(Platform.getLong(dataBuf, Platform.BYTE_ARRAY_OFFSET + rowId * 2))), scale);
+            return new BigDecimal(
+                    new BigInteger(String.valueOf(Platform.getLong(dataBuf, Platform.BYTE_ARRAY_OFFSET + rowId * 2))),
+                    scale);
         }
     }
 
@@ -238,8 +239,10 @@ public final class ColDataVector {
     }
 
     private boolean isStringLikeType(OdpsType odpsType) {
-        return odpsType == OdpsType.STRING || odpsType == OdpsType.VARCHAR ||
-                odpsType == OdpsType.BINARY || odpsType == OdpsType.CHAR;
+        return odpsType == OdpsType.STRING
+                || odpsType == OdpsType.VARCHAR
+                || odpsType == OdpsType.BINARY
+                || odpsType == OdpsType.CHAR;
     }
 
     private boolean isOldDecimal(TypeInfo odpsTypeInfo) {

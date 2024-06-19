@@ -7,19 +7,19 @@ import java.net.URI
 trait CopyResult extends DistCPResult
 
 case class FileCopyResult(
-  source: URI,
-  destination: URI,
-  len: Long,
-  copyAction: FileCopyActionResult
+    source: URI,
+    destination: URI,
+    len: Long,
+    copyAction: FileCopyActionResult
 ) extends CopyResult {
   def getMessage: String =
     s"Source: [$source], Destination: [$destination], Type: [FileCopy: $len bytes], Result: [${copyAction.message}]"
 }
 
 case class DirectoryCopyResult(
-  source: URI,
-  destination: URI,
-  copyAction: DirectoryCreateActionResult
+    source: URI,
+    destination: URI,
+    copyAction: DirectoryCreateActionResult
 ) extends CopyResult {
   def getMessage: String =
     s"Source: [$source], Destination: [$destination], Type: [DirectoryCreate], Result: [${copyAction.message}]"

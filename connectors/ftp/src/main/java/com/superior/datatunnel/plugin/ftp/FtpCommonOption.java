@@ -7,22 +7,20 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.plugin.ftp.enums.AuthType;
 import com.superior.datatunnel.plugin.ftp.enums.FtpProtocol;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
-public class FtpCommonOption extends BaseCommonOption
-        implements DataTunnelSourceOption, DataTunnelSinkOption {
+public class FtpCommonOption extends BaseCommonOption implements DataTunnelSourceOption, DataTunnelSinkOption {
 
-    //ftp 协议：ftp、sftp
+    // ftp 协议：ftp、sftp
     @NotNull(message = "protocol can not null")
     @OptionDesc("ftp 协议：ftp、sftp")
     private FtpProtocol protocol = FtpProtocol.FTP;
 
-    //sftp 认证方式
+    // sftp 认证方式
     @NotNull(message = "protocol can not null")
     @OptionDesc("sftp 认证方式: password, sshkey")
     private AuthType authType = AuthType.PASSWORD;
@@ -61,7 +59,7 @@ public class FtpCommonOption extends BaseCommonOption
     private String timestampFormat = "yyyy-MM-dd HH:mm:ss[.SSS]";
 
     @NotEmpty(message = "columns can not empty")
-    private String[] columns = new String[]{"*"};
+    private String[] columns = new String[] {"*"};
 
     @Override
     public String[] getColumns() {

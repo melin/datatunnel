@@ -9,14 +9,15 @@ import org.apache.spark.sql.types.{StructField, StructType}
 
 import scala.collection.mutable.ArrayBuffer
 
-class OdpsScanBuilder(provider: String,
-                           dataSchema: StructType,
-                           partitionSchema: StructType,
-                           sessionOptions: Options,
-                           splitSize: Int,
-                           odpsTable: Table,
-                           allowFullScan: Boolean)
-  extends ScanBuilder
+class OdpsScanBuilder(
+    provider: String,
+    dataSchema: StructType,
+    partitionSchema: StructType,
+    sessionOptions: Options,
+    splitSize: Int,
+    odpsTable: Table,
+    allowFullScan: Boolean
+) extends ScanBuilder
     with SupportsPushDownRequiredColumns
     with SupportsPushDownFilters {
 
@@ -28,17 +29,18 @@ class OdpsScanBuilder(provider: String,
     partitionSchema.fields.map(_.name).toSet
   }
 
-  private val _requiredColumns: ArrayBuffer[StructField] = new ArrayBuffer[StructField]
+  private val _requiredColumns: ArrayBuffer[StructField] =
+    new ArrayBuffer[StructField]
 
   override def pruneColumns(requiredSchema: StructType): Unit = {
-    requiredSchema
-      .fields
+    requiredSchema.fields
       .filter(!_requiredColumns.contains(_))
       .foreach(_requiredColumns.append(_))
   }
 
   override def pushFilters(filters: Array[Filter]): Array[Filter] = {
-    val (nestedFilters, normalFilters) = filters.partition(_.containsNestedColumn)
+    val (nestedFilters, normalFilters) =
+      filters.partition(_.containsNestedColumn)
 
     // Filters on this table fall into four categories based on where we can use them to avoid
     // reading unneeded data:
@@ -47,7 +49,7 @@ class OdpsScanBuilder(provider: String,
     //  - keys stored in the data only - optionally used to skip groups of data in files
     //  - filters that need to be evaluated again after the scan
     val partitionKeyFilters = normalFilters
-      .filter( f => {
+      .filter(f => {
         val references = f.references.toSet
         references.nonEmpty && references.subsetOf(_odpsPartitionNameSet)
       })
@@ -70,14 +72,16 @@ class OdpsScanBuilder(provider: String,
   }
 
   override def build(): Scan = {
-    new OdpsScan(provider,
+    new OdpsScan(
+      provider,
       scanSchema(),
       partitionSchema,
       sessionOptions,
       splitSize: Int,
       odpsTable.getName,
       _partitionFilters,
-      allowFullScan)
+      allowFullScan
+    )
   }
 
   private def scanSchema(): StructType = {
@@ -85,13 +89,14 @@ class OdpsScanBuilder(provider: String,
     if (_requiredColumns.isEmpty) {
       dataSchema
     } else {
-      val partitionFilterNamesSet: Set[String] = if (_partitionFilters.isDefined) {
-        _partitionFilters.get
-          .flatMap(_.references)
-          .toSet
-      } else {
-        Seq().toSet
-      }
+      val partitionFilterNamesSet: Set[String] =
+        if (_partitionFilters.isDefined) {
+          _partitionFilters.get
+            .flatMap(_.references)
+            .toSet
+        } else {
+          Seq().toSet
+        }
 
       val normalFilterNamesSet: Set[String] = if (_columnFilters.isDefined) {
         _columnFilters.get
@@ -103,15 +108,14 @@ class OdpsScanBuilder(provider: String,
 
       val requirdAttributeNameSet = _requiredColumns.map(_.name).toSet
 
-      val allNeedAttrNameSet: Set[String] = partitionFilterNamesSet ++ normalFilterNamesSet ++ requirdAttributeNameSet
+      val allNeedAttrNameSet: Set[String] =
+        partitionFilterNamesSet ++ normalFilterNamesSet ++ requirdAttributeNameSet
 
-      val fields = dataSchema
-        .fields
-        .filter(field =>{
+      val fields = dataSchema.fields
+        .filter(field => {
           val name = field.name
           allNeedAttrNameSet.contains(name)
         })
-
 
       StructType(fields)
     }

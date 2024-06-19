@@ -25,11 +25,10 @@ import com.aliyun.odps.cupid.table.v1.util.ProviderRegistry;
 import com.aliyun.odps.cupid.table.v1.util.Validator;
 import com.aliyun.odps.cupid.table.v1.vectorized.ColDataBatch;
 import com.aliyun.odps.data.ArrayRecord;
-import org.apache.arrow.vector.VectorSchemaRoot;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.arrow.vector.VectorSchemaRoot;
 
 public final class FileWriterBuilder extends Builder {
 
@@ -64,24 +63,24 @@ public final class FileWriterBuilder extends Builder {
 
     public FileWriter<ArrayRecord> buildRecordWriter() throws ClassNotFoundException {
         sanitize();
-        return ProviderRegistry.lookup(sessionInfo.getProvider()).createRecordWriter(
-                sessionInfo, partitionSpec, fileIndex);
+        return ProviderRegistry.lookup(sessionInfo.getProvider())
+                .createRecordWriter(sessionInfo, partitionSpec, fileIndex);
     }
 
     public FileWriter<ColDataBatch> buildColDataWriter() throws ClassNotFoundException {
         sanitize();
-        return ProviderRegistry.lookup(sessionInfo.getProvider()).createColDataWriter(
-                sessionInfo, partitionSpec, fileIndex);
+        return ProviderRegistry.lookup(sessionInfo.getProvider())
+                .createColDataWriter(sessionInfo, partitionSpec, fileIndex);
     }
 
     public FileWriter<VectorSchemaRoot> buildArrowWriter() throws ClassNotFoundException {
         sanitize();
         if (this.attemptNumber > -1) {
-            return ProviderRegistry.lookup(sessionInfo.getProvider()).createArrowWriter(
-                    sessionInfo, partitionSpec, fileIndex, attemptNumber);
+            return ProviderRegistry.lookup(sessionInfo.getProvider())
+                    .createArrowWriter(sessionInfo, partitionSpec, fileIndex, attemptNumber);
         } else {
-            return ProviderRegistry.lookup(sessionInfo.getProvider()).createArrowWriter(
-                    sessionInfo, partitionSpec, fileIndex);
+            return ProviderRegistry.lookup(sessionInfo.getProvider())
+                    .createArrowWriter(sessionInfo, partitionSpec, fileIndex);
         }
     }
 
@@ -95,7 +94,8 @@ public final class FileWriterBuilder extends Builder {
             Map<String, String> orderedPartSpec = new LinkedHashMap<>();
             for (Attribute partAttr : sessionInfo.getPartitionColumns()) {
                 if (!partitionSpec.containsKey(partAttr.getName())) {
-                    throw new RuntimeException("invalid partitionSpec for file writer: " + partitionSpec + ", expected: " + partAttr.getName());
+                    throw new RuntimeException("invalid partitionSpec for file writer: " + partitionSpec
+                            + ", expected: " + partAttr.getName());
                 }
                 orderedPartSpec.put(partAttr.getName(), partitionSpec.get(partAttr.getName()));
             }

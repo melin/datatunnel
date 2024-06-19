@@ -25,7 +25,6 @@ import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.writer.WriteSessionInfo;
 import com.aliyun.odps.type.TypeInfo;
 import com.aliyun.odps.type.TypeInfoParser;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,7 +36,7 @@ public class TableUtils {
         Column[] result = null;
         if (attributes != null) {
             ArrayList<Column> columns = new ArrayList<>(attributes.size());
-            attributes.forEach(dataCol-> {
+            attributes.forEach(dataCol -> {
                 Column column = new Column(dataCol.getName(), getTypeInfoFromString(dataCol.getType()));
                 columns.add(column);
             });
@@ -46,7 +45,8 @@ public class TableUtils {
         return result;
     }
 
-    public static Map<String, String> getOrderedPartitionSpec(TableSchema tableSchema, Map<String, String> partitionSpec) {
+    public static Map<String, String> getOrderedPartitionSpec(
+            TableSchema tableSchema, Map<String, String> partitionSpec) {
         if (tableSchema == null) {
             throw new RuntimeException("tableSchema cannot be null");
         }
@@ -60,8 +60,9 @@ public class TableUtils {
     public static TableSchema toTableSchema(WriteSessionInfo writeSessionInfo) {
         TableSchema tableSchema = new TableSchema();
         if (writeSessionInfo.getDataColumns() != null) {
-            ArrayList<Column> dataColumns = new ArrayList<>(writeSessionInfo.getDataColumns().size());
-            writeSessionInfo.getDataColumns().forEach(dataCol->{
+            ArrayList<Column> dataColumns =
+                    new ArrayList<>(writeSessionInfo.getDataColumns().size());
+            writeSessionInfo.getDataColumns().forEach(dataCol -> {
                 Column column = new Column(dataCol.getName(), getTypeInfoFromString(dataCol.getType()));
                 dataColumns.add(column);
             });
@@ -69,8 +70,9 @@ public class TableUtils {
         }
 
         if (writeSessionInfo.getPartitionColumns() != null) {
-            ArrayList<Column> partitionColumns = new ArrayList<>(writeSessionInfo.getPartitionColumns().size());
-            writeSessionInfo.getPartitionColumns().forEach(partiCol ->{
+            ArrayList<Column> partitionColumns =
+                    new ArrayList<>(writeSessionInfo.getPartitionColumns().size());
+            writeSessionInfo.getPartitionColumns().forEach(partiCol -> {
                 Column column = new Column(partiCol.getName(), getTypeInfoFromString(partiCol.getType()));
                 partitionColumns.add(column);
             });

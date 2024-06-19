@@ -9,16 +9,15 @@ import io.github.melin.superior.common.relational.Statement;
 import io.github.melin.superior.parser.spark.SparkSqlHelper;
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser;
 import io.github.melin.superior.parser.spark.relational.DataTunnelExpr;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotBlank;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
-
-import javax.validation.constraints.NotBlank;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
 
 public class DataTunnelUtils {
 
@@ -35,22 +34,39 @@ public class DataTunnelUtils {
         maskOptions(dataTunnelExpr.getSinkOptions());
 
         StringBuilder sb = new StringBuilder("Datatunnel source('")
-                .append(dataTunnelExpr.getSourceType()).append("') OPTIONS(\n");
+                .append(dataTunnelExpr.getSourceType())
+                .append("') OPTIONS(\n");
         int index = 0;
         for (Map.Entry<String, Object> entry : dataTunnelExpr.getSourceOptions().entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (value instanceof String) {
                 if (index == 0) {
-                    sb.append("\t\"").append(key).append("\" = \"").append(value).append("\"\n");
+                    sb.append("\t\"")
+                            .append(key)
+                            .append("\" = \"")
+                            .append(value)
+                            .append("\"\n");
                 } else {
-                    sb.append("\t,\"").append(key).append("\" = \"").append(value).append("\"\n");
+                    sb.append("\t,\"")
+                            .append(key)
+                            .append("\" = \"")
+                            .append(value)
+                            .append("\"\n");
                 }
             } else {
                 if (index == 0) {
-                    sb.append("\t\"").append(key).append("\" = ").append(JsonUtils.toJSONString(value)).append("\n");
+                    sb.append("\t\"")
+                            .append(key)
+                            .append("\" = ")
+                            .append(JsonUtils.toJSONString(value))
+                            .append("\n");
                 } else {
-                    sb.append("\t,\"").append(key).append("\" = ").append(JsonUtils.toJSONString(value)).append("\n");
+                    sb.append("\t,\"")
+                            .append(key)
+                            .append("\" = ")
+                            .append(JsonUtils.toJSONString(value))
+                            .append("\n");
                 }
             }
 
@@ -66,20 +82,37 @@ public class DataTunnelUtils {
         if (!dataTunnelExpr.getSinkOptions().isEmpty()) {
             sb.append(" OPTIONS(\n");
             index = 0;
-            for (Map.Entry<String, Object> entry : dataTunnelExpr.getSinkOptions().entrySet()) {
+            for (Map.Entry<String, Object> entry :
+                    dataTunnelExpr.getSinkOptions().entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (value instanceof String) {
                     if (index == 0) {
-                        sb.append("\t\"").append(key).append("\" = \"").append(value).append("\"\n");
+                        sb.append("\t\"")
+                                .append(key)
+                                .append("\" = \"")
+                                .append(value)
+                                .append("\"\n");
                     } else {
-                        sb.append("\t,\"").append(key).append("\" = \"").append(value).append("\"\n");
+                        sb.append("\t,\"")
+                                .append(key)
+                                .append("\" = \"")
+                                .append(value)
+                                .append("\"\n");
                     }
                 } else {
                     if (index == 0) {
-                        sb.append("\t\"").append(key).append("\" = ").append(JsonUtils.toJSONString(value)).append("\n");
+                        sb.append("\t\"")
+                                .append(key)
+                                .append("\" = ")
+                                .append(JsonUtils.toJSONString(value))
+                                .append("\n");
                     } else {
-                        sb.append("\t,\"").append(key).append("\" = ").append(JsonUtils.toJSONString(value)).append("\n");
+                        sb.append("\t,\"")
+                                .append(key)
+                                .append("\" = ")
+                                .append(JsonUtils.toJSONString(value))
+                                .append("\n");
                     }
                 }
                 index++;

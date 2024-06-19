@@ -11,13 +11,12 @@ import com.aliyun.odps.tunnel.TableTunnel;
 import com.aliyun.odps.tunnel.TunnelException;
 import com.aliyun.odps.utils.StringUtils;
 import com.superior.datatunnel.common.util.CommonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
@@ -73,20 +72,18 @@ public class Util {
     private static Account getDefaultAccount(Options options) {
         if (options.contains("odps.access.security.token")
                 && StringUtils.isNotBlank(options.get("odps.access.security.token"))) {
-            return new StsAccount(options.getOdpsConf().getAccessId(),
+            return new StsAccount(
+                    options.getOdpsConf().getAccessId(),
                     options.getOdpsConf().getAccessKey(),
                     options.get("odps.access.security.token"));
         } else {
-            return new AliyunAccount(options.getOdpsConf().getAccessId(),
-                    options.getOdpsConf().getAccessKey());
+            return new AliyunAccount(
+                    options.getOdpsConf().getAccessId(), options.getOdpsConf().getAccessKey());
         }
     }
 
-    public static void createPartition(
-            String project,
-            String table,
-            PartitionSpec partitionSpec,
-            Odps odps) throws IOException {
+    public static void createPartition(String project, String table, PartitionSpec partitionSpec, Odps odps)
+            throws IOException {
         int retry = 0;
         long sleep = 2000;
         while (true) {
@@ -108,22 +105,17 @@ public class Util {
         }
     }
 
-    public static TableTunnel.DownloadSession createDownloadSession(String project,
-                                                                    String table,
-                                                                    PartitionSpec partitionSpec,
-                                                                    TableTunnel tunnel) throws IOException {
+    public static TableTunnel.DownloadSession createDownloadSession(
+            String project, String table, PartitionSpec partitionSpec, TableTunnel tunnel) throws IOException {
         int retry = 0;
         long sleep = 2000;
         TableTunnel.DownloadSession downloadSession;
         while (true) {
             try {
                 if (partitionSpec == null || partitionSpec.isEmpty()) {
-                    downloadSession = tunnel.createDownloadSession(project,
-                            table);
+                    downloadSession = tunnel.createDownloadSession(project, table);
                 } else {
-                    downloadSession = tunnel.createDownloadSession(project,
-                            table,
-                            partitionSpec);
+                    downloadSession = tunnel.createDownloadSession(project, table, partitionSpec);
                 }
                 break;
             } catch (TunnelException e) {
@@ -142,25 +134,18 @@ public class Util {
         return downloadSession;
     }
 
-    public static TableTunnel.UploadSession createUploadSession(String project,
-                                                                String table,
-                                                                PartitionSpec partitionSpec,
-                                                                boolean isOverwrite,
-                                                                TableTunnel tunnel) throws IOException {
+    public static TableTunnel.UploadSession createUploadSession(
+            String project, String table, PartitionSpec partitionSpec, boolean isOverwrite, TableTunnel tunnel)
+            throws IOException {
         int retry = 0;
         long sleep = 2000;
         TableTunnel.UploadSession uploadSession;
         while (true) {
             try {
                 if (partitionSpec == null || partitionSpec.isEmpty()) {
-                    uploadSession = tunnel.createUploadSession(project,
-                            table,
-                            isOverwrite);
+                    uploadSession = tunnel.createUploadSession(project, table, isOverwrite);
                 } else {
-                    uploadSession = tunnel.createUploadSession(project,
-                            table,
-                            partitionSpec,
-                            isOverwrite);
+                    uploadSession = tunnel.createUploadSession(project, table, partitionSpec, isOverwrite);
                 }
                 break;
             } catch (TunnelException e) {
@@ -179,22 +164,22 @@ public class Util {
         return uploadSession;
     }
 
-    public static TableTunnel.StreamUploadSession createStreamUploadSession(String project,
-                                                                            String table,
-                                                                            PartitionSpec partitionSpec,
-                                                                            boolean createParitition,
-                                                                            TableTunnel tunnel) throws IOException {
+    public static TableTunnel.StreamUploadSession createStreamUploadSession(
+            String project, String table, PartitionSpec partitionSpec, boolean createParitition, TableTunnel tunnel)
+            throws IOException {
         int retry = 0;
         long sleep = 2000;
         TableTunnel.StreamUploadSession uploadSession;
         while (true) {
             try {
                 if (partitionSpec == null || partitionSpec.isEmpty()) {
-                    uploadSession = tunnel.buildStreamUploadSession(project, table).build();
+                    uploadSession =
+                            tunnel.buildStreamUploadSession(project, table).build();
                 } else {
                     uploadSession = tunnel.buildStreamUploadSession(project, table)
                             .setPartitionSpec(partitionSpec)
-                            .setCreatePartition(createParitition).build();
+                            .setCreatePartition(createParitition)
+                            .build();
                 }
                 break;
             } catch (TunnelException e) {
@@ -212,5 +197,4 @@ public class Util {
         }
         return uploadSession;
     }
-
 }

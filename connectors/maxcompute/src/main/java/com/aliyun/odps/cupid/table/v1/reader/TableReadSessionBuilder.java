@@ -21,12 +21,11 @@ package com.aliyun.odps.cupid.table.v1.reader;
 
 import com.aliyun.odps.TableSchema;
 import com.aliyun.odps.cupid.table.v1.Attribute;
-import com.aliyun.odps.cupid.table.v1.util.*;
 import com.aliyun.odps.cupid.table.v1.reader.filter.FilterExpression;
 import com.aliyun.odps.cupid.table.v1.reader.function.FunctionCall;
+import com.aliyun.odps.cupid.table.v1.util.*;
 import com.aliyun.odps.cupid.table.v1.util.ProviderRegistry;
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.util.*;
 
 public final class TableReadSessionBuilder extends Builder {
@@ -61,8 +60,7 @@ public final class TableReadSessionBuilder extends Builder {
 
     private List<List<Integer>> partitionBucketFilters;
 
-    public static ReadCapabilities getProviderCapabilities(String provider)
-            throws ClassNotFoundException {
+    public static ReadCapabilities getProviderCapabilities(String provider) throws ClassNotFoundException {
         Validator.checkString(provider, "provider");
         return ProviderRegistry.lookup(provider).getReadCapabilities();
     }
@@ -139,8 +137,8 @@ public final class TableReadSessionBuilder extends Builder {
         sanitizeBasicInfo();
         TableProvider tableProvider = ProviderRegistry.lookup(provider);
         ReadCapabilities capabilities = tableProvider.getReadCapabilities();
-        TableReadSession session = tableProvider.createReadSession(
-                project, table, tableSchema, readDataColumns, partitionSpecs, options);
+        TableReadSession session =
+                tableProvider.createReadSession(project, table, tableSchema, readDataColumns, partitionSpecs, options);
         sanitizeExtendedInfo(capabilities, session);
         return session;
     }
@@ -175,8 +173,7 @@ public final class TableReadSessionBuilder extends Builder {
         if (bucketFilter == null) {
             bucketFilter = Collections.emptyList();
         } else {
-            Validator.checkIntList(
-                    bucketFilter, 1, 0, "bucketFilter");
+            Validator.checkIntList(bucketFilter, 1, 0, "bucketFilter");
             bucketFilter = Collections.unmodifiableList(new ArrayList<>(bucketFilter));
         }
         if (capabilities.supportBuckets()) {
@@ -196,8 +193,7 @@ public final class TableReadSessionBuilder extends Builder {
         if (capabilities.supportPushDownFilters()) {
             session.setFilterExpressions(filterExpressions);
         } else if (!filterExpressions.isEmpty()) {
-            throw new IllegalArgumentException(
-                    provider + " provider does not support push down filters");
+            throw new IllegalArgumentException(provider + " provider does not support push down filters");
         }
 
         List<Attribute> functionCallResults;
@@ -214,8 +210,7 @@ public final class TableReadSessionBuilder extends Builder {
         if (capabilities.supportPushDownFunctionCalls()) {
             session.setFunctionCalls(functionCallResults);
         } else if (!functionCallResults.isEmpty()) {
-            throw new IllegalArgumentException(
-                    provider + " provider does not support push down function calls");
+            throw new IllegalArgumentException(provider + " provider does not support push down function calls");
         }
     }
 

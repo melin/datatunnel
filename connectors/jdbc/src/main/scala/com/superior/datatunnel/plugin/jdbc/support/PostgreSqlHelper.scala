@@ -18,11 +18,11 @@ import java.util
 import scala.collection.JavaConverters._
 
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
-object PostgreSqlHelper extends Logging{
+object PostgreSqlHelper extends Logging {
 
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
-    val bytes: Iterator[Byte] = rows.flatMap {
-      row => {
+    val bytes: Iterator[Byte] = rows.flatMap { row =>
+      {
         val columns = row.toSeq.map { v =>
           if (v == null) {
             "\\N".getBytes()
@@ -45,7 +45,11 @@ object PostgreSqlHelper extends Logging{
             byteBuffer.put(Constants.FIELD_DELIMITER.getBytes)
           }
 
-          if (bytes.length == 2 && bytes(0) == '\\'.toByte && bytes(1) == 'N'.toByte) {
+          if (
+            bytes.length == 2 && bytes(0) == '\\'.toByte && bytes(
+              1
+            ) == 'N'.toByte
+          ) {
             byteBuffer.put(bytes)
           } else {
             Constants.handlePgIdentifierBytes(bytes, byteBuffer)
@@ -62,32 +66,60 @@ object PostgreSqlHelper extends Logging{
       }
     }
 
-    () => if (bytes.hasNext) {
-      bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
-    } else {
-      -1
-    }
+    () =>
+      if (bytes.hasNext) {
+        bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
+      } else {
+        -1
+      }
   }
 
-  def buildUpsertPGSql(tableName: String, tempTableName: String,
-                               columns: util.List[String], upsertKeyColumns: Array[String]): String = {
+  def buildUpsertPGSql(
+      tableName: String,
+      tempTableName: String,
+      columns: util.List[String],
+      upsertKeyColumns: Array[String]
+  ): String = {
 
-    val updateColumns = columns.asScala.filter(name => !upsertKeyColumns.contains(name)).map(name => name)
+    val updateColumns = columns.asScala
+      .filter(name => !upsertKeyColumns.contains(name))
+      .map(name => name)
     val excludedColumns = updateColumns.map(name => "excluded." + name)
 
     val sqlBuilder: StringBuilder = new StringBuilder
-    sqlBuilder.append("insert into ").append(tableName).append("(").append(StringUtils.join(columns, ",")).append(")\n")
-    sqlBuilder.append("select ").append(StringUtils.join(columns, ",")).append("\n")
+    sqlBuilder
+      .append("insert into ")
+      .append(tableName)
+      .append("(")
+      .append(StringUtils.join(columns, ","))
+      .append(")\n")
+    sqlBuilder
+      .append("select ")
+      .append(StringUtils.join(columns, ","))
+      .append("\n")
     sqlBuilder.append("\tfrom ").append(tempTableName).append("\n")
-    sqlBuilder.append("on conflict (").append(upsertKeyColumns.mkString(",")).append(")").append("\n")
-    sqlBuilder.append("DO UPDATE SET (").append(updateColumns.mkString(",")).append(") = ").append("\n")
-    sqlBuilder.append("ROW(").append(excludedColumns.mkString(",")).append(")\n")
+    sqlBuilder
+      .append("on conflict (")
+      .append(upsertKeyColumns.mkString(","))
+      .append(")")
+      .append("\n")
+    sqlBuilder
+      .append("DO UPDATE SET (")
+      .append(updateColumns.mkString(","))
+      .append(") = ")
+      .append("\n")
+    sqlBuilder
+      .append("ROW(")
+      .append(excludedColumns.mkString(","))
+      .append(")\n")
 
     sqlBuilder.append(" where (\n")
     val conditions = Lists.newArrayList[String]()
     for (colName <- updateColumns) {
       conditions.add(tableName + "." + colName + " != " + "excluded." + colName)
-      conditions.add("(" + tableName + "." + colName + " is null and excluded." + colName + " is not null)")
+      conditions.add(
+        "(" + tableName + "." + colName + " is null and excluded." + colName + " is not null)"
+      )
     }
     sqlBuilder.append(StringUtils.join(conditions, "\n\tor "))
     sqlBuilder.append("\n)\n")
@@ -95,14 +127,17 @@ object PostgreSqlHelper extends Logging{
     sqlBuilder.toString
   }
 
-  def copyIn(parameters: Map[String, String])(df: DataFrame, table: String): Unit = {
+  def copyIn(
+      parameters: Map[String, String]
+  )(df: DataFrame, table: String): Unit = {
     df.rdd.foreachPartition { rows =>
       val options = new JdbcOptionsInWrite(parameters)
       val dialect = JdbcDialects.get(options.url)
       val conn = dialect.createConnectionFactory(options)(-1)
       try {
         val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-        val sql = s"COPY $table FROM STDIN DELIMITER '${Constants.FIELD_DELIMITER}' ";
+        val sql =
+          s"COPY $table FROM STDIN DELIMITER '${Constants.FIELD_DELIMITER}' ";
         logInfo(s"copy from sql: $sql")
         cm.copyIn(sql, rowsToInputStream(rows))
         ()

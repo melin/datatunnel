@@ -22,7 +22,6 @@ package com.aliyun.odps.cupid.table.v1.tunnel.impl;
 import com.aliyun.odps.cupid.table.v1.Attribute;
 import com.aliyun.odps.cupid.table.v1.util.Options;
 import com.aliyun.odps.cupid.table.v1.writer.WriteSessionInfo;
-
 import java.util.List;
 import java.util.Map;
 
@@ -34,16 +33,17 @@ public class TunnelWriteSessionInfo extends WriteSessionInfo {
 
     private final boolean isDynamicPartition;
 
-    TunnelWriteSessionInfo(String project,
-                           String table,
-                           List<Attribute> dataColumns,
-                           List<Attribute> partitionColumns,
-                           Map<String, String> partitionSpec,
-                           String uploadId,
-                           boolean overwrite,
-                           boolean isDynamicPartition,
-                           boolean isStream,
-                           Options options) {
+    TunnelWriteSessionInfo(
+            String project,
+            String table,
+            List<Attribute> dataColumns,
+            List<Attribute> partitionColumns,
+            Map<String, String> partitionSpec,
+            String uploadId,
+            boolean overwrite,
+            boolean isDynamicPartition,
+            boolean isStream,
+            Options options) {
         super(project, table, dataColumns, partitionColumns, partitionSpec, overwrite, options);
         this.uploadId = uploadId;
         this.isDynamicPartition = isDynamicPartition;

@@ -1,8 +1,7 @@
 package com.superior.datatunnel.plugin.hdfs;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class HdfsDataTunnelSourceOption extends HdfsCommonOption {

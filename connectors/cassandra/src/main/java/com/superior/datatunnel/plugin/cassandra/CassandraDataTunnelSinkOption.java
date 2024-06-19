@@ -2,10 +2,9 @@ package com.superior.datatunnel.plugin.cassandra;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.SparkConfKey;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class CassandraDataTunnelSinkOption extends BaseSinkOption {
@@ -31,7 +30,7 @@ public class CassandraDataTunnelSinkOption extends BaseSinkOption {
     @SparkConfKey("spark.cassandra.connection.port")
     private Integer port = 9402;
 
-    //sink
+    // sink
     @SparkConfKey("spark.cassandra.output.batch.grouping.buffer.size")
     private Integer batchGroupingBufferSize = 1000;
 

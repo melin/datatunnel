@@ -16,9 +16,10 @@ package com.superior.datatunnel.plugin.maxcompute
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
-/**
-  * @author renxiang
-  * @date 2021-12-24
+/** @author
+  *   renxiang
+  * @date
+  *   2021-12-24
   */
 object DataWriterTest {
   val ODPS_DATA_SOURCE = "org.apache.spark.sql.odps.datasource.DefaultSource"
@@ -45,7 +46,7 @@ object DataWriterTest {
       .map(f => TestData(f, s"into_test$f"))
       .toDF
 
-    //写入overwrite
+    // 写入overwrite
     println(s"overwrite into $p0")
     dfOverwrite.write
       .format(ODPS_DATA_SOURCE)
@@ -63,7 +64,7 @@ object DataWriterTest {
       .map(f => TestData(f, s"append_test$f"))
       .toDF
     println(s"append into $p1")
-    //写入append
+    // 写入append
     dfAppend.write
       .format(ODPS_DATA_SOURCE)
       .option("spark.hadoop.odps.project.name", odpsProject)

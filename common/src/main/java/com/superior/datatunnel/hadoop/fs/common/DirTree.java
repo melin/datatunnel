@@ -3,7 +3,6 @@ package com.superior.datatunnel.hadoop.fs.common;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
-
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 
@@ -85,7 +84,5 @@ public interface DirTree {
          * {@link #addAll} or {@link #getChildren} methods
          */
         boolean isCompleted();
-
     }
-
 }

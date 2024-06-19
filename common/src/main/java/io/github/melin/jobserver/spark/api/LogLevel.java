@@ -1,11 +1,15 @@
 package io.github.melin.jobserver.spark.api;
 
 public enum LogLevel {
-    STDOUT("Stdout"), INFO("Info"), WARN("Warn"), ERROR("Error"), INTANCE_INFO("IntanceInfo");
+    STDOUT("Stdout"),
+    INFO("Info"),
+    WARN("Warn"),
+    ERROR("Error"),
+    INTANCE_INFO("IntanceInfo");
 
     private final String type;
 
-    LogLevel(String type){
+    LogLevel(String type) {
         this.type = type;
     }
 

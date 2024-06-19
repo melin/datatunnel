@@ -20,7 +20,6 @@
 package com.aliyun.odps.cupid.table.v1.writer;
 
 import com.aliyun.odps.cupid.table.v1.util.Validator;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +36,7 @@ public final class BucketFileInfo {
         this.partitionSpec = Collections.emptyMap();
     }
 
-    public BucketFileInfo(Map<Integer, List<Integer>> bucketFileIndices,
-                          Map<String, String> partitionSpec) {
+    public BucketFileInfo(Map<Integer, List<Integer>> bucketFileIndices, Map<String, String> partitionSpec) {
         Validator.checkBucketFileIndices(bucketFileIndices, "bucketFileIndices");
         Validator.checkMap(partitionSpec, "partitionSpec");
         this.bucketFileIndices = bucketFileIndices;

@@ -13,13 +13,13 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
-object LoadDataSqlHelper extends Logging{
+object LoadDataSqlHelper extends Logging {
 
   private val fieldDelimiter = ",";
 
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
-    val bytes: Iterator[Byte] = rows.flatMap {
-      row => {
+    val bytes: Iterator[Byte] = rows.flatMap { row =>
+      {
         val columns = row.toSeq.map { v =>
           if (v == null) {
             Array[Byte]('\\', 'N')
@@ -42,7 +42,11 @@ object LoadDataSqlHelper extends Logging{
             byteBuffer.put(fieldDelimiter.getBytes)
           }
 
-          if (bytes.length == 2 && bytes(0) == '\\'.toByte && bytes(1) == 'N'.toByte) {
+          if (
+            bytes.length == 2 && bytes(0) == '\\'.toByte && bytes(
+              1
+            ) == 'N'.toByte
+          ) {
             byteBuffer.put(bytes)
           } else {
             byteBuffer.put('"'.toByte)
@@ -69,14 +73,18 @@ object LoadDataSqlHelper extends Logging{
       }
     }
 
-    () => if (bytes.hasNext) {
-      bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
-    } else {
-      -1
-    }
+    () =>
+      if (bytes.hasNext) {
+        bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
+      } else {
+        -1
+      }
   }
 
-  def loadData(dataSourceType: DataSourceType, parameters: Map[String, String])(df: DataFrame, loadCommand: String): Unit = {
+  def loadData(
+      dataSourceType: DataSourceType,
+      parameters: Map[String, String]
+  )(df: DataFrame, loadCommand: String): Unit = {
     df.rdd.foreachPartition { rows =>
       val options = new JdbcOptionsInWrite(parameters)
       val dialect = JdbcDialects.get(options.url)
@@ -90,7 +98,9 @@ object LoadDataSqlHelper extends Logging{
           val jdbcStatement = statement.asInstanceOf[OceanBaseStatement];
           jdbcStatement.setLocalInfileInputStream(rowsToInputStream(rows))
         } else {
-          throw new DataTunnelException(s"$dataSourceType not support load data")
+          throw new DataTunnelException(
+            s"$dataSourceType not support load data"
+          )
         }
 
         statement.execute(loadCommand)

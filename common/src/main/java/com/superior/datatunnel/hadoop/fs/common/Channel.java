@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
-
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -114,8 +113,7 @@ public interface Channel extends Closeable {
      * @return status of the file we are querying
      * @throws IOException connection problem
      */
-    FileStatus getFileStatus(Path file, Set<FileStatus> dirContentList) throws
-            IOException;
+    FileStatus getFileStatus(Path file, Set<FileStatus> dirContentList) throws IOException;
 
     /**
      * Get the output stream for storing data on the remote server.
@@ -126,8 +124,7 @@ public interface Channel extends Closeable {
      * @return Output stream
      * @throws IOException connection problem
      */
-    FSDataOutputStream put(Path file, DirTree dirTree,
-                           FileSystem.Statistics statistics) throws IOException;
+    FSDataOutputStream put(Path file, DirTree dirTree, FileSystem.Statistics statistics) throws IOException;
 
     /**
      * Get the input stream for retrieving data from the remote server. This
@@ -139,8 +136,7 @@ public interface Channel extends Closeable {
      * @return Input stream
      * @throws IOException connection problem
      */
-    FSDataInputStream get(FileStatus file, FileSystem.Statistics statistics)
-            throws IOException;
+    FSDataInputStream get(FileStatus file, FileSystem.Statistics statistics) throws IOException;
 
     /**
      * Get the native input stream for retrieving data from remote server as
@@ -195,5 +191,4 @@ public interface Channel extends Closeable {
     void disconnect(boolean hardClose) throws IOException;
 
     void setTimes(Path p, long mtime, long atime) throws IOException;
-
 }

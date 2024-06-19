@@ -29,10 +29,9 @@ import com.aliyun.odps.cupid.table.v1.writer.TableWriteSession;
 import com.aliyun.odps.cupid.table.v1.writer.WriteCapabilities;
 import com.aliyun.odps.cupid.table.v1.writer.WriteSessionInfo;
 import com.aliyun.odps.data.ArrayRecord;
-import org.apache.arrow.vector.VectorSchemaRoot;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.arrow.vector.VectorSchemaRoot;
 
 public class TunnelProvider implements TableProvider {
 
@@ -47,12 +46,13 @@ public class TunnelProvider implements TableProvider {
     }
 
     @Override
-    public TableReadSession createReadSession(String project,
-                                              String table,
-                                              TableSchema tableSchema,
-                                              RequiredSchema readDataColumns,
-                                              List<Map<String, String>> readPartitions,
-                                              Options configs) {
+    public TableReadSession createReadSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> readPartitions,
+            Options configs) {
         return new TunnelReadSession(project, table, tableSchema, readDataColumns, readPartitions, configs);
     }
 
@@ -82,12 +82,13 @@ public class TunnelProvider implements TableProvider {
     }
 
     @Override
-    public TableWriteSession createWriteSession(String project,
-                                                String table,
-                                                TableSchema tableSchema,
-                                                Map<String, String> partitionSpec,
-                                                boolean overwrite,
-                                                Options configs) {
+    public TableWriteSession createWriteSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean overwrite,
+            Options configs) {
 
         return new TunnelWriteSession(project, table, tableSchema, partitionSpec, overwrite, configs);
     }
@@ -98,9 +99,8 @@ public class TunnelProvider implements TableProvider {
     }
 
     @Override
-    public FileWriter<ArrayRecord> createRecordWriter(WriteSessionInfo sessionInfo,
-                                                      Map<String, String> partitionSpec,
-                                                      int fileIndex) {
+    public FileWriter<ArrayRecord> createRecordWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex) {
         if (((TunnelWriteSessionInfo) sessionInfo).isStream()) {
             return new TunnelStreamWriter((TunnelWriteSessionInfo) sessionInfo, partitionSpec);
         } else {
@@ -109,42 +109,40 @@ public class TunnelProvider implements TableProvider {
     }
 
     @Override
-    public FileWriter<ColDataBatch> createColDataWriter(WriteSessionInfo sessionInfo,
-                                                        Map<String, String> partitionSpec,
-                                                        int fileIndex) {
+    public FileWriter<ColDataBatch> createColDataWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public FileWriter<VectorSchemaRoot> createArrowWriter(WriteSessionInfo sessionInfo,
-                                                          Map<String, String> partitionSpec,
-                                                          int fileIndex) {
+    public FileWriter<VectorSchemaRoot> createArrowWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public FileWriter<VectorSchemaRoot> createArrowWriter(WriteSessionInfo sessionInfo,
-                                                          Map<String, String> partitionSpec,
-                                                          int fileIndex,
-                                                          int attemptId) {
+    public FileWriter<VectorSchemaRoot> createArrowWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex, int attemptId) {
         throw new UnsupportedOperationException();
     }
 
     @Deprecated
-    public TableReadSession createReadSession(String project,
-                                              String table,
-                                              TableSchema tableSchema,
-                                              RequiredSchema readDataColumns,
-                                              List<Map<String, String>> readPartitions) {
+    public TableReadSession createReadSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> readPartitions) {
         throw new UnsupportedOperationException();
     }
 
     @Deprecated
-    public TableWriteSession createWriteSession(String project,
-                                                String table,
-                                                TableSchema tableSchema,
-                                                Map<String, String> partitionSpec,
-                                                boolean isOverwrite) {
+    public TableWriteSession createWriteSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean isOverwrite) {
         throw new UnsupportedOperationException();
     }
 }

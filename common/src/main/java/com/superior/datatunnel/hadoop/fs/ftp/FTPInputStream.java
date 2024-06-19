@@ -1,20 +1,19 @@
 package com.superior.datatunnel.hadoop.fs.ftp;
 
+import static com.google.common.base.Preconditions.*;
+
+import com.superior.datatunnel.hadoop.fs.common.Channel;
+import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
-
-import com.superior.datatunnel.hadoop.fs.common.Channel;
-import com.superior.datatunnel.hadoop.fs.common.ErrorStrings;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Preconditions.*;
 
 /**
  * FTP FileSystem data input stream used when retrieving a file from remote
@@ -67,11 +66,10 @@ class FTPInputStream extends FSInputStream {
     // Communication channel to the remote server
     private FTPChannel channel;
 
-    FTPInputStream(InputStream stream, FTPChannel channel,
-                   FileStatus file, FileSystem.Statistics stats) throws IOException {
+    FTPInputStream(InputStream stream, FTPChannel channel, FileStatus file, FileSystem.Statistics stats)
+            throws IOException {
 
-        LOG.info("Starting transfer of: {} length: {}", file.getPath(),
-                file.getLen());
+        LOG.info("Starting transfer of: {} length: {}", file.getPath(), file.getLen());
         checkNotNull(stream, ErrorStrings.E_NULL_INPUTSTREAM);
         this.wrappedStream = stream;
         this.stats = stats;
@@ -81,8 +79,8 @@ class FTPInputStream extends FSInputStream {
         this.closed = false;
         this.channel = channel;
         this.file = file;
-        this.fs = (FTPFileSystem) file.getPath().getFileSystem(
-                channel.getConnectionInfo().getConf());
+        this.fs = (FTPFileSystem)
+                file.getPath().getFileSystem(channel.getConnectionInfo().getConf());
         realLength = file.getLen();
         keepAlive = channel.getNative().getControlKeepAliveTimeout() * 1000;
         if (keepAlive > 0) {
@@ -121,8 +119,7 @@ class FTPInputStream extends FSInputStream {
         channel.getNative().setRestartOffset(position);
         wrappedStream = channel.getDataStream(file);
         if (wrappedStream == null) {
-            LOG.error(channel.getConnectionInfo()
-                    .logWithInfo("Can't get data connection"));
+            LOG.error(channel.getConnectionInfo().logWithInfo("Can't get data connection"));
             throw new IOException("Data connection not available");
         }
         pos = position;
@@ -174,16 +171,14 @@ class FTPInputStream extends FSInputStream {
             // is suspicious
             return handleTruncate(-1);
         } catch (IOException e) {
-            LOG.error(channel.getConnectionInfo()
-                    .logWithInfo("Error while reading: "), e);
+            LOG.error(channel.getConnectionInfo().logWithInfo("Error while reading: "), e);
             close();
             throw e;
         }
     }
 
     @Override
-    public synchronized int read(byte[] buf, int off, int len)
-            throws IOException {
+    public synchronized int read(byte[] buf, int off, int len) throws IOException {
         try {
             if (closed) {
                 throw new IOException(ErrorStrings.E_STREAM_CLOSED);
@@ -210,8 +205,7 @@ class FTPInputStream extends FSInputStream {
             // is suspicious
             return handleTruncate(-1);
         } catch (IOException e) {
-            LOG.error(channel.getConnectionInfo()
-                    .logWithInfo("Error while reading: "));
+            LOG.error(channel.getConnectionInfo().logWithInfo("Error while reading: "));
             close();
             throw e;
         }
@@ -276,8 +270,7 @@ class FTPInputStream extends FSInputStream {
                 } catch (SocketTimeoutException e) {
                     LOG.debug("No keep alive response - expected", e);
                 } catch (IOException e) {
-                    LOG.error(channel.getConnectionInfo()
-                            .logWithInfo("Unexpected error when sending keep alive"), e);
+                    LOG.error(channel.getConnectionInfo().logWithInfo("Unexpected error when sending keep alive"), e);
                     throw e;
                 } finally {
                     // Set the original timeout
@@ -307,16 +300,14 @@ class FTPInputStream extends FSInputStream {
      */
     private int handleTruncate(int length) throws IOException {
         if (pos > realLength) {
-            LOG.warn("Reading behind file length. " +
-                    "Does the file changed since cached?");
+            LOG.warn("Reading behind file length. " + "Does the file changed since cached?");
             // Let's refresh the status and try again
             // We dont' want any caching so use direct query on the new connection
             if (refreshLength()) {
                 // Length has changed. Run the check again
                 return handleTruncate(length);
             }
-            LOG.error(channel.getConnectionInfo()
-                    .logWithInfo("Reading behind file length"));
+            LOG.error(channel.getConnectionInfo().logWithInfo("Reading behind file length"));
             return -1;
         }
         if (length == -1 && pos < realLength) {
@@ -349,8 +340,7 @@ class FTPInputStream extends FSInputStream {
     private boolean refreshLength() throws IOException {
         Channel newChannel = fs.connect();
         try {
-            FileStatus check = newChannel.getFileStatus(file.getPath(),
-                    new HashSet<>());
+            FileStatus check = newChannel.getFileStatus(file.getPath(), new HashSet<>());
             long newLength = check.getLen();
             if (newLength != realLength) {
                 // File length has changed,

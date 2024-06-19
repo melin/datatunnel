@@ -27,10 +27,9 @@ import com.aliyun.odps.cupid.table.v1.writer.TableWriteSession;
 import com.aliyun.odps.cupid.table.v1.writer.WriteCapabilities;
 import com.aliyun.odps.cupid.table.v1.writer.WriteSessionInfo;
 import com.aliyun.odps.data.ArrayRecord;
-import org.apache.arrow.vector.VectorSchemaRoot;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.arrow.vector.VectorSchemaRoot;
 
 public interface TableProvider {
 
@@ -38,18 +37,20 @@ public interface TableProvider {
 
     ReadCapabilities getReadCapabilities();
 
-    TableReadSession createReadSession(String project,
-                                       String table,
-                                       TableSchema tableSchema,
-                                       RequiredSchema readDataColumns,
-                                       List<Map<String, String>> readPartitions);
+    TableReadSession createReadSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> readPartitions);
 
-    TableReadSession createReadSession(String project,
-                                       String table,
-                                       TableSchema tableSchema,
-                                       RequiredSchema readDataColumns,
-                                       List<Map<String, String>> readPartitions,
-                                       Options configs);
+    TableReadSession createReadSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            RequiredSchema readDataColumns,
+            List<Map<String, String>> readPartitions,
+            Options configs);
 
     SplitReader<ArrayRecord> createRecordReader(InputSplit inputSplit);
 
@@ -61,35 +62,32 @@ public interface TableProvider {
 
     WriteCapabilities getWriteCapabilities();
 
-    TableWriteSession createWriteSession(String project,
-                                         String table,
-                                         TableSchema tableSchema,
-                                         Map<String, String> partitionSpec,
-                                         boolean overwrite);
+    TableWriteSession createWriteSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean overwrite);
 
-    TableWriteSession createWriteSession(String project,
-                                         String table,
-                                         TableSchema tableSchema,
-                                         Map<String, String> partitionSpec,
-                                         boolean overwrite,
-                                         Options configs);
+    TableWriteSession createWriteSession(
+            String project,
+            String table,
+            TableSchema tableSchema,
+            Map<String, String> partitionSpec,
+            boolean overwrite,
+            Options configs);
 
     TableWriteSession getWriteSession(WriteSessionInfo writeSessionInfo);
 
-    FileWriter<ArrayRecord> createRecordWriter(WriteSessionInfo sessionInfo,
-                                               Map<String, String> partitionSpec,
-                                               int fileIndex);
+    FileWriter<ArrayRecord> createRecordWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex);
 
-    FileWriter<ColDataBatch> createColDataWriter(WriteSessionInfo sessionInfo,
-                                                 Map<String, String> partitionSpec,
-                                                 int fileIndex);
+    FileWriter<ColDataBatch> createColDataWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex);
 
-    FileWriter<VectorSchemaRoot> createArrowWriter(WriteSessionInfo sessionInfo,
-                                                   Map<String, String> partitionSpec,
-                                                   int fileIndex);
+    FileWriter<VectorSchemaRoot> createArrowWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex);
 
-    FileWriter<VectorSchemaRoot> createArrowWriter(WriteSessionInfo sessionInfo,
-                                                   Map<String, String> partitionSpec,
-                                                   int fileIndex,
-                                                   int attemptId);
+    FileWriter<VectorSchemaRoot> createArrowWriter(
+            WriteSessionInfo sessionInfo, Map<String, String> partitionSpec, int fileIndex, int attemptId);
 }
