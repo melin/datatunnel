@@ -31,7 +31,7 @@
         <scala.bin.version>2.12</scala.bin.version>
         <spark.version>3.5.1</spark.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <log4j2.version>2.23.1</log4j2.version>
         <bee.version>1.9.0</bee.version>
         <hudi.version>0.15.0</hudi.version>
