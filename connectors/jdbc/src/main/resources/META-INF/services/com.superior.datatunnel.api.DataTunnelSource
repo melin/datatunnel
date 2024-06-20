@@ -5,5 +5,7 @@ sqlserver=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
 hana=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
 gauss=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
 postgresql=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
+greenplum=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
+hashdata=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
 dameng=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource
 oceanbase=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSource

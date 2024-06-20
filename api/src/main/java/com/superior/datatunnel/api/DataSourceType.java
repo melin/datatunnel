@@ -9,6 +9,7 @@ public enum DataSourceType {
     TERADATA,
     GAUSSDWS,
     GREENPLUM,
+    HASHDATA,
     DB2,
     HANA,
     DAMENG,

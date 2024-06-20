@@ -19,7 +19,9 @@ object JdbcDialectUtils {
   ): DefaultDatabaseDialect = {
     if (dataSourceType == DataSourceType.MYSQL) {
       new MySqlDatabaseDialect(options, jdbcDialect, dataSourceType)
-    } else if (dataSourceType == DataSourceType.POSTGRESQL) {
+    } else if (dataSourceType == DataSourceType.POSTGRESQL
+      || dataSourceType == DataSourceType.GREENPLUM
+      || dataSourceType == DataSourceType.HASHDATA) {
       new PostgreSqlDatabaseDialect(options, jdbcDialect, dataSourceType)
     } else {
       new MergeDatabaseDialect(options, jdbcDialect, dataSourceType)
@@ -98,6 +100,14 @@ object JdbcDialectUtils {
     new DataTunnelException(
       s"""Column "${col.name}" not found in schema $tableSchema"""
     )
+  }
+
+  def quoteIdentifier(dataSourceType: DataSourceType, colName: String): String = {
+    if (dataSourceType == DataSourceType.MYSQL) {
+      s"`$colName`"
+    } else {
+      s""""$colName""""
+    }
   }
 }
 

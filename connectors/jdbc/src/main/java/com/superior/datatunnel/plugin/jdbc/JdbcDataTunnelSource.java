@@ -109,7 +109,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect =
                 JdbcDialectHolder.buildJdbcDialect(dsType, null, connection);
         List<String> schemaNames = getSchemaNames(schemaName, beeJdbcDialect);
-        List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, beeJdbcDialect);
+        List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dataSourceType, beeJdbcDialect);
         if (tableNames.isEmpty()) {
             throw new DataTunnelException("没有找到匹配的表, schemaName: " + schemaName + ", tableName: " + tableName);
         }
@@ -224,21 +224,26 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     }
 
     private List<Pair<String, String>> getTablesNames(
-            List<String> schemaNames, String tableName, com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
+            List<String> schemaNames, String tableName, DataSourceType dataSourceType,
+            com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
         Predicate<String> predicate = Predicates.includes(tableName);
         List<Pair<String, String>> list = Lists.newArrayList();
         for (String schemaName : schemaNames) {
             String schema = CommonUtils.cleanQuote(schemaName);
             List<String> tableNames = dialect.getTableNames(schema);
 
+            String quoteSchemaName = JdbcDialectUtils.quoteIdentifier(dataSourceType, schemaName);
             for (String name : tableNames) {
                 if (predicate.test(name)) {
-                    list.add(Pair.of(schemaName, name));
+                    String quoteName = JdbcDialectUtils.quoteIdentifier(dataSourceType, name);
+                    list.add(Pair.of(quoteSchemaName, quoteName));
                 }
             }
         }
         return list;
     }
+
+
 
     private JDBCOptions buildJDBCOptions(String url, String dbtable, JdbcDataTunnelSourceOption sourceOption) {
         Map<String, String> params = sourceOption.getParams();
