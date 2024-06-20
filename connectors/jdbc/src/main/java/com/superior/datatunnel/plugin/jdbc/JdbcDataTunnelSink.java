@@ -71,7 +71,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             if (StringUtils.isBlank(schemaName)) {
                 schemaName = sinkOption.getDatabaseName();
             }
-            String fullTableName = schemaName + "." + sinkOption.getTableName();
+            schemaName = JdbcDialectUtils.quoteIdentifier(dataSourceType, schemaName);
+            String tableName = JdbcDialectUtils.quoteIdentifier(dataSourceType, sinkOption.getTableName());
+            String fullTableName = schemaName + "." + tableName;
 
             String username = sinkOption.getUsername();
             String password = sinkOption.getPassword();

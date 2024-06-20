@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.postgre
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Mysql2GreenPlumnCopyFromDemo {
+object GreenPlumn2MysqlDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -18,26 +18,24 @@ object Mysql2GreenPlumnCopyFromDemo {
             .getOrCreate()
 
         val sql1 = """
-            DATATUNNEL SOURCE("mysql") OPTIONS (
-              username = "root",
-              password = "Datac@123",
-              host = '172.18.1.55',
-              port = 3306,
-              databaseName = 'data_dev5.0.0',
-              tableName = 'interface_call_log',
-              columns = ["*"]
-            ) 
-            SINK("greenplum") OPTIONS (
+            DATATUNNEL SOURCE("greenplum") OPTIONS (
               username = "gpadmin",
               password = "gpadmin",
               host = '172.18.1.190',
               port = 5432,
-              truncate = true,
               databaseName = 'test',
               schemaName = 'public',
               tableName = 'interface_call_log',
-              writeMode = 'bulkinsert',
               columns = ["*"])
+            SINK("mysql") OPTIONS (
+              "username" = "root",
+              "password" = "root2023",
+              "jdbcUrl" = "jdbc:mysql://172.18.5.44:3306?allowLoadLocalInfile=true",
+              "schemaName" = "demos.1.0",
+              tableName = 'interface_call_log',
+              writeMode = 'bulkinsert',
+              columns = ["*"]
+            ) 
         """.trimIndent()
 
         spark.sql(sql1)

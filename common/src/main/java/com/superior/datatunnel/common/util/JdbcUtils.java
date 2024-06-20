@@ -32,7 +32,7 @@ public class JdbcUtils {
             if (StringUtils.isNotBlank(databaseName)) {
                 url += "/" + databaseName;
             }
-        } else if (POSTGRESQL == dsType || GAUSSDWS == dsType) {
+        } else if (POSTGRESQL == dsType || GAUSSDWS == dsType || GREENPLUM == dsType || HASHDATA == dsType) {
             url = "jdbc:postgresql://" + host + ":" + port;
             if (StringUtils.isNotBlank(databaseName)) {
                 url += "/" + databaseName;
@@ -46,11 +46,6 @@ public class JdbcUtils {
                     + ";trustServerCertificate=true";
         } else if (HANA == dsType) {
             url = "jdbc:sap://" + host + ":" + port + "?reconnect=true";
-        } else if (GREENPLUM == dsType) {
-            url = "jdbc:pivotal:greenplum://" + host + ":" + port;
-            if (StringUtils.isNotBlank(databaseName)) {
-                url += "/" + databaseName;
-            }
         } else if (DAMENG == dsType) {
             url = "jdbc:dm://" + host + ":" + port + "/" + databaseName;
         } else if (OCEANBASE == dsType) {
