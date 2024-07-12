@@ -71,7 +71,7 @@ datatunnel help (source | sink | all) ('数据源类型名称')
 
 ## 支持数据源
 
-JDBC 写入支持Append，Overwrite, Upsert，如果是Postgresql 数据库，支持Copy From 导入数据，Copy From 支持Upsert 能力
+JDBC 写入支持Append，Overwrite, Upsert, bulkInsert。bulkInsert 支持mysql（load data），Postgresql(基于copy from，兼容pg数据库都可以)，
 
 | 数据源                           | Reader | Writer    | 文档                                                                                                                                                                              |
 |:------------------------------------------|:----------| :------      |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
