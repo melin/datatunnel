@@ -224,7 +224,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     }
 
     private List<Pair<String, String>> getTablesNames(
-            List<String> schemaNames, String tableName, DataSourceType dataSourceType,
+            List<String> schemaNames,
+            String tableName,
+            DataSourceType dataSourceType,
             com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
         Predicate<String> predicate = Predicates.includes(tableName);
         List<Pair<String, String>> list = Lists.newArrayList();
@@ -242,8 +244,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         }
         return list;
     }
-
-
 
     private JDBCOptions buildJDBCOptions(String url, String dbtable, JdbcDataTunnelSourceOption sourceOption) {
         Map<String, String> params = sourceOption.getParams();
