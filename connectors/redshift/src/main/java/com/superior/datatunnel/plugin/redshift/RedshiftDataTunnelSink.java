@@ -51,10 +51,17 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                 throw new DataTunnelException("UPSERT mode, upsertKeyColumns can not blank");
             }
 
-            // preactions
             tableName = tableName + "_" + RandomUniqueId.getNewLowerString(12);
             dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
             // RedshiftWriter 自动创建不存在的表
+
+            // preactions
+            // reshift connector 会先创建表，需要删除掉
+            String dropTempTableSql = "DROP TABLE IF EXISTS " + dbtable;
+            preActions = ArrayUtils.add(preActions, dropTempTableSql);
+
+            String createTempTableSql = "CREATE TABLE " + dbtable + " AS SELECT * FROM " + oldDbtable + " WHERE 1=2;";
+            preActions = ArrayUtils.add(preActions, createTempTableSql);
 
             String where = Arrays.stream(upsertKeyColumns)
                     .map(col -> dbtable + "." + col + " = " + oldDbtable + "." + col)

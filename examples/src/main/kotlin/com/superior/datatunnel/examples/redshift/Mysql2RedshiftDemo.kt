@@ -26,23 +26,21 @@ object Mysql2RedshiftDemo {
                 host = '172.18.5.44',
                 port = 3306,
                 databaseName = 'demos',
-                tableName = 'users',
-                columns = ["*"],
-                sourceTempView='tdl_users'
+                tableName = 'rd_orders',
+                columns = ["*"]
             ) 
             SINK("redshift") OPTIONS (
                 username = "admin",
                 password = "Admin2024",
-                jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
+                jdbcUrl = 'jdbc:redshift://default-workgroup.480976988805.us-east-1.redshift-serverless.amazonaws.com:5439/dev',
                 schemaName = 'public',
-                tableName = 'users',
+                tableName = 'orders',
                 writeMode = 'upsert',
                 upsertKeyColumns = ['id'],
                 tempdir = 's3a://datacyber/redshift_temp/',
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
-                preActions = ["DELETE FROM public.users where id=3"],
                 iamRole = '${iamRole}',
                 columns = ["*"]
             ) 
