@@ -1,6 +1,8 @@
 package com.superior.datatunnel.plugin.redshift;
 
 import org.apache.spark.sql.execution.datasources.jdbc.DriverRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
@@ -16,6 +18,8 @@ import java.sql.ResultSetMetaData;
 import java.util.Properties;
 
 public class RedshiftUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RedshiftUtils.class);
 
     public static Credentials queryCredentials(String accessKeyId, String secretAccessKey, String region, String iamRole) {
         StsClient stsClient = StsClient.builder()
@@ -62,7 +66,8 @@ public class RedshiftUtils {
             }
             return columns;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOG.error("redshift queryTableColumnNames failed: " + e.getMessage());
+            return null;
         }
     }
 }

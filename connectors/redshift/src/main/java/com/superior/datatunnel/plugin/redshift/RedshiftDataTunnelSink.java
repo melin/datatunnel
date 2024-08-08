@@ -107,12 +107,14 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         // 如果输入表字段和输出表字段位置不一致，调整位置。
         Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
         String[] sinkColumns = RedshiftUtils.queryTableColumnNames(connection, oldDbtable);
-        String[] sourceColumns = dataset.schema().fieldNames();
-        if (sinkColumns.length != sourceColumns.length) {
-            throw new DataTunnelException("source 和 sink 字段数量不一致");
-        }
-        if (!Arrays.equals(sinkColumns, sourceColumns)) {
-            dataset = dataset.selectExpr(sinkColumns);
+        if (sinkColumns != null) { // sink 表不存在，通过preactions 创建的。
+            String[] sourceColumns = dataset.schema().fieldNames();
+            if (sinkColumns.length != sourceColumns.length) {
+                throw new DataTunnelException("source 和 sink 字段数量不一致");
+            }
+            if (!Arrays.equals(sinkColumns, sourceColumns)) {
+                dataset = dataset.selectExpr(sinkColumns);
+            }
         }
 
         DataFrameWriter dataFrameWriter = dataset.write()

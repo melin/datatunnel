@@ -7,8 +7,8 @@ object Redshift2RedshiftDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val accessKeyId = "xx"
-        val secretAccessKey = "xxxx"
+        val accessKeyId = "xxx"
+        val secretAccessKey = "xx"
         val iamRole = "arn:aws:iam::480976988805:role/service-role/AmazonRedshift-CommandsAccessRole-20230629T144155"
 
         val spark = SparkSession
@@ -38,13 +38,14 @@ object Redshift2RedshiftDemo {
                 password = "Admin2024",
                 jdbcUrl = 'jdbc:redshift://default-workgroup.480976988805.us-east-1.redshift-serverless.amazonaws.com:5439/dev',
                 schemaName = 'public',
-                tableName = 'orders_sink',
+                tableName = 'orders_sink_1',
                 writeMode = 'upsert',
                 upsertKeyColumns = ['id'],
                 tempdir = 's3a://datacyber/redshift_temp/',
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
+                preActions = ["CREATE TABLE public.orders_sink_1 AS SELECT * FROM public.orders_sink WHERE 1=2;"],
                 iamRole = '${iamRole}',
                 columns = ["*"]
             ) 
