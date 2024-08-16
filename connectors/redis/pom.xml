@@ -23,5 +23,17 @@
             <version>${jedis.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.redislabs</groupId>
+            <artifactId>spark-redis_2.12</artifactId>
+            <version>${spark-redis.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 </project>

@@ -1,5 +1,6 @@
 package org.apache.spark.sql.datatunnel.sql
 
+import com.gitee.melin.bee.util.JsonUtils
 import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
 import com.superior.datatunnel.api.model.{
   DataTunnelSinkOption,
@@ -13,9 +14,9 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SparkSession}
 
+import java.util
 import scala.collection.JavaConverters._
 
 /** @author
@@ -134,7 +135,27 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext)
     val schemaInfo = df.schema.treeString(Int.MaxValue)
     LogUtils.info("source schema: \n" + schemaInfo)
     sinkConnector.sink(df, context)
+
+    printMetrics(sparkSession);
     Seq.empty[Row]
+  }
+
+  private def printMetrics(spark: SparkSession): Unit = {
+    val metrics = new util.ArrayList[util.HashMap[String, String]]()
+    spark.sharedState.statusStore
+      .executionsList()
+      .foreach(execution => {
+        val map = new util.HashMap[String, String]
+        map.put("executionId", execution.executionId.toString)
+        execution.metrics.foreach(metric => {
+          val numPartsOpt = execution.metricValues.get(metric.accumulatorId)
+          if (numPartsOpt.isDefined) {
+            map.put(metric.name, numPartsOpt.get)
+          }
+        })
+      })
+
+    logInfo("execution metrics:" + JsonUtils.toJSONString(metrics))
   }
 
   def validateOptions(
