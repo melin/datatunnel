@@ -22,16 +22,18 @@ object Redshift2LogDemo {
         val sql = """
             DATATUNNEL SOURCE("redshift") OPTIONS (
                 username = "admin",
-                password = "Admin2024",
-                jdbcUrl = 'jdbc:redshift://redshift-cluster-1.cvytjdhanbq8.us-east-1.redshift.amazonaws.com:5439/dev',
+                password = "xxx",
+                jdbcUrl = 'jdbc:redshift://default-workgroup.480976988805.us-east-1.redshift-serverless.amazonaws.com:5439/dev',
                 schemaName = 'public',
-                tableName = 'category',
+                tableName = 'orders',
                 tempdir = 's3a://datacyber/redshift_temp/',
                 region = 'us-east-1',
                 accessKeyId = '${accessKeyId}',
                 secretAccessKey = '${secretAccessKey}',
                 iamRole = '${iamRole}',
-                columns = ["*"]
+                columns = ["*"],
+                properties.jdbc.LogPath = "/dev/stdout",
+                properties.jdbc.LogLevel = 3
             ) 
             SINK("log")
         """.trimIndent()
