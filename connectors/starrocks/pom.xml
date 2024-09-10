@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.starrocks</groupId>
             <artifactId>starrocks-spark-connector-3.5_2.12</artifactId>
-            <version>1.1.2</version>
+            <version>1.1.2-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>
