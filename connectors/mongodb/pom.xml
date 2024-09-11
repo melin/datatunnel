@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.mongodb.spark</groupId>
             <artifactId>mongo-spark-connector_2.12</artifactId>
-            <version>10.3.0</version>
+            <version>10.4.0</version>
         </dependency>
     </dependencies>
 
