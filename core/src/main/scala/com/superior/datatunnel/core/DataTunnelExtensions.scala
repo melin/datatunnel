@@ -35,7 +35,6 @@ class DataTunnelExtensions()
 
           val enabled =
             session.conf.get("spark.datatunnel.metrics.enabled", "true")
-          logInfo("spark.datatunnel.metrics.enabled: " + enabled)
           if (!"true".equals(enabled)) {
             return
           }
