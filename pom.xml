@@ -43,7 +43,7 @@
         <lombok.version>1.18.34</lombok.version>
 
         <awssdk.version>2.21.20</awssdk.version>
-        <aws.java.sdk.version>1.12.586</aws.java.sdk.version>
+        <aws.java.sdk.version>1.12.770</aws.java.sdk.version>
         <hadoop.version>3.0.0-cdh6.3.4</hadoop.version>
         <hive.version>2.1.1-cdh6.3.4</hive.version>
 
@@ -106,6 +106,42 @@
                         <artifactId>javax.servlet.jsp</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-aws</artifactId>
+                <version>${hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.amazonaws</groupId>
+                        <artifactId>aws-java-sdk-bundle</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-aliyun</artifactId>
+                <version>${hadoop.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
