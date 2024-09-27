@@ -1,8 +1,15 @@
 package com.superior.datatunnel.core;
 
+import static com.superior.datatunnel.api.DataSourceType.DELTA;
+import static com.superior.datatunnel.api.DataSourceType.HUDI;
+import static com.superior.datatunnel.api.DataSourceType.KAFKA;
+import static com.superior.datatunnel.api.DataSourceType.LOG;
+import static com.superior.datatunnel.api.DataSourceType.PAIMON;
+
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.util.CommonUtils;
 import io.github.melin.superior.common.relational.Statement;
@@ -20,6 +27,10 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 
 public class DataTunnelUtils {
+
+    // 不支持流失写入类型
+    public static final List<DataSourceType> SUPPORT_STREAMING_SINKS =
+            Lists.newArrayList(HUDI, PAIMON, DELTA, LOG, KAFKA);
 
     private static final String MASK_CHARS = "******";
 

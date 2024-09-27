@@ -21,6 +21,10 @@ public enum DataSourceType {
     STARROCKS,
 
     HIVE,
+    HUDI,
+    PAIMON,
+    DELTA,
+
     SPARK, // HIVE 别名
     KAFKA,
     CLICKHOUSE,

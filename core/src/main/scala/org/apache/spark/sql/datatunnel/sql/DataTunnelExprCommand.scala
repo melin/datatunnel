@@ -8,6 +8,8 @@ import com.superior.datatunnel.api.model.{
 }
 import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
+import com.superior.datatunnel.api.DataSourceType._
+import com.superior.datatunnel.core.DataTunnelUtils._
 import io.github.melin.jobserver.spark.api.LogUtils
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelExprContext
 import org.apache.commons.lang3.StringUtils
@@ -38,6 +40,10 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext)
 
     val sourceType = DataSourceType.valueOf(sourceName.toUpperCase)
     val sinkType = DataSourceType.valueOf(sinkName.toUpperCase)
+
+    if (KAFKA == sourceType && !SUPPORT_STREAMING_SINKS.contains(sinkType)) {
+      throw new DataTunnelException("kafka 数据源, 不支持写入: " + sinkType)
+    }
 
     val (sourceConnector, sinkConnector) =
       Utils.getDataTunnelConnector(sourceType, sinkType)
@@ -127,16 +133,20 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext)
         "transfrom 存在，source options 必须指定 sourceTempView"
       )
     } else if (StringUtils.isNotBlank(transfromSql)) {
-      df.createTempView(sourceOption.getSourceTempView)
-      df = sparkSession.sql(transfromSql)
+      if (KAFKA != sourceType) {
+        df.createTempView(sourceOption.getSourceTempView)
+        df = sparkSession.sql(transfromSql)
+      }
     }
 
-    sinkConnector.createTable(df, context)
     val schemaInfo = df.schema.treeString(Int.MaxValue)
     LogUtils.info("source schema: \n" + schemaInfo)
-    sinkConnector.sink(df, context)
 
-    printMetrics(sparkSession);
+    if (KAFKA != sourceType) {
+      sinkConnector.createTable(df, context)
+      sinkConnector.sink(df, context)
+      printMetrics(sparkSession);
+    }
     Seq.empty[Row]
   }
 

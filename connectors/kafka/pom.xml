@@ -18,6 +18,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.hudi</groupId>
+            <artifactId>hudi-spark3.5.x_2.12</artifactId>
+            <version>0.15.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
@@ -36,6 +43,12 @@
             <artifactId>spark-sql-kafka-0-10_${scala.bin.version}</artifactId>
             <version>${spark.version}</version>
             <!--<scope>${libScope}</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-hive</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
