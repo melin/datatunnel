@@ -1,11 +1,7 @@
 package org.apache.spark.sql.odps.writer
 
 import com.aliyun.odps.Column
-import com.aliyun.odps.cupid.table.v1.writer.{
-  FileWriter,
-  FileWriterBuilder,
-  WriteSessionInfo
-}
+import com.aliyun.odps.cupid.table.v1.writer.{FileWriter, FileWriterBuilder, WriteSessionInfo}
 import com.aliyun.odps.data.ArrayRecord
 import org.apache.spark.sql.odps.converter.TypesConverter
 import org.apache.spark.sql.catalyst.InternalRow
@@ -81,8 +77,7 @@ class SinglePartitionWriter(
       _currentWriter = Option(newWriter())
     } else if (_statsRecordCount > _MIN_FILE_LINE) {
       if (_averageSizeOneRow == 0) {
-        _averageSizeOneRow =
-          _currentWriter.get.getBytesWritten / _currentWriter.get.getRowsWritten
+        _averageSizeOneRow = _currentWriter.get.getBytesWritten / _currentWriter.get.getRowsWritten
       }
 
       val totalSize = _averageSizeOneRow * _statsRecordCount

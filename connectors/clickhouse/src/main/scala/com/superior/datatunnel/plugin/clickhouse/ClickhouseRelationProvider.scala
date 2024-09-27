@@ -1,17 +1,9 @@
 package com.superior.datatunnel.plugin.clickhouse
 
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
-import org.apache.spark.sql.sources.{
-  BaseRelation,
-  CreatableRelationProvider,
-  DataSourceRegister,
-  RelationProvider
-}
+import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 
-class ClickhouseRelationProvider
-    extends CreatableRelationProvider
-    with RelationProvider
-    with DataSourceRegister {
+class ClickhouseRelationProvider extends CreatableRelationProvider with RelationProvider with DataSourceRegister {
 
   override def shortName(): String = "clickhouse"
 

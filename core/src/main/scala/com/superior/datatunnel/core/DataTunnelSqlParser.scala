@@ -2,24 +2,10 @@ package com.superior.datatunnel.core
 
 import com.gitee.melin.bee.util.SqlUtils
 import io.github.melin.superior.common.relational.io.ExportTable
-import io.github.melin.superior.parser.spark.{
-  SparkSqlHelper,
-  SparkSqlPostProcessor
-}
+import io.github.melin.superior.parser.spark.{SparkSqlHelper, SparkSqlPostProcessor}
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser._
-import io.github.melin.superior.parser.spark.antlr4.{
-  SparkSqlLexer,
-  SparkSqlParser,
-  SparkSqlParserBaseVisitor
-}
-import org.antlr.v4.runtime.{
-  CharStream,
-  CharStreams,
-  CodePointCharStream,
-  CommonTokenStream,
-  IntStream,
-  misc
-}
+import io.github.melin.superior.parser.spark.antlr4.{SparkSqlLexer, SparkSqlParser, SparkSqlParserBaseVisitor}
+import org.antlr.v4.runtime.{CharStream, CharStreams, CodePointCharStream, CommonTokenStream, IntStream, misc}
 import org.antlr.v4.runtime.atn.PredictionMode
 import org.antlr.v4.runtime.misc.{Interval, ParseCancellationException}
 import org.apache.commons.lang3.StringUtils
@@ -27,11 +13,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{AnalysisException, SparkSession}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.{FunctionIdentifier, TableIdentifier}
-import org.apache.spark.sql.catalyst.parser.{
-  ParseErrorListener,
-  ParseException,
-  ParserInterface
-}
+import org.apache.spark.sql.catalyst.parser.{ParseErrorListener, ParseException, ParserInterface}
 import org.apache.spark.sql.catalyst.parser.ParserUtils.withOrigin
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.trees.Origin
@@ -47,18 +29,15 @@ import scala.collection.JavaConverters._
 
 /** huaixin 2021/12/27 2:48 PM
   */
-class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface)
-    extends ParserInterface
-    with Logging {
+class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface) extends ParserInterface with Logging {
 
-  override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) {
-    parser =>
-      val sql = StringUtils.trim(SqlUtils.cleanSqlComment(sqlText))
-      val builder = new DtunnelAstBuilder(sql)
-      builder.visit(parser.singleStatement()) match {
-        case plan: LogicalPlan => plan
-        case _                 => delegate.parsePlan(sqlText)
-      }
+  override def parsePlan(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
+    val sql = StringUtils.trim(SqlUtils.cleanSqlComment(sqlText))
+    val builder = new DtunnelAstBuilder(sql)
+    builder.visit(parser.singleStatement()) match {
+      case plan: LogicalPlan => plan
+      case _                 => delegate.parsePlan(sqlText)
+    }
   }
 
   protected def parse[T](command: String)(toResult: SparkSqlParser => T): T = {
@@ -132,8 +111,8 @@ class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface)
     delegate.parseMultipartIdentifier(sqlText)
   }
 
-  /** Creates StructType for a given SQL string, which is a comma separated list
-    * of field definitions which will preserve the correct Hive metadata.
+  /** Creates StructType for a given SQL string, which is a comma separated list of field definitions which will
+    * preserve the correct Hive metadata.
     */
   override def parseTableSchema(sqlText: String): StructType = {
     delegate.parseTableSchema(sqlText)
@@ -144,9 +123,7 @@ class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface)
   }
 }
 
-class DtunnelAstBuilder(val sqlText: String)
-    extends SparkSqlParserBaseVisitor[AnyRef]
-    with Logging {
+class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[AnyRef] with Logging {
 
   override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan =
     withOrigin(ctx) {

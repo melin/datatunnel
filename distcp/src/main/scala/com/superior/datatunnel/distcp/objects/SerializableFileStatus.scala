@@ -4,11 +4,9 @@ import java.net.URI
 
 import org.apache.hadoop.fs.{FileStatus, Path}
 
-/** Case class to represent a simple status of a File. Exists because
-  * [[FileStatus]] is not serializable
+/** Case class to represent a simple status of a File. Exists because [[FileStatus]] is not serializable
   */
-case class SerializableFileStatus(uri: URI, len: Long, fileType: FileType)
-    extends Serializable {
+case class SerializableFileStatus(uri: URI, len: Long, fileType: FileType) extends Serializable {
   def getPath: Path = new Path(uri)
 
   def getLen: Long = len

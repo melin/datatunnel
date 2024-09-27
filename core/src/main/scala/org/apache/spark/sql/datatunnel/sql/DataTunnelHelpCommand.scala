@@ -16,9 +16,7 @@ import java.util
 /** @author
   *   melin 2021/6/28 2:23 下午
   */
-case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext)
-    extends LeafRunnableCommand
-    with Logging {
+case class DataTunnelHelpCommand(sqlText: String, ctx: DatatunnelHelpContext) extends LeafRunnableCommand with Logging {
 
   private val OUTPUT_TYPE = new StructType(
     Array[StructField](

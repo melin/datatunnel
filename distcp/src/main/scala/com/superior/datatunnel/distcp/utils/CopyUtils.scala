@@ -279,8 +279,8 @@ object CopyUtils extends Logging {
     }
   }
 
-  /** Check whether two files match, based on length and checksum. If either of
-    * the checksums are None, then checksums are not used for comparison.
+  /** Check whether two files match, based on length and checksum. If either of the checksums are None, then checksums
+    * are not used for comparison.
     */
   private[utils] def filesAreIdentical(
       f1: SerializableFileStatus,
@@ -313,8 +313,7 @@ object CopyUtils extends Logging {
 
   }
 
-  /** Internal copy function Only pass in true for removeExisting if the file
-    * actually exists
+  /** Internal copy function Only pass in true for removeExisting if the file actually exists
     */
   def performCopy(
       sourceFS: FileSystem,

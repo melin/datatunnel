@@ -53,20 +53,18 @@ class RedisSourceRelation(
         // the following can be optimized to not create a map
         val rowsWithKey: Map[String, Row] =
           batch.map(row => dataKeyId(row) -> row).toMap
-        groupKeysByNode(redisConfig.hosts, rowsWithKey.keysIterator).foreach {
-          case (node, keys) =>
-            val conn = node.connect()
-            foreachWithPipeline(conn, maxPipelineSize, keys) {
-              (pipeline, key) =>
-                val row = rowsWithKey(key)
-                val encodedRow = if (valueColumn.isDefined) {
-                  row.json
-                } else {
-                  row.getAs(valueColumn.get).toString
-                }
-                save(pipeline, key, encodedRow, ttl)
+        groupKeysByNode(redisConfig.hosts, rowsWithKey.keysIterator).foreach { case (node, keys) =>
+          val conn = node.connect()
+          foreachWithPipeline(conn, maxPipelineSize, keys) { (pipeline, key) =>
+            val row = rowsWithKey(key)
+            val encodedRow = if (valueColumn.isDefined) {
+              row.json
+            } else {
+              row.getAs(valueColumn.get).toString
             }
-            conn.close()
+            save(pipeline, key, encodedRow, ttl)
+          }
+          conn.close()
         }
       }
     }
@@ -162,11 +160,10 @@ object RedisSourceRelation {
       .iterator
   }
 
-  /** Executes a pipeline function for each item in the sequence. No response is
-    * returned.
+  /** Executes a pipeline function for each item in the sequence. No response is returned.
     *
-    * Ensures that a new pipeline is created if the number of operations exceeds
-    * the given maxPipelineSize while iterating over the items.
+    * Ensures that a new pipeline is created if the number of operations exceeds the given maxPipelineSize while
+    * iterating over the items.
     *
     * @param conn
     *   jedis connection

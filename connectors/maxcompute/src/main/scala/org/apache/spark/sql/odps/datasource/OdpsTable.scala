@@ -4,11 +4,7 @@ import java.util
 import com.aliyun.odps.cupid.table.v1.util.Options
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.odps.reader.OdpsScanBuilder
-import org.apache.spark.sql.connector.catalog.TableCapability.{
-  BATCH_READ,
-  BATCH_WRITE,
-  OVERWRITE_BY_FILTER
-}
+import org.apache.spark.sql.connector.catalog.TableCapability.{BATCH_READ, BATCH_WRITE, OVERWRITE_BY_FILTER}
 import org.apache.spark.sql.connector.catalog._
 import org.apache.spark.sql.connector.read.ScanBuilder
 import org.apache.spark.sql.connector.write.{LogicalWriteInfo, WriteBuilder}

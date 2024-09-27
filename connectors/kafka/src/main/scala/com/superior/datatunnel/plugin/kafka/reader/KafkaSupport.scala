@@ -40,9 +40,7 @@ object KafkaSupport {
     if (StringUtils.isNotBlank(sourceOption.getKafkaGroupId)) {
       params.put("kafka.group.id", sourceOption.getKafkaGroupId)
     }
-    if (
-      StringUtils.isNotBlank(sourceOption.getStartingOffsetsByTimestampStrategy)
-    ) {
+    if (StringUtils.isNotBlank(sourceOption.getStartingOffsetsByTimestampStrategy)) {
       params.put(
         "startingOffsetsByTimestampStrategy",
         sourceOption.getStartingOffsetsByTimestampStrategy

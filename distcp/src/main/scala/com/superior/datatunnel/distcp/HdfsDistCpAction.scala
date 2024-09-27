@@ -161,10 +161,9 @@ object HdfsDistCpAction extends Logging {
       iterator: Iterator[B]
   ) {
 
-    /** Scan over an iterator, mapping as we go with `action`, but making a
-      * decision on which objects to actually keep using a set of what objects
-      * have been seen and the `skip` function. Similar to a combining `collect`
-      * and `foldLeft`.
+    /** Scan over an iterator, mapping as we go with `action`, but making a decision on which objects to actually keep
+      * using a set of what objects have been seen and the `skip` function. Similar to a combining `collect` and
+      * `foldLeft`.
       *
       * @param skip
       *   Should a mapped version of this element not be included in the output
@@ -190,10 +189,9 @@ object HdfsDistCpAction extends Logging {
 
   }
 
-  /** Batch the given RDD into groups of files depending on
-    * [[SparkDistCPOptions.maxFilesPerTask]] and
-    * [[SparkDistCPOptions.maxBytesPerTask]] and repartition the RDD so files in
-    * the same batches are in the same partitions
+  /** Batch the given RDD into groups of files depending on [[SparkDistCPOptions.maxFilesPerTask]] and
+    * [[SparkDistCPOptions.maxBytesPerTask]] and repartition the RDD so files in the same batches are in the same
+    * partitions
     */
   private[distcp] def batchAndPartitionFiles(
       rdd: RDD[CopyDefinitionWithDependencies],
@@ -213,8 +211,7 @@ object HdfsDistCpAction extends Logging {
     batched.partitionBy(CopyPartitioner(batched))
   }
 
-  /** Key the RDD within partitions based on batches of files based on
-    * [[SparkDistCPOptions.maxFilesPerTask]] and
+  /** Key the RDD within partitions based on batches of files based on [[SparkDistCPOptions.maxFilesPerTask]] and
     * [[SparkDistCPOptions.maxBytesPerTask]] thresholds
     */
   private[distcp] def generateBatchedFileKeys(

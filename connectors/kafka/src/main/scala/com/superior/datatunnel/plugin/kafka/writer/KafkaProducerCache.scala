@@ -3,10 +3,7 @@ package com.superior.datatunnel.plugin.kafka.writer
 import java.util.concurrent.{Callable, ExecutionException, TimeUnit}
 
 import com.google.common.cache._
-import com.google.common.util.concurrent.{
-  ExecutionError,
-  UncheckedExecutionException
-}
+import com.google.common.util.concurrent.{ExecutionError, UncheckedExecutionException}
 import org.apache.kafka.clients.producer.KafkaProducer
 
 import scala.collection.JavaConverters._
@@ -53,13 +50,11 @@ object KafkaProducerCache {
         )
         .asInstanceOf[KafkaProducer[K, V]]
     } catch {
-      case e @ (_: ExecutionException | _: UncheckedExecutionException |
-          _: ExecutionError) if e.getCause != null =>
+      case e @ (_: ExecutionException | _: UncheckedExecutionException | _: ExecutionError) if e.getCause != null =>
         throw e.getCause
     }
 
-  /** Flush and close the [[KafkaProducer]] in the cache associated with this
-    * config
+  /** Flush and close the [[KafkaProducer]] in the cache associated with this config
     *
     * @param producerConfig
     *   producer configuration associated to a [[KafkaProducer]]

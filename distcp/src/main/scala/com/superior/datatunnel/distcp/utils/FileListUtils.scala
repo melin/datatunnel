@@ -22,8 +22,7 @@ object FileListUtils extends Logging {
 
   /** Turn a [[RemoteIterator]] into a Scala [[Iterator]]
     */
-  private implicit class ScalaRemoteIterator[T](underlying: RemoteIterator[T])
-      extends Iterator[T] {
+  private implicit class ScalaRemoteIterator[T](underlying: RemoteIterator[T]) extends Iterator[T] {
     override def hasNext: Boolean = underlying.hasNext
 
     override def next(): T = underlying.next()
@@ -33,9 +32,8 @@ object FileListUtils extends Logging {
     filters.exists(_.findFirstIn(path.toString).isDefined)
   }
 
-  /** Recursively list files in a given directory on a given FileSystem. This
-    * will be done in parallel depending on the value of `threads`. An optional
-    * list of regex filters to filter out files can be given.
+  /** Recursively list files in a given directory on a given FileSystem. This will be done in parallel depending on the
+    * value of `threads`. An optional list of regex filters to filter out files can be given.
     *
     * @param fs
     *   FileSystem to search
@@ -46,11 +44,9 @@ object FileListUtils extends Logging {
     * @param includePathRootInDependents
     *   Whether to include the root path `path` in the search output
     * @param includes
-    *   A list of regex filters that will select only results that match one or
-    *   more of the filters
+    *   A list of regex filters that will select only results that match one or more of the filters
     * @param excludes
-    *   A list of regex filters that will filter out any results that match one
-    *   or more of the filters
+    *   A list of regex filters that will filter out any results that match one or more of the filters
     */
   def listFiles(
       fs: FileSystem,
@@ -163,9 +159,8 @@ object FileListUtils extends Logging {
 
   }
 
-  /** List all files in the given source URIs. This function will throw an
-    * exception if any source files collide on identical destination locations
-    * and any collisions on any cases where a source files is the same as the
+  /** List all files in the given source URIs. This function will throw an exception if any source files collide on
+    * identical destination locations and any collisions on any cases where a source files is the same as the
     * destination file (copying between the same FileSystem)
     */
   def getSourceFiles(
@@ -244,8 +239,7 @@ object FileListUtils extends Logging {
       .map { case (f, _) => (f.getPath.toUri, f) }
   }
 
-  /** Throw an exception if any source files collide on identical destination
-    * locations
+  /** Throw an exception if any source files collide on identical destination locations
     */
   def handleSourceCollisions(source: RDD[KeyedCopyDefinition]): Unit = {
     val collisions = source
@@ -265,8 +259,8 @@ object FileListUtils extends Logging {
       )
   }
 
-  /** Throw an exception for any collisions on any cases where a source files is
-    * the same as the destination file (copying between the same FileSystem)
+  /** Throw an exception for any collisions on any cases where a source files is the same as the destination file
+    * (copying between the same FileSystem)
     */
   def handleDestCollisions(source: RDD[KeyedCopyDefinition]): Unit = {
 

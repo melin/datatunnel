@@ -110,19 +110,10 @@ object HudiUtils extends Logging {
     val streamingInput = spark.sql(querySql)
     var writer = streamingInput.writeStream
       .format("org.apache.hudi")
-      .option(
-        DataSourceWriteOptions.OPERATION.key,
-        WriteOperationType.INSERT.value
-      )
-      .option(
-        DataSourceWriteOptions.TABLE_TYPE.key,
-        HoodieTableType.MERGE_ON_READ.name
-      )
+      .option(DataSourceWriteOptions.OPERATION.key, WriteOperationType.INSERT.value)
+      .option(DataSourceWriteOptions.TABLE_TYPE.key, HoodieTableType.MERGE_ON_READ.name)
       .option(DataSourceWriteOptions.RECORDKEY_FIELD.key, primaryKey)
-      .option(
-        DataSourceWriteOptions.PARTITIONPATH_FIELD.key,
-        PARTITION_COL_NAME
-      )
+      .option(DataSourceWriteOptions.PARTITIONPATH_FIELD.key, PARTITION_COL_NAME)
       .option(DataSourceWriteOptions.HIVE_STYLE_PARTITIONING.key, "true")
       .option(DataSourceWriteOptions.PRECOMBINE_FIELD.key, preCombineField)
       .option(HoodieCompactionConfig.INLINE_COMPACT_NUM_DELTA_COMMITS.key, "5")
@@ -138,18 +129,13 @@ object HudiUtils extends Logging {
       .option(HiveSyncConfigHolder.HIVE_SYNC_MODE.key, "HMS")
       .option(HiveSyncConfigHolder.HIVE_SYNC_ENABLED.key, "true")
       .option(HoodieSyncConfig.META_SYNC_ENABLED.key, "false")
-      .option(
-        HoodieSyncConfig.META_SYNC_PARTITION_FIELDS.key,
-        PARTITION_COL_NAME
-      )
+      .option(HoodieSyncConfig.META_SYNC_PARTITION_FIELDS.key, PARTITION_COL_NAME)
       .option(
         HoodieSyncConfig.META_SYNC_PARTITION_EXTRACTOR_CLASS.key,
         classOf[MultiPartKeysValueExtractor].getCanonicalName
       )
 
-    writer
-      .start(catalogTable.location.toString)
-      .awaitTermination()
+    writer.start(catalogTable.location.toString).awaitTermination()
   }
 
   private def mkCheckpointDir(

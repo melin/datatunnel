@@ -8,8 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 
 object ConnectionPool {
-  @transient private lazy val pools
-      : ConcurrentHashMap[RedisEndpoint, JedisPool] =
+  @transient private lazy val pools: ConcurrentHashMap[RedisEndpoint, JedisPool] =
     new ConcurrentHashMap[RedisEndpoint, JedisPool]()
 
   def connect(re: RedisEndpoint): Jedis = {

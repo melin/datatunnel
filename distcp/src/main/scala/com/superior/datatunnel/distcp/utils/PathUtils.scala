@@ -7,10 +7,9 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 
 object PathUtils {
 
-  /** Qualify a path, making the path both absolute and qualifies with a scheme.
-    * If the input path is not absolute, the default working directory is used.
-    * If the input path does not have a scheme, the default URI used in the
-    * Hadoop Configuration is used.
+  /** Qualify a path, making the path both absolute and qualifies with a scheme. If the input path is not absolute, the
+    * default working directory is used. If the input path does not have a scheme, the default URI used in the Hadoop
+    * Configuration is used.
     */
   def pathToQualifiedPath(
       hadoopConfiguration: Configuration,
@@ -20,11 +19,9 @@ object PathUtils {
     path.makeQualified(fs.getUri, fs.getWorkingDirectory)
   }
 
-  /** Transform a source input path URI into a destination path URI. This
-    * function determines how a source file path is mapped to the destination.
-    * The behaviour is different depending on if update or overwrite is used.
-    * This follows the behaviour of Hadoop DistCP. See the Hadoop DistCP
-    * documentation for more explanation of this behaviour.
+  /** Transform a source input path URI into a destination path URI. This function determines how a source file path is
+    * mapped to the destination. The behaviour is different depending on if update or overwrite is used. This follows
+    * the behaviour of Hadoop DistCP. See the Hadoop DistCP documentation for more explanation of this behaviour.
     *
     * @param file
     *   URI of source file

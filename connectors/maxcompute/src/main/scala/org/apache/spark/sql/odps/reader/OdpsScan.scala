@@ -53,8 +53,8 @@ class OdpsScan(
 
     val recordReader = new SplitReaderBuilder(inputSplit).buildRecordReader()
 
-    /** table schema what was composed of both partition schema and output
-      * DataSchema was different from output DataSchema.
+    /** table schema what was composed of both partition schema and output DataSchema was different from output
+      * DataSchema.
       */
     val outputDataSchema = TableUtils
       .toColumnArray(inputSplit.getReadDataColumns)

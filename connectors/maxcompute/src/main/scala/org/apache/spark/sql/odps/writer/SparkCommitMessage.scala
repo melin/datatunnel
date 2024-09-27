@@ -13,8 +13,7 @@ class SparkCommitMessage() extends WriterCommitMessage {
   private var _msgList =
     new ArrayBuffer[com.aliyun.odps.cupid.table.v1.writer.WriterCommitMessage]
 
-  def innerMsgList()
-      : Array[com.aliyun.odps.cupid.table.v1.writer.WriterCommitMessage] =
+  def innerMsgList(): Array[com.aliyun.odps.cupid.table.v1.writer.WriterCommitMessage] =
     _msgList.toArray
 
   def addMsg(

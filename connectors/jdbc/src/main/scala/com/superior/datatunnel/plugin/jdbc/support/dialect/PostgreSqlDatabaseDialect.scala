@@ -2,17 +2,11 @@ package com.superior.datatunnel.plugin.jdbc.support.dialect
 
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
 import com.superior.datatunnel.plugin.jdbc.support.PostgreSqlHelper.buildUpsertPGSql
-import com.superior.datatunnel.plugin.jdbc.support.{
-  JdbcDialectUtils,
-  PostgreSqlHelper
-}
+import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, PostgreSqlHelper}
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.execution.datasources.jdbc.{
-  JDBCOptions,
-  JdbcOptionsInWrite
-}
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 

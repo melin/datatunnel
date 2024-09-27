@@ -16,8 +16,7 @@ case class SingleCopyDefinition(
     destination: URI
 )
 
-/** Definition of a copy that includes any copying of parent folders this
-  * file/folder depends on
+/** Definition of a copy that includes any copying of parent folders this file/folder depends on
   *
   * @param source
   *   Source file/folder to copy

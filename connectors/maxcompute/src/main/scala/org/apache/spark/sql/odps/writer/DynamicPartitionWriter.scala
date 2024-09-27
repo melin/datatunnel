@@ -1,11 +1,7 @@
 package org.apache.spark.sql.odps.writer
 
 import com.aliyun.odps.Column
-import com.aliyun.odps.cupid.table.v1.writer.{
-  FileWriter,
-  FileWriterBuilder,
-  WriteSessionInfo
-}
+import com.aliyun.odps.cupid.table.v1.writer.{FileWriter, FileWriterBuilder, WriteSessionInfo}
 import com.aliyun.odps.data.ArrayRecord
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.write.{DataWriter, WriterCommitMessage}

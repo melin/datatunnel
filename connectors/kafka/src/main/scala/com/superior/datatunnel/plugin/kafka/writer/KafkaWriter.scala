@@ -74,8 +74,7 @@ abstract class KafkaWriter[T: ClassTag] extends Serializable {
     * @param transformFunc
     *   a function used to transform values of T type into [[ProducerRecord]]s
     * @param callback
-    *   an optional [[Callback]] to be called after each write, default value is
-    *   None.
+    *   an optional [[Callback]] to be called after each write, default value is None.
     */
   def writeToKafka[K, V](
       producerConfig: Map[String, Object],

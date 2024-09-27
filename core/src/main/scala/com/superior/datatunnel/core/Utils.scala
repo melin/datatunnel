@@ -1,12 +1,7 @@
 package com.superior.datatunnel.core
 
 import com.gitee.melin.bee.core.extension.ExtensionLoader
-import com.superior.datatunnel.api.{
-  DataSourceType,
-  DataTunnelSink,
-  DataTunnelSource,
-  DistCpAction
-}
+import com.superior.datatunnel.api.{DataSourceType, DataTunnelSink, DataTunnelSource, DistCpAction}
 
 object Utils {
 

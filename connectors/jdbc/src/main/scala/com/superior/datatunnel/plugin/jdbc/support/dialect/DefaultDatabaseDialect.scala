@@ -7,14 +7,8 @@ import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils._
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.execution.datasources.jdbc.{
-  JDBCOptions,
-  JdbcOptionsInWrite
-}
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{
-  conf,
-  savePartition
-}
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
+import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils.{conf, savePartition}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 

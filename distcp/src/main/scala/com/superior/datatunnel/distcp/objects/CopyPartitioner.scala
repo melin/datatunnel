@@ -3,8 +3,8 @@ package com.superior.datatunnel.distcp.objects
 import org.apache.spark.Partitioner
 import org.apache.spark.rdd.RDD
 
-/** Custom partitioner based on the indexes array containing (partitionid,
-  * number of batches within partition) Will handle missing partitions.
+/** Custom partitioner based on the indexes array containing (partitionid, number of batches within partition) Will
+  * handle missing partitions.
   */
 case class CopyPartitioner(indexes: Array[(Int, Int)]) extends Partitioner {
 
@@ -14,9 +14,8 @@ case class CopyPartitioner(indexes: Array[(Int, Int)]) extends Partitioner {
 
   val partitionOffsets: Map[Int, Int] = {
     indexes
-      .scanRight((-1, numPartitions)) {
-        case ((partition, maxKey), (_, previousOffset)) =>
-          (partition, previousOffset - maxKey - 1)
+      .scanRight((-1, numPartitions)) { case ((partition, maxKey), (_, previousOffset)) =>
+        (partition, previousOffset - maxKey - 1)
       }
       .dropRight(1)
       .toMap

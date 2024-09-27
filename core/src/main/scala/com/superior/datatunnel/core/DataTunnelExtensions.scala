@@ -2,11 +2,7 @@ package com.superior.datatunnel.core
 
 import com.google.common.collect.Maps
 import org.apache.spark.internal.Logging
-import org.apache.spark.scheduler.{
-  SparkListener,
-  SparkListenerJobStart,
-  SparkListenerTaskEnd
-}
+import org.apache.spark.scheduler.{SparkListener, SparkListenerJobStart, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions
 
 import java.util.concurrent.ConcurrentMap
@@ -14,9 +10,7 @@ import scala.collection.JavaConverters._
 
 /** huaixin 2021/12/27 2:47 PM
   */
-class DataTunnelExtensions()
-    extends (SparkSessionExtensions => Unit)
-    with Logging {
+class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Logging {
   override def apply(extensions: SparkSessionExtensions): Unit = {
     extensions.injectParser { (session, parser) =>
       session.sparkContext.addSparkListener(new SparkListener() {

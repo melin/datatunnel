@@ -225,8 +225,7 @@ object TypesConverter {
           UTF8String.fromString(char.getValue.substring(0, char.length()))
         }
       case OdpsType.DATE =>
-        (v: Object) =>
-          DateUtils.getDayOffset(v.asInstanceOf[java.sql.Date]).toInt
+        (v: Object) => DateUtils.getDayOffset(v.asInstanceOf[java.sql.Date]).toInt
       case OdpsType.TIMESTAMP =>
         (v: Object) => v.asInstanceOf[java.time.Instant].toEpochMilli * 1000
       case OdpsType.FLOAT    => (v: Object) => v.asInstanceOf[java.lang.Float]
@@ -276,9 +275,7 @@ object TypesConverter {
           org.apache.spark.sql.catalyst.InternalRow
             .fromSeq(
               struct.getFieldValues.asScala.zipWithIndex
-                .map(x =>
-                  odpsData2SparkData(struct.getFieldTypeInfo(x._2))(x._1)
-                )
+                .map(x => odpsData2SparkData(struct.getFieldTypeInfo(x._2))(x._1))
             )
         }
     }

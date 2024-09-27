@@ -17,8 +17,7 @@ import redis.clients.jedis.{Jedis, Protocol}
 import scala.collection.JavaConversions._
 import scala.util.Try
 
-/** RedisEndpoint represents a redis connection endpoint info: host, port, auth
-  * password db number, timeout and ssl mode
+/** RedisEndpoint represents a redis connection endpoint info: host, port, auth password db number, timeout and ssl mode
   *
   * @param host
   *   the redis host or ip
@@ -46,9 +45,7 @@ case class RedisEndpoint(
   /** Constructor with Jedis URI
     *
     * @param uri
-    *   connection URI in the form of
-    *   redis://$user:$password@$host:$port/[dbnum]. Use "rediss://" scheme for
-    *   redis SSL
+    *   connection URI in the form of redis://$user:$password@$host:$port/[dbnum]. Use "rediss://" scheme for redis SSL
     */
   def this(uri: URI) {
     this(
@@ -65,16 +62,13 @@ case class RedisEndpoint(
   /** Constructor with Jedis URI from String
     *
     * @param uri
-    *   connection URI in the form of
-    *   redis://$user:$password@$host:$port/[dbnum]. Use "rediss://" scheme for
-    *   redis SSL
+    *   connection URI in the form of redis://$user:$password@$host:$port/[dbnum]. Use "rediss://" scheme for redis SSL
     */
   def this(uri: String) {
     this(URI.create(uri))
   }
 
-  /** Connect tries to open a connection to the redis endpoint, optionally
-    * authenticating and selecting a db
+  /** Connect tries to open a connection to the redis endpoint, optionally authenticating and selecting a db
     *
     * @return
     *   a new Jedis instance
@@ -125,8 +119,7 @@ object RedisConfig {
   def tryToInt(s: String) = Try(s.toInt).toOption
 }
 
-/** RedisConfig holds the state of the cluster nodes, and uses consistent
-  * hashing to map keys to nodes
+/** RedisConfig holds the state of the cluster nodes, and uses consistent hashing to map keys to nodes
   */
 class RedisConfig(val initialHost: RedisEndpoint) extends Serializable {
 

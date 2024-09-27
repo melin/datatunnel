@@ -6,8 +6,7 @@ import java.util.function.{BiConsumer, BiFunction}
 
 import org.apache.spark.util.AccumulatorV2
 
-class ExceptionCountAccumulator
-    extends AccumulatorV2[String, java.util.Map[String, Long]] {
+class ExceptionCountAccumulator extends AccumulatorV2[String, java.util.Map[String, Long]] {
 
   private val _map: java.util.Map[String, Long] =
     Collections.synchronizedMap(new util.HashMap[String, Long]())

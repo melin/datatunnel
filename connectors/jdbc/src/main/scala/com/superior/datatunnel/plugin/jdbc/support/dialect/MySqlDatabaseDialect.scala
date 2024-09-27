@@ -1,17 +1,11 @@
 package com.superior.datatunnel.plugin.jdbc.support.dialect
 import com.gitee.melin.bee.util.JdbcUtils
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
-import com.superior.datatunnel.plugin.jdbc.support.{
-  JdbcDialectUtils,
-  LoadDataSqlHelper
-}
+import com.superior.datatunnel.plugin.jdbc.support.{JdbcDialectUtils, LoadDataSqlHelper}
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.execution.datasources.jdbc.{
-  JDBCOptions,
-  JdbcOptionsInWrite
-}
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
 

@@ -2,16 +2,8 @@ package org.apache.spark.sql.odps.writer
 
 import java.util.Objects
 
-import com.aliyun.odps.cupid.table.v1.writer.{
-  TableWriteSessionBuilder,
-  WriteSessionInfo
-}
-import org.apache.spark.sql.connector.write.{
-  BatchWrite,
-  DataWriterFactory,
-  PhysicalWriteInfo,
-  WriterCommitMessage
-}
+import com.aliyun.odps.cupid.table.v1.writer.{TableWriteSessionBuilder, WriteSessionInfo}
+import org.apache.spark.sql.connector.write.{BatchWrite, DataWriterFactory, PhysicalWriteInfo, WriterCommitMessage}
 
 import scala.collection.JavaConverters._
 

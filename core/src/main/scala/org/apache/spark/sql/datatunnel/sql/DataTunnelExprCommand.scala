@@ -2,10 +2,7 @@ package org.apache.spark.sql.datatunnel.sql
 
 import com.gitee.melin.bee.util.JsonUtils
 import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
-import com.superior.datatunnel.api.model.{
-  DataTunnelSinkOption,
-  DataTunnelSourceOption
-}
+import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
 import com.superior.datatunnel.api.DataSourceType._
@@ -24,9 +21,7 @@ import scala.collection.JavaConverters._
 /** @author
   *   melin 2021/6/28 2:23 下午
   */
-case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext)
-    extends LeafRunnableCommand
-    with Logging {
+case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) extends LeafRunnableCommand with Logging {
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceName = CommonUtils.cleanQuote(ctx.sourceName.getText)

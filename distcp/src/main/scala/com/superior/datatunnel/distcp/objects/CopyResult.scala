@@ -35,15 +35,11 @@ sealed trait DirectoryCreateActionResult extends CopyActionResult
 
 object CopyActionResult {
 
-  object SkippedAlreadyExists
-      extends FileCopyActionResult
-      with DirectoryCreateActionResult
+  object SkippedAlreadyExists extends FileCopyActionResult with DirectoryCreateActionResult
 
   object SkippedIdenticalFileAlreadyExists extends FileCopyActionResult
 
-  object SkippedDryRun
-      extends FileCopyActionResult
-      with DirectoryCreateActionResult
+  object SkippedDryRun extends FileCopyActionResult with DirectoryCreateActionResult
 
   object Created extends DirectoryCreateActionResult
 
@@ -51,9 +47,7 @@ object CopyActionResult {
 
   object OverwrittenOrUpdated extends FileCopyActionResult
 
-  case class Failed(e: Throwable)
-      extends FileCopyActionResult
-      with DirectoryCreateActionResult {
+  case class Failed(e: Throwable) extends FileCopyActionResult with DirectoryCreateActionResult {
     override def message: String = s"${super.message}: ${e.getMessage}"
   }
 

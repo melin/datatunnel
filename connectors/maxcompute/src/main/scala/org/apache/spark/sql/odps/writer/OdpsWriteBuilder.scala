@@ -7,12 +7,7 @@ import com.aliyun.odps.cupid.table.v1.util.Options
 import com.aliyun.odps.cupid.table.v1.writer.TableWriteSessionBuilder
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.odps.datasource.OdpsSourceOptions
-import org.apache.spark.sql.connector.write.{
-  BatchWrite,
-  LogicalWriteInfo,
-  SupportsOverwrite,
-  WriteBuilder
-}
+import org.apache.spark.sql.connector.write.{BatchWrite, LogicalWriteInfo, SupportsOverwrite, WriteBuilder}
 import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.util.CaseInsensitiveStringMap

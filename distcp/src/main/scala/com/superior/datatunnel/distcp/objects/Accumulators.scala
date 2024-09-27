@@ -11,8 +11,7 @@ class Accumulators(sparkSession: SparkSession) extends Serializable {
   def handleResult(result: DistCPResult): Unit = result match {
     case DeleteResult(
           _,
-          DeleteActionResult.SkippedDoesNotExists |
-          DeleteActionResult.SkippedDryRun
+          DeleteActionResult.SkippedDoesNotExists | DeleteActionResult.SkippedDryRun
         ) =>
       deleteOperationsSkipped.add(1)
     case DeleteResult(_, DeleteActionResult.Deleted) =>
@@ -37,8 +36,7 @@ class Accumulators(sparkSession: SparkSession) extends Serializable {
           _,
           _,
           l,
-          CopyActionResult.SkippedAlreadyExists |
-          CopyActionResult.SkippedIdenticalFileAlreadyExists |
+          CopyActionResult.SkippedAlreadyExists | CopyActionResult.SkippedIdenticalFileAlreadyExists |
           CopyActionResult.SkippedDryRun
         ) =>
       filesSkipped.add(1)

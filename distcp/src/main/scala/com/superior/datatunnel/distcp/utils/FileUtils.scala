@@ -59,11 +59,10 @@ object FileUtils {
   )
 
   private def getThreeSigFigs(size: BigDecimal): String = {
-    val (isDecimal, _, sizeS) = size.toString.foldLeft((false, 0, "")) {
-      case ((decimal, count, agg), c) =>
-        if (c == '.' && !decimal) (true, count, agg + c)
-        else if (count < 3 || !decimal) (decimal, count + 1, agg + c)
-        else (decimal, count + 1, agg)
+    val (isDecimal, _, sizeS) = size.toString.foldLeft((false, 0, "")) { case ((decimal, count, agg), c) =>
+      if (c == '.' && !decimal) (true, count, agg + c)
+      else if (count < 3 || !decimal) (decimal, count + 1, agg + c)
+      else (decimal, count + 1, agg)
     }
 
     if (isDecimal)
