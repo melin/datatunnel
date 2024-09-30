@@ -80,6 +80,11 @@
             <groupId>org.apache.hudi</groupId>
             <artifactId>hudi-spark3.5-bundle_2.12</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-spark_2.12</artifactId>
+            <version>3.2.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>

@@ -25,9 +25,9 @@ object Kafka2KafkaDemo {
             DATATUNNEL SOURCE("kafka") OPTIONS (
                 subscribe = "orders",
                 "kafka.bootstrap.servers" = "3.208.89.140:9092",
-                includeHeaders = true,
+                includeHeaders = false,
                 checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/tdl_orders",
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             )
             TRANSFORM = "select cast(timestamp as string) as key, 
                     concat(cast(value as string), '-2023') as value from tdl_users"

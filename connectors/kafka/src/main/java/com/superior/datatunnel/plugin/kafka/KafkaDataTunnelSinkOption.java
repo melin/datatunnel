@@ -13,19 +13,19 @@ public class KafkaDataTunnelSinkOption extends BaseSinkOption {
     @NotBlank(message = "kafka.bootstrap.servers can not blank")
     private String servers;
 
-    public String getTopic() {
+    public @NotBlank(message = "topic can not blank") String getTopic() {
         return topic;
     }
 
-    public void setTopic(String topic) {
+    public void setTopic(@NotBlank(message = "topic can not blank") String topic) {
         this.topic = topic;
     }
 
-    public String getServers() {
+    public @NotBlank(message = "kafka.bootstrap.servers can not blank") String getServers() {
         return servers;
     }
 
-    public void setServers(String servers) {
+    public void setServers(@NotBlank(message = "kafka.bootstrap.servers can not blank") String servers) {
         this.servers = servers;
     }
 }

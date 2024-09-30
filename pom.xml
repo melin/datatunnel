@@ -273,7 +273,7 @@
                         <scalafmt>
                             <version>3.8.3</version>
                             <scalaMajorVersion>2.12</scalaMajorVersion>
-                            <file>/Users/melin/Documents/codes/superior/datatunnel/dev/scalafmt.conf</file>
+                            <file>dev/scalafmt.conf</file>
                         </scalafmt>
                     </scala>
                     <pom>

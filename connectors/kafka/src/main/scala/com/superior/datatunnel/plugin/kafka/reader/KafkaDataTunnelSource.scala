@@ -2,11 +2,15 @@ package com.superior.datatunnel.plugin.kafka.reader
 
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
-import com.superior.datatunnel.plugin.kafka.{KafkaDataTunnelSinkOption, KafkaDataTunnelSourceOption}
-import com.superior.datatunnel.plugin.kafka.util.HudiUtils
-import com.superior.datatunnel.plugin.hive.HiveDataTunnelSinkOption
+import com.superior.datatunnel.plugin.kafka.{
+  DatalakeDatatunnelSinkOption,
+  KafkaDataTunnelSinkOption,
+  KafkaDataTunnelSourceOption
+}
+import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, HudiUtils, PaimonUtils}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
+import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.{Dataset, Row}
 
 /** huaixin 2021/12/29 2:23 PM
@@ -19,9 +23,18 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       context.getSourceOption.asInstanceOf[KafkaDataTunnelSourceOption]
     KafkaSupport.createStreamTempTable(tmpTable, sourceOption)
 
+    val format = StringUtils.lowerCase(sourceOption.getFormat)
+    if (!("text".equals(format) || "json".equals(format))) {
+      throw new IllegalArgumentException("kafka source format 仅支持 text 或 json，当前值: " + format)
+    }
+
     val sinkType = context.getSinkOption.getDataSourceType
-    if (DataSourceType.HIVE == sinkType) {
-      writeHive(context, sourceOption, tmpTable)
+    if (DataSourceType.HUDI == sinkType) {
+      writeHudi(context, sourceOption, tmpTable)
+    } else if (DataSourceType.PAIMON == sinkType) {
+      writePaimon(context, sourceOption, tmpTable)
+    } else if (DataSourceType.DELTA == sinkType) {
+      writeDelta(context, sourceOption, tmpTable)
     } else if (DataSourceType.LOG == sinkType) {
       writeLog(context, sourceOption, tmpTable)
     } else if (DataSourceType.KAFKA == sinkType) {
@@ -67,29 +80,98 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     query.awaitTermination()
   }
 
-  private def writeHive(
+  private def writeHudi(
       context: DataTunnelContext,
       sourceOption: KafkaDataTunnelSourceOption,
       tmpTable: String
   ): Unit = {
     val sparkSession = context.getSparkSession
-    val hiveSinkOption =
-      context.getSinkOption.asInstanceOf[HiveDataTunnelSinkOption]
-    val sinkDatabaseName = hiveSinkOption.getDatabaseName
-    val sinkTableName = hiveSinkOption.getTableName
+    val sinkOption =
+      context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
+    val databaseName = sinkOption.getDatabaseName
+    val tableName = sinkOption.getTableName
+    val identifier = TableIdentifier(tableName, Some(databaseName))
     val checkpointLocation = sourceOption.getCheckpointLocation
+    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    }
 
-    if (!HudiUtils.isHudiTable(sinkTableName, sinkDatabaseName)) {
-      throw new DataTunnelException(
-        s"${sinkDatabaseName}.${sinkTableName} 不是hudi类型表"
-      )
+    if (!HudiUtils.isHudiTable(identifier)) {
+      throw new DataTunnelException(s"${identifier.identifier} 不是 hudi 表")
     }
     val querySql = buildQuerySql(context, sourceOption, tmpTable)
-    HudiUtils.deltaInsertStreamSelectAdapter(
+    HudiUtils.writeStreamSelectAdapter(
       sparkSession,
-      sinkDatabaseName,
-      sinkTableName,
+      identifier,
       checkpointLocation,
+      triggerProcessingTime,
+      querySql
+    )
+  }
+
+  private def writePaimon(
+      context: DataTunnelContext,
+      sourceOption: KafkaDataTunnelSourceOption,
+      tmpTable: String
+  ): Unit = {
+    val sparkSession = context.getSparkSession
+    val sinkOption =
+      context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
+    val databaseName = sinkOption.getDatabaseName
+    val tableName = sinkOption.getTableName
+    val identifier = TableIdentifier(tableName, Some(databaseName))
+    val checkpointLocation = sourceOption.getCheckpointLocation
+    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    }
+
+    if (!DeltaUtils.isDeltaTable(identifier)) {
+      throw new DataTunnelException(
+        throw new DataTunnelException(s"${identifier.identifier} 不是 paimon 表")
+      )
+    }
+
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    PaimonUtils.writeStreamSelectAdapter(
+      sparkSession,
+      identifier,
+      checkpointLocation,
+      triggerProcessingTime,
+      querySql
+    )
+  }
+
+  private def writeDelta(
+      context: DataTunnelContext,
+      sourceOption: KafkaDataTunnelSourceOption,
+      tmpTable: String
+  ): Unit = {
+    val sparkSession = context.getSparkSession
+    val sinkOption =
+      context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
+    val databaseName = sinkOption.getDatabaseName
+    val tableName = sinkOption.getTableName
+    val identifier = TableIdentifier(tableName, Some(databaseName))
+    val checkpointLocation = sourceOption.getCheckpointLocation
+    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    }
+
+    if (!DeltaUtils.isDeltaTable(identifier)) {
+      throw new DataTunnelException(
+        throw new DataTunnelException(s"${identifier.identifier} 不是 delta 表")
+      )
+    }
+
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    DeltaUtils.writeStreamSelectAdapter(
+      sparkSession,
+      identifier,
+      checkpointLocation,
+      triggerProcessingTime,
       querySql
     )
   }

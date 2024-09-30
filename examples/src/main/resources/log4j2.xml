@@ -21,6 +21,7 @@
 
     <Loggers>
         <logger name="org.apache.kafka.clients" level="warn" />
+        <logger name="org.apache.spark" level="warn" />
         <!-- LOG everything at INFO level -->
         <Root level="INFO">
             <AppenderRef ref="Console" />

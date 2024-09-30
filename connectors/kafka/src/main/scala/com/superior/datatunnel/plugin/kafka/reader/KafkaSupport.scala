@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.kafka.reader
 
 import com.superior.datatunnel.api.DataTunnelException
 import com.superior.datatunnel.plugin.kafka.KafkaDataTunnelSourceOption
+import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
@@ -9,6 +10,8 @@ import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import java.util
 import java.util.Properties
 import scala.collection.JavaConverters._
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions._
 
 /** Created by libinsong on 2020/7/29 12:06 下午
   */
@@ -23,7 +26,7 @@ object KafkaSupport {
     val params = new util.HashMap[String, String]
     params.putAll(sourceOption.getProperties)
 
-    params.put("includeHeaders", "true")
+    params.put("includeHeaders", sourceOption.isIncludeHeaders.toString)
     if (StringUtils.isNotBlank(sourceOption.getAssign)) {
       params.put("assign", sourceOption.getAssign())
     }
@@ -57,6 +60,9 @@ object KafkaSupport {
     params.put("startingOffsets", sourceOption.getStartingOffsets)
     params.put("failOnDataLoss", sourceOption.isFailOnDataLoss.toString)
     val lineRow = createDataSet(params, sourceOption)
+
+    val schemaInfo = lineRow.schema.treeString(Int.MaxValue)
+    LogUtils.info("source schema: \n" + schemaInfo)
     lineRow.createOrReplaceTempView(tableName);
   }
 
@@ -102,23 +108,34 @@ object KafkaSupport {
       options: util.Map[String, String],
       sourceOption: KafkaDataTunnelSourceOption
   ): Dataset[Row] = {
-    val lines = SparkSession.active.readStream
+    var rows = SparkSession.active.readStream
       .format("kafka")
       .options(options)
       .load
 
-    if (sourceOption.isIncludeHeaders) {
-      lines.selectExpr(
-        "key",
-        "value",
-        "topic",
-        "timestamp",
-        "timestampType",
-        "partition",
-        "offset"
-      )
+    val columns = sourceOption.getColumns
+    if (columns.length == 1 && "*".equals(columns(0))) {
+      rows = rows.selectExpr("CAST(value AS STRING) as value")
     } else {
-      lines.selectExpr("CAST(value AS STRING) as message")
+      val jsonSchema = columns.mkString(",")
+      rows = rows
+        .withColumn("data", from_json(col("value").cast("String"), StructType.fromDDL(jsonSchema)))
+
+      if (sourceOption.isIncludeHeaders) {
+        rows = rows.selectExpr(
+          "key as kafka_key",
+          "topic as kafka_topic",
+          "timestamp as kafka_timestamp",
+          "timestampType as kafka_timestampType",
+          "partition as kafka_partition",
+          "offset as kafka_offset",
+          "headers as kafka_headers",
+          "data.*"
+        )
+      } else {
+        rows = rows.selectExpr("data.*")
+      }
     }
+    rows
   }
 }

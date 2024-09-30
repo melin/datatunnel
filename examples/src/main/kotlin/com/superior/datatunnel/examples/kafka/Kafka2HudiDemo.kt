@@ -24,10 +24,10 @@ object Kafka2HudiDemo {
         val sql = """
             DATATUNNEL SOURCE("kafka") OPTIONS (
                 subscribe = "orders",
-                servers = "3.208.89.140:9092",
+                servers = "172.18.5.46:9092",
                 includeHeaders = true,
                 checkpointLocation = "/user/dataworks/stream_checkpoint/datatunnel/tdl_users",
-                resultTableName='tdl_users'
+                sourceTempView='tdl_users'
             )
             TRANSFORM = "select cast(timestamp as string) as id, 
                     cast(value as string) as message, timestamp as kafka_timestamp, 
@@ -42,21 +42,6 @@ object Kafka2HudiDemo {
 
         spark.sql(sql)
 
-        // 测试create table
-        """
-            CREATE TABLE bigdata.hudi_orders_mor (
-                id String, 
-                message String, 
-                kafka_timestamp bigint,
-                ds string)
-            using hudi
-            partitioned by (ds) 
-            tblproperties (
-              type = 'mor',
-              primaryKey = 'id',
-              preCombineField = 'kafka_timestamp'
-             )
-            lifeCycle 300
-        """.trimIndent()
+
     }
 }

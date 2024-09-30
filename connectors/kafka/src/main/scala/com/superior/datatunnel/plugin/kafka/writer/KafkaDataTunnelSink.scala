@@ -10,8 +10,6 @@ import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
 
-/** huaixin 2021/12/7 8:12 PM
-  */
 class KafkaDataTunnelSink extends DataTunnelSink {
 
   override def sink(dataset: Dataset[Row], context: DataTunnelContext): Unit = {

@@ -44,11 +44,5 @@
             <version>${spark.version}</version>
             <!--<scope>${libScope}</scope>-->
         </dependency>
-
-        <dependency>
-            <groupId>com.superior.datatunnel</groupId>
-            <artifactId>datatunnel-connector-hive</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>

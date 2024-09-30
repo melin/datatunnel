@@ -19,13 +19,16 @@ object Kafka2LogDemo {
 
         val sql = """
             DATATUNNEL SOURCE("kafka") OPTIONS (
-                subscribe = "orders_dwd",
-                servers = "3.208.89.140:9092",
-                startingOffsets="earliest"
+                format="json",
+                subscribe = "users_json",
+                servers = "172.18.5.46:9092",
+                includeHeaders = true,
+                sourceTempView='tdl_users',
+                columns = ['id long', 'name string']
             ) 
+            TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
             SINK("log")
         """.trimIndent()
-
         spark.sql(sql)
     }
 }

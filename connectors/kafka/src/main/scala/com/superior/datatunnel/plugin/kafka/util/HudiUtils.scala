@@ -1,8 +1,8 @@
 package com.superior.datatunnel.plugin.kafka.util
 
 import com.superior.datatunnel.api.DataTunnelException
+import com.superior.datatunnel.common.util.FsUtils
 import org.apache.commons.lang3.StringUtils
-import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hudi.DataSourceWriteOptions
 import org.apache.hudi.common.model.{HoodieTableType, WriteOperationType}
 import org.apache.hudi.common.table.HoodieTableMetaClient
@@ -14,9 +14,10 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
-import org.apache.spark.sql.streaming.OutputMode
+import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 /** 多数据源简单适配
   */
@@ -24,9 +25,8 @@ object HudiUtils extends Logging {
 
   private val PARTITION_COL_NAME = "ds";
 
-  def isHudiTable(tableName: String, database: String): Boolean = {
-    val table = SparkSession.active.sessionState.catalog
-      .getTableMetadata(TableIdentifier(tableName, Some(database)))
+  def isHudiTable(identifier: TableIdentifier): Boolean = {
+    val table = SparkSession.active.sessionState.catalog.getTableMetadata(identifier)
     table.provider.map(_.toLowerCase(Locale.ROOT)).orNull == "hudi"
   }
 
@@ -88,24 +88,20 @@ object HudiUtils extends Logging {
 
   /** delta insert select 操作
     */
-  def deltaInsertStreamSelectAdapter(
+  def writeStreamSelectAdapter(
       spark: SparkSession,
-      databaseName: String,
-      tableName: String,
+      identifier: TableIdentifier,
       checkpointLocation: String,
+      triggerProcessingTime: Long,
       querySql: String
   ): Unit = {
 
-    val catalogTable = spark.sessionState.catalog.getTableMetadata(
-      TableIdentifier(tableName, Some(databaseName))
-    )
+    val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
     val properties = spark.sessionState.catalog.externalCatalog
-      .getTable(databaseName, tableName)
+      .getTable(identifier.database.orNull, identifier.table)
       .properties
     val (primaryKey, preCombineField) =
       getPrimaryKeyAndPreCombineField(spark, catalogTable, properties)
-
-    mkCheckpointDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
     var writer = streamingInput.writeStream
@@ -119,13 +115,16 @@ object HudiUtils extends Logging {
       .option(HoodieCompactionConfig.INLINE_COMPACT_NUM_DELTA_COMMITS.key, "5")
       .option(DataSourceWriteOptions.ASYNC_COMPACT_ENABLE.key, "true")
       .option(DataSourceWriteOptions.ASYNC_CLUSTERING_ENABLE.key, "true")
-      .option(HoodieWriteConfig.TBL_NAME.key, tableName)
-      .option("checkpointLocation", checkpointLocation)
+      .option(HoodieWriteConfig.TBL_NAME.key, identifier.table)
       .outputMode(OutputMode.Append)
 
+    FsUtils.mkDir(spark, checkpointLocation)
+    writer.option("checkpointLocation", checkpointLocation)
+    writer.trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
+
     writer = writer
-      .option(HoodieSyncConfig.META_SYNC_TABLE_NAME.key, tableName)
-      .option(HoodieSyncConfig.META_SYNC_DATABASE_NAME.key, databaseName)
+      .option(HoodieSyncConfig.META_SYNC_TABLE_NAME.key, identifier.table)
+      .option(HoodieSyncConfig.META_SYNC_DATABASE_NAME.key, identifier.database.get)
       .option(HiveSyncConfigHolder.HIVE_SYNC_MODE.key, "HMS")
       .option(HiveSyncConfigHolder.HIVE_SYNC_ENABLED.key, "true")
       .option(HoodieSyncConfig.META_SYNC_ENABLED.key, "false")
@@ -136,14 +135,5 @@ object HudiUtils extends Logging {
       )
 
     writer.start(catalogTable.location.toString).awaitTermination()
-  }
-
-  private def mkCheckpointDir(
-      sparkSession: SparkSession,
-      path: String
-  ): Unit = {
-    val configuration = sparkSession.sparkContext.hadoopConfiguration
-    val fs = FileSystem.get(configuration)
-    if (!fs.exists(new Path(path))) fs.mkdirs(new Path(path))
   }
 }

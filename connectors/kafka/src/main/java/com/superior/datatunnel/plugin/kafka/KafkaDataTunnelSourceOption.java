@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
-    @NotBlank(message = "如果是json 格式，解析第一层")
+    @NotBlank(message = "kafka value 数据格式，仅支持: json, text。")
     private String format = "text";
 
     private String assign;
@@ -24,7 +24,7 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
     @NotBlank(message = "startingOffsets")
     @NotBlank(message = "可选值：earliest, latest")
-    private String startingOffsets = "latest";
+    private String startingOffsets = "earliest";
 
     private String maxTriggerDelay = "15";
 
@@ -40,14 +40,16 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
     private String startingOffsetsByTimestampStrategy = "error";
 
     @OptionDesc("checkpoint 存储位置")
-    @NotBlank(message = "checkpointLocation can not blank")
     private String checkpointLocation;
 
-    public String getFormat() {
+    @OptionDesc("Trigger ProcessingTime, 单位秒，默认值：60")
+    private Long triggerProcessingTime = 60L;
+
+    public @NotBlank(message = "如果是json 格式，解析第一层") String getFormat() {
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(@NotBlank(message = "如果是json 格式，解析第一层") String format) {
         this.format = format;
     }
 
@@ -75,11 +77,11 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
         this.subscribePattern = subscribePattern;
     }
 
-    public String getServers() {
+    public @NotBlank(message = "kafka.bootstrap.servers can not blank") String getServers() {
         return servers;
     }
 
-    public void setServers(String servers) {
+    public void setServers(@NotBlank(message = "kafka.bootstrap.servers can not blank") String servers) {
         this.servers = servers;
     }
 
@@ -91,11 +93,13 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
         this.failOnDataLoss = failOnDataLoss;
     }
 
-    public String getStartingOffsets() {
+    public @NotBlank(message = "startingOffsets") @NotBlank(message = "可选值：earliest, latest") String
+            getStartingOffsets() {
         return startingOffsets;
     }
 
-    public void setStartingOffsets(String startingOffsets) {
+    public void setStartingOffsets(
+            @NotBlank(message = "startingOffsets") @NotBlank(message = "可选值：earliest, latest") String startingOffsets) {
         this.startingOffsets = startingOffsets;
     }
 
@@ -153,5 +157,13 @@ public class KafkaDataTunnelSourceOption extends BaseSourceOption {
 
     public void setCheckpointLocation(String checkpointLocation) {
         this.checkpointLocation = checkpointLocation;
+    }
+
+    public Long getTriggerProcessingTime() {
+        return triggerProcessingTime;
+    }
+
+    public void setTriggerProcessingTime(Long triggerProcessingTime) {
+        this.triggerProcessingTime = triggerProcessingTime;
     }
 }
