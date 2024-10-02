@@ -85,6 +85,16 @@
             <artifactId>delta-spark_2.12</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.paimon</groupId>
+            <artifactId>paimon-spark-3.5</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.paimon</groupId>
+            <artifactId>paimon-hive-connector-2.1-cdh-6.3</artifactId>
+            <version>0.9.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>

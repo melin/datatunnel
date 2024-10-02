@@ -1,5 +1,6 @@
 package com.superior.datatunnel.plugin.kafka.util
 
+import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
@@ -27,6 +28,7 @@ object DeltaUtils extends Logging {
       identifier: TableIdentifier,
       checkpointLocation: String,
       triggerProcessingTime: Long,
+      outputMode: OutputMode,
       querySql: String
   ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
@@ -37,6 +39,7 @@ object DeltaUtils extends Logging {
     streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("delta")
+      .outputMode(outputMode.getName)
       .option("checkpointLocation", checkpointLocation)
       .start(catalogTable.location.toString)
       .awaitTermination()

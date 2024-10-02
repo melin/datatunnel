@@ -35,7 +35,6 @@ object Kafka2HudiDemo {
             SINK("hudi") OPTIONS (
               databaseName = "bigdata",
               tableName = 'hudi_orders_mor',
-              writeMode = 'overwrite',
               columns = ["*"]
             )
         """.trimIndent()

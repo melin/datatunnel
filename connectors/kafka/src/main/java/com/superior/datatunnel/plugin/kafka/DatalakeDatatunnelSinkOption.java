@@ -2,7 +2,7 @@ package com.superior.datatunnel.plugin.kafka;
 
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
-import com.superior.datatunnel.common.enums.WriteMode;
+import com.superior.datatunnel.common.enums.OutputMode;
 import javax.validation.constraints.NotBlank;
 
 public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
@@ -15,8 +15,8 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
     @NotBlank(message = "tableName can not blank")
     private String tableName;
 
-    @OptionDesc("写入模式, 仅支持：append 和 upsert")
-    private WriteMode writeMode = WriteMode.APPEND;
+    @OptionDesc("写入模式, 仅支持：append 和 complete")
+    private OutputMode outputMode = OutputMode.APPEND;
 
     public String getDatabaseName() {
         return databaseName;
@@ -42,11 +42,11 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
         this.tableName = tableName;
     }
 
-    public WriteMode getWriteMode() {
-        return writeMode;
+    public OutputMode getOutputMode() {
+        return outputMode;
     }
 
-    public void setWriteMode(WriteMode writeMode) {
-        this.writeMode = writeMode;
+    public void setOutputMode(OutputMode outputMode) {
+        this.outputMode = outputMode;
     }
 }

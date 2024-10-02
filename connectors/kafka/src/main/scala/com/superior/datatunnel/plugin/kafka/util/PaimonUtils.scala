@@ -1,11 +1,11 @@
 package com.superior.datatunnel.plugin.kafka.util
 
+import com.superior.datatunnel.common.enums.OutputMode
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.streaming.Trigger
 
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /** 多数据源简单适配
@@ -14,9 +14,10 @@ object PaimonUtils extends Logging {
 
   private val PARTITION_COL_NAME = "ds";
 
-  def isDeltaTable(identifier: TableIdentifier): Boolean = {
+  def isPaimonTable(identifier: TableIdentifier): Boolean = {
     val table = SparkSession.active.sessionState.catalog.getTableMetadata(identifier)
-    table.provider.map(_.toLowerCase(Locale.ROOT)).orNull == "paimon"
+    val tableType = table.properties.get("table_type")
+    tableType.isDefined && tableType.get.equalsIgnoreCase("paimon")
   }
 
   /** delta insert select 操作
@@ -26,6 +27,7 @@ object PaimonUtils extends Logging {
       identifier: TableIdentifier,
       checkpointLocation: String,
       triggerProcessingTime: Long,
+      outputMode: OutputMode,
       querySql: String
   ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
@@ -33,7 +35,8 @@ object PaimonUtils extends Logging {
     val streamingInput = spark.sql(querySql)
     streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
-      .format("delta")
+      .format("paimon")
+      .outputMode(outputMode.getName)
       .option("checkpointLocation", checkpointLocation)
       .start(catalogTable.location.toString)
       .awaitTermination()

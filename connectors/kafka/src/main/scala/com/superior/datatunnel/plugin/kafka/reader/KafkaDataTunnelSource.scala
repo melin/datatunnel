@@ -127,7 +127,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       throw new IllegalArgumentException("checkpointLocation 不能为空")
     }
 
-    if (!DeltaUtils.isDeltaTable(identifier)) {
+    if (!PaimonUtils.isPaimonTable(identifier)) {
       throw new DataTunnelException(
         throw new DataTunnelException(s"${identifier.identifier} 不是 paimon 表")
       )
@@ -139,6 +139,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       identifier,
       checkpointLocation,
       triggerProcessingTime,
+      sinkOption.getOutputMode,
       querySql
     )
   }
@@ -172,6 +173,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       identifier,
       checkpointLocation,
       triggerProcessingTime,
+      sinkOption.getOutputMode,
       querySql
     )
   }

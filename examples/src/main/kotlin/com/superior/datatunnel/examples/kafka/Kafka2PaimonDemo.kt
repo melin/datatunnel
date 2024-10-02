@@ -1,13 +1,13 @@
 package com.superior.datatunnel.examples.kafka
 
 import com.superior.datatunnel.core.DataTunnelExtensions
-import io.delta.sql.DeltaSparkSessionExtension
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.sql.SparkSession
 import java.security.PrivilegedExceptionAction
+import org.apache.paimon.spark.extensions.PaimonSparkSessionExtensions
 
-object Kafka2DeltaDemo {
+object Kafka2PaimonDemo {
 
     private val KRB5_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/krb5.conf"
     private val KEYTAB_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/superior.keytab"
@@ -20,12 +20,13 @@ object Kafka2DeltaDemo {
         configuration.set("hadoop.security.authorization", "true")
         // 测试create table
         val createTableSql = """
-            CREATE TABLE IF NOT Exists bigdata.delta_users_kafka (
+            CREATE TABLE IF NOT Exists bigdata.paimon_users_kafka (
                 id BIGINT, 
                 name String, 
                 ds string)
-            using delta
+            using paimon
             partitioned by (ds) 
+            TBLPROPERTIES ('primary-key'='id')
         """.trimIndent()
 
         loginToKerberos(configuration).doAs(PrivilegedExceptionAction() {
@@ -35,11 +36,12 @@ object Kafka2DeltaDemo {
                 .enableHiveSupport()
                 .appName("Datatunnel spark example")
                 .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name + "," + DeltaSparkSessionExtension::class.java.name)
+                .config("spark.sql.catalog.spark_catalog", "org.apache.paimon.spark.SparkGenericCatalog")
+                .config("spark.sql.catalog.spark_catalog.type", "hive")
+                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name + "," + PaimonSparkSessionExtensions::class.java.name)
                 .getOrCreate()
 
-            spark.sql("drop table bigdata.delta_users_kafka")
+            spark.sql("drop table if exists bigdata.paimon_users_kafka")
             spark.sql(createTableSql)
 
             val sql = """
@@ -50,12 +52,12 @@ object Kafka2DeltaDemo {
                 includeHeaders = true,
                 sourceTempView='tdl_users',
                 columns = ['id long', 'name string'],
-                checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/delta_users_kafka"
+                checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/paimon_users_kafka"
             ) 
             TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
-            SINK("delta") OPTIONS (
+            SINK("paimon") OPTIONS (
               databaseName = "bigdata",
-              tableName = 'delta_users_kafka',
+              tableName = 'paimon_users_kafka',
               columns = ["*"]
             )
         """.trimIndent()
