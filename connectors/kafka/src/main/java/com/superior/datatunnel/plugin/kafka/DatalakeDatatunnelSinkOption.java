@@ -18,6 +18,9 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
     @OptionDesc("写入模式, 仅支持：append 和 complete")
     private OutputMode outputMode = OutputMode.APPEND;
 
+    @OptionDesc("定义 delta 主键，用于 merge sql")
+    private String deltaPrimaryKeys;
+
     public String getDatabaseName() {
         return databaseName;
     }
@@ -48,5 +51,13 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
 
     public void setOutputMode(OutputMode outputMode) {
         this.outputMode = outputMode;
+    }
+
+    public String getDeltaPrimaryKeys() {
+        return deltaPrimaryKeys;
+    }
+
+    public void setDeltaPrimaryKeys(String deltaPrimaryKeys) {
+        this.deltaPrimaryKeys = deltaPrimaryKeys;
     }
 }

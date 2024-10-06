@@ -174,6 +174,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       checkpointLocation,
       triggerProcessingTime,
       sinkOption.getOutputMode,
+      sinkOption.getDeltaPrimaryKeys,
       querySql
     )
   }

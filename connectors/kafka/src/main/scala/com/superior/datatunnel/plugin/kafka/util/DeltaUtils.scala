@@ -2,15 +2,19 @@ package com.superior.datatunnel.plugin.kafka.util
 
 import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
+import org.apache.commons.lang3.StringUtils
+import org.apache.spark.api.java.function.VoidFunction2
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.streaming.Trigger
 
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-/** 多数据源简单适配
+/** 多数据源简单适配 https://delta.io/blog/write-kafka-stream-to-delta-lake/
+  * https://delta.io/blog/delta-lake-vs-parquet-comparison/ https://delta.io/blog/pros-cons-hive-style-partionining/
+  * https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/
   */
 object DeltaUtils extends Logging {
 
@@ -29,6 +33,7 @@ object DeltaUtils extends Logging {
       checkpointLocation: String,
       triggerProcessingTime: Long,
       outputMode: OutputMode,
+      deltaPrimaryKeys: String,
       querySql: String
   ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
@@ -36,12 +41,42 @@ object DeltaUtils extends Logging {
     FsUtils.mkDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
-    streamingInput.writeStream
+    val writer = streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("delta")
       .outputMode(outputMode.getName)
       .option("checkpointLocation", checkpointLocation)
-      .start(catalogTable.location.toString)
-      .awaitTermination()
+
+    if (StringUtils.isBlank(deltaPrimaryKeys)) {
+      writer
+        .start(catalogTable.location.toString)
+        .awaitTermination()
+    } else {
+      val foreachBatchFn = new ForeachBatchFn(deltaPrimaryKeys, identifier)
+      writer
+        .foreachBatch(foreachBatchFn)
+        .outputMode("update")
+        .start()
+        .awaitTermination()
+    }
+  }
+}
+
+class ForeachBatchFn(val deltaPrimaryKeys: String, val identifier: TableIdentifier)
+    extends VoidFunction2[DataFrame, java.lang.Long]
+    with Serializable {
+  override def call(microBatchOutputDF: DataFrame, batchId: java.lang.Long): Unit = {
+    val keys = deltaPrimaryKeys.split(",")
+    val duplicateDF = microBatchOutputDF.dropDuplicates(keys)
+    duplicateDF.createOrReplaceTempView("updates")
+    val keyCondition = keys.map(key => s"s.${key} = t.${key}").mkString(" and ")
+    val mergeInto = s"""
+      MERGE INTO ${identifier.toString()} t
+      USING updates s
+      ON ${keyCondition}
+      WHEN MATCHED THEN UPDATE SET *
+      WHEN NOT MATCHED THEN INSERT *
+    """
+    microBatchOutputDF.sparkSession.sql(mergeInto)
   }
 }
