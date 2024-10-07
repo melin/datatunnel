@@ -2,6 +2,7 @@ package com.superior.datatunnel.core;
 
 import static com.superior.datatunnel.api.DataSourceType.DELTA;
 import static com.superior.datatunnel.api.DataSourceType.HUDI;
+import static com.superior.datatunnel.api.DataSourceType.ICEBERG;
 import static com.superior.datatunnel.api.DataSourceType.KAFKA;
 import static com.superior.datatunnel.api.DataSourceType.LOG;
 import static com.superior.datatunnel.api.DataSourceType.PAIMON;
@@ -30,7 +31,7 @@ public class DataTunnelUtils {
 
     // 不支持流失写入类型
     public static final List<DataSourceType> SUPPORT_STREAMING_SINKS =
-            Lists.newArrayList(HUDI, PAIMON, DELTA, LOG, KAFKA);
+            Lists.newArrayList(HUDI, PAIMON, DELTA, ICEBERG, LOG, KAFKA);
 
     private static final String MASK_CHARS = "******";
 

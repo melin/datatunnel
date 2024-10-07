@@ -24,6 +24,7 @@ public enum DataSourceType {
     HUDI,
     PAIMON,
     DELTA,
+    ICEBERG,
 
     SPARK, // HIVE 别名
     KAFKA,

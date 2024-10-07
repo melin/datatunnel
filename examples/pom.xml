@@ -95,6 +95,11 @@
             <artifactId>paimon-hive-connector-2.1-cdh-6.3</artifactId>
             <version>0.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark-runtime-3.5_2.12</artifactId>
+            <version>1.6.1</version>
+        </dependency>
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>

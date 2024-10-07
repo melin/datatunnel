@@ -2,3 +2,4 @@ kafka=com.superior.datatunnel.plugin.kafka.writer.KafkaDataTunnelSink
 delta=com.superior.datatunnel.plugin.kafka.DataLakeDataTunnelSink
 hudi=com.superior.datatunnel.plugin.kafka.DataLakeDataTunnelSink
 paimon=com.superior.datatunnel.plugin.kafka.DataLakeDataTunnelSink
+iceberg=com.superior.datatunnel.plugin.kafka.DataLakeDataTunnelSink

@@ -7,7 +7,7 @@ import com.superior.datatunnel.plugin.kafka.{
   KafkaDataTunnelSinkOption,
   KafkaDataTunnelSourceOption
 }
-import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, HudiUtils, PaimonUtils}
+import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, HudiUtils, IcebergUtils, PaimonUtils}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.catalyst.TableIdentifier
@@ -35,6 +35,8 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       writePaimon(context, sourceOption, tmpTable)
     } else if (DataSourceType.DELTA == sinkType) {
       writeDelta(context, sourceOption, tmpTable)
+    } else if (DataSourceType.ICEBERG == sinkType) {
+      writeIceberg(context, sourceOption, tmpTable)
     } else if (DataSourceType.LOG == sinkType) {
       writeLog(context, sourceOption, tmpTable)
     } else if (DataSourceType.KAFKA == sinkType) {
@@ -98,7 +100,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     }
 
     if (!HudiUtils.isHudiTable(identifier)) {
-      throw new DataTunnelException(s"${identifier.identifier} 不是 hudi 表")
+      throw new DataTunnelException(s"${identifier} 不是 hudi 表")
     }
     val querySql = buildQuerySql(context, sourceOption, tmpTable)
     HudiUtils.writeStreamSelectAdapter(
@@ -129,7 +131,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
 
     if (!PaimonUtils.isPaimonTable(identifier)) {
       throw new DataTunnelException(
-        throw new DataTunnelException(s"${identifier.identifier} 不是 paimon 表")
+        throw new DataTunnelException(s"${identifier} 不是 paimon 表")
       )
     }
 
@@ -163,7 +165,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
 
     if (!DeltaUtils.isDeltaTable(identifier)) {
       throw new DataTunnelException(
-        throw new DataTunnelException(s"${identifier.identifier} 不是 delta 表")
+        throw new DataTunnelException(s"${identifier} 不是 delta 表")
       )
     }
 
@@ -174,7 +176,42 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       checkpointLocation,
       triggerProcessingTime,
       sinkOption.getOutputMode,
-      sinkOption.getDeltaPrimaryKeys,
+      sinkOption.getMergeKeys,
+      querySql
+    )
+  }
+
+  private def writeIceberg(
+      context: DataTunnelContext,
+      sourceOption: KafkaDataTunnelSourceOption,
+      tmpTable: String
+  ): Unit = {
+    val sparkSession = context.getSparkSession
+    val sinkOption =
+      context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
+    val databaseName = sinkOption.getDatabaseName
+    val tableName = sinkOption.getTableName
+    val identifier = TableIdentifier(tableName, Some(databaseName))
+    val checkpointLocation = sourceOption.getCheckpointLocation
+    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    }
+
+    if (!IcebergUtils.isIcebergTable(identifier)) {
+      throw new DataTunnelException(
+        throw new DataTunnelException(s"${identifier} 不是 iceberg 表")
+      )
+    }
+
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    IcebergUtils.writeStreamSelectAdapter(
+      sparkSession,
+      identifier,
+      checkpointLocation,
+      triggerProcessingTime,
+      sinkOption.getOutputMode,
+      sinkOption.getMergeKeys,
       querySql
     )
   }

@@ -48,13 +48,13 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
           val outputRecords: Long = DataTunnelMetrics.outputRecords()
 
           var msg = ""
-          if (inputRecords > 0 && lastInputRecords != inputRecords) {
-            msg = s"datatunnel read records: ${inputRecords}."
+          if (inputRecords > 0 && lastInputRecords != inputRecords && "ResultTask".equals(taskEnd.taskType)) {
+            msg = s"datatunnel read records: ${inputRecords}"
             lastInputRecords = inputRecords
             logInfo(msg)
           }
-          if (outputRecords > 0 && lastOutputRecords != outputRecords) {
-            msg = s"datatunnel write records: ${outputRecords}."
+          if (outputRecords > 0 && lastOutputRecords != outputRecords && "ResultTask".equals(taskEnd.taskType)) {
+            msg = s"datatunnel write records: ${outputRecords}"
             lastOutputRecords = outputRecords
             logInfo(msg)
           }
