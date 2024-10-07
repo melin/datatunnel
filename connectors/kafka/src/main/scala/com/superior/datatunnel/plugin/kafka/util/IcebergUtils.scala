@@ -3,14 +3,21 @@ package com.superior.datatunnel.plugin.kafka.util
 import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
 import org.apache.commons.lang3.StringUtils
+import org.apache.iceberg.CatalogProperties
+import org.apache.iceberg.hive.HiveCatalog
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.streaming.Trigger
 
+import java.util
+import java.util.{HashMap, Map}
 import java.util.concurrent.TimeUnit
 
-/** 多数据源简单适配
+/**
+ * https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
+ * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56
+ * 多数据源简单适配
   */
 object IcebergUtils extends Logging {
 
@@ -41,12 +48,30 @@ object IcebergUtils extends Logging {
     val writer = streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("delta")
-      .outputMode(outputMode.getName)
       .option("checkpointLocation", checkpointLocation)
+
+    val catalog = new HiveCatalog
+    val conf = spark.sparkContext.hadoopConfiguration
+    catalog.setConf(conf)
+    val properties: util.Map[String, String] = new util.HashMap[String, String]
+    val uris: String = conf.get("hive.metastore.uris")
+    properties.put(CatalogProperties.URI, uris)
+    catalog.initialize("hive", properties)
+    val icebergTable = catalog.loadTable(org.apache.iceberg.catalog.TableIdentifier.of(identifier.database.get, identifier.table))
+
+    if (icebergTable.spec().isPartitioned) {
+      writer.option("fanout-enabled", "true")
+      writer.toTable(identifier.toString())
+    } else {
+      writer.option("path", catalogTable.location.toString)
+    }
+
+    catalog.close()
 
     if (StringUtils.isBlank(getMergeKeys)) {
       writer
-        .start(catalogTable.location.toString)
+        .outputMode(outputMode.getName)
+        .start()
         .awaitTermination()
     } else {
       val foreachBatchFn = new ForeachBatchFn(getMergeKeys, identifier)

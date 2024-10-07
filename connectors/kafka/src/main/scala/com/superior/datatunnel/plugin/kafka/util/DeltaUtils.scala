@@ -43,11 +43,11 @@ object DeltaUtils extends Logging {
     val writer = streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("delta")
-      .outputMode(outputMode.getName)
       .option("checkpointLocation", checkpointLocation)
 
     if (StringUtils.isBlank(getMergeKeys)) {
       writer
+        .outputMode(outputMode.getName)
         .start(catalogTable.location.toString)
         .awaitTermination()
     } else {

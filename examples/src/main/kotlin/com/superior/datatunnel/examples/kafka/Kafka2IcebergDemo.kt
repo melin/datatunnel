@@ -19,12 +19,18 @@ object Kafka2IcebergDemo {
         configuration.set("hadoop.security.authentication", "kerberos")
         configuration.set("hadoop.security.authorization", "true")
         // 测试create table
+        // https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56
         val createTableSql = """
             CREATE TABLE IF NOT Exists bigdata.iceberg_users_kafka (
                 id BIGINT, 
                 name String, 
                 ds string)
             using iceberg
+            TBLPROPERTIES (
+                'write.delete.mode'='merge-on-read',
+                'write.update.mode'='merge-on-read',
+                'write.merge.mode'='merge-on-read'
+            )
             partitioned by (ds) 
         """.trimIndent()
 
