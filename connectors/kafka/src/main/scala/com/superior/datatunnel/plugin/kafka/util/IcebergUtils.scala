@@ -25,14 +25,14 @@ object IcebergUtils extends Logging {
   /** delta insert select 操作
     */
   def writeStreamSelectAdapter(
-                                spark: SparkSession,
-                                identifier: TableIdentifier,
-                                checkpointLocation: String,
-                                triggerProcessingTime: Long,
-                                outputMode: OutputMode,
-                                getMergeKeys: String,
-                                querySql: String
-                              ): Unit = {
+      spark: SparkSession,
+      identifier: TableIdentifier,
+      checkpointLocation: String,
+      triggerProcessingTime: Long,
+      outputMode: OutputMode,
+      getMergeKeys: String,
+      querySql: String
+  ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
 
     FsUtils.mkDir(spark, checkpointLocation)

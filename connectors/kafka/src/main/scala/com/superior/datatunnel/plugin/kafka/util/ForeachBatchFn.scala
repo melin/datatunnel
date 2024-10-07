@@ -5,7 +5,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.catalyst.TableIdentifier
 
 class ForeachBatchFn(val getMergeKeys: String, val identifier: TableIdentifier)
-  extends VoidFunction2[DataFrame, java.lang.Long]
+    extends VoidFunction2[DataFrame, java.lang.Long]
     with Serializable {
   override def call(microBatchOutputDF: DataFrame, batchId: java.lang.Long): Unit = {
     val keys = getMergeKeys.split(",")
