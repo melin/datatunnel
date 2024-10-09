@@ -11,12 +11,13 @@ import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.streaming.Trigger
 
 import java.util
-import java.util.{HashMap, Map}
 import java.util.concurrent.TimeUnit
 
-/** https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
-  * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56 多数据源简单适配
-  */
+/**
+ * https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
+ * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56 多数据源简单适配
+ * https://www.dremio.com/blog/compaction-in-apache-iceberg-fine-tuning-your-iceberg-tables-data-files/?source=post_page-----a653545de087--------------------------------
+ */
 object IcebergUtils extends Logging {
 
   private val PARTITION_COL_NAME = "ds";
