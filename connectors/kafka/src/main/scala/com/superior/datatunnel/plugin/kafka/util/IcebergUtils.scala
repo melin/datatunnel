@@ -14,10 +14,8 @@ import java.util
 import java.util.{HashMap, Map}
 import java.util.concurrent.TimeUnit
 
-/**
- * https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
- * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56
- * 多数据源简单适配
+/** https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
+  * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56 多数据源简单适配
   */
 object IcebergUtils extends Logging {
 
@@ -57,7 +55,8 @@ object IcebergUtils extends Logging {
     val uris: String = conf.get("hive.metastore.uris")
     properties.put(CatalogProperties.URI, uris)
     catalog.initialize("hive", properties)
-    val icebergTable = catalog.loadTable(org.apache.iceberg.catalog.TableIdentifier.of(identifier.database.get, identifier.table))
+    val icebergTable =
+      catalog.loadTable(org.apache.iceberg.catalog.TableIdentifier.of(identifier.database.get, identifier.table))
 
     if (icebergTable.spec().isPartitioned) {
       writer.option("fanout-enabled", "true")
