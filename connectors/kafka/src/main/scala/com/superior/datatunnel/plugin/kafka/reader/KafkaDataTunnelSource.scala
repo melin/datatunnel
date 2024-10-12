@@ -2,15 +2,12 @@ package com.superior.datatunnel.plugin.kafka.reader
 
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
-import com.superior.datatunnel.plugin.kafka.{
-  DatalakeDatatunnelSinkOption,
-  KafkaDataTunnelSinkOption,
-  KafkaDataTunnelSourceOption
-}
+import com.superior.datatunnel.plugin.kafka.{DatalakeDatatunnelSinkOption, KafkaDataTunnelSinkOption, KafkaDataTunnelSourceOption}
 import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, HudiUtils, IcebergUtils, PaimonUtils}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.catalyst.TableIdentifier
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Dataset, Row}
 
 /** huaixin 2021/12/29 2:23 PM
@@ -68,10 +65,10 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       sourceOption: KafkaDataTunnelSourceOption,
       tmpTable: String
   ): Unit = {
-    val querySql = buildQuerySql(context, sourceOption, tmpTable)
-    val dataset = context.getSparkSession.sql(querySql)
     val kafkaSinkOption =
       context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
+    val querySql = buildQuerySqlForKafka(context, sourceOption, kafkaSinkOption, tmpTable)
+    val dataset = context.getSparkSession.sql(querySql)
 
     var writer = dataset.writeStream
     writer = writer
@@ -221,6 +218,30 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       sinkOption,
       querySql
     )
+  }
+
+  private def buildQuerySqlForKafka(
+     context: DataTunnelContext,
+     sourceOption: KafkaDataTunnelSourceOption,
+     sinkOption: KafkaDataTunnelSinkOption,
+     tmpTable: String
+   ): String = {
+    val sql = "select * from " + tmpTable
+
+    val transfromSql = context.getTransfromSql
+    if (StringUtils.isNotBlank(transfromSql)) {
+      val df = context.getSparkSession.sql(sql)
+      df.createTempView(sourceOption.getSourceTempView)
+      transfromSql
+    } else {
+      val df = context.getSparkSession.sql(sql)
+        .select(to_json(struct("*")).as("value"))
+        .selectExpr("CAST(value AS STRING)")
+
+      val tempView = "tdl_datatunnel_kafka_json_" + System.currentTimeMillis()
+      df.createTempView(tempView)
+      "select * from " + tempView;
+    }
   }
 
   private def buildQuerySql(
