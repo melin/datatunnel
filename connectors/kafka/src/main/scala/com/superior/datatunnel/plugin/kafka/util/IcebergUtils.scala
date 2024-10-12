@@ -1,17 +1,13 @@
 package com.superior.datatunnel.plugin.kafka.util
 
-import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
 import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
 import org.apache.commons.lang3.StringUtils
-import org.apache.iceberg.CatalogProperties
-import org.apache.iceberg.hive.HiveCatalog
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.streaming.Trigger
 
-import java.util
 import java.util.concurrent.TimeUnit
 
 /** https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
@@ -19,8 +15,6 @@ import java.util.concurrent.TimeUnit
   * https://www.dremio.com/blog/compaction-in-apache-iceberg-fine-tuning-your-iceberg-tables-data-files/?source=post_page-----a653545de087--------------------------------
   */
 object IcebergUtils extends Logging {
-
-  private val PARTITION_COL_NAME = "ds";
 
   def isIcebergTable(identifier: TableIdentifier): Boolean = {
     val table = SparkSession.active.sessionState.catalog.getTableMetadata(identifier)
@@ -48,30 +42,16 @@ object IcebergUtils extends Logging {
       .format("delta")
       .option("checkpointLocation", checkpointLocation)
 
-    val catalog = new HiveCatalog
-    val conf = spark.sparkContext.hadoopConfiguration
-    catalog.setConf(conf)
-    val properties: util.Map[String, String] = new util.HashMap[String, String]
-    val uris: String = conf.get("hive.metastore.uris")
-    properties.put(CatalogProperties.URI, uris)
-    catalog.initialize("hive", properties)
-    val icebergTable =
-      catalog.loadTable(org.apache.iceberg.catalog.TableIdentifier.of(identifier.database.get, identifier.table))
-
     var mergeKeys = sinkOption.getMergeKeys
     val outputMode = sinkOption.getOutputMode
     val partitionColumnNames = sinkOption.getPartitionColumnNames
 
     writer.options(sinkOption.getProperties)
 
-    if (icebergTable.spec().isPartitioned) {
+    if (StringUtils.isNotBlank(partitionColumnNames)) {
       writer.option("fanout-enabled", "true")
-      writer.toTable(identifier.toString())
-    } else {
-      writer.option("path", catalogTable.location.toString)
     }
-
-    catalog.close()
+    writer.toTable(identifier.toString())
 
     if (StringUtils.isBlank(mergeKeys)) {
       if (StringUtils.isNotBlank(partitionColumnNames)) {

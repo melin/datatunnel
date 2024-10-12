@@ -73,13 +73,20 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     val kafkaSinkOption =
       context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
 
-    val query = dataset.writeStream
+    var writer = dataset.writeStream
+    writer = writer
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaSinkOption.getServers)
       .option("topic", kafkaSinkOption.getTopic)
-      .option("checkpointLocation", sourceOption.getCheckpointLocation)
-      .start()
-    query.awaitTermination()
+
+    val checkpointLocation = sourceOption.getCheckpointLocation
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    } else {
+      writer.option("checkpointLocation", checkpointLocation)
+    }
+
+    writer.start().awaitTermination()
   }
 
   private def writeHudi(
@@ -155,15 +162,15 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     val sparkSession = context.getSparkSession
     val sinkOption =
       context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
-    val databaseName = sinkOption.getDatabaseName
-    val tableName = sinkOption.getTableName
-    val identifier = TableIdentifier(tableName, Some(databaseName))
     val checkpointLocation = sourceOption.getCheckpointLocation
     val triggerProcessingTime = sourceOption.getTriggerProcessingTime
     if (StringUtils.isBlank(checkpointLocation)) {
       throw new IllegalArgumentException("checkpointLocation 不能为空")
     }
 
+    val databaseName = sinkOption.getDatabaseName
+    val tableName = sinkOption.getTableName
+    val identifier = TableIdentifier(tableName, Some(databaseName))
     if (!DeltaUtils.isDeltaTable(identifier)) {
       throw new DataTunnelException(
         throw new DataTunnelException(s"${identifier} 不是 delta 表")
@@ -189,15 +196,16 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     val sparkSession = context.getSparkSession
     val sinkOption =
       context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
-    val databaseName = sinkOption.getDatabaseName
-    val tableName = sinkOption.getTableName
-    val identifier = TableIdentifier(tableName, Some(databaseName))
+
     val checkpointLocation = sourceOption.getCheckpointLocation
     val triggerProcessingTime = sourceOption.getTriggerProcessingTime
     if (StringUtils.isBlank(checkpointLocation)) {
       throw new IllegalArgumentException("checkpointLocation 不能为空")
     }
 
+    val databaseName = sinkOption.getDatabaseName
+    val tableName = sinkOption.getTableName
+    val identifier = TableIdentifier(tableName, Some(databaseName))
     if (!IcebergUtils.isIcebergTable(identifier)) {
       throw new DataTunnelException(
         throw new DataTunnelException(s"${identifier} 不是 iceberg 表")

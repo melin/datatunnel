@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.kafka.util
 
-import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
 import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
 import org.apache.commons.lang3.StringUtils
@@ -17,8 +16,6 @@ import java.util.concurrent.TimeUnit
   * https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/
   */
 object DeltaUtils extends Logging {
-
-  private val PARTITION_COL_NAME = "ds";
 
   def isDeltaTable(identifier: TableIdentifier): Boolean = {
     val table = SparkSession.active.sessionState.catalog.getTableMetadata(identifier)

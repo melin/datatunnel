@@ -23,17 +23,17 @@ object Kafka2KafkaDemo {
         // date_format(unix_millis(timestamp), 'yyyyMMddHH')
         val sql = """
             DATATUNNEL SOURCE("kafka") OPTIONS (
-                subscribe = "orders",
-                "kafka.bootstrap.servers" = "3.208.89.140:9092",
-                includeHeaders = false,
-                checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/tdl_orders",
-                sourceTempView='tdl_users'
+                format="json",
+                subscribe = "users_json",
+                servers = "172.18.5.46:9092",
+                includeHeaders = true,
+                sourceTempView='tdl_users',
+                columns = ['id long', 'name string'],
+                checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/delta_users_kafka"
             )
-            TRANSFORM = "select cast(timestamp as string) as key, 
-                    concat(cast(value as string), '-2023') as value from tdl_users"
             SINK("kafka") OPTIONS (
-              topic = "orders_dwd",
-              servers = "3.208.89.140:9092"
+              topic = "users_json_1",
+              servers = "172.18.5.46:9092"
             )
         """.trimIndent()
 

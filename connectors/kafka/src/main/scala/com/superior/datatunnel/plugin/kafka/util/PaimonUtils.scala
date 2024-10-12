@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.kafka.util
 
-import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
@@ -13,8 +12,6 @@ import java.util.concurrent.TimeUnit
 /** 多数据源简单适配
   */
 object PaimonUtils extends Logging {
-
-  private val PARTITION_COL_NAME = "ds";
 
   def isPaimonTable(identifier: TableIdentifier): Boolean = {
     val table = SparkSession.active.sessionState.catalog.getTableMetadata(identifier)
