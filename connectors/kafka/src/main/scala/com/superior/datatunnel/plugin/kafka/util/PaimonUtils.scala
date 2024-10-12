@@ -1,6 +1,8 @@
 package com.superior.datatunnel.plugin.kafka.util
 
 import com.superior.datatunnel.common.enums.OutputMode
+import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
+import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
@@ -27,16 +29,25 @@ object PaimonUtils extends Logging {
       identifier: TableIdentifier,
       checkpointLocation: String,
       triggerProcessingTime: Long,
-      outputMode: OutputMode,
+      sinkOption: DatalakeDatatunnelSinkOption,
       querySql: String
   ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
 
     val streamingInput = spark.sql(querySql)
-    streamingInput.writeStream
+    val partitionColumnNames = sinkOption.getPartitionColumnNames
+
+    var writer = streamingInput.writeStream
+    if (StringUtils.isNotBlank(partitionColumnNames)) {
+      writer = writer.partitionBy(StringUtils.split(partitionColumnNames, ","): _*)
+    }
+
+    writer.options(sinkOption.getProperties)
+
+    writer
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("paimon")
-      .outputMode(outputMode.getName)
+      .outputMode(sinkOption.getOutputMode.getName)
       .option("checkpointLocation", checkpointLocation)
       .start(catalogTable.location.toString)
       .awaitTermination()

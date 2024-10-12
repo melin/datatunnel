@@ -65,6 +65,7 @@ object Kafka2IcebergDemo {
               databaseName = "bigdata",
               tableName = 'iceberg_users_kafka',
               mergeKeys = 'id',
+              partitionColumnNames = 'ds',
               columns = ["*"]
             )
         """.trimIndent()

@@ -26,7 +26,7 @@ object Kafka2PaimonDemo {
                 ds string)
             using paimon
             partitioned by (ds) 
-            TBLPROPERTIES ('primary-key'='id')
+            TBLPROPERTIES ('primary-key'='id,ds')
         """.trimIndent()
 
         loginToKerberos(configuration).doAs(PrivilegedExceptionAction() {

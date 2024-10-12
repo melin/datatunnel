@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.kafka.util
 
 import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
+import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.iceberg.CatalogProperties
 import org.apache.iceberg.hive.HiveCatalog
@@ -13,11 +14,10 @@ import org.apache.spark.sql.streaming.Trigger
 import java.util
 import java.util.concurrent.TimeUnit
 
-/**
- * https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
- * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56 多数据源简单适配
- * https://www.dremio.com/blog/compaction-in-apache-iceberg-fine-tuning-your-iceberg-tables-data-files/?source=post_page-----a653545de087--------------------------------
- */
+/** https://www.dremio.com/blog/row-level-changes-on-the-lakehouse-copy-on-write-vs-merge-on-read-in-apache-iceberg/
+  * https://medium.com/@geekfrosty/copy-on-write-or-merge-on-read-what-when-and-how-64c27061ad56 多数据源简单适配
+  * https://www.dremio.com/blog/compaction-in-apache-iceberg-fine-tuning-your-iceberg-tables-data-files/?source=post_page-----a653545de087--------------------------------
+  */
 object IcebergUtils extends Logging {
 
   private val PARTITION_COL_NAME = "ds";
@@ -35,8 +35,7 @@ object IcebergUtils extends Logging {
       identifier: TableIdentifier,
       checkpointLocation: String,
       triggerProcessingTime: Long,
-      outputMode: OutputMode,
-      getMergeKeys: String,
+      sinkOption: DatalakeDatatunnelSinkOption,
       querySql: String
   ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
@@ -59,6 +58,12 @@ object IcebergUtils extends Logging {
     val icebergTable =
       catalog.loadTable(org.apache.iceberg.catalog.TableIdentifier.of(identifier.database.get, identifier.table))
 
+    var mergeKeys = sinkOption.getMergeKeys
+    val outputMode = sinkOption.getOutputMode
+    val partitionColumnNames = sinkOption.getPartitionColumnNames
+
+    writer.options(sinkOption.getProperties)
+
     if (icebergTable.spec().isPartitioned) {
       writer.option("fanout-enabled", "true")
       writer.toTable(identifier.toString())
@@ -68,13 +73,21 @@ object IcebergUtils extends Logging {
 
     catalog.close()
 
-    if (StringUtils.isBlank(getMergeKeys)) {
+    if (StringUtils.isBlank(mergeKeys)) {
+      if (StringUtils.isNotBlank(partitionColumnNames)) {
+        writer.partitionBy(StringUtils.split(partitionColumnNames, ","): _*)
+      }
+
       writer
         .outputMode(outputMode.getName)
         .start()
         .awaitTermination()
     } else {
-      val foreachBatchFn = new ForeachBatchFn(getMergeKeys, identifier)
+      if (StringUtils.isNotBlank(partitionColumnNames)) {
+        mergeKeys = mergeKeys + "," + partitionColumnNames
+      }
+
+      val foreachBatchFn = new ForeachBatchFn(mergeKeys, identifier)
       writer
         .foreachBatch(foreachBatchFn)
         .outputMode("update")

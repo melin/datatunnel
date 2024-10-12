@@ -57,6 +57,7 @@ object Kafka2DeltaDemo {
               databaseName = "bigdata",
               tableName = 'delta_users_kafka',
               mergeKeys= 'id',
+              partitionColumnNames = 'ds',
               columns = ["*"]
             )
         """.trimIndent()

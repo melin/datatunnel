@@ -21,6 +21,9 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
     @OptionDesc("定义 delta/iceberg merge key，用于 merge sql")
     private String mergeKeys;
 
+    @OptionDesc("分区字段名, 多个逗号分割")
+    private String partitionColumnNames;
+
     public String getDatabaseName() {
         return databaseName;
     }
@@ -59,5 +62,13 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
 
     public void setMergeKeys(String mergeKeys) {
         this.mergeKeys = mergeKeys;
+    }
+
+    public String getPartitionColumnNames() {
+        return partitionColumnNames;
+    }
+
+    public void setPartitionColumnNames(String partitionColumnNames) {
+        this.partitionColumnNames = partitionColumnNames;
     }
 }

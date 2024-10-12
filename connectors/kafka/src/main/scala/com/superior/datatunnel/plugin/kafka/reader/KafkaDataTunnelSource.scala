@@ -108,6 +108,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       identifier,
       checkpointLocation,
       triggerProcessingTime,
+      sinkOption,
       querySql
     )
   }
@@ -141,7 +142,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       identifier,
       checkpointLocation,
       triggerProcessingTime,
-      sinkOption.getOutputMode,
+      sinkOption,
       querySql
     )
   }
@@ -175,8 +176,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       identifier,
       checkpointLocation,
       triggerProcessingTime,
-      sinkOption.getOutputMode,
-      sinkOption.getMergeKeys,
+      sinkOption,
       querySql
     )
   }
@@ -210,8 +210,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       identifier,
       checkpointLocation,
       triggerProcessingTime,
-      sinkOption.getOutputMode,
-      sinkOption.getMergeKeys,
+      sinkOption,
       querySql
     )
   }

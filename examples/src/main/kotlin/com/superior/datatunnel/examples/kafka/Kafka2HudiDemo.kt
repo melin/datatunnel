@@ -1,12 +1,13 @@
 package com.superior.datatunnel.examples.kafka
 
 import com.superior.datatunnel.core.DataTunnelExtensions
-import io.delta.sql.DeltaSparkSessionExtension
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.hudi.HoodieSparkSessionExtension
 import java.security.PrivilegedExceptionAction
 
+// https://www.modb.pro/db/1797448748783702016 (Hudi HBase 依赖冲突问题及解决方案)
 object Kafka2HudiDemo {
 
     private val KRB5_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/krb5.conf"
@@ -24,8 +25,15 @@ object Kafka2HudiDemo {
                 id BIGINT, 
                 name String, 
                 ds string)
-            using delta
+            using hudi
             partitioned by (ds) 
+            TBLPROPERTIES (
+              type = 'mor',
+              primaryKey = 'id',
+              preCombineField = 'id',
+              hoodie.metadata.enable = false,
+              hoodie.cleaner.commits.retained = '1'
+            );
         """.trimIndent()
 
         loginToKerberos(configuration).doAs(PrivilegedExceptionAction() {
@@ -35,12 +43,16 @@ object Kafka2HudiDemo {
                 .enableHiveSupport()
                 .appName("Datatunnel spark example")
                 .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name + "," + DeltaSparkSessionExtension::class.java.name)
+                .config("spark.kryo.registrator", "org.apache.spark.HoodieSparkKryoRegistrar")
+                .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog")
+                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name + "," + HoodieSparkSessionExtension::class.java.name)
+                .config("hoodie.metadata.enable", false)
                 .getOrCreate()
 
             spark.sql("drop table if exists bigdata.hudi_users_kafka")
             spark.sql(createTableSql)
+            spark.sql("show create table bigdata.hudi_users_kafka").show(false)
+
 
             val sql = """
             DATATUNNEL SOURCE("kafka") OPTIONS (
@@ -53,9 +65,9 @@ object Kafka2HudiDemo {
                 checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/hudi_users_kafka"
             ) 
             TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
-            SINK("delta") OPTIONS (
+            SINK("hudi") OPTIONS (
               databaseName = "bigdata",
-              tableName = 'delta_users_kafka',
+              tableName = 'hudi_users_kafka',
               columns = ["*"]
             )
         """.trimIndent()

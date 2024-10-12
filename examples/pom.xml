@@ -79,7 +79,9 @@
         <dependency>
             <groupId>org.apache.hudi</groupId>
             <artifactId>hudi-spark3.5-bundle_2.12</artifactId>
+            <version>0.15.0</version>
         </dependency>
+
         <dependency>
             <groupId>io.delta</groupId>
             <artifactId>delta-spark_2.12</artifactId>
@@ -179,11 +181,11 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-hbase</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>

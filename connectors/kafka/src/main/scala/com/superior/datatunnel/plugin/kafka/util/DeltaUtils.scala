@@ -2,6 +2,7 @@ package com.superior.datatunnel.plugin.kafka.util
 
 import com.superior.datatunnel.common.enums.OutputMode
 import com.superior.datatunnel.common.util.FsUtils
+import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -31,12 +32,12 @@ object DeltaUtils extends Logging {
       identifier: TableIdentifier,
       checkpointLocation: String,
       triggerProcessingTime: Long,
-      outputMode: OutputMode,
-      getMergeKeys: String,
+      sinkOption: DatalakeDatatunnelSinkOption,
       querySql: String
   ): Unit = {
     val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
 
+    spark.sessionState.catalog.externalCatalog.getTable("bigdata", "delta_users_kafka")
     FsUtils.mkDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
@@ -45,13 +46,26 @@ object DeltaUtils extends Logging {
       .format("delta")
       .option("checkpointLocation", checkpointLocation)
 
-    if (StringUtils.isBlank(getMergeKeys)) {
+    writer.options(sinkOption.getProperties)
+
+    var mergeKeys = sinkOption.getMergeKeys
+    val outputMode = sinkOption.getOutputMode
+    val partitionColumnNames = sinkOption.getPartitionColumnNames
+
+    if (StringUtils.isBlank(mergeKeys)) {
+      if (StringUtils.isNotBlank(partitionColumnNames)) {
+        writer.partitionBy(StringUtils.split(partitionColumnNames, ","): _*)
+      }
+
       writer
         .outputMode(outputMode.getName)
         .start(catalogTable.location.toString)
         .awaitTermination()
     } else {
-      val foreachBatchFn = new ForeachBatchFn(getMergeKeys, identifier)
+      if (StringUtils.isNotBlank(partitionColumnNames)) {
+        mergeKeys = mergeKeys + "," + partitionColumnNames
+      }
+      val foreachBatchFn = new ForeachBatchFn(mergeKeys, identifier)
       writer
         .foreachBatch(foreachBatchFn)
         .outputMode("update")
