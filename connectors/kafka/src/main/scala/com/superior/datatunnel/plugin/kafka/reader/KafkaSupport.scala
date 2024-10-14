@@ -114,13 +114,31 @@ object KafkaSupport {
       .load
 
     val columns = sourceOption.getColumns
-    if (columns.length == 1 && "*".equals(columns(0))) {
-      rows = rows.selectExpr("CAST(value AS STRING) as value")
-    } else {
-      val jsonSchema = columns.mkString(",")
-      rows = rows
-        .withColumn("data", from_json(col("value").cast("String"), StructType.fromDDL(jsonSchema)))
+    val format = sourceOption.getFormat
+    if ("json" == format) {
+      if (columns.length == 1 && "*".equals(columns(0))) {
+        throw new IllegalArgumentException("json 格式，需要指定 columns. 例如：['id long', 'name string']")
+      } else {
+        val jsonSchema = columns.mkString(",")
+        rows = rows
+          .withColumn("data", from_json(col("value").cast("String"), StructType.fromDDL(jsonSchema)))
 
+        if (sourceOption.isIncludeHeaders) {
+          rows = rows.selectExpr(
+            "key as kafka_key",
+            "topic as kafka_topic",
+            "timestamp as kafka_timestamp",
+            "timestampType as kafka_timestampType",
+            "partition as kafka_partition",
+            "offset as kafka_offset",
+            "headers as kafka_headers",
+            "data.*"
+          )
+        } else {
+          rows = rows.selectExpr("data.*")
+        }
+      }
+    } else {
       if (sourceOption.isIncludeHeaders) {
         rows = rows.selectExpr(
           "key as kafka_key",
@@ -130,10 +148,10 @@ object KafkaSupport {
           "partition as kafka_partition",
           "offset as kafka_offset",
           "headers as kafka_headers",
-          "data.*"
+          "CAST(value AS STRING) as value"
         )
       } else {
-        rows = rows.selectExpr("data.*")
+        rows = rows.selectExpr("CAST(value AS STRING) as value")
       }
     }
     rows
