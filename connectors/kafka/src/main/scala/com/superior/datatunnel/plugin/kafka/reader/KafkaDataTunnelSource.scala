@@ -5,6 +5,7 @@ import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunne
 import com.superior.datatunnel.plugin.kafka.{DatalakeDatatunnelSinkOption, KafkaDataTunnelSinkOption, KafkaDataTunnelSourceOption}
 import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, HudiUtils, IcebergUtils, PaimonUtils}
 import org.apache.commons.lang3.StringUtils
+import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.functions._
@@ -71,6 +72,10 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     val dataset = context.getSparkSession.sql(querySql)
 
     var writer = dataset.writeStream
+    writer.options(kafkaSinkOption.getProperties)
+    writer.option("key.serializer", classOf[StringSerializer].getName)
+    writer.option("value.serializer", classOf[StringSerializer].getName)
+
     writer = writer
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaSinkOption.getServers)
@@ -221,11 +226,11 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
   }
 
   private def buildQuerySqlForKafka(
-     context: DataTunnelContext,
-     sourceOption: KafkaDataTunnelSourceOption,
-     sinkOption: KafkaDataTunnelSinkOption,
-     tmpTable: String
-   ): String = {
+      context: DataTunnelContext,
+      sourceOption: KafkaDataTunnelSourceOption,
+      sinkOption: KafkaDataTunnelSinkOption,
+      tmpTable: String
+  ): String = {
     val sql = "select * from " + tmpTable
 
     val transfromSql = context.getTransfromSql
@@ -234,7 +239,8 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       df.createTempView(sourceOption.getSourceTempView)
       transfromSql
     } else {
-      val df = context.getSparkSession.sql(sql)
+      val df = context.getSparkSession
+        .sql(sql)
         .select(to_json(struct("*")).as("value"))
         .selectExpr("CAST(value AS STRING)")
 

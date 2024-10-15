@@ -1,65 +1,112 @@
 ### Reader
 
-> kafka 数据只能写入hive hudi 存储格式表
-> 输出hive 只需要填写参数 databseName 和 tableName
+> kafka 数据支持写入sink: kafka，log, 数据湖(hudi, paimon, iceberg, delta)
+
+#### 参数说明
+
+| 参数key               | 数据类型    | 是否必填  | 默认值  | 描述                                                                                                                                                   |
+|:--------------------|:--------| :-----   |:-----|:-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| format              | string  |√          |      | 支持：json，text                                                                                                                                         |
+| subscribe           | string  |          |      | kafka topic, 多个topic逗号分割                                                                                                                             |
+| servers             | string  |          |      | kafka 服务器地址                                                                                                                                          |
+| includeHeaders      | boolean |          |      | 输出kafka 消息元数据信息，在transform 可以直接使用元数据字段。包含：kafka_key, kafka_topic, kafka_timestamp, kafka_timestampType, kafka_partition, kafka_offset, kafka_headers |
+| columns             | array   |          |      | text：输出value字段，json：需要指定字段类型，格式：[columnName dataType, columnName dataType], 例如：{"id":4,"name":"zhangsan"}，配置值: ['id long', 'name string']            |
+| checkpointLocation  | string  |√           |    |                                                                                                                                                      |
+| kafkaGroupId        | string  |          |      | 消费组                                                                                                                                                  |
+| sourceTempView      | string  |          |      | transform sql 中临时表名                                                                                                                                  |
+| properties.*        | string  |          |      | 其它参数参考：https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html                                                                                                                                                     |
+
+
+> 基于spark streaming kafka 实现，
+
+### Kafka Writer
+
+#### 参数说明
+
+| 参数key   | 数据类型    | 是否必填    | 默认值    | 描述              |
+|:--------|:--------|:--------| :------  |:----------------|
+| topic   | string  | √       | 10       | topic           |
+| servers | strint  | √       | 20       | kafka 服务器地址     |
+| properties.*        | string  |         |      | 其它参数参考：https://docs.confluent.io/platform/current/installation/configuration/producer-configs.html |
+
+> key.serializer 和 value.serializer 为 StringSerializer，不可以修改
+
+
+### DataLake Writer
+
+> 支持数据湖：hudi, paimon, iceberg, delta
+
+#### 参数说明
+
+| 参数key                | 数据类型   | 是否必填      | 默认值   | 描述                                              |
+|:---------------------|:-------|:----------|:------|:------------------------------------------------|
+| databaseName         | string | √         | 10    | topic                                           |
+| tableName            | strint | √         | 20    | kafka 服务器地址                                     |
+| outputMode           | string |          | append | 写入模式, 仅支持：append 和 complete                     |
+| outputMode           | string |          | append | 写入模式, 仅支持：append 和 complete                     |
+| mergeKeys            | string |          | append | 定义 delta/iceberg merge key，用于 merge sql, 多个值逗号分隔 |
+| partitionColumnNames | string |          | append | 分区字段名, 多个值逗号分隔                                  |
+| columns              | array  |          | ["*"] |                                                 |
+| properties.*         | string  |         |      | |
+
+> key.serializer 和 value.serializer 为 StringSerializer，不可以修改
+
+### Examples
 
 ```sql
--- kafka 不做消息解析，建表语句如下，
-create table kafka_log_dt (
-    id string comment "默认为kafka key，如果key为空，值为timestamp",
-    message string comment "采集消息",
-    kafka_timestamp bigint,
-    ds string comment "小时分区：yyyyMMddHH",
-    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息")
-using hudi  
-primary key (id) with MOR 
-PARTITIONED BY (ds,kafka_topic)
-lifeCycle 100
-comment 'hudi demo'
-
---直接bin/spark-sql 建表语句
-create table kafka_log_dt (
-    id string comment "默认为kafka key，如果key为空，值为timestamp",
-    message string comment "采集消息",
-    kafka_timestamp bigint,
-    ds string comment "小时分区：yyyyMMddHH",
-    kafka_topic string comment "subscribe可以配置多个topic，通过kafka_topic分区消息")
-using hudi    
-OPTIONS (
-   primaryKey='id',
-   type='mor',
-   hoodie.parquet.compression.codec='snappy',
-   hoodie.metadata.enable=true,
-   hoodie.payload.event.time.field='kafka_timestamp',
-   hoodie.payload.ordering.field='kafka_timestamp',
-   hoodie.datasource.write.precombine.field='id',
-   hoodie.cleaner.commits.retained=24
+--kafka json 格式，写入hudi
+DATATUNNEL SOURCE("kafka") OPTIONS (
+    format="json",
+    subscribe = "users_json",
+    servers = "172.18.5.102:9092",
+    includeHeaders = true,
+    sourceTempView='tdl_users',
+    columns = ['id long', 'name string'],
+    checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/hudi_users_kafka"
+) 
+TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
+SINK("hudi") OPTIONS (
+    databaseName = "bigdata",
+    tableName = 'hudi_users_kafka',
+    columns = ["*"]
 )
-PARTITIONED BY (ds,kafka_topic)
-comment 'hudi demo'
+     
+--kafka json 格式，写入delta 分区表, 按照 mergeKeys 覆盖写入
+DATATUNNEL SOURCE("kafka") OPTIONS (
+    format="json",
+    subscribe = "users_json",
+    servers = "172.18.5.46:9092",
+    includeHeaders = true,
+    sourceTempView='tdl_users',
+    columns = ['id long', 'name string'],
+    checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/delta_users_kafka"
+) 
+TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
+SINK("delta") OPTIONS (
+    databaseName = "bigdata",
+    tableName = 'delta_users_kafka',
+    mergeKeys= 'id',
+    partitionColumnNames = 'ds',
+    columns = ["*"]
+)
+        
+--kafka text 格式，写入delta 分区表, kafka value 数据写入 delta 字段 content。
+DATATUNNEL SOURCE("kafka") OPTIONS (
+    format="text",
+    subscribe = "users_json",
+    servers = "172.18.5.46:9092",
+    includeHeaders = true,
+    sourceTempView='tdl_users',
+    checkpointLocation = "/user/superior/stream_checkpoint/datatunnel/delta_users_kafka_text"
+) 
+TRANSFORM = "select value as content, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
+SINK("delta") OPTIONS (
+    databaseName = "bigdata",
+    tableName = 'delta_users_kafka_text',
+    partitionColumnNames = 'ds',
+    columns = ["*"]
+)
 ```
-
-#### 参数说明
-
-| 参数key    | 数据类型    | 是否必填  | 默认值    | 描述          |
-|:---------|:--------| :-----   | :------  |:------------|
-| subscribe    | string  |          | 10       | 多个topic逗号分割 |
-| bootstrap.servers | strint  |          | 20       | kafka 服务器地址 |
-
-> 基于spark streaming kafka 实现，详细参数请参考：https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
-
-### Writer
-
-#### 参数说明
-
-| 参数key    | 数据类型    | 是否必填  | 默认值    | 描述                                                                         |
-|:---------|:--------| :-----   | :------  |:---------------------------------------------------------------------------|
-| topic    | string  |          | 10       | topic                                                                      |
-| bootstrap.servers | strint  |          | 20       | kafka 服务器地址                                                                |
-
-> 其它参数参考：https://docs.confluent.io/platform/current/installation/configuration/producer-configs.html
-> key.serializer 和 value.serializer 参数已经固定，不可以修改
-
 
 ### 参考
 
