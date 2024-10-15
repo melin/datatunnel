@@ -61,12 +61,11 @@ object HudiUtils extends Logging {
       .option(DataSourceWriteOptions.ASYNC_COMPACT_ENABLE.key, "true")
       .option(DataSourceWriteOptions.ASYNC_CLUSTERING_ENABLE.key, "true")
 
-    if (!partColumns.isEmpty)
-      {
-        writer.option(DataSourceWriteOptions.PARTITIONPATH_FIELD.key, partColumns.mkString(","))
-      }
-        .option(HoodieWriteConfig.TBL_NAME.key, identifier.table)
-        .outputMode(OutputMode.Append)
+    if (partColumns.nonEmpty) {
+      writer.option(DataSourceWriteOptions.PARTITIONPATH_FIELD.key, partColumns.mkString(","))
+    }
+    writer.option(HoodieWriteConfig.TBL_NAME.key, identifier.table)
+    writer.outputMode(OutputMode.Append)
 
     FsUtils.mkDir(spark, checkpointLocation)
     writer.option("checkpointLocation", checkpointLocation)
@@ -83,7 +82,7 @@ object HudiUtils extends Logging {
           classOf[MultiPartKeysValueExtractor].getCanonicalName
         )
 
-      if (!partColumns.isEmpty) {
+      if (partColumns.nonEmpty) {
         writer.option(HoodieSyncConfig.META_SYNC_PARTITION_FIELDS.key, partColumns.mkString(","))
       }
     }
