@@ -62,7 +62,7 @@ object KafkaSupport {
     val lineRow = createDataSet(params, sourceOption)
 
     val schemaInfo = lineRow.schema.treeString(Int.MaxValue)
-    LogUtils.info("source schema: \n" + schemaInfo)
+    LogUtils.info(s"${sourceOption.getFormat} source schema: ${schemaInfo}")
     lineRow.createOrReplaceTempView(tableName);
   }
 
