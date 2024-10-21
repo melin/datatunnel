@@ -4,7 +4,7 @@ import com.superior.datatunnel.common.util.FsUtils
 import com.superior.datatunnel.plugin.kafka.DatalakeDatatunnelSinkOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.streaming.Trigger
 
@@ -32,8 +32,6 @@ object DeltaUtils extends Logging {
       sinkOption: DatalakeDatatunnelSinkOption,
       querySql: String
   ): Unit = {
-    val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
-
     spark.sessionState.catalog.externalCatalog.getTable("bigdata", "delta_users_kafka")
     FsUtils.mkDir(spark, checkpointLocation)
 
@@ -42,8 +40,7 @@ object DeltaUtils extends Logging {
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("delta")
       .option("checkpointLocation", checkpointLocation)
-
-    writer.options(sinkOption.getProperties)
+      .options(sinkOption.getProperties)
 
     var mergeKeys = sinkOption.getMergeKeys
     val outputMode = sinkOption.getOutputMode
@@ -56,7 +53,7 @@ object DeltaUtils extends Logging {
 
       writer
         .outputMode(outputMode.getName)
-        .start(catalogTable.location.toString)
+        .toTable(identifier.unquotedString)
         .awaitTermination()
     } else {
       if (StringUtils.isNotBlank(partitionColumnNames)) {

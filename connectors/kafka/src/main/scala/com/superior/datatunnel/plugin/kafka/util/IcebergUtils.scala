@@ -32,26 +32,22 @@ object IcebergUtils extends Logging {
       sinkOption: DatalakeDatatunnelSinkOption,
       querySql: String
   ): Unit = {
-    val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
-
     FsUtils.mkDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
     val writer = streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
-      .format("delta")
+      .format("iceberg")
       .option("checkpointLocation", checkpointLocation)
+      .options(sinkOption.getProperties)
 
     var mergeKeys = sinkOption.getMergeKeys
     val outputMode = sinkOption.getOutputMode
     val partitionColumnNames = sinkOption.getPartitionColumnNames
 
-    writer.options(sinkOption.getProperties)
-
     if (StringUtils.isNotBlank(partitionColumnNames)) {
       writer.option("fanout-enabled", "true")
     }
-    writer.toTable(identifier.toString())
 
     if (StringUtils.isBlank(mergeKeys)) {
       if (StringUtils.isNotBlank(partitionColumnNames)) {
@@ -60,7 +56,7 @@ object IcebergUtils extends Logging {
 
       writer
         .outputMode(outputMode.getName)
-        .start()
+        .toTable(identifier.unquotedString)
         .awaitTermination()
     } else {
       if (StringUtils.isNotBlank(partitionColumnNames)) {

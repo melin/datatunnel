@@ -35,11 +35,11 @@ object PaimonUtils extends Logging {
     val partitionColumnNames = sinkOption.getPartitionColumnNames
 
     var writer = streamingInput.writeStream
+      .options(sinkOption.getProperties)
+
     if (StringUtils.isNotBlank(partitionColumnNames)) {
       writer = writer.partitionBy(StringUtils.split(partitionColumnNames, ","): _*)
     }
-
-    writer.options(sinkOption.getProperties)
 
     writer
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
