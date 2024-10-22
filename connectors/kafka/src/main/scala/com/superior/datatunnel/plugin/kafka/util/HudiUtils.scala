@@ -88,7 +88,8 @@ object HudiUtils extends Logging {
     }
 
     val pros = catalogTable.properties.filter(entry => StringUtils.startsWith(entry._1, "hoodie."))
-    writer.options(pros)
+    writer
+      .options(pros)
       .options(sinkOption.getProperties)
       .start(catalogTable.location.toString)
       .awaitTermination()
