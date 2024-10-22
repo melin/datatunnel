@@ -32,7 +32,6 @@ object DeltaUtils extends Logging {
       sinkOption: DatalakeDatatunnelSinkOption,
       querySql: String
   ): Unit = {
-    spark.sessionState.catalog.externalCatalog.getTable("bigdata", "delta_users_kafka")
     FsUtils.mkDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
