@@ -153,9 +153,11 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
         val map = new util.HashMap[String, String]
         map.put("executionId", execution.executionId.toString)
         execution.metrics.foreach(metric => {
-          val numPartsOpt = execution.metricValues.get(metric.accumulatorId)
-          if (numPartsOpt.isDefined) {
-            map.put(metric.name, numPartsOpt.get)
+          if (execution.metricValues != null && metric.accumulatorId != null) {
+            val numPartsOpt = execution.metricValues.get(metric.accumulatorId)
+            if (numPartsOpt.isDefined) {
+              map.put(metric.name, numPartsOpt.get)
+            }
           }
         })
       })
