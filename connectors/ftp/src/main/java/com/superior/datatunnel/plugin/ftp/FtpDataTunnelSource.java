@@ -95,6 +95,8 @@ public class FtpDataTunnelSource implements DataTunnelSource {
             reader.option("sep", sourceOption.getSep());
             reader.option("encoding", sourceOption.getEncoding());
             reader.option("header", sourceOption.isHeader());
+        } else if ("excel".equalsIgnoreCase(format)) {
+            reader.option("header", sourceOption.isHeader());
         }
         if (StringUtils.isNotBlank(sourceOption.getLineSep())) {
             reader.option("lineSep", sourceOption.getLineSep());
