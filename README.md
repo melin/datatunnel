@@ -134,6 +134,7 @@ distCp options(键值对参数)
 | consistentPathBehaviour   | false | Revert the path behaviour when using overwrite or update to the path behaviour of non-overwrite/non-update          |
 | includes          |                      | |
 | excludes          |                      | |
+| excludeHiddenFile | true                | 同步排除隐藏文件和目录 |
 
 ```sql
 set spark.hadoop.fs.oss.endpoint = oss-cn-hangzhou.aliyuncs.com;
