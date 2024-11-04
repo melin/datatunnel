@@ -168,10 +168,10 @@ DISTCP OPTIONS (
 )
            
 set spark.hadoop.fs.sftp.impl = com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem
-set spark.hadoop.fs.sftp.host = 172.18.5.44
+set spark.hadoop.fs.sftp.host = 172.24.5.213
 set spark.hadoop.fs.sftp.host.port = 22
-set spark.hadoop.fs.sftp.user.172.18.5.44 = root
-set spark.hadoop.fs.sftp.password.172.18.5.44.root = 123caoqwe
+set spark.hadoop.fs.sftp.user.172.24.5.213 = root
+set spark.hadoop.fs.sftp.password.172.24.5.213.root = 123caoqwe
 set spark.hadoop.fs.s3a.access.key = McvVnpOziVsWv7Qlyut7
 set spark.hadoop.fs.s3a.secret.key = PbICbD6H7iyq0PuefHa383YoqJn3JCjedQHSYmbp
 set spark.hadoop.fs.s3a.endpoint = http://172.18.6.181:9330/
@@ -179,7 +179,7 @@ set spark.hadoop.fs.s3a.path.style.access = true
 set spark.hadoop.fs.s3a.impl = org.apache.hadoop.fs.s3a.S3AFileSystem
 
 DISTCP OPTIONS (
-  srcPaths = ['sftp://root@172.18.5.44/root'],
+  srcPaths = ['sftp://root@172.24.5.213/root'],
   destPath = "s3a://logs/",
   overwrite = true,
   delete = true,
