@@ -11,6 +11,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 import com.superior.datatunnel.distcp.objects._
+import org.apache.commons.lang3.StringUtils
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -54,7 +55,8 @@ object FileListUtils extends Logging {
       threads: Int,
       includePathRootInDependents: Boolean,
       includes: List[Regex],
-      excludes: List[Regex]
+      excludes: List[Regex],
+      excludeHiddenFile: Boolean
   ): Seq[(SerializableFileStatus, Seq[SerializableFileStatus])] = {
 
     assert(threads > 0, "Number of threads must be positive")
@@ -93,9 +95,12 @@ object FileListUtils extends Logging {
               )
               threadsWorking.put(uuid, true)
               try {
-                localFS
-                  .listLocatedStatus(p._1)
-                  .foreach {
+                var files = localFS.listLocatedStatus(p._1).toSeq
+                if (excludeHiddenFile) {
+                  files = files.filter(file => !StringUtils.startsWith(file.getPath.getName, "."))
+                }
+
+                files.foreach {
                     case l if l.isSymlink =>
                       throw new RuntimeException(s"Link [$l] is not supported")
                     case d if d.isDirectory =>
@@ -170,7 +175,8 @@ object FileListUtils extends Logging {
       updateOverwritePathBehaviour: Boolean,
       numListstatusThreads: Int,
       includes: List[Regex],
-      excludes: List[Regex]
+      excludes: List[Regex],
+      excludeHiddenFile: Boolean
   ): RDD[KeyedCopyDefinition] = {
     val sourceRDD = sourceURIs
       .map { sourceURI =>
@@ -184,7 +190,8 @@ object FileListUtils extends Logging {
               numListstatusThreads,
               !updateOverwritePathBehaviour,
               includes,
-              excludes
+              excludes,
+              excludeHiddenFile
             )
           )
           .map { case (f, d) =>
@@ -233,7 +240,8 @@ object FileListUtils extends Logging {
           options.getNumListstatusThreads,
           false,
           List.empty,
-          List.empty
+          List.empty,
+          true
         )
       )
       .map { case (f, _) => (f.getPath.toUri, f) }

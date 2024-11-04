@@ -30,6 +30,8 @@ public class DistCpOption implements Serializable {
 
     private String[] excludes;
 
+    private boolean excludeHiddenFile = true;
+
     public boolean updateOverwritePathBehaviour() {
         return !consistentPathBehaviour && (update || overwrite);
     }
@@ -136,5 +138,13 @@ public class DistCpOption implements Serializable {
 
     public void setExcludes(String[] excludes) {
         this.excludes = excludes;
+    }
+
+    public boolean isExcludeHiddenFile() {
+        return excludeHiddenFile;
+    }
+
+    public void setExcludeHiddenFile(boolean excludeHiddenFile) {
+        this.excludeHiddenFile = excludeHiddenFile;
     }
 }

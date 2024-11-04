@@ -51,7 +51,8 @@ class HdfsDistCpAction extends DistCpAction with Logging {
       option.updateOverwritePathBehaviour,
       option.getNumListstatusThreads,
       includesRegex,
-      excludesRegex
+      excludesRegex,
+      option.isExcludeHiddenFile
     )
 
     val destinationRDD = FileListUtils.getDestinationFiles(
