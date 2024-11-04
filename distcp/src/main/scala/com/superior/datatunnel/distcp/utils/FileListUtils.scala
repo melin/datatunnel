@@ -101,24 +101,24 @@ object FileListUtils extends Logging {
                 }
 
                 files.foreach {
-                    case l if l.isSymlink =>
-                      throw new RuntimeException(s"Link [$l] is not supported")
-                    case d if d.isDirectory =>
-                      if (!pathMatches(d.getPath, excludes)) {
-                        val s = SerializableFileStatus(d)
-                        toProcess.addFirst((d.getPath, p._2 :+ s))
-                        processed.add((s, p._2))
-                      }
-                    case f =>
-                      if (
-                        (includes.isEmpty || pathMatches(
-                          f.getPath,
-                          includes
-                        )) && !pathMatches(f.getPath, excludes)
-                      ) {
-                        processed.add((SerializableFileStatus(f), p._2))
-                      }
-                  }
+                  case l if l.isSymlink =>
+                    throw new RuntimeException(s"Link [$l] is not supported")
+                  case d if d.isDirectory =>
+                    if (!pathMatches(d.getPath, excludes)) {
+                      val s = SerializableFileStatus(d)
+                      toProcess.addFirst((d.getPath, p._2 :+ s))
+                      processed.add((s, p._2))
+                    }
+                  case f =>
+                    if (
+                      (includes.isEmpty || pathMatches(
+                        f.getPath,
+                        includes
+                      )) && !pathMatches(f.getPath, excludes)
+                    ) {
+                      processed.add((SerializableFileStatus(f), p._2))
+                    }
+                }
               } catch {
                 case e: Exception => exceptions.add(e)
               }

@@ -166,7 +166,8 @@ DISTCP OPTIONS (
   delete = true,
   excludes = [".*/_SUCCESS"]
 )
-           
+     
+--- sftp 同步数据到 minio 对象存储
 set spark.hadoop.fs.sftp.impl = com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem
 set spark.hadoop.fs.sftp.host = 172.24.5.213
 set spark.hadoop.fs.sftp.host.port = 22
