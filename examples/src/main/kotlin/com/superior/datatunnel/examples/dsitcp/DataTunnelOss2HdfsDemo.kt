@@ -6,7 +6,7 @@ import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.sql.SparkSession
 import java.security.PrivilegedExceptionAction
 
-object DataTunnelMysql2LogDemo {
+object DataTunnelOss2HdfsDemo {
 
     private val KRB5_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/krb5.conf"
     private val KEYTAB_FILE = "/Users/melin/Documents/codes/superior/datatunnel/examples/src/main/resources/superior.keytab"

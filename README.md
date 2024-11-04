@@ -117,8 +117,7 @@ export table tablename [PARTITION (part_column="value"[, ...])] TO 'export_data_
 s3、hdfs、ftp、sftp、ftps 之间直接传输文件
 
 ```sql
-distCp sourcePath options(键值对参数) 
-TO sinkPath options(键值对参数)
+distCp options(键值对参数)
 ```
 | 参数              | 默认值                  | 描述                     |
 |-----------------|----------------------|------------------------|
