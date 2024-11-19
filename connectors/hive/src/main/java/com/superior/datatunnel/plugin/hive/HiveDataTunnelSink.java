@@ -1,14 +1,22 @@
 package com.superior.datatunnel.plugin.hive;
 
+import static com.superior.datatunnel.common.enums.WriteMode.APPEND;
+import static com.superior.datatunnel.common.enums.WriteMode.OVERWRITE;
+
 import com.clearspring.analytics.util.Lists;
 import com.superior.datatunnel.api.DataTunnelContext;
-import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.DataTunnelException;
+import com.superior.datatunnel.api.DataTunnelSink;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
 import com.superior.datatunnel.common.enums.WriteMode;
 import com.superior.datatunnel.common.util.HttpClientUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
@@ -21,15 +29,6 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.superior.datatunnel.common.enums.WriteMode.APPEND;
-import static com.superior.datatunnel.common.enums.WriteMode.OVERWRITE;
-
 /**
  * @author melin 2021/7/27 11:06 上午
  */
@@ -38,8 +37,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     private static final Logger LOG = LoggerFactory.getLogger(HiveDataTunnelSink.class);
 
     private static final FileFormat[] SUPPORT_FORMAT =
-            new FileFormat[] {FileFormat.ORC, FileFormat.PARQUET,
-                    FileFormat.HUDI, FileFormat.ICEBERG};
+            new FileFormat[] {FileFormat.ORC, FileFormat.PARQUET, FileFormat.HUDI, FileFormat.ICEBERG};
 
     private void validate(HiveDataTunnelSinkOption sinkOption) {
         if (!ArrayUtils.contains(SUPPORT_FORMAT, sinkOption.getFileFormat())) {
@@ -99,17 +97,23 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             }
 
             String sql = "";
+            String columnList = "";
+            String[] columns = sinkOption.getColumns();
+            if (!(columns.length == 1 && "*".equals(columns[0]))) {
+                columnList = "\n(" + StringUtils.join(columns, ", ") + ")\n";
+            }
+
             if (APPEND == writeMode) {
                 if (isPartition) {
-                    sql = "insert into table " + table + " partition(" + partitionSpec + ") " + querySql;
+                    sql = "insert into table " + table + " partition(" + partitionSpec + ") " + columnList + querySql;
                 } else {
-                    sql = "insert into table " + table + " " + querySql;
+                    sql = "insert into table " + table + " " + columnList + querySql;
                 }
             } else if (OVERWRITE == writeMode) {
                 if (isPartition) {
-                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + querySql;
+                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + columnList + querySql;
                 } else {
-                    sql = "insert overwrite table " + table + " " + querySql;
+                    sql = "insert overwrite table " + table + " " + columnList + querySql;
                 }
             } else {
                 throw new DataTunnelException("不支持的写入模式：" + writeMode);
@@ -118,12 +122,13 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             if (FileFormat.ORC == sinkOption.getFileFormat()) {
                 context.getSparkSession().sql("set spark.sql.orc.compression.codec=" + sinkOption.getCompression());
             } else if (FileFormat.PARQUET == sinkOption.getFileFormat()
-                    || FileFormat.HUDI == sinkOption.getFileFormat()) { //hudi 默认parquet 格式
+                    || FileFormat.HUDI == sinkOption.getFileFormat()) { // hudi 默认parquet 格式
                 context.getSparkSession().sql("set spark.sql.parquet.compression.codec=" + sinkOption.getCompression());
             }
 
             // 避免清空表所有分区
             context.getSparkSession().sql("set spark.sql.sources.partitionOverwriteMode = dynamic");
+            LOG.info("insert sql: " + sql);
             context.getSparkSession().sql(sql);
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);
@@ -133,7 +138,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     @Override
     public void createTable(Dataset<Row> dataset, DataTunnelContext context) {
         HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
-        boolean tableExists = context.getSparkSession().catalog()
+        boolean tableExists = context.getSparkSession()
+                .catalog()
                 .tableExists(sinkOption.getDatabaseName(), sinkOption.getTableName());
         if (tableExists) {
             return;
@@ -147,12 +153,15 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         }
 
         StructType structType = dataset.schema();
-        String colums = Arrays.stream(structType.fields()).map(field -> {
-            String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
-                    .getOrElse(() -> field.dataType().catalogString());
+        String colums = Arrays.stream(structType.fields())
+                .map(field -> {
+                    String typeString = CharVarcharUtils.getRawTypeString(field.metadata())
+                            .getOrElse(() -> field.dataType().catalogString());
 
-            return field.name() + " " + typeString + " " + field.getComment().getOrElse(() -> "");
-        }).collect(Collectors.joining(",\n"));
+                    return field.name() + " " + typeString + " "
+                            + field.getComment().getOrElse(() -> "");
+                })
+                .collect(Collectors.joining(",\n"));
 
         String partitionSpec = sinkOption.getPartitionSpec();
         List<String> partColumnNames = Lists.newArrayList();
@@ -162,7 +171,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             String[] parts = StringUtils.split(partitionSpec, ",");
             for (String partCol : parts) {
                 String colName = StringUtils.split(partCol, "=")[0];
-                //如果映射字段包含 分区字段，需要排除
+                // 如果映射字段包含 分区字段，需要排除
                 if (!ArrayUtils.contains(fieldNames, colName)) {
                     colums += (",\n" + colName + " string");
                 }
@@ -174,7 +183,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         sql += colums;
         sql += "\n)\n";
         sql += "USING " + sinkOption.getFileFormat().name().toLowerCase() + "\n";
-        sql += "TBLPROPERTIES (compression='" + sinkOption.getCompression().name().toLowerCase() + "'";
+        sql += "TBLPROPERTIES (compression='"
+                + sinkOption.getCompression().name().toLowerCase() + "'";
         if (FileFormat.HUDI == sinkOption.getFileFormat()) {
             sql += ",\n    primaryKey='" + sinkOption.getPrimaryKey() + "'";
             sql += ",\n    preCombineField='" + sinkOption.getPreCombineField() + "'";
@@ -210,7 +220,6 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             HttpClientUtils.postRequet(superiorUrl, params);
         } else {
-            LOG.warn("请求同步失败: superiorUrl: {}, userId: {}", superiorUrl, userId);
             LogUtils.warn("请求同步失败: superiorUrl: {}, userId: {}", superiorUrl, userId);
         }
     }
