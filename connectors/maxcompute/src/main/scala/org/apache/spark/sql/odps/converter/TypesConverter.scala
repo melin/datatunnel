@@ -1,7 +1,6 @@
 package org.apache.spark.sql.odps.converter
 
 import java.math.BigDecimal
-
 import com.aliyun.odps.`type`._
 import com.aliyun.odps.commons.util.DateUtils
 import com.aliyun.odps.data.{Binary, Char, SimpleStruct, Varchar}
@@ -10,6 +9,7 @@ import org.apache.spark.sql.catalyst.util.{ArrayBasedMapData, GenericArrayData}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
+import java.time.LocalDate
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -225,7 +225,14 @@ object TypesConverter {
           UTF8String.fromString(char.getValue.substring(0, char.length()))
         }
       case OdpsType.DATE =>
-        (v: Object) => DateUtils.getDayOffset(v.asInstanceOf[java.sql.Date]).toInt
+        (v: Object) =>
+          v match {
+            case localDate: LocalDate =>
+              val date = java.sql.Date.valueOf(localDate)
+              DateUtils.getDayOffset(date).toInt
+            case _ =>
+              DateUtils.getDayOffset(v.asInstanceOf[Date]).toInt
+          }
       case OdpsType.TIMESTAMP =>
         (v: Object) => v.asInstanceOf[java.time.Instant].toEpochMilli * 1000
       case OdpsType.FLOAT    => (v: Object) => v.asInstanceOf[java.lang.Float]
