@@ -12,6 +12,8 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.CreateFlag;
@@ -32,6 +34,7 @@ import org.apache.hadoop.util.Progressable;
  * performed by specialized classes
  */
 public abstract class AbstractFTPFileSystem extends FileSystem {
+    public static final Log LOG = LogFactory.getLog(AbstractFTPFileSystem.class);
 
     // Block location for remote file - we don't know anything about it
     // so create empty one

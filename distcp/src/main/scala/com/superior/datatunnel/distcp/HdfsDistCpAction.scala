@@ -5,7 +5,7 @@ import com.superior.datatunnel.api.{DistCpAction, DistCpContext}
 import com.superior.datatunnel.distcp.HdfsDistCpAction.{doCopy, doDelete}
 import com.superior.datatunnel.distcp.objects._
 import com.superior.datatunnel.distcp.utils.PathUtils
-import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.{FileSystem, Path}
 import com.superior.datatunnel.distcp.utils._
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.spark.{HashPartitioner, TaskContext}
@@ -109,7 +109,6 @@ object HdfsDistCpAction extends Logging {
       .mapPartitions { iterator =>
         val hadoopConfiguration = serConfig.get()
         val attemptID = TaskContext.get().taskAttemptId()
-        val fsCache = new FileSystemObjectCacher(hadoopConfiguration)
 
         iterator
           .flatMap(_._2.getAllCopyDefinitions)
@@ -117,8 +116,8 @@ object HdfsDistCpAction extends Logging {
             (d, z) => z.contains(d),
             d => {
               val r = CopyUtils.handleCopy(
-                fsCache.getOrCreate(d.source.uri),
-                fsCache.getOrCreate(d.destination),
+                FileSystem.get(d.source.uri, hadoopConfiguration),
+                FileSystem.get(d.destination, hadoopConfiguration),
                 d,
                 options,
                 attemptID
@@ -143,12 +142,11 @@ object HdfsDistCpAction extends Logging {
       .repartition((count / options.getMaxFilesPerTask).toInt.max(1))
       .mapPartitions { iterator =>
         val hadoopConfiguration = serConfig.get()
-        val fsCache = new FileSystemObjectCacher(hadoopConfiguration)
         iterator
           .collectMapWithEmptyCollection(
             (d, z) => z.exists(p => PathUtils.uriIsChild(p, d)),
             d => {
-              val r = CopyUtils.handleDelete(fsCache.getOrCreate(d), d, options)
+              val r = CopyUtils.handleDelete(FileSystem.get(d, hadoopConfiguration), d, options)
               accumulators.handleResult(r)
               r
             }
