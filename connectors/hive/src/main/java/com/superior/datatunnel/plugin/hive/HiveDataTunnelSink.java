@@ -97,17 +97,23 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             }
 
             String sql = "";
+            String columnList = "";
+            String[] columns = sinkOption.getColumns();
+            if (!(columns.length == 1 && "*".equals(columns[0]))) {
+                columnList = "\n(" + StringUtils.join(columns, ", ") + ")\n";
+            }
+
             if (APPEND == writeMode) {
                 if (isPartition) {
-                    sql = "insert into table " + table + " partition(" + partitionSpec + ") " + querySql;
+                    sql = "insert into table " + table + " partition(" + partitionSpec + ") " + columnList + querySql;
                 } else {
-                    sql = "insert into table " + table + " " + querySql;
+                    sql = "insert into table " + table + " " + columnList + querySql;
                 }
             } else if (OVERWRITE == writeMode) {
                 if (isPartition) {
-                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + querySql;
+                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + columnList + querySql;
                 } else {
-                    sql = "insert overwrite table " + table + " " + querySql;
+                    sql = "insert overwrite table " + table + " " + columnList + querySql;
                 }
             } else {
                 throw new DataTunnelException("不支持的写入模式：" + writeMode);
@@ -122,6 +128,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
 
             // 避免清空表所有分区
             context.getSparkSession().sql("set spark.sql.sources.partitionOverwriteMode = dynamic");
+            LOG.info("insert sql: " + sql);
             context.getSparkSession().sql(sql);
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);
