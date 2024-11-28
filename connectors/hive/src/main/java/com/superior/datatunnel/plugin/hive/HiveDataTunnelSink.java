@@ -87,7 +87,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             }
 
             // 控制文件数量
-            String querySql = "";
+            String querySql;
             String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
             dataset.createTempView(tdlName);
             if (sinkOption.getRebalance() != null && sinkOption.getRebalance() > 1) {
@@ -96,7 +96,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
                 querySql = "select * from " + tdlName;
             }
 
-            String sql = "";
+            String sql;
             String columnList = "";
             String[] columns = sinkOption.getColumns();
             if (!(columns.length == 1 && "*".equals(columns[0]))) {
@@ -111,7 +111,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
                 }
             } else if (OVERWRITE == writeMode) {
                 if (isPartition) {
-                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + columnList + querySql;
+                    sql = "insert overwrite table " + table + " partition(" + partitionSpec + ") " + columnList
+                            + querySql;
                 } else {
                     sql = "insert overwrite table " + table + " " + columnList + querySql;
                 }

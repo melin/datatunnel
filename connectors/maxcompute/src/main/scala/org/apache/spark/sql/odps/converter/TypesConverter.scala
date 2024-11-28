@@ -231,7 +231,7 @@ object TypesConverter {
               val date = java.sql.Date.valueOf(localDate)
               DateUtils.getDayOffset(date).toInt
             case _ =>
-              DateUtils.getDayOffset(v.asInstanceOf[Date]).toInt
+              DateUtils.getDayOffset(v.asInstanceOf[java.sql.Date]).toInt
           }
       case OdpsType.TIMESTAMP =>
         (v: Object) => v.asInstanceOf[java.time.Instant].toEpochMilli * 1000
