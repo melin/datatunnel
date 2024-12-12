@@ -100,7 +100,8 @@ JDBC 写入支持Append，Overwrite, Upsert, bulkInsert。bulkInsert 支持mysql
 
 > 结合平台管理数据源，避免在sql中直接写入数据源账号信息
 
-![Reshift 更新插入 Mysql](doc%2Fimgs%2Fredshift_mysql.png)
+ 数据ODS层数据存储在S3, dwd,dws 层数据存储在redshift。spark 读取数据，加工处理后，直接写入redshift
+![hive-redshift.png](doc/imgs/hive-redshift.png)
 
 
 ## 数据导出: Export
