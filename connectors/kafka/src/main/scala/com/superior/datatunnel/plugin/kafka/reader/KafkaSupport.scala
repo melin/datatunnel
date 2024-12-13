@@ -5,6 +5,7 @@ import com.superior.datatunnel.plugin.kafka.KafkaDataTunnelSourceOption
 import io.github.melin.jobserver.spark.api.LogUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.clients.admin.AdminClient
+import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 import java.util
@@ -15,7 +16,7 @@ import org.apache.spark.sql.functions._
 
 /** Created by libinsong on 2020/7/29 12:06 下午
   */
-object KafkaSupport {
+object KafkaSupport extends Logging {
 
   def createStreamTempTable(
       tableName: String,
@@ -80,6 +81,7 @@ object KafkaSupport {
     props.put("bootstrap.servers", servers)
     props.put("connections.max.idle.ms", "10000")
     props.put("request.timeout.ms", "5000")
+    props.putAll(sourceOption.getProperties)
 
     var adminClient: AdminClient = null
     try {
@@ -98,9 +100,7 @@ object KafkaSupport {
       })
     } catch {
       case e: Exception =>
-        throw new DataTunnelException(
-          "kafka broker " + servers + " 不可用: " + e.getMessage
-        )
+        logWarning("kafka broker " + servers + " 不可用: " + e.getMessage)
     } finally if (adminClient != null) adminClient.close()
   }
 
