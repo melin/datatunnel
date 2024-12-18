@@ -2,7 +2,6 @@ package com.superior.datatunnel.examples.hdfs
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.hudi.HoodieSparkSessionExtension
 
 object DataTunnelMysql2OssDemo {
     @JvmStatic

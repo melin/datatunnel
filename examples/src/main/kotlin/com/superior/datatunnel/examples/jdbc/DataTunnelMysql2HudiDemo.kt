@@ -2,7 +2,6 @@ package com.superior.datatunnel.examples.jdbc
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.hudi.HoodieSparkSessionExtension
 
 object DataTunnelMysql2HudiDemo {
     @JvmStatic
@@ -16,7 +15,7 @@ object DataTunnelMysql2HudiDemo {
             .appName("Datatunnel spark example")
             .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
             .config("spark.sql.extensions", DataTunnelExtensions::class.java.name
-                    + "," + HoodieSparkSessionExtension::class.java.name)
+                    + ",org.apache.spark.sql.hudi.HoodieSparkSessionExtension")
             .getOrCreate()
 
         spark.conf().set("spark.sql.parquet.int96RebaseModeInWrite", "LEGACY")

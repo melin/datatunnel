@@ -12,21 +12,25 @@ object Kafka2LogDemo {
         val spark = SparkSession
             .builder()
             .master("local")
-            .enableHiveSupport()
             .appName("Datatunnel spark example")
             .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
+            .config("spark.ui.enabled", false)
             .getOrCreate()
 
         val sql = """
             DATATUNNEL SOURCE("kafka") OPTIONS (
-                format="json",
-                subscribe = "users_json",
-                servers = "172.18.5.46:9092",
+                format="text",
+                subscribe = "kafka_demos.ods_account",
+                servers = "172.18.6.181:9092",
+                'properties.kafka.security.protocol' = 'SASL_PLAINTEXT',
+                'properties.kafka.sasl.mechanism' = 'PLAIN',
+                'properties.kafka.sasl.jaas.config' = 'org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin2024";',
                 includeHeaders = true,
+                startingOffsets = 'earliest',
                 sourceTempView='tdl_users',
-                columns = ['id long', 'name string']
+                columns = ['*']
             ) 
-            TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from tdl_users"
+            TRANSFORM = "select * from tdl_users"
             SINK("log")
         """.trimIndent()
         spark.sql(sql)

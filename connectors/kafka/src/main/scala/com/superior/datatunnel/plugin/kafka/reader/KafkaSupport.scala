@@ -9,10 +9,11 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 import java.util
-import java.util.Properties
-import scala.collection.JavaConverters._
+import java.util.{Locale, Properties}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+
+import scala.collection.JavaConverters._
 
 /** Created by libinsong on 2020/7/29 12:06 下午
   */
@@ -81,16 +82,18 @@ object KafkaSupport extends Logging {
     props.put("bootstrap.servers", servers)
     props.put("connections.max.idle.ms", "10000")
     props.put("request.timeout.ms", "5000")
-    props.putAll(sourceOption.getProperties)
+
+    val specifiedKafkaParams = convertToSpecifiedParams(sourceOption.getProperties.asScala.toMap)
+    specifiedKafkaParams.foreach(entry => props.put(entry._1, entry._2))
 
     var adminClient: AdminClient = null
     try {
       adminClient = AdminClient.create(props)
-      val topics = adminClient.listTopics().namesToListings().get()
+      val topics = adminClient.listTopics().names().get()
 
       val subscribes = StringUtils.split(subscribe, ",")
       subscribes.foreach(item => {
-        if (!topics.containsKey(item)) {
+        if (!topics.contains(item)) {
           val value =
             adminClient.listTopics().names().get().asScala.mkString(",")
           throw new DataTunnelException(
@@ -98,6 +101,8 @@ object KafkaSupport extends Logging {
           )
         }
       })
+
+      logInfo(s"available topics: ${topics}")
     } catch {
       case e: Exception =>
         logWarning("kafka broker " + servers + " 不可用: " + e.getMessage)
@@ -155,5 +160,12 @@ object KafkaSupport extends Logging {
       }
     }
     rows
+  }
+
+  private def convertToSpecifiedParams(parameters: Map[String, String]): Map[String, String] = {
+    parameters.keySet
+      .filter(_.toLowerCase(Locale.ROOT).startsWith("kafka."))
+      .map { k => k.drop(6) -> parameters(k) }
+      .toMap
   }
 }

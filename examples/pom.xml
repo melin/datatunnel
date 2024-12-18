@@ -41,11 +41,35 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.janino</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-serde</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.aggregate</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -76,10 +100,11 @@
             <artifactId>datatunnel-connector-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.hudi</groupId>
-            <artifactId>hudi-spark3.5-bundle_2.12</artifactId>
-            <version>0.15.0</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>4.0.3</version>
         </dependency>
 
         <dependency>
@@ -175,13 +200,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-snowflake</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!--<dependency>
+        <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-hbase</artifactId>
             <version>${project.version}</version>

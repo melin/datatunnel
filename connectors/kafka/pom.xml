@@ -22,6 +22,12 @@
             <artifactId>hudi-spark3.5.x_2.12</artifactId>
             <version>0.15.0</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

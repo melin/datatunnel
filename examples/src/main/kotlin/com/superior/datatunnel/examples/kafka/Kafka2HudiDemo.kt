@@ -4,7 +4,6 @@ import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.hudi.HoodieSparkSessionExtension
 import java.security.PrivilegedExceptionAction
 
 // https://www.modb.pro/db/1797448748783702016 (Hudi HBase 依赖冲突问题及解决方案)
@@ -45,7 +44,7 @@ object Kafka2HudiDemo {
                 .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .config("spark.kryo.registrator", "org.apache.spark.HoodieSparkKryoRegistrar")
                 .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog")
-                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name + "," + HoodieSparkSessionExtension::class.java.name)
+                .config("spark.sql.extensions", DataTunnelExtensions::class.java.name + ",org.apache.spark.sql.hudi.HoodieSparkSessionExtension")
                 .config("hoodie.metadata.enable", false)
                 .getOrCreate()
 
