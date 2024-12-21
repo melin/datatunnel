@@ -1,6 +1,6 @@
 package com.superior.datatunnel.core
 
-import com.gitee.melin.bee.util.SqlUtils
+import com.gitee.melin.bee.util.{PasswordMaskerUtils, SqlUtils}
 import io.github.melin.superior.common.relational.io.ExportTable
 import io.github.melin.superior.parser.spark.{SparkSqlHelper, SparkSqlPostProcessor}
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser._
@@ -127,7 +127,7 @@ class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[A
 
   override def visitDatatunnelExpr(ctx: DatatunnelExprContext): LogicalPlan =
     withOrigin(ctx) {
-      val maskSql = DataTunnelUtils.maskDataTunnelSql(sqlText)
+      val maskSql = PasswordMaskerUtils.mask(sqlText)
       logInfo(s"Datatunnel SQL: $maskSql")
       DataTunnelExprCommand(sqlText, ctx: DatatunnelExprContext)
     }
@@ -145,7 +145,8 @@ class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[A
 
   override def visitExportTable(ctx: ExportTableContext): LogicalPlan =
     withOrigin(ctx) {
-      logInfo(s"export table SQL: $sqlText")
+      val maskSql = PasswordMaskerUtils.mask(sqlText)
+      logInfo(s"export table SQL: $maskSql")
       val exportTable =
         SparkSqlHelper.parseStatement(sqlText).asInstanceOf[ExportTable]
       val subqueryAlias =
