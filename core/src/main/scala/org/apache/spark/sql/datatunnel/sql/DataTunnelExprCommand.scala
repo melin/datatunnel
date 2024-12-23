@@ -1,10 +1,10 @@
 package org.apache.spark.sql.datatunnel.sql
 
 import com.gitee.melin.bee.util.JsonUtils
-import com.superior.datatunnel.api.{DataTunnelSink, DataTunnelSource, _}
+import com.superior.datatunnel.api._
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
-import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
+import com.superior.datatunnel.common.util.{CommonUtils, DatatunnelUtils}
+import com.superior.datatunnel.core.DataTunnelUtils
 import com.superior.datatunnel.api.DataSourceType._
 import com.superior.datatunnel.core.DataTunnelUtils._
 import io.github.melin.jobserver.spark.api.LogUtils
@@ -40,8 +40,9 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       throw new DataTunnelException("kafka 数据源, 不支持写入: " + sinkType)
     }
 
-    val (sourceConnector, sinkConnector) =
-      Utils.getDataTunnelConnector(sourceType, sinkType)
+    val sourceConnector = DatatunnelUtils.getSourceConnector(sourceType)
+    val sinkConnector = DatatunnelUtils.getSinkConnector(sinkType)
+
     var errorMsg = s"source $sourceName not have parameter: "
     val sourceOption: DataTunnelSourceOption = CommonUtils.toJavaBean(
       sourceOpts,
@@ -69,14 +70,14 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       val msg = sourceViolations.asScala
         .map(validator => validator.getMessage)
         .mkString("\n")
-      throw new DataTunnelException("Source param is incorrect: \n" + msg)
+      throw new DataTunnelException("Source [" + sourceType + "] param is incorrect: \n" + msg)
     }
     val sinkViolations = CommonUtils.VALIDATOR.validate(sinkOption)
     if (!sinkViolations.isEmpty) {
       val msg = sinkViolations.asScala
         .map(validator => validator.getMessage)
         .mkString("\n")
-      throw new DataTunnelException("sink param is incorrect: \n" + msg)
+      throw new DataTunnelException("sink [" + sinkType + "] param is incorrect: \n" + msg)
     }
 
     validateOptions(

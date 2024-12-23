@@ -1,11 +1,13 @@
 package com.superior.datatunnel.core;
 
 import static com.superior.datatunnel.api.DataSourceType.DELTA;
+import static com.superior.datatunnel.api.DataSourceType.DORIS;
 import static com.superior.datatunnel.api.DataSourceType.HUDI;
 import static com.superior.datatunnel.api.DataSourceType.ICEBERG;
 import static com.superior.datatunnel.api.DataSourceType.KAFKA;
 import static com.superior.datatunnel.api.DataSourceType.LOG;
 import static com.superior.datatunnel.api.DataSourceType.PAIMON;
+import static com.superior.datatunnel.api.DataSourceType.STARROCKS;
 
 import com.gitee.melin.bee.util.JsonUtils;
 import com.google.common.collect.Lists;
@@ -27,7 +29,7 @@ public class DataTunnelUtils {
 
     // 不支持流失写入类型
     public static final List<DataSourceType> SUPPORT_STREAMING_SINKS =
-            Lists.newArrayList(HUDI, PAIMON, DELTA, ICEBERG, LOG, KAFKA);
+            Lists.newArrayList(HUDI, PAIMON, DELTA, ICEBERG, LOG, KAFKA, DORIS, STARROCKS);
 
     public static List<Row> getConnectorDoc(String type, Class<?> clazz) throws Exception {
         List<Row> options = Lists.newArrayList();

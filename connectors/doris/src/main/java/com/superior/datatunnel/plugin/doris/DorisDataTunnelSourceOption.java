@@ -22,7 +22,6 @@ public class DorisDataTunnelSourceOption extends BaseSourceOption {
     private String username;
 
     @OptionDesc("doris 集群账号的密码")
-    @NotBlank
     private String password;
 
     @OptionDesc("FE 的 HTTP 地址，支持输入多个FE地址，使用逗号分隔")

@@ -26,6 +26,12 @@ DataTunnel 特性：
 启动 ./bin/spark-sql，可以直接执行如下SQL 语法
 
 ```sql
+-- 查看不同数据源 options 参数，如果指定SOURCE，只输出数据source options参数，如果指定SINK，只输出数据sink options参数。如果输出为空，说明不支持source或者sink
+datatunnel help (source | sink | all) ('数据源类型名称')
+
+```
+
+```sql
 -- spark source 支持CTE语法，方便原表数据经过处理过，写入到目标表，其他数据源不支持CTE 语法。
 -- 相比 transform 更灵活
 WITH t AS (
@@ -60,12 +66,6 @@ SINK("redshift") OPTIONS (
     iamRole = "${iamRole}",
     columns = ["*"]
 )
-
-```
-
-```sql
--- 查看不同数据源 options 参数，如果指定SOURCE，只输出数据source options参数，如果指定SINK，只输出数据sink options参数。如果输出为空，说明不支持source或者sink
-datatunnel help (source | sink | all) ('数据源类型名称')
 
 ```
 

@@ -2,8 +2,8 @@ package org.apache.spark.sql.datatunnel.sql
 
 import com.superior.datatunnel.api.model.DistCpOption
 import com.superior.datatunnel.api.{DataTunnelException, DistCpContext}
-import com.superior.datatunnel.common.util.CommonUtils
-import com.superior.datatunnel.core.{DataTunnelUtils, Utils}
+import com.superior.datatunnel.common.util.{CommonUtils, DatatunnelUtils}
+import com.superior.datatunnel.core.DataTunnelUtils
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DistCpExprContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
@@ -16,7 +16,7 @@ case class DistCpCommand(sqlText: String, ctx: DistCpExprContext) extends LeafRu
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val sourceOpts = DataTunnelUtils.convertOptions(ctx.options)
 
-    val distCpAction = Utils.getDistCpAction()
+    val distCpAction = DatatunnelUtils.getDistCpAction()
     val errorMsg = s"distcp option not have parameter: "
     val option: DistCpOption =
       CommonUtils.toJavaBean(sourceOpts, classOf[DistCpOption], errorMsg)

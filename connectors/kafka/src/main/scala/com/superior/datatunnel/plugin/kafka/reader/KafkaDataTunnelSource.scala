@@ -2,12 +2,21 @@ package com.superior.datatunnel.plugin.kafka.reader
 
 import com.superior.datatunnel.api.model.DataTunnelSourceOption
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelContext, DataTunnelException, DataTunnelSource}
+import com.superior.datatunnel.plugin.doris.DorisDataTunnelSinkOption
 import com.superior.datatunnel.plugin.kafka.{
   DatalakeDatatunnelSinkOption,
   KafkaDataTunnelSinkOption,
   KafkaDataTunnelSourceOption
 }
-import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, HudiUtils, IcebergUtils, PaimonUtils}
+import com.superior.datatunnel.plugin.kafka.util.{
+  DeltaUtils,
+  DorisUtils,
+  HudiUtils,
+  IcebergUtils,
+  PaimonUtils,
+  StarrocksUtils
+}
+import com.superior.datatunnel.plugin.starrocks.StarrocksDataTunnelSinkOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.internal.Logging
@@ -43,6 +52,10 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       writeLog(context, sourceOption, tmpTable)
     } else if (DataSourceType.KAFKA == sinkType) {
       writeKafka(context, sourceOption, tmpTable)
+    } else if (DataSourceType.DORIS == sinkType) {
+      writeDoris(context, sourceOption, tmpTable)
+    } else if (DataSourceType.STARROCKS == sinkType) {
+      writeStarrocks(context, sourceOption, tmpTable)
     } else {
       throw new UnsupportedOperationException("kafka 数据不支持同步到 " + sinkType)
     }
@@ -72,7 +85,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
   ): Unit = {
     val kafkaSinkOption =
       context.getSinkOption.asInstanceOf[KafkaDataTunnelSinkOption]
-    val querySql = buildQuerySqlForKafka(context, sourceOption, kafkaSinkOption, tmpTable)
+    val querySql = buildQuerySqlForKafka(context, sourceOption, tmpTable)
     val dataset = context.getSparkSession.sql(querySql)
 
     var writer = dataset.writeStream
@@ -229,10 +242,59 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     )
   }
 
+  private def writeDoris(
+      context: DataTunnelContext,
+      sourceOption: KafkaDataTunnelSourceOption,
+      tmpTable: String
+  ): Unit = {
+    val sinkOption =
+      context.getSourceOption.asInstanceOf[DorisDataTunnelSinkOption]
+
+    val checkpointLocation = sourceOption.getCheckpointLocation
+    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    }
+
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    val sparkSession = context.getSparkSession
+    DorisUtils.writeStreamSelectAdapter(
+      sparkSession,
+      checkpointLocation,
+      triggerProcessingTime,
+      sinkOption,
+      querySql
+    )
+  }
+
+  private def writeStarrocks(
+      context: DataTunnelContext,
+      sourceOption: KafkaDataTunnelSourceOption,
+      tmpTable: String
+  ): Unit = {
+    val sinkOption =
+      context.getSourceOption.asInstanceOf[StarrocksDataTunnelSinkOption]
+
+    val checkpointLocation = sourceOption.getCheckpointLocation
+    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
+    if (StringUtils.isBlank(checkpointLocation)) {
+      throw new IllegalArgumentException("checkpointLocation 不能为空")
+    }
+
+    val querySql = buildQuerySql(context, sourceOption, tmpTable)
+    val sparkSession = context.getSparkSession
+    StarrocksUtils.writeStreamSelectAdapter(
+      sparkSession,
+      checkpointLocation,
+      triggerProcessingTime,
+      sinkOption,
+      querySql
+    )
+  }
+
   private def buildQuerySqlForKafka(
       context: DataTunnelContext,
       sourceOption: KafkaDataTunnelSourceOption,
-      sinkOption: KafkaDataTunnelSinkOption,
       tmpTable: String
   ): String = {
     val sql = "select * from " + tmpTable
