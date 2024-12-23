@@ -8,10 +8,9 @@ import lombok.Data;
 @Data
 public class DorisDataTunnelSourceOption extends BaseSourceOption {
 
+    @OptionDesc("数据库名")
+    @NotBlank
     private String databaseName;
-
-    @OptionDesc("等同 databaseName, databaseName 和 schemaName 只需设置一个")
-    private String schemaName;
 
     @OptionDesc("表名")
     @NotBlank

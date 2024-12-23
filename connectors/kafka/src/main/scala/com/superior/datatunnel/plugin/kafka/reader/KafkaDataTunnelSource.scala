@@ -248,7 +248,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
       tmpTable: String
   ): Unit = {
     val sinkOption =
-      context.getSourceOption.asInstanceOf[DorisDataTunnelSinkOption]
+      context.getSinkOption.asInstanceOf[DorisDataTunnelSinkOption]
 
     val checkpointLocation = sourceOption.getCheckpointLocation
     val triggerProcessingTime = sourceOption.getTriggerProcessingTime

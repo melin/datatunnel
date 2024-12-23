@@ -5,16 +5,14 @@ import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.FileFormat;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
 import lombok.Data;
 
 @Data
 public class DorisDataTunnelSinkOption extends BaseSinkOption {
 
+    @OptionDesc("数据库名")
+    @NotBlank
     private String databaseName;
-
-    @OptionDesc("等同 databaseName, databaseName 和 schemaName 只需设置一个")
-    private String schemaName;
 
     @OptionDesc("表名")
     @NotBlank

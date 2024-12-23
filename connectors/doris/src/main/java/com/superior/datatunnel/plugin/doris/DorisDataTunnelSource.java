@@ -17,14 +17,6 @@ public class DorisDataTunnelSource implements DataTunnelSource {
         DorisDataTunnelSourceOption sourceOption = (DorisDataTunnelSourceOption) context.getSourceOption();
 
         String databaseName = sourceOption.getDatabaseName();
-        if (StringUtils.isBlank(databaseName)) {
-            databaseName = sourceOption.getSchemaName();
-        }
-
-        if (StringUtils.isBlank(databaseName)) {
-            throw new IllegalArgumentException("databaseName can not blank");
-        }
-
         String fullTableId = databaseName + "." + sourceOption.getTableName();
         DataFrameReader reader = context.getSparkSession()
                 .read()

@@ -18,14 +18,6 @@ public class DorisDataTunnelSink implements DataTunnelSink {
         DorisDataTunnelSinkOption sinkOption = (DorisDataTunnelSinkOption) context.getSinkOption();
 
         String databaseName = sinkOption.getDatabaseName();
-        if (StringUtils.isBlank(databaseName)) {
-            databaseName = sinkOption.getSchemaName();
-        }
-
-        if (StringUtils.isBlank(databaseName)) {
-            throw new IllegalArgumentException("databaseName can not blank");
-        }
-
         String fullTableId = databaseName + "." + sinkOption.getTableName();
         DataFrameWriter dataFrameWriter = dataset.write()
                 .format("doris")
