@@ -1,6 +1,7 @@
 package com.superior.datatunnel.plugin.kafka.util
 
 import com.superior.datatunnel.plugin.doris.DorisDataTunnelSinkOption
+import org.apache.commons.lang3.StringUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.Trigger
@@ -33,6 +34,7 @@ object DorisUtils extends Logging {
       .option("password", sinkOption.getPassword())
       .option("doris.table.identifier", fullTableId)
       .option("checkpointLocation", checkpointLocation)
+      .option("doris.write.fields", sinkOption.getColumns.mkString(","))
 
     if (sinkOption.isPassthrough) {
       writer

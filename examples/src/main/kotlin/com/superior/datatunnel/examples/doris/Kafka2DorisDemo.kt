@@ -41,7 +41,7 @@ object Kafka2DorisDemo {
             tableName = "table_hash",
             passthrough = true,
             fileFormat = "json",
-            columns = ["*"]
+            columns = ["k1", "k2", "k3", "k4"]
         )
         """.trimIndent()
 
