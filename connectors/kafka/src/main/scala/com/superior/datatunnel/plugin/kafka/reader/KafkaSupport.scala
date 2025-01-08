@@ -59,7 +59,14 @@ object KafkaSupport extends Logging {
     }
 
     params.put("kafka.bootstrap.servers", sourceOption.getServers)
-    params.put("startingOffsets", sourceOption.getStartingOffsets)
+
+    if (StringUtils.isNotBlank(sourceOption.getStartingOffsets)) {
+      params.put("startingOffsets", sourceOption.getStartingOffsets)
+    }
+    if (sourceOption.getStartingTimestamp != null) {
+      params.put("startingTimestamp", sourceOption.getStartingTimestamp.toString)
+    }
+
     params.put("failOnDataLoss", sourceOption.isFailOnDataLoss.toString)
     val lineRow = createDataSet(params, sourceOption)
 
