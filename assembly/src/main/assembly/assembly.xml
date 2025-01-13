@@ -49,6 +49,7 @@
                 <exclude>org.tukaani:*:jar</exclude>
                 <exclude>com.thoughtworks.paranamer:*:jar</exclude>
                 <exclude>org.jetbrains:*:jar</exclude>
+                <exclude>redis.clients:*:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
