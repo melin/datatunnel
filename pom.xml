@@ -43,6 +43,11 @@
         <zip4j.version>2.11.5</zip4j.version>
         <lombok.version>1.18.36</lombok.version>
 
+        <iceberg.version>1.7.1</iceberg.version>
+        <paimon.version>1.0.0</paimon.version>
+        <hudi.version>1.0.0</hudi.version>
+        <delta.version>3.3.0</delta.version>
+
         <awssdk.version>2.21.20</awssdk.version>
         <aws.java.sdk.version>1.12.770</aws.java.sdk.version>
         <hadoop.version>3.3.6</hadoop.version>
