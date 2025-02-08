@@ -20,7 +20,7 @@
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>spark-snowflake_2.12</artifactId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
-            <version>3.14.3</version>
+            <version>3.22.0</version>
         </dependency>
 
     </dependencies>
