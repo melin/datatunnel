@@ -23,7 +23,7 @@ object Mysql2DorisDemo {
         val sql = """
         DATATUNNEL SOURCE("mysql") OPTIONS (
               username = "root",
-              password = "Root2024!@",
+              password = "",
               host = '172.18.6.181',
               port = 3306,
               databaseName = 'demos',
@@ -33,7 +33,7 @@ object Mysql2DorisDemo {
         SINK("doris") OPTIONS (
             feEnpoints="172.18.5.44:18030",
             username = "root",
-            password = "root2024",
+            password = "",
             databaseName = "testdb",
             tableName = "ods_account"
         )
