@@ -3,8 +3,8 @@
 #### 独立集成spark 打包
 ```
 -- antlr4 版本要与spark 中版本一致
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Pcdh6
-mvn clean package -DlibScope=provided -Dmaven.test.skip=true -Phadoop3
+mvn clean spotless:apply package -DlibScope=provided -Dmaven.test.skip=true -Pcdh6
+mvn clean spotless:apply package -DlibScope=provided -Dmaven.test.skip=true -Phadoop3
 ```
 
 ### 构建AWS EMR Serverless镜像(AMD64)
