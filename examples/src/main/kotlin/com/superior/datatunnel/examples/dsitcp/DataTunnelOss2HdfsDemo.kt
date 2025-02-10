@@ -18,7 +18,7 @@ object DataTunnelOss2HdfsDemo {
         configuration.set("hadoop.security.authentication", "kerberos")
         configuration.set("hadoop.security.authorization", "true")
 
-        System.setProperty("session.catalog.name", "hive_metastore")
+        System.setProperty("spark.default.catalog.name", "hive_metastore")
 
         loginToKerberos(configuration).doAs(PrivilegedExceptionAction() {
 
