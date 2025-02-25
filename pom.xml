@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.superior.datatunnel</groupId>
@@ -25,7 +25,7 @@
         <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spotless.version>2.43.0</spotless.version>
+        <spotless.version>2.44.2</spotless.version>
         <libScope>compile</libScope>
 
         <scala.version>2.12.18</scala.version>
@@ -33,27 +33,28 @@
         <spark.version>3.5.4</spark.version>
         <slf4j.version>2.0.16</slf4j.version>
         <log4j2.version>2.24.3</log4j2.version>
-        <bee.version>1.9.5-SNAPSHOT</bee.version>
+        <bee.version>1.9.5</bee.version>
         <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>
         <jedis.version>3.10.0</jedis.version>
         <antlr4.version>4.9.3</antlr4.version>
         <zip4j.version>2.11.5</zip4j.version>
         <lombok.version>1.18.36</lombok.version>
+        <kotlin.version>2.1.10</kotlin.version>
 
         <iceberg.version>1.8.0</iceberg.version>
         <paimon.version>1.0.1</paimon.version>
         <hudi.version>1.0.1</hudi.version>
         <delta.version>3.3.0</delta.version>
 
-        <awssdk.version>2.21.20</awssdk.version>
-        <aws.java.sdk.version>1.12.770</aws.java.sdk.version>
+        <awssdk.v1.version>1.12.770</awssdk.v1.version>
+        <awssdk.v2.version>2.27.17</awssdk.v2.version>
         <hadoop.version>3.3.6</hadoop.version>
         <hive.version>2.3.10</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
         <spark-elasticsearch.version>7.17.21</spark-elasticsearch.version>
-        <sql-parser.version>4.0.17-SNAPSHOT</sql-parser.version>
+        <sql-parser.version>4.0.17</sql-parser.version>
         <cassandra-connector.version>3.5.1</cassandra-connector.version>
 
         <scala-maven-plugin.version>4.9.2</scala-maven-plugin.version>

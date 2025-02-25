@@ -120,25 +120,29 @@ class PostgreSqlDatabaseDialect(
       executeSql(conn, sql)
     }
 
-    if (tempTableMode) {
-      // 先导入临时表
-      PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
-    } else {
-      PostgreSqlHelper.copyIn(parameters)(df, tableId)
-    }
+    try {
+      if (tempTableMode) {
+        // 先导入临时表
+        PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
+      } else {
+        PostgreSqlHelper.copyIn(parameters)(df, tableId)
+      }
 
-    if (tempTableMode) {
-      // 从临时表导入
-      var sql =
-        buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
-      LogUtils.info(
-        s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}"
-      );
-      executeSql(conn, sql)
-
-      LogUtils.info(s"drop temp table ${tempTableName}")
-      sql = s"drop table $tempTableName";
-      executeSql(conn, sql)
+      if (tempTableMode) {
+        // 从临时表导入
+        val sql =
+          buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
+        LogUtils.info(
+          s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}"
+        );
+        executeSql(conn, sql)
+      }
+    } finally {
+      if (tempTableMode) {
+        LogUtils.info(s"drop temp table ${tempTableName}")
+        val sql = s"drop table $tempTableName";
+        executeSql(conn, sql)
+      }
     }
   }
 }

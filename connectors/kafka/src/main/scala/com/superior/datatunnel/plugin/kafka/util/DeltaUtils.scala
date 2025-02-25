@@ -34,36 +34,33 @@ object DeltaUtils extends Logging {
   ): Unit = {
     FsUtils.mkDir(spark, checkpointLocation)
 
+    val outputMode = sinkOption.getOutputMode
     val streamingInput = spark.sql(querySql)
     val writer = streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("delta")
       .option("checkpointLocation", checkpointLocation)
+      .outputMode(outputMode.getName)
       .options(sinkOption.getProperties)
 
-    var mergeKeys = sinkOption.getMergeKeys
-    val outputMode = sinkOption.getOutputMode
+    var mergeColumns = sinkOption.getMergeColumns
     val partitionColumnNames = sinkOption.getPartitionColumnNames
 
-    if (StringUtils.isBlank(mergeKeys)) {
+    if (StringUtils.isBlank(mergeColumns)) {
       if (StringUtils.isNotBlank(partitionColumnNames)) {
         writer.partitionBy(StringUtils.split(partitionColumnNames, ","): _*)
       }
 
-      writer
-        .outputMode(outputMode.getName)
-        .toTable(identifier.unquotedString)
-        .awaitTermination()
     } else {
       if (StringUtils.isNotBlank(partitionColumnNames)) {
-        mergeKeys = mergeKeys + "," + partitionColumnNames
+        mergeColumns = mergeColumns + "," + partitionColumnNames
       }
-      val foreachBatchFn = new ForeachBatchFn(mergeKeys, identifier)
-      writer
-        .foreachBatch(foreachBatchFn)
-        .outputMode("update")
-        .start()
-        .awaitTermination()
     }
+
+    val foreachBatchFn = new DeltaForeachBatchFn(mergeColumns, identifier, sinkOption.isCompactionEnabled)
+    writer
+      .foreachBatch(foreachBatchFn)
+      .start()
+      .awaitTermination()
   }
 }

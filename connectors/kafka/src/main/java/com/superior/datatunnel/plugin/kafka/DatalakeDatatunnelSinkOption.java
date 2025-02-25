@@ -19,7 +19,10 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
     private OutputMode outputMode = OutputMode.APPEND;
 
     @OptionDesc("定义 delta/iceberg merge key，用于 merge sql")
-    private String mergeKeys;
+    private String mergeColumns;
+
+    @OptionDesc("iceberg 写入时，是否开启压缩")
+    private boolean compactionEnabled = true;
 
     @OptionDesc("分区字段名, 多个逗号分割")
     private String partitionColumnNames;
@@ -56,12 +59,12 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
         this.outputMode = outputMode;
     }
 
-    public String getMergeKeys() {
-        return mergeKeys;
+    public String getMergeColumns() {
+        return mergeColumns;
     }
 
-    public void setMergeKeys(String mergeKeys) {
-        this.mergeKeys = mergeKeys;
+    public void setMergeColumns(String mergeColumns) {
+        this.mergeColumns = mergeColumns;
     }
 
     public String getPartitionColumnNames() {
@@ -70,5 +73,13 @@ public class DatalakeDatatunnelSinkOption extends BaseSinkOption {
 
     public void setPartitionColumnNames(String partitionColumnNames) {
         this.partitionColumnNames = partitionColumnNames;
+    }
+
+    public boolean isCompactionEnabled() {
+        return compactionEnabled;
+    }
+
+    public void setCompactionEnabled(boolean compactionEnabled) {
+        this.compactionEnabled = compactionEnabled;
     }
 }

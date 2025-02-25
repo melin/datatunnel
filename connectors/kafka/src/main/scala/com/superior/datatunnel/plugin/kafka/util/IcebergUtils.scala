@@ -40,15 +40,16 @@ object IcebergUtils extends Logging {
     FsUtils.mkDir(spark, checkpointLocation)
 
     val streamingInput = spark.sql(querySql)
+    val outputMode = sinkOption.getOutputMode
     val writer = streamingInput.writeStream
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("iceberg")
       .option("checkpointLocation", checkpointLocation)
+      .outputMode(outputMode.getName)
       .options(sinkOption.getProperties)
 
-    var mergeKeys = sinkOption.getMergeKeys
-    val outputMode = sinkOption.getOutputMode
-    var partitionColumnNames = sinkOption.getPartitionColumnNames
+    var mergeColumns = sinkOption.getMergeColumns()
+    var partitionColumnNames = sinkOption.getPartitionColumnNames()
 
     if (StringUtils.isBlank(partitionColumnNames)) {
       val catalogTable = spark.sessionState.catalog.getTableMetadata(identifier)
@@ -68,26 +69,20 @@ object IcebergUtils extends Logging {
       writer.option("fanout-enabled", "true")
     }
 
-    if (StringUtils.isBlank(mergeKeys)) {
+    if (StringUtils.isBlank(mergeColumns)) {
       if (StringUtils.isNotBlank(partitionColumnNames)) {
         writer.partitionBy(StringUtils.split(partitionColumnNames, ","): _*)
       }
-
-      writer
-        .outputMode(outputMode.getName)
-        .toTable(identifier.unquotedString)
-        .awaitTermination()
     } else {
       if (StringUtils.isNotBlank(partitionColumnNames)) {
-        mergeKeys = mergeKeys + "," + partitionColumnNames
+        mergeColumns = mergeColumns + "," + partitionColumnNames
       }
-
-      val foreachBatchFn = new ForeachBatchFn(mergeKeys, identifier)
-      writer
-        .foreachBatch(foreachBatchFn)
-        .outputMode("update")
-        .start()
-        .awaitTermination()
     }
+
+    val foreachBatchFn = new IcebergForeachBatchFn(mergeColumns, identifier, sinkOption.isCompactionEnabled)
+    writer
+      .foreachBatch(foreachBatchFn)
+      .start()
+      .awaitTermination()
   }
 }

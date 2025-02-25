@@ -64,7 +64,7 @@ object Kafka2IcebergDemo {
             SINK("iceberg") OPTIONS (
               databaseName = "bigdata",
               tableName = 'iceberg_users_kafka',
-              mergeKeys = 'id',
+              mergeColumns = 'id',
               partitionColumnNames = 'ds',
               columns = ["*"]
             )
