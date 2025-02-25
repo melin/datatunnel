@@ -56,7 +56,7 @@ object Kafka2DeltaDemo {
             SINK("delta") OPTIONS (
               databaseName = "bigdata",
               tableName = 'delta_users_kafka',
-              mergeKeys= 'id',
+              mergeColumns= 'id',
               partitionColumnNames = 'ds',
               columns = ["*"]
             )

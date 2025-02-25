@@ -38,16 +38,16 @@
 
 #### 参数说明
 
-| 参数key                | 数据类型   | 是否必填      | 默认值   | 描述                                              |
-|:---------------------|:-------|:----------|:------|:------------------------------------------------|
-| databaseName         | string | √         | 10    | topic                                           |
-| tableName            | strint | √         | 20    | kafka 服务器地址                                     |
-| outputMode           | string |          | append | 写入模式, 仅支持：append 和 complete                     |
-| outputMode           | string |          | append | 写入模式, 仅支持：append 和 complete                     |
-| mergeKeys            | string |          | append | 定义 delta/iceberg merge key，用于 merge sql, 多个值逗号分隔 |
-| partitionColumnNames | string |          | append | 分区字段名, 多个值逗号分隔                                  |
-| columns              | array  |          | ["*"] |                                                 |
-| properties.*         | string  |         |      | |
+| 参数key                 | 数据类型   | 是否必填      | 默认值   | 描述                                              |
+|:----------------------|:-------|:----------|:------|:------------------------------------------------|
+| databaseName          | string | √         | 10    | topic                                           |
+| tableName             | strint | √         | 20    | kafka 服务器地址                                     |
+| outputMode            | string |          | append | 写入模式, 仅支持：append 和 complete                     |
+| outputMode            | string |          | append | 写入模式, 仅支持：append 和 complete                     |
+| mergeColumns          | string |          | append | 定义 delta/iceberg merge key，用于 merge sql, 多个值逗号分隔 |
+| partitionColumnNames  | string |          | append | 分区字段名, 多个值逗号分隔                                  |
+| columns               | array  |          | ["*"] |                                                 |
+| properties.*          | string  |         |      | |
 
 > key.serializer 和 value.serializer 为 StringSerializer，不可以修改
 
@@ -71,7 +71,7 @@ SINK("hudi") OPTIONS (
     columns = ["*"]
 )
      
---kafka json 格式，写入delta 分区表, 按照 mergeKeys 覆盖写入
+--kafka json 格式，写入delta 分区表, 按照 mergeColumns 覆盖写入
 DATATUNNEL SOURCE("kafka") OPTIONS (
     format="json",
     subscribe = "users_json",
@@ -85,7 +85,7 @@ TRANSFORM = "select id, name, date_format(kafka_timestamp, 'yyyMMdd') as ds from
 SINK("delta") OPTIONS (
     databaseName = "bigdata",
     tableName = 'delta_users_kafka',
-    mergeKeys= 'id',
+    mergeColumns = 'id',
     partitionColumnNames = 'ds',
     columns = ["*"]
 )
