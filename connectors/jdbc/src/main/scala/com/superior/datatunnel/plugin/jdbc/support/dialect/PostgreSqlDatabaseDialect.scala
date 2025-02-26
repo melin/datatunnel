@@ -85,19 +85,19 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
       executeSql(conn, sql)
     }
 
+    if (tempTableMode) {
+      logInfo(s"prepare temp table: ${tempTableName}")
+      LogUtils.info(s"prepare temp table: ${tempTableName}")
+      var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
+      executeSql(conn, sql)
+
+      logInfo(s"truncat temp table: ${tempTableName}");
+      LogUtils.info(s"truncat temp table: ${tempTableName}")
+      sql = s"TRUNCATE TABLE ${tempTableName}";
+      executeSql(conn, sql)
+    }
+
     try {
-      if (tempTableMode) {
-        logInfo(s"prepare temp table: ${tempTableName}")
-        LogUtils.info(s"prepare temp table: ${tempTableName}")
-        var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
-        executeSql(conn, sql)
-
-        logInfo(s"truncat temp table: ${tempTableName}");
-        LogUtils.info(s"truncat temp table: ${tempTableName}")
-        sql = s"TRUNCATE TABLE ${tempTableName}";
-        executeSql(conn, sql)
-      }
-
       if (tempTableMode) {
         //先导入临时表
         PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
