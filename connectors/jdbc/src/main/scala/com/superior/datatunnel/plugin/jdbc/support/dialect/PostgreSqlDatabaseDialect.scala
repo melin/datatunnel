@@ -85,36 +85,41 @@ class PostgreSqlDatabaseDialect(options: JDBCOptions, jdbcDialect: JdbcDialect, 
       executeSql(conn, sql)
     }
 
-    if (tempTableMode) {
-      logInfo(s"prepare temp table: ${tempTableName}")
-      LogUtils.info(s"prepare temp table: ${tempTableName}")
-      var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
-      executeSql(conn, sql)
+    try {
+      if (tempTableMode) {
+        logInfo(s"prepare temp table: ${tempTableName}")
+        LogUtils.info(s"prepare temp table: ${tempTableName}")
+        var sql = s"CREATE TABLE if not exists ${tempTableName} (LIKE ${tableId} EXCLUDING CONSTRAINTS)";
+        executeSql(conn, sql)
 
-      logInfo(s"truncat temp table: ${tempTableName}");
-      LogUtils.info(s"truncat temp table: ${tempTableName}")
-      sql = s"TRUNCATE TABLE ${tempTableName}";
-      executeSql(conn, sql)
-    }
+        logInfo(s"truncat temp table: ${tempTableName}");
+        LogUtils.info(s"truncat temp table: ${tempTableName}")
+        sql = s"TRUNCATE TABLE ${tempTableName}";
+        executeSql(conn, sql)
+      }
 
-    if (tempTableMode) {
-      //先导入临时表
-      PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
-    } else {
-      PostgreSqlHelper.copyIn(parameters)(df, tableId)
-    }
+      if (tempTableMode) {
+        //先导入临时表
+        PostgreSqlHelper.copyIn(parameters)(df, tempTableName)
+      } else {
+        PostgreSqlHelper.copyIn(parameters)(df, tableId)
+      }
 
-    if (tempTableMode) {
-      // 从临时表导入
-      var sql = buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
-      logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
-      LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
-      executeSql(conn, sql)
-
-      logInfo(s"drop temp table ${tempTableName}");
-      LogUtils.info(s"drop temp table ${tempTableName}")
-      sql = s"drop table $tempTableName";
-      executeSql(conn, sql)
+      if (tempTableMode) {
+        // 从临时表导入
+        val sql = buildUpsertPGSql(tableId, tempTableName, columnNames, primaryKeys)
+        logInfo(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+        LogUtils.info(s"import data from ${tempTableName} to ${tableId}, sql: \n${sql}");
+        executeSql(conn, sql)
+      }
+    } finally {
+      if (tempTableMode) {
+        // 清空临时表
+        logInfo(s"drop temp table ${tempTableName}");
+        LogUtils.info(s"drop temp table ${tempTableName}")
+        val sql = s"drop table $tempTableName";
+        executeSql(conn, sql)
+      }
     }
   }
 }
