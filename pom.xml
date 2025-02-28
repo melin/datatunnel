@@ -49,7 +49,7 @@
 
         <awssdk.v1.version>1.12.770</awssdk.v1.version>
         <awssdk.v2.version>2.27.17</awssdk.v2.version>
-        <hadoop.version>3.3.6</hadoop.version>
+        <hadoop.version>3.3.4</hadoop.version>
         <hive.version>2.3.10</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
@@ -448,7 +448,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <hadoop.version>3.3.6</hadoop.version>
+                <hadoop.version>3.3.4</hadoop.version>
                 <hive.version>2.3.10</hive.version>
             </properties>
         </profile>
