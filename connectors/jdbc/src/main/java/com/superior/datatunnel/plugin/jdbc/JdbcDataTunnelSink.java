@@ -3,7 +3,6 @@ package com.superior.datatunnel.plugin.jdbc;
 import static com.superior.datatunnel.api.DataSourceType.*;
 import static com.superior.datatunnel.common.util.JdbcUtils.*;
 
-import com.gitee.melin.bee.util.SqlUtils;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
@@ -13,7 +12,6 @@ import io.github.melin.jobserver.spark.api.LogUtils;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
@@ -108,16 +106,13 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 saveMode = SaveMode.Overwrite;
             }
 
-            String preactions = sinkOption.getPreActions();
-            String postactions = sinkOption.getPostActions();
+            String[] preActions = sinkOption.getPreActions();
+            String[] postActions = sinkOption.getPostActions();
             connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
 
-            if (StringUtils.isNotBlank(preactions)) {
-                List<String> sqls = SqlUtils.splitMultiSql(preactions);
-                for (String presql : sqls) {
-                    LOG.info("exec pre sql: " + presql);
-                    execute(connection, presql);
-                }
+            for (String presql : preActions) {
+                LOG.info("exec pre sql: " + presql);
+                execute(connection, presql);
             }
 
             // 如果输入表字段和输出表字段位置不一致，调整位置。
@@ -173,12 +168,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             dataFrameWriter.save();
 
-            if (StringUtils.isNotBlank(postactions)) {
-                List<String> sqls = SqlUtils.splitMultiSql(postactions);
-                for (String postsql : sqls) {
-                    LOG.info("exec post sql: " + postsql);
-                    execute(connection, postsql);
-                }
+            for (String postsql : postActions) {
+                LOG.info("exec post sql: " + postsql);
+                execute(connection, postsql);
             }
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);

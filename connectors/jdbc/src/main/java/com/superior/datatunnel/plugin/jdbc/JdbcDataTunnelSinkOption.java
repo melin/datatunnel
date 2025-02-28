@@ -45,9 +45,9 @@ public class JdbcDataTunnelSinkOption extends BaseSinkOption {
 
     private boolean truncate = false;
 
-    private String preActions;
+    private String[] preActions;
 
-    private String postActions;
+    private String[] postActions;
 
     private String isolationLevel = "READ_UNCOMMITTED";
 

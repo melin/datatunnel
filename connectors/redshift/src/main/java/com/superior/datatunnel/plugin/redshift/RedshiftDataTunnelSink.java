@@ -75,7 +75,6 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
             sql = "DROP TABLE IF EXISTS " + dbtable + ";";
             postActions = ArrayUtils.add(postActions, sql);
             postActions = ArrayUtils.add(postActions, "END;");
-            LOGGER.info("postActions: \n{}", StringUtils.join(postActions, "\n"));
         } else if (writeMode == WriteMode.OVERWRITE) {
             dbtable = "\"" + schemaName + "\".\"" + tableName + "\"";
             // preactions
@@ -139,10 +138,12 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                     .option("temporary_aws_session_token", credentials.sessionToken());
         }
 
+        LOGGER.info("preActions: \n{}", StringUtils.join(preActions, "\n"));
         if (preActions.length > 0) {
             dataFrameWriter.option("preactions", StringUtils.join(preActions, ";"));
         }
 
+        LOGGER.info("postActions: \n{}", StringUtils.join(postActions, "\n"));
         if (postActions.length > 0) {
             dataFrameWriter.option("postactions", StringUtils.join(postActions, ";"));
         }
