@@ -109,9 +109,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect =
                 JdbcDialectHolder.buildJdbcDialect(dsType, null, connection);
         List<String> schemaNames = getSchemaNames(schemaName, beeJdbcDialect);
+        LOG.info("schema names: {}", StringUtils.join(schemaNames, ","));
         List<Pair<String, String>> tableNames = getTablesNames(schemaNames, tableName, dataSourceType, beeJdbcDialect);
         if (tableNames.isEmpty()) {
             throw new DataTunnelException("没有找到匹配的表, schemaName: " + schemaName + ", tableName: " + tableName);
+        } else {
+            LOG.info("table names: {}", StringUtils.join(tableNames, ","));
         }
 
         Dataset<Row> dataset = null;
