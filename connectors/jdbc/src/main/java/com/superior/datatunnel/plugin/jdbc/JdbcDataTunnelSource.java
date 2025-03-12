@@ -184,7 +184,9 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     .option("pushDownAggregate", sourceOption.isPushDownAggregate())
                     .option("pushDownLimit", sourceOption.isPushDownLimit());
 
-            if (StringUtils.isNotBlank(sourceOption.getPartitionColumn())) {
+            if (StringUtils.isNotBlank(sourceOption.getPartitionColumn())
+                    && StringUtils.isNotBlank(sourceOption.getLowerBound())
+                    && StringUtils.isNotBlank(sourceOption.getUpperBound())) {
                 reader.option("partitionColumn", sourceOption.getPartitionColumn())
                         .option("numPartitions", sourceOption.getNumPartitions())
                         .option("lowerBound", sourceOption.getLowerBound())
@@ -368,6 +370,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     LogUtils.info("table {} max value: {}", fullTableName, maxValue);
                     sourceOption.setUpperBound(maxValue);
                 }
+
+                sourceOption.setPartitionColumn(partitionColumn);
             }
 
             if (numPartitions == null) {
@@ -377,10 +381,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 numPartitions = 1;
             }
 
-            sourceOption.setPartitionColumn(partitionColumn);
             sourceOption.setNumPartitions(numPartitions);
             LogUtils.info(
-                    "lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    "partitionColumn: {}, lowerBound: {}, upperBound: {}, partitionRecordCount: {}, numPartitions: {}",
+                    partitionColumn,
                     sourceOption.getLowerBound(),
                     sourceOption.getUpperBound(),
                     partitionRecordCount,
