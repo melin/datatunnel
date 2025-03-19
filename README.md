@@ -17,7 +17,7 @@ DataTunnel 特性：
 ## 部署
 
 1. 解压 assembly/target/ 目录下生成可用包 datatunnel-[version].tar.gz。
-2. 复制所有jar 到 spark_home/jars 
+2. 解压datatunnel-[version].tar.gz，把解压后目录中所有jar复制到 SPARK_HOME/jars
 3. conf/spark-default.conf 添加如下配置: 
 > spark.sql.extensions com.superior.datatunnel.core.DataTunnelExtensions
 
