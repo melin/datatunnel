@@ -20,11 +20,22 @@ docker push 480976988805.dkr.ecr.us-east-1.amazonaws.com/emr6.15-serverless-spar
 ruixin image
 ```
 docker logout public.ecr.aws
-aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 753463419839.dkr.ecr.ap-southeast-1.amazonaws.com
+aws ecr get-login-password --region ap-southeast-1 --profile ruixin | docker login --username AWS --password-stdin 753463419839.dkr.ecr.ap-southeast-1.amazonaws.com
 
 docker buildx build -f Dockerfile-AWS --platform linux/amd64 -t cyberdata .
 docker tag cyberdata:latest 753463419839.dkr.ecr.ap-southeast-1.amazonaws.com/cyberdata:latest
 docker push 753463419839.dkr.ecr.ap-southeast-1.amazonaws.com/cyberdata:latest
+```
+
+redtiger image
+```
+# 需要权限: ecr:InitiateLayerUpload 
+docker logout public.ecr.aws
+aws ecr get-login-password --region us-east-1 --profile redtiger | docker login --username AWS --password-stdin 537124946315.dkr.ecr.us-east-1.amazonaws.com
+
+docker buildx build -f Dockerfile-AWS --platform linux/amd64 -t data-warehouse/cyberdata .
+docker tag data-warehouse/cyberdata:latest 537124946315.dkr.ecr.us-east-1.amazonaws.com/data-warehouse/cyberdata:latest
+docker push 537124946315.dkr.ecr.us-east-1.amazonaws.com/data-warehouse/cyberdata:latest
 ```
 
 cyberdata image
