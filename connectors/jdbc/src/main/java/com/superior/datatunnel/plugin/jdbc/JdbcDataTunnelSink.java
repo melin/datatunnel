@@ -110,9 +110,11 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String[] postActions = sinkOption.getPostActions();
             connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
 
-            for (String presql : preActions) {
-                LOG.info("exec pre sql: " + presql);
-                execute(connection, presql);
+            if (preActions != null) {
+                for (String presql : preActions) {
+                    LOG.info("exec pre sql: " + presql);
+                    execute(connection, presql);
+                }
             }
 
             // 如果输入表字段和输出表字段位置不一致，调整位置。
@@ -168,9 +170,11 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
 
             dataFrameWriter.save();
 
-            for (String postsql : postActions) {
-                LOG.info("exec post sql: " + postsql);
-                execute(connection, postsql);
+            if (postActions != null) {
+                for (String postsql : postActions) {
+                    LOG.info("exec post sql: " + postsql);
+                    execute(connection, postsql);
+                }
             }
         } catch (Exception e) {
             throw new DataTunnelException(e.getMessage(), e);
