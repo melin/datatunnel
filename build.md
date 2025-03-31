@@ -45,7 +45,7 @@ docker tag cyberdata-spark:3.5 172.88.0.30:5220/deps/cyberdata-spark:3.5
 docker push 172.88.0.30:5220/deps/cyberdata-spark:3.5
 ```
 
-### 构建ECR 仓库需要添加权限
+### EMR Serverless ECR 仓库镜像需要添加权限
 
 ```json
 {
