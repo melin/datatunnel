@@ -4,8 +4,12 @@ USER root
 
 # MODIFICATIONS GO HERE
 COPY assembly/target/datatunnel-3.5.0/*.jar /opt/spark/jars/
-COPY kyuubi-extension-spark-3-5_2.12-1.9.1.jar /opt/spark/jars/
-COPY minio-8.5.11.jar /opt/spark/jars/
+
+# https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-5_2.12/1.10.1/kyuubi-extension-spark-3-5_2.12-1.10.1.jar
+COPY kyuubi-extension-spark-3-5_2.12-1.10.1.jar  /opt/spark/jars/
+
+# https://repo1.maven.org/maven2/io/minio/minio/8.5.17/minio-8.5.17.jar
+COPY minio-8.5.17.jar /opt/spark/jars/
 
 # EMRS will run the image as hadoop
 USER hadoop:hadoop
