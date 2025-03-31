@@ -10,6 +10,7 @@ RUN rm -f /usr/lib/spark/jars/spark-redshift*
 # MODIFICATIONS GO HERE
 COPY assembly/target/datatunnel-3.5.0/*.jar /usr/lib/spark/jars/
 
+# https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-5_2.12/1.10.1/kyuubi-extension-spark-3-5_2.12-1.10.1.jar
 COPY kyuubi-extension-spark-3-5_2.12-1.10.1.jar /usr/lib/spark/jars/
 
 # EMRS will run the image as hadoop
