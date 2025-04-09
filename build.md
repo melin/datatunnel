@@ -16,7 +16,7 @@ docker tag cyberdata/emr-spark:latest 654654620044.dkr.ecr.us-east-1.amazonaws.c
 docker push 654654620044.dkr.ecr.us-east-1.amazonaws.com/cyberdata/emr-spark:latest
 ```
 
-ruixin image
+ruixin image (新加坡)
 ```
 docker logout public.ecr.aws
 aws ecr get-login-password --region ap-southeast-1 --profile ruixin | docker login --username AWS --password-stdin 753463419839.dkr.ecr.ap-southeast-1.amazonaws.com
