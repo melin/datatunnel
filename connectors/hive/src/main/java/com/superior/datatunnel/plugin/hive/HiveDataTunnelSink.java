@@ -67,7 +67,7 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             boolean isPartition = HiveUtils.checkPartition(context.getSparkSession(), databaseName, tableName);
             if (isPartition) {
                 if (StringUtils.isBlank(partitionSpec)) {
-                    throw new DataTunnelException("写入表为分区表，请指定写入分区");
+                    throw new DataTunnelException("写入表为分区表，请指定写入分区, 例如: partitionSpec='pt' 或 partitionSpec='pt=20240415'");
                 }
 
                 // 如果sink partitionSpec 指定了静态分区值，需要删除source dataframe 中同名列
