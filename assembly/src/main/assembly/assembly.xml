@@ -50,6 +50,7 @@
                 <exclude>com.thoughtworks.paranamer:*:jar</exclude>
                 <exclude>org.jetbrains:*:jar</exclude>
                 <exclude>redis.clients:*:jar</exclude>
+                <exclude>com.github.luben:zstd-jni:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

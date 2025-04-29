@@ -25,7 +25,7 @@
         <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spotless.version>2.44.2</spotless.version>
+        <spotless.version>2.44.4</spotless.version>
         <libScope>compile</libScope>
 
         <scala.version>2.12.18</scala.version>
@@ -40,10 +40,10 @@
         <antlr4.version>4.9.3</antlr4.version>
         <zip4j.version>2.11.5</zip4j.version>
         <lombok.version>1.18.36</lombok.version>
-        <kotlin.version>2.1.10</kotlin.version>
+        <kotlin.version>2.1.20</kotlin.version>
 
         <iceberg.version>1.8.1</iceberg.version>
-        <paimon.version>1.0.1</paimon.version>
+        <paimon.version>1.1.0</paimon.version>
         <hudi.version>1.0.1</hudi.version>
         <delta.version>3.3.0</delta.version>
 
