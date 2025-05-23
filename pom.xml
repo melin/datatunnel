@@ -43,12 +43,12 @@
         <kotlin.version>2.1.20</kotlin.version>
 
         <iceberg.version>1.8.1</iceberg.version>
-        <paimon.version>1.1.0</paimon.version>
+        <paimon.version>1.1.1</paimon.version>
         <hudi.version>1.0.1</hudi.version>
         <delta.version>3.3.0</delta.version>
 
         <awssdk.v1.version>1.12.770</awssdk.v1.version>
-        <awssdk.v2.version>2.27.17</awssdk.v2.version>
+        <awssdk.v2.version>2.29.52</awssdk.v2.version>
         <hadoop.version>3.3.4</hadoop.version>
         <hive.version>2.3.10</hive.version>
 

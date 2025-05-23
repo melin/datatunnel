@@ -35,16 +35,19 @@
             </exclusions>
         </dependency>
 
+        <!-- iceberg-aws-bundle-1.8.1.jar 已经包含 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sts</artifactId>
             <version>${awssdk.v2.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>url-connection-client</artifactId>
             <version>${awssdk.v2.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
