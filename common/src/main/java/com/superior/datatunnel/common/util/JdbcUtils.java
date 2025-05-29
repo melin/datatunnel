@@ -24,7 +24,11 @@ public class JdbcUtils {
 
         String url = "";
         if (MYSQL == dsType) {
-            url = "jdbc:mysql://" + host + ":" + port;
+            if (StringUtils.isBlank(databaseName)) {
+                databaseName = schemaName;
+            }
+
+            url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
             url = url
                     + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
         } else if (DB2 == dsType) {
@@ -61,16 +65,9 @@ public class JdbcUtils {
     }
 
     public static void execute(Connection conn, String sql, List<Object> parameters) throws SQLException {
-        PreparedStatement stmt = null;
-
-        try {
-            stmt = conn.prepareStatement(sql);
-
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             setParameters(stmt, parameters);
-
             stmt.executeUpdate();
-        } finally {
-            close(stmt);
         }
     }
 
@@ -100,22 +97,22 @@ public class JdbcUtils {
         }
     }
 
-    public static String[] queryTableColumnNames(Connection connection, String dbtable) {
-        try {
-            String sql = "select * from " + dbtable + " where 1 = 0";
-            ResultSetMetaData rsmd = connection.prepareStatement(sql).getMetaData();
-
-            int ncols = rsmd.getColumnCount();
-            String[] columns = new String[ncols];
+    public static String[] queryTableColumnNames(Connection connection, String dbTable) {
+        String sql = "select * from " + dbTable + " where 1 = 0";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            ResultSetMetaData resultSetMetaData = stmt.getMetaData();
+            int columnCount = resultSetMetaData.getColumnCount();
+            String[] columns = new String[columnCount];
             int i = 0;
-            while (i < ncols) {
-                String columnName = rsmd.getColumnLabel(i + 1);
+            while (i < columnCount) {
+                String columnName = resultSetMetaData.getColumnLabel(i + 1);
                 columns[i] = columnName;
                 i++;
             }
             return columns;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String msg = "query table [" + dbTable + "] column names error: " + e.getMessage();
+            throw new RuntimeException(msg, e);
         }
     }
 
