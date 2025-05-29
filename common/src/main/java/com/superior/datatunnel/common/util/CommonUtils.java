@@ -136,8 +136,9 @@ public class CommonUtils {
             } else if ((sinkColumns.length == 1 && "*".equals(sinkColumns[0])) && sourceColumns.length > 1) {
                 sql = "select * from " + tdlName;
             } else {
-                throw new UnsupportedOperationException("不支持列映射, source columns: " + StringUtils.join(sourceColumns, ",")
-                        + ". sink columns: " + StringUtils.join(sinkColumns, ","));
+                throw new UnsupportedOperationException(
+                        "不支持列映射, source columns: " + StringUtils.join(sourceColumns, ",") + ". sink columns: "
+                                + StringUtils.join(sinkColumns, ","));
             }
         } else {
             if (sourceColumns.length == 1 && "*".equals(sourceColumns[0]) && "*".equals(sinkColumns[0])) {
