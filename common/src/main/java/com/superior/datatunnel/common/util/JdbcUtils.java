@@ -133,4 +133,25 @@ public class JdbcUtils {
             LOG.debug("close connection error", e);
         }
     }
+
+    public static String cleanQuote(String value) {
+        if (StringUtils.isBlank(value)) {
+            return value;
+        }
+
+        var result = value;
+        if (StringUtils.startsWith(result, "'") && StringUtils.endsWith(result, "'")) {
+            result = StringUtils.substring(result, 1, -1);
+        }
+
+        if (StringUtils.startsWith(result, "\"") && StringUtils.endsWith(result, "\"")) {
+            result = StringUtils.substring(result, 1, -1);
+        }
+
+        if (StringUtils.startsWith(value, "`") && StringUtils.endsWith(value, "`")) {
+            return StringUtils.substring(value, 1, -1);
+        }
+
+        return StringUtils.trim(result);
+    }
 }
