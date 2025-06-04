@@ -105,9 +105,10 @@ class MySqlDatabaseDialect(
     }
 
     val loadCommand =
-      s"LOAD DATA LOCAL INFILE 'datatunnel.csv' REPLACE INTO TABLE ${tableId} " +
-        s"FIELDS TERMINATED BY ',' ENCLOSED BY '${'"'}' LINES TERMINATED BY '\n' (${columnNames.asScala
-            .mkString(",")})";
+      s"LOAD DATA LOCAL INFILE 'datatunnel.csv' REPLACE INTO TABLE ${tableId} \n" +
+        "CHARACTER SET 'utf8mb4' \n" +
+        s"FIELDS TERMINATED BY ',' ENCLOSED BY '${'"'}' \n" +
+        s"LINES TERMINATED BY '\n' (${columnNames.asScala.mkString(",")})";
 
     LogUtils.info(s"load data: ${loadCommand}")
     LoadDataSqlHelper.loadData(dataSourceType, parameters)(df, loadCommand)
