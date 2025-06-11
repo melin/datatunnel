@@ -22,14 +22,15 @@ class MySqlDatabaseDialect(
       destTableName: String,
       rddSchema: StructType,
       tableSchema: Option[StructType],
-      keyColumns: Array[String]
+      primaryKeys: Array[String]
   ): String = {
 
-    if (keyColumns.length == 0) {
-      throw new IllegalArgumentException("not primary key, not support upsert")
+    if (primaryKeys.length == 0) {
+      throw new IllegalArgumentException(s"tbale: ${destTableName} not primary key, not support upsert")
     }
 
     val conn = jdbcDialect.createConnectionFactory(options)(-1)
+
     try {
       val version = getDatabaseVersion(conn)
       val columns = getColumns(rddSchema, tableSchema)
@@ -46,17 +47,18 @@ class MySqlDatabaseDialect(
         s"INSERT INTO $destTableName (${columns.mkString(",")}) VALUES ($placeholders)"
       builder.append(sql)
 
+      logInfo(s"mysql version: ${version}")
       if (version.isSameOrAfter(8, 0, 20)) {
         builder.append("\nAS new ON DUPLICATE KEY UPDATE ")
         sql = columns
-          .filter(!keyColumns.contains(_))
+          .filter(!primaryKeys.contains(_))
           .map(col => s"\t$col = new.$col")
           .mkString(",\n")
         builder.append(sql);
       } else {
         builder.append("\nON DUPLICATE KEY UPDATE\n")
         sql = columns
-          .filter(!keyColumns.contains(_))
+          .filter(!primaryKeys.contains(_))
           .map(col => s"\t$col = VALUES($col)")
           .mkString(",\n")
         builder.append(sql);
