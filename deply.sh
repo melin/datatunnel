@@ -1,6 +1,7 @@
 scp assembly/target/datatunnel-3.5.0.tar.gz root@172.18.5.46:/root
 
 kinit -kt /root/superior.keytab superior/admin@DATACYBER.COM
+
 rm -rf datatunnel-3.5.0
 tar -zxf datatunnel-3.5.0.tar.gz
 cd datatunnel-3.5.0
