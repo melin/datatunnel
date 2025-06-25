@@ -62,6 +62,17 @@
             <artifactId>datatunnel-connector-s3</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.kyuubi</groupId>
+            <artifactId>kyuubi-extension-spark-3-5_2.12</artifactId>
+            <version>${kyuubi.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!--<dependency>
             <groupId>com.superior.datatunnel</groupId>
