@@ -6,6 +6,8 @@ import org.apache.spark.sql.SparkSession;
 
 public class DataTunnelContext {
 
+    private String sql;
+
     private DataSourceType sourceType;
 
     private DataTunnelSourceOption sourceOption;
@@ -17,6 +19,14 @@ public class DataTunnelContext {
     private String transfromSql;
 
     private SparkSession sparkSession = SparkSession.active();
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
 
     public DataSourceType getSourceType() {
         return sourceType;

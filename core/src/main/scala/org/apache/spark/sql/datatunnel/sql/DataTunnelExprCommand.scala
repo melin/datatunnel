@@ -90,6 +90,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     )
 
     val context = new DataTunnelContext
+    context.setSql(sqlText)
     context.setSourceOption(sourceOption)
     context.setSinkOption(sinkOption)
     context.setTransfromSql(transfromSql)

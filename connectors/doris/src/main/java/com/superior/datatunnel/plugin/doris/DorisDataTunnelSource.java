@@ -29,7 +29,7 @@ public class DorisDataTunnelSource implements DataTunnelSource {
 
         String[] columns = sourceOption.getColumns();
         if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
-            reader.option("doris.read.field", StringUtils.join(columns, ","));
+            reader.option("doris.read.fields", StringUtils.join(columns, ","));
         }
 
         return reader.load();
