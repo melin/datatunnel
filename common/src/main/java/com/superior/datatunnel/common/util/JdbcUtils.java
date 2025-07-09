@@ -139,7 +139,7 @@ public class JdbcUtils {
             return value;
         }
 
-        var result = value;
+        String result = value;
         if (StringUtils.startsWith(result, "'") && StringUtils.endsWith(result, "'")) {
             result = StringUtils.substring(result, 1, -1);
         }
