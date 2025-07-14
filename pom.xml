@@ -65,7 +65,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.gitee.melin.bee</groupId>
+                <groupId>com.gitee.melin</groupId>
                 <artifactId>bee</artifactId>
                 <version>${bee.version}</version>
                 <exclusions>
