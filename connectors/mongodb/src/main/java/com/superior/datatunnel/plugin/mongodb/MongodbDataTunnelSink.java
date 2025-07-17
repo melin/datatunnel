@@ -20,7 +20,7 @@ public class MongodbDataTunnelSink implements DataTunnelSink {
 
     @Override
     public void sink(Dataset<Row> dataFrame, DataTunnelContext context) throws IOException {
-        MongodbDataTunnelSinkOption option = (MongodbDataTunnelSinkOption) context.getSourceOption();
+        MongodbDataTunnelSinkOption option = (MongodbDataTunnelSinkOption) context.getSinkOption();
 
         DataFrameWriter dfWriter = dataFrame
                 .write()
