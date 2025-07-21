@@ -1,11 +1,13 @@
 package com.superior.datatunnel.distcp.utils
 
-import java.net.URI
+import org.apache.commons.lang3.StringUtils
 
+import java.net.URI
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.spark.internal.Logging
 
-object PathUtils {
+object PathUtils extends Logging{
 
   /** Qualify a path, making the path both absolute and qualifies with a scheme. If the input path is not absolute, the
     * default working directory is used. If the input path does not have a scheme, the default URI used in the Hadoop
@@ -46,6 +48,9 @@ object PathUtils {
         Option(new Path(sourceURI).getParent).map(_.toUri).getOrElse(sourceURI)
     }
     val relativeFile = sourceFolderURI.relativize(file).getPath
+    if (StringUtils.isBlank(relativeFile)) {
+      logWarning(s"relativeFile is empty, sourceFolderURI: ${sourceFolderURI.getPath}, file: ${file.getPath}")
+    }
     new Path(new Path(destinationURI), relativeFile).toUri
   }
 
