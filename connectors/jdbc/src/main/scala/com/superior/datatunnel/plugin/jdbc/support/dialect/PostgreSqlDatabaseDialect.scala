@@ -54,7 +54,7 @@ class PostgreSqlDatabaseDialect(
         .append(updateColumns.mkString(","))
         .append(") = ")
         .append("\n")
-      sqlBuilder.append("(").append(excludedColumns.mkString(",")).append(")")
+      sqlBuilder.append("ROW(").append(excludedColumns.mkString(",")).append(")")
     }
 
     logInfo("upsert sql: " + sqlBuilder.toString())

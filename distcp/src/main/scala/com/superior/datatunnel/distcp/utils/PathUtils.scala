@@ -7,7 +7,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.internal.Logging
 
-object PathUtils extends Logging{
+object PathUtils extends Logging {
 
   /** Qualify a path, making the path both absolute and qualifies with a scheme. If the input path is not absolute, the
     * default working directory is used. If the input path does not have a scheme, the default URI used in the Hadoop
@@ -49,7 +49,7 @@ object PathUtils extends Logging{
     }
     val relativeFile = sourceFolderURI.relativize(file).getPath
     if (StringUtils.isBlank(relativeFile)) {
-      logWarning(s"relativeFile is empty, sourceFolderURI: ${sourceFolderURI.getPath}, file: ${file.getPath}")
+      logWarning(s"relativeFile is empty, sourceFolderURI: ${sourceFolderURI}, file: ${file}")
     }
     new Path(new Path(destinationURI), relativeFile).toUri
   }
