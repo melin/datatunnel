@@ -3,10 +3,13 @@ FROM apache/spark:3.5.6-scala2.12-java11-ubuntu
 USER root
 
 # MODIFICATIONS GO HERE
-COPY assembly/target/datatunnel-3.5.0/*.jar /opt/spark/jars/
+ADD assembly/target/datatunnel-3.5.0.tar.gz /opt/spark/
+RUN cp /opt/datatunnel-3.5.0/*.jar /opt/spark/jars/ \
+    && rm -rf /opt/datatunnel-3.5.0
 
-# https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-5_2.12/1.10.1/kyuubi-extension-spark-3-5_2.12-1.10.1.jar
-COPY kyuubi-extension-spark-3-5_2.12-1.10.1.jar  /opt/spark/jars/
+
+# https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-5_2.12/1.10.2/kyuubi-extension-spark-3-5_2.12-1.10.2.jar
+COPY kyuubi-extension-spark-3-5_2.12-1.10.2.jar  /opt/spark/jars/
 
 # https://repo1.maven.org/maven2/io/minio/minio/8.5.17/minio-8.5.17.jar
 COPY minio-8.5.17.jar /opt/spark/jars/

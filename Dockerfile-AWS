@@ -8,11 +8,12 @@ RUN pip3 install mysql-connector-python pycryptodome pytz python-dateutil -U -i 
 # 删除 emr 自带的jar
 RUN rm -f /usr/lib/spark/jars/spark-redshift*
 
-# MODIFICATIONS GO HERE
-COPY assembly/target/datatunnel-3.5.0/*.jar /usr/lib/spark/jars/
+ADD assembly/target/datatunnel-3.5.0.tar.gz /usr/lib/
+RUN cp /usr/lib/datatunnel-3.5.0/*.jar /usr/lib/spark/jars/ \
+    && rm -rf /usr/lib/datatunnel-3.5.0
 
-# https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-5_2.12/1.10.1/kyuubi-extension-spark-3-5_2.12-1.10.1.jar
-COPY kyuubi-extension-spark-3-5_2.12-1.10.1.jar /usr/lib/spark/jars/
+# https://repo1.maven.org/maven2/org/apache/kyuubi/kyuubi-extension-spark-3-5_2.12/1.10.2/kyuubi-extension-spark-3-5_2.12-1.10.2.jar
+COPY kyuubi-extension-spark-3-5_2.12-1.10.2.jar /usr/lib/spark/jars/
 
 # EMRS will run the image as hadoop
 USER hadoop:hadoop
