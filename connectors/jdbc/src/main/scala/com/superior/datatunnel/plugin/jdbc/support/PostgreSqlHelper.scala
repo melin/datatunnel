@@ -84,7 +84,8 @@ object PostgreSqlHelper extends Logging {
     val updateColumns = columns.asScala
       .filter(name => !upsertKeyColumns.contains(name))
       .map(name => name)
-    val excludedColumns = updateColumns.map(name => "excluded." + name)
+    val updateSetSql = "DO UPDATE SET \n\t" +
+      updateColumns.map(col => s"$col = excluded.${col}").mkString(",\n\t")
 
     val sqlBuilder: StringBuilder = new StringBuilder
     sqlBuilder
@@ -103,15 +104,7 @@ object PostgreSqlHelper extends Logging {
       .append(upsertKeyColumns.mkString(","))
       .append(")")
       .append("\n")
-    sqlBuilder
-      .append("DO UPDATE SET (")
-      .append(updateColumns.mkString(","))
-      .append(") = ")
-      .append("\n")
-    sqlBuilder
-      .append("ROW(")
-      .append(excludedColumns.mkString(","))
-      .append(")\n")
+    sqlBuilder.append(updateSetSql)
 
     sqlBuilder.append(" where (\n")
     val conditions = Lists.newArrayList[String]()

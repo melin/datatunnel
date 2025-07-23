@@ -38,7 +38,8 @@ class PostgreSqlDatabaseDialect(
 
     val updateColumns =
       columns.filter(name => !keyColumns.contains(name)).map(name => name)
-    val excludedColumns = updateColumns.map(name => "excluded." + name)
+    val updateSetSql = "DO UPDATE SET \n\t" +
+      updateColumns.map(col => s"$col = excluded.${col}").mkString(",\n\t")
 
     val sqlBuilder = new StringBuilder()
     val sql =
@@ -49,12 +50,7 @@ class PostgreSqlDatabaseDialect(
     if (updateColumns.length == 0) {
       sqlBuilder.append("DO NOTHING \n")
     } else {
-      sqlBuilder
-        .append("DO UPDATE SET (")
-        .append(updateColumns.mkString(","))
-        .append(") = ")
-        .append("\n")
-      sqlBuilder.append("ROW(").append(excludedColumns.mkString(",")).append(")")
+      sqlBuilder.append(updateSetSql)
     }
 
     logInfo("upsert sql: " + sqlBuilder.toString())
