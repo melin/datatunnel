@@ -42,7 +42,7 @@
         <lombok.version>1.18.38</lombok.version>
         <kotlin.version>2.2.0</kotlin.version>
 
-        <iceberg.version>1.9.1</iceberg.version>
+        <iceberg.version>1.9.2</iceberg.version>
         <paimon.version>1.2.0</paimon.version>
         <hudi.version>1.0.2</hudi.version>
         <delta.version>3.3.2</delta.version>
