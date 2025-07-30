@@ -115,8 +115,6 @@ public class CommonUtils {
             } else {
                 throw new DataTunnelException(fieldName + " not support data type: " + field.getType());
             }
-
-            field.setAccessible(false);
         }
         return beanInstance;
     }
