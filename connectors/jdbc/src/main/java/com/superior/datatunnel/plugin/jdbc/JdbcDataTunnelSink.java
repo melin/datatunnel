@@ -123,7 +123,9 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 sinkColumns = JdbcUtils.queryTableColumnNames(connection, fullTableName);
                 String[] sourceColumns = dataset.schema().fieldNames();
                 if (sinkColumns.length != sourceColumns.length) {
-                    throw new DataTunnelException("source 和 sink 字段数量不一致");
+                    LOG.warn("sourceColumns size: {}, {}", sourceColumns.length, sourceColumns);
+                    LOG.warn("sinkColumns   size: {}, {}", sinkColumns.length, sinkColumns);
+                    throw new DataTunnelException("sourceColumns length not equal to sinkColumns length");
                 }
                 if (!Arrays.equals(sinkColumns, sourceColumns)) {
                     dataset = dataset.selectExpr(sinkColumns);
