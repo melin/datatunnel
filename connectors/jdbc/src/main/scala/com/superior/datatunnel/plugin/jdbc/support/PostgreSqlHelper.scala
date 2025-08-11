@@ -9,6 +9,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialects
 
+import java.io.InputStream
 import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
@@ -20,7 +21,7 @@ import scala.collection.JavaConverters._
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
 object PostgreSqlHelper extends Logging {
 
-  def rowsToInputStream(rows: Iterator[Row]): xi = {
+  def rowsToInputStream(rows: Iterator[Row]): InputStream = {
     val bytes: Iterator[Byte] = rows.flatMap { row =>
       {
         val columns = row.toSeq.map { v =>
