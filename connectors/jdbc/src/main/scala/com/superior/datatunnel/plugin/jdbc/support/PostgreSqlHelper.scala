@@ -4,11 +4,11 @@ import com.gitee.melin.bee.util.JdbcUtils
 import com.google.common.collect.Lists
 import com.superior.datatunnel.plugin.jdbc.Constants
 import org.apache.commons.lang3.StringUtils
+import org.apache.hadoop.shaded.com.nimbusds.jose.util.StandardCharset
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcOptionsInWrite
 import org.apache.spark.sql.jdbc.JdbcDialects
 
-import java.io.InputStream
 import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
@@ -20,7 +20,7 @@ import scala.collection.JavaConverters._
 // https://gist.github.com/longcao/bb61f1798ccbbfa4a0d7b76e49982f84
 object PostgreSqlHelper extends Logging {
 
-  def rowsToInputStream(rows: Iterator[Row]): InputStream = {
+  def rowsToInputStream(rows: Iterator[Row]): xi = {
     val bytes: Iterator[Byte] = rows.flatMap { row =>
       {
         val columns = row.toSeq.map { v =>
@@ -31,7 +31,7 @@ object PostgreSqlHelper extends Logging {
               case decimal: java.math.BigDecimal =>
                 decimal.toPlainString.getBytes()
               case _ =>
-                v.toString.getBytes()
+                v.toString.getBytes(StandardCharset.UTF_8)
             }
           }
         }
