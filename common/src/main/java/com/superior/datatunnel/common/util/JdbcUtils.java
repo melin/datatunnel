@@ -97,25 +97,6 @@ public class JdbcUtils {
         }
     }
 
-    public static String[] queryTableColumnNames(Connection connection, String dbTable) {
-        String sql = "select * from " + dbTable + " where 1 = 0";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            ResultSetMetaData resultSetMetaData = stmt.getMetaData();
-            int columnCount = resultSetMetaData.getColumnCount();
-            String[] columns = new String[columnCount];
-            int i = 0;
-            while (i < columnCount) {
-                String columnName = resultSetMetaData.getColumnLabel(i + 1);
-                columns[i] = columnName;
-                i++;
-            }
-            return columns;
-        } catch (Exception e) {
-            String msg = "query table [" + dbTable + "] column names error: " + e.getMessage();
-            throw new RuntimeException(msg, e);
-        }
-    }
-
     public static void close(Connection x) {
         if (x == null) {
             return;
@@ -132,26 +113,5 @@ public class JdbcUtils {
         } catch (Exception e) {
             LOG.debug("close connection error", e);
         }
-    }
-
-    public static String cleanQuote(String value) {
-        if (StringUtils.isBlank(value)) {
-            return value;
-        }
-
-        String result = value;
-        if (StringUtils.startsWith(result, "'") && StringUtils.endsWith(result, "'")) {
-            result = StringUtils.substring(result, 1, -1);
-        }
-
-        if (StringUtils.startsWith(result, "\"") && StringUtils.endsWith(result, "\"")) {
-            result = StringUtils.substring(result, 1, -1);
-        }
-
-        if (StringUtils.startsWith(value, "`") && StringUtils.endsWith(value, "`")) {
-            return StringUtils.substring(value, 1, -1);
-        }
-
-        return StringUtils.trim(result);
     }
 }

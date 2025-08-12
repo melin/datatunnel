@@ -9,7 +9,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcOptionsInWrite}
 import org.apache.spark.sql.jdbc.JdbcDialect
 import org.apache.spark.sql.types.StructType
-import com.superior.datatunnel.common.util.JdbcUtils
+import com.superior.datatunnel.common.util.{CommonUtils, JdbcUtils}
 
 import java.sql.Connection
 import scala.collection.JavaConverters._
@@ -94,7 +94,7 @@ class PostgreSqlDatabaseDialect(
     // 创建临时表名
     val items = StringUtils.split(tableId, ".")
     var name = items(items.length - 1)
-    name = JdbcUtils.cleanQuote(name)
+    name = CommonUtils.cleanQuote(name)
     name = "datatunnel_temp_" + name + "_001"
     name = JdbcDialectUtils.quoteIdentifier(dataSourceType, name);
 

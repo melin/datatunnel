@@ -28,8 +28,8 @@ public class LogDataTunnelSink implements DataTunnelSink {
         boolean vertical = sinkOption.isVertical();
 
         // 支持 superior 平台显示log 结果 start
-        String jobType = sparkSession.conf().get("spark.jobserver.superior.jobType");
-        String instanceType = sparkSession.conf().get("spark.jobserver.superior.instanceType");
+        String jobType = sparkSession.conf().get("spark.jobserver.superior.jobType", null);
+        String instanceType = sparkSession.conf().get("spark.jobserver.superior.instanceType", null);
         if ("spark_sql".equals(jobType) && "dev".equals(instanceType)) {
             String instanceCode = sparkSession.conf().get("spark.jobserver.superior.instanceCode");
             try {
