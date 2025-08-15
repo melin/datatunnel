@@ -63,4 +63,7 @@ public class RedshiftDataTunnelSinkOption extends BaseSinkOption {
     private String[] preActions;
 
     private String[] postActions;
+
+    private boolean includeColumnList = false;
+
 }

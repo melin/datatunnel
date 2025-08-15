@@ -105,6 +105,7 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         sparkSession.sparkContext().hadoopConfiguration().set("fs.s3a.endpoint.region", region);
 
         // 如果输入表字段和输出表字段位置不一致，调整位置。
+        boolean includeColumnList = option.isIncludeColumnList();
         String[] sinkColumns = option.getColumns();
         if (sinkColumns.length == 1 && sinkColumns[0].equals("*")) {
             Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
@@ -113,6 +114,7 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
             if (sinkColumns.length != sourceColumns.length) {
                 // 可能用户通过preActions 创建sink 表，这个时候还没有sink 表，避免任务报错。
                 LOGGER.warn("source({}) 和 sink 字段数量不一致, sinkColumns: {}", sourceColumns.length, sinkColumns.length, sinkColumns);
+                includeColumnList = true;
             }
             if (!Arrays.equals(sinkColumns, sourceColumns)) {
                 dataset = dataset.selectExpr(sinkColumns);
@@ -126,7 +128,8 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                 .option("user", option.getUsername())
                 .option("password", option.getPassword())
                 .option("tempdir_region", option.getRegion())
-                .option("tempdir", option.getTempdir());
+                .option("tempdir", option.getTempdir())
+                .option("include_column_list", includeColumnList);
 
         if (!option.getParams().containsKey("aws_iam_role")) {
             if (StringUtils.isBlank(iamRole)) {
