@@ -111,8 +111,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
             String[] preActions = sinkOption.getPreActions();
             String[] postActions = sinkOption.getPostActions();
 
-            String fullTableName = JdbcDialectUtils.quoteIdentifier(dataSourceType, schemaName)
-                    + "." + JdbcDialectUtils.quoteIdentifier(dataSourceType, tableName);
+            String fullTableName = JdbcDialectUtils.quoteIdentifier(dataSourceType, schemaName) + "."
+                    + JdbcDialectUtils.quoteIdentifier(dataSourceType, tableName);
             connection = buildConnection(jdbcUrl, fullTableName, sinkOption);
 
             if (preActions != null) {
@@ -133,8 +133,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 List<MetaColumn> metaColumns = beeJdbcDialect.getSchemaColumns(schemaName, tableName);
                 // 默认排除自增主键
                 String autoIncrementColumn = null;
-                Optional<MetaColumn> optionalMetaColumn = metaColumns.stream()
-                        .filter(MetaColumn::isAutoIncrement).findFirst();
+                Optional<MetaColumn> optionalMetaColumn =
+                        metaColumns.stream().filter(MetaColumn::isAutoIncrement).findFirst();
                 if (optionalMetaColumn.isPresent()) {
                     autoIncrementColumn = optionalMetaColumn.get().getColumnName();
                 }
@@ -142,7 +142,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 String[] sourceColumns = dataset.schema().fieldNames();
                 // 如果 source 没有包含 sink 主键自增字段，需要排除 sink 中自增主键字段
                 if (ArrayUtils.contains(sinkColumns, autoIncrementColumn)) {
-                    sinkColumns = metaColumns.stream().map(MetaColumn::getColumnName).toArray(String[]::new);
+                    sinkColumns =
+                            metaColumns.stream().map(MetaColumn::getColumnName).toArray(String[]::new);
                 } else {
                     sinkColumns = metaColumns.stream()
                             .filter(col -> !col.isAutoIncrement())

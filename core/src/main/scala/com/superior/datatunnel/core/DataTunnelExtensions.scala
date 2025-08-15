@@ -1,15 +1,16 @@
 package com.superior.datatunnel.core
 
 import com.google.common.collect.Maps
+import org.apache.commons.io.IOUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.{SparkListener, SparkListenerJobStart, SparkListenerTaskEnd}
 import org.apache.spark.sql.SparkSessionExtensions
 
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentMap
 import scala.collection.JavaConverters._
+import scala.tools.nsc.interpreter.InputStream
 
-/** huaixin 2021/12/27 2:47 PM
-  */
 class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Logging {
   override def apply(extensions: SparkSessionExtensions): Unit = {
     extensions.injectParser { (session, parser) =>
@@ -62,6 +63,20 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
       })
       new DataTunnelSqlParser(session, parser)
     }
+
+    printGitInfo()
+  }
+
+  private def printGitInfo(): Unit = {
+    var inputStream: InputStream = null
+    try {
+      inputStream = classOf[DataTunnelExtensions].getResourceAsStream("/git.datatunnel.properties")
+      val text = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name)
+      logInfo("datatunnel build info: \n" + text)
+    } catch {
+      case e: Exception =>
+        logError("Error reading file: " + e.getMessage)
+    } finally if (inputStream != null) inputStream.close()
   }
 }
 
