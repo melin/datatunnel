@@ -7,6 +7,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 
+import static com.mongodb.spark.sql.connector.config.MongoConfig.CLIENT_FACTORY_DEFAULT;
+
 // https://www.mongodb.com/docs/spark-connector/current/batch-mode/batch-write-config/
 @Data
 public class MongodbDataTunnelSinkOption extends BaseSinkOption {
@@ -32,7 +34,7 @@ public class MongodbDataTunnelSinkOption extends BaseSinkOption {
 
     @OptionDesc(
             "MongoClientFactory configuration key. Default: com.mongodb.spark.sql.connector.connection.DefaultMongoClientFactory")
-    private String mongoClientFactory;
+    private String mongoClientFactory = CLIENT_FACTORY_DEFAULT;
 
     @OptionDesc("Specifies whether the connector parses the string and converts extended JSON into BSON.")
     private String convertJson = "false";
