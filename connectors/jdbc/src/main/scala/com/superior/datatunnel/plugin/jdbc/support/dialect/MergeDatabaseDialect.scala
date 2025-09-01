@@ -59,6 +59,11 @@ class MergeDatabaseDialect(
     builder.append(s"    insert(${columns.mkString(",")})\n")
     sql = columns.map(col => s"src.${col}").mkString(",")
     builder.append(s"    VALUES ($sql)")
+
+    if (dataSourceType == DataSourceType.SQLSERVER) {
+      builder.append(";")
+    }
+
     builder.toString
   }
 }
