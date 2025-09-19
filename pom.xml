@@ -25,7 +25,7 @@
         <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spotless.version>2.44.5</spotless.version>
+        <spotless.version>2.46.1</spotless.version>
         <libScope>compile</libScope>
 
         <scala.version>2.12.18</scala.version>
@@ -33,7 +33,7 @@
         <spark.version>3.5.6</spark.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j2.version>2.24.3</log4j2.version>
-        <bee.version>1.9.12</bee.version>
+        <bee.version>1.9.13</bee.version>
         <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>
         <jedis.version>3.10.0</jedis.version>
@@ -272,7 +272,7 @@
                             <nrOfIndentSpace>4</nrOfIndentSpace>
                             <keepBlankLines>true</keepBlankLines>
                             <indentBlankLines>false</indentBlankLines>
-                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <indentAttribute>schemaLocation</indentAttribute>
                             <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
                             <sortModules>false</sortModules>
                             <sortExecutions>false</sortExecutions>
