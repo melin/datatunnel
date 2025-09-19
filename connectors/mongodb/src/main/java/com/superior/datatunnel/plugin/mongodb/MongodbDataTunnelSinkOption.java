@@ -1,13 +1,13 @@
 package com.superior.datatunnel.plugin.mongodb;
 
+import static com.mongodb.spark.sql.connector.config.MongoConfig.CLIENT_FACTORY_DEFAULT;
+
 import com.superior.datatunnel.api.model.BaseSinkOption;
 import com.superior.datatunnel.common.annotation.OptionDesc;
 import com.superior.datatunnel.common.enums.WriteMode;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
-
-import static com.mongodb.spark.sql.connector.config.MongoConfig.CLIENT_FACTORY_DEFAULT;
 
 // https://www.mongodb.com/docs/spark-connector/current/batch-mode/batch-write-config/
 @Data
