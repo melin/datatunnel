@@ -3,8 +3,6 @@ package com.superior.datatunnel.plugin.jdbc;
 import static com.superior.datatunnel.api.DataSourceType.*;
 import static com.superior.datatunnel.common.util.JdbcUtils.*;
 
-import com.gitee.melin.bee.core.jdbc.dialect.JdbcDialectHolder;
-import com.gitee.melin.bee.core.jdbc.relational.MetaColumn;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.WriteMode;
@@ -13,10 +11,7 @@ import com.superior.datatunnel.plugin.jdbc.support.JdbcDialectUtils;
 import io.github.melin.jobserver.spark.api.LogUtils;
 import java.io.IOException;
 import java.sql.*;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,47 +114,6 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
                 for (String presql : preActions) {
                     LOG.info("exec pre sql: " + presql);
                     execute(connection, presql);
-                }
-            }
-
-            // 如果输入表字段和输出表字段位置不一致，调整位置。
-            String[] sinkColumns = sinkOption.getColumns();
-            if (sinkColumns.length == 1 && sinkColumns[0].equals("*")) {
-                com.gitee.melin.bee.core.jdbc.enums.DataSourceType dsType =
-                        com.gitee.melin.bee.core.jdbc.enums.DataSourceType.valueOf(dataSourceType.name());
-                com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect beeJdbcDialect =
-                        JdbcDialectHolder.buildJdbcDialect(dsType, null, connection);
-
-                List<MetaColumn> metaColumns = beeJdbcDialect.getSchemaColumns(schemaName, tableName);
-                // 默认排除自增主键
-                String autoIncrementColumn = null;
-                Optional<MetaColumn> optionalMetaColumn =
-                        metaColumns.stream().filter(MetaColumn::isAutoIncrement).findFirst();
-                if (optionalMetaColumn.isPresent()) {
-                    autoIncrementColumn = optionalMetaColumn.get().getColumnName();
-                }
-
-                String[] sourceColumns = dataset.schema().fieldNames();
-                // 如果 source 没有包含 sink 主键自增字段，需要排除 sink 中自增主键字段
-                if (ArrayUtils.contains(sinkColumns, autoIncrementColumn)) {
-                    sinkColumns =
-                            metaColumns.stream().map(MetaColumn::getColumnName).toArray(String[]::new);
-                } else {
-                    sinkColumns = metaColumns.stream()
-                            .filter(col -> !col.isAutoIncrement())
-                            .map(MetaColumn::getColumnName)
-                            .toArray(String[]::new);
-                }
-
-                if (sinkColumns.length != sourceColumns.length) {
-                    LOG.error("sourceColumns size: {}, {}", sourceColumns.length, sourceColumns);
-                    LOG.error("sink table: {}", fullTableName);
-                    LOG.error("sinkColumns   size: {}, {}", sinkColumns.length, sinkColumns);
-                    throw new DataTunnelException("sourceColumns length not equal to sinkColumns length");
-                }
-                if (!Arrays.equals(sinkColumns, sourceColumns)) {
-                    dataset = dataset.selectExpr(sinkColumns);
-                    LogUtils.info("source和sink字段顺序不一致，自动按照名称匹配顺序");
                 }
             }
 
