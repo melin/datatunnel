@@ -114,13 +114,16 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     }
     var df = sourceConnector.read(context)
 
-    val sql = CommonUtils.genOutputSql(
-      df,
-      sourceOption.getColumns,
-      sinkOption.getColumns,
-      sinkOption.getDataSourceType
-    )
-    df = context.getSparkSession.sql(sql)
+    if (StringUtils.isBlank(transfromSql)) {
+      val sql = CommonUtils.genOutputSql(
+        df,
+        sourceOption.getColumns,
+        sinkOption.getColumns,
+        sinkOption.getDataSourceType
+      )
+      logInfo("temp output sql: " + sql)
+      df = context.getSparkSession.sql(sql)
+    }
 
     if (
       StringUtils.isBlank(sourceOption.getSourceTempView)
@@ -132,6 +135,7 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     } else if (StringUtils.isNotBlank(transfromSql)) {
       if (KAFKA != sourceType) {
         df.createTempView(sourceOption.getSourceTempView)
+        logInfo("transfrom sql: " + transfromSql)
         df = sparkSession.sql(transfromSql)
       }
     }

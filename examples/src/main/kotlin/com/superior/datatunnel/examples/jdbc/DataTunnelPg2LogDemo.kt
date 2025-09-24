@@ -26,8 +26,10 @@ object DataTunnelPg2LogDemo {
                 databaseName = 'postgres',
                 schemaName = 'public',
                 tableName = 'orders',
-                columns = ["id", "customer_id", "amount", "created_at"]
+                columns = ["id", "customer_id", "amount", "created_at"],
+                sourceTempView = 'tdl_table'
             ) 
+            transform = "select id, customer_id customerId, amount, created_at createdAt from tdl_table"
             SINK("log")
         """.trimIndent()
 
