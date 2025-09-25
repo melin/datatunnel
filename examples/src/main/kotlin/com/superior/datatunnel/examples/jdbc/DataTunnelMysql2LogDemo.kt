@@ -20,17 +20,15 @@ object DataTunnelMysql2LogDemo {
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
               username = "root",
-              password = "root2023",
-              host = '172.18.5.44',
+              password = "Root2024!@",
+              host = '172.18.6.181',
               port = 3306,
-              schemaName = 'cdc_demos_[0-9]+',
+              schemaName = 'demos',
               tableName = 'account_[0-9]+',
-              columns = ["id", "name", "dt_meta_table"],
+              columns = ["id", "name", "email", "create_time", "dt_meta_table"],
               condition = "where 1=1 limit 1"
             ) 
-            SINK("log") OPTIONS (
-              columns = ["id", "username", "table_name"]
-            )
+            SINK("log") 
         """.trimIndent()
 
         spark.sql(sql)

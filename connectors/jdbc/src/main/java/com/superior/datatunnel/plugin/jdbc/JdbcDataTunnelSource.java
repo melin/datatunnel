@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -128,10 +130,15 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             String fullTableName = pair.getLeft() + "." + pair.getRight();
             String[] newColumns = Arrays.copyOf(columns, columns.length);
+            newColumns = Arrays.stream(newColumns).map(name -> JdbcDialectUtils.quoteIdentifier(dataSourceType, name))
+                    .collect(Collectors.toList())
+                    .toArray(new String[0]);
+
             // 如果存在字段名：dt_meta_table，设置当前表名作为值
             for (int index = 0; index < newColumns.length; index++) {
-                if (META_TABLE_NAME_FIELD.equalsIgnoreCase(newColumns[index])) {
-                    newColumns[index] = "'" + fullTableName + "' as " + newColumns[index];
+                String name = CommonUtils.cleanQuote(newColumns[index]);
+                if (META_TABLE_NAME_FIELD.equalsIgnoreCase(name)) {
+                    newColumns[index] = "'" + fullTableName + "' as " + name;
                     break;
                 }
             }
