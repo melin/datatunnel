@@ -119,9 +119,12 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
                         sinkColumns.length,
                         sinkColumns);
                 includeColumnList = true;
-            }
-            if (!Arrays.equals(sinkColumns, sourceColumns)) {
-                dataset = dataset.selectExpr(sinkColumns);
+
+                if (sinkColumns.length > sourceColumns.length) {
+                    dataset = dataset.selectExpr(sourceColumns);
+                } else {
+                    dataset = dataset.selectExpr(sinkColumns);
+                }
             }
         } else {
             includeColumnList = true;

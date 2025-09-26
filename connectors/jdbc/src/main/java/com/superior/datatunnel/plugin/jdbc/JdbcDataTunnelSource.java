@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -130,7 +129,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             String fullTableName = pair.getLeft() + "." + pair.getRight();
             String[] newColumns = Arrays.copyOf(columns, columns.length);
-            newColumns = Arrays.stream(newColumns).map(name -> JdbcDialectUtils.quoteIdentifier(dataSourceType, name))
+            newColumns = Arrays.stream(newColumns)
+                    .map(name -> JdbcDialectUtils.quoteIdentifier(dataSourceType, name))
                     .collect(Collectors.toList())
                     .toArray(new String[0]);
 
