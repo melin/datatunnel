@@ -3,7 +3,7 @@ package com.superior.datatunnel.examples.dsitcp
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object DataTunnelSftp2HdfsDemo {
+object DataTunnelFtp2MinioDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -13,11 +13,11 @@ object DataTunnelSftp2HdfsDemo {
             .enableHiveSupport()
             .appName("Datatunnel spark example")
             .config("spark.sql.extensions", DataTunnelExtensions::class.java.name)
-            .config("spark.hadoop.fs.sftp.impl", "com.superior.datatunnel.hadoop.fs.sftp.SFTPFileSystem")
-            .config("spark.hadoop.fs.sftp.host", "172.18.5.44")
-            .config("spark.hadoop.fs.sftp.host.port", "22")
-            .config("spark.hadoop.fs.sftp.user.172.18.5.44", "root")
-            .config("spark.hadoop.fs.sftp.password.172.18.5.44.root", "123caoqwe")
+            .config("spark.hadoop.fs.ftp.impl", "com.superior.datatunnel.hadoop.fs.ftp.FTPFileSystem")
+            .config("spark.hadoop.fs.ftp.host", "172.88.0.45")
+            .config("spark.hadoop.fs.ftp.host.port", 21)
+            .config("spark.hadoop.fs.ftp.user.172.88.0.45", "ftp")
+            .config("spark.hadoop.fs.ftp.password.172.88.0.45.ftp", "ftp123")
             .config("spark.hadoop.fs.s3a.access.key", "McvVnpOziVsWv7Qlyut7")
             .config("spark.hadoop.fs.s3a.secret.key", "PbICbD6H7iyq0PuefHa383YoqJn3JCjedQHSYmbp")
             .config("spark.hadoop.fs.s3a.endpoint", "http://172.18.6.181:9330/")
@@ -27,9 +27,10 @@ object DataTunnelSftp2HdfsDemo {
 
         val sql = """
             DISTCP OPTIONS (
-              srcPaths = ['sftp://root@172.18.5.44/root'],
+              srcPaths = ['ftp://ftp@172.88.0.45/zichen_test/wxy'],
               destPath = "s3a://logs/",
               overwrite = true,
+              consistentPathBehaviour = true,
               delete = true,
               excludeHiddenFile = true
             )

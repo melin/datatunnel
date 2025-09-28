@@ -116,6 +116,7 @@ public class FTPChannel extends AbstractChannel {
         // timeout means it waits in every control socket operation for this time
         // if there is no traffic before raising an exception
         client.setDefaultTimeout(timeoutInSeconds * 1000);
+        client.setControlEncoding("UTF-8");
         try {
             client.connect(host, port);
             int reply = client.getReplyCode();
