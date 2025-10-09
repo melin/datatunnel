@@ -28,7 +28,7 @@ object StarrocksUtils extends Logging {
       .trigger(Trigger.ProcessingTime(triggerProcessingTime, TimeUnit.SECONDS))
       .format("starrocks")
       .options(sinkOption.getProperties())
-      .option("starrocks.fenodes", sinkOption.getFeEnpoints())
+      .option("starrocks.fe.http.url", sinkOption.getFeEnpoints())
       .option("starrocks.fe.jdbc.url", sinkOption.getJdbcUrl())
       .option("user", sinkOption.getUsername())
       .option("password", sinkOption.getPassword())
