@@ -58,23 +58,6 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     }
 
     @Override
-    public Set<String> optionalOptions() {
-        Set<String> options = Sets.newHashSet();
-        options.add("sessionInitStatement");
-        options.add("customSchema");
-        options.add("pushDownPredicate");
-        options.add("pushDownAggregate");
-        options.add("pushDownLimit");
-        options.add("pushDownOffset");
-        options.add("pushDownTableSample");
-        options.add("preferTimestampNTZ");
-        options.add("keytab");
-        options.add("principal");
-        options.add("refreshKrb5Config");
-        return options;
-    }
-
-    @Override
     public Dataset<Row> read(DataTunnelContext context) throws IOException {
         validateOptions(context);
 
@@ -259,6 +242,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
     private JDBCOptions buildJDBCOptions(String url, String dbtable, JdbcDataTunnelSourceOption sourceOption) {
         Map<String, String> params = sourceOption.getParams();
+        params.putAll(sourceOption.getProperties());
         params.remove("partitionColumn");
         params.remove("lowerBound");
         params.remove("upperBound");

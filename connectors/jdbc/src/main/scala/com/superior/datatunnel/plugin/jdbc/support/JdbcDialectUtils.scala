@@ -108,7 +108,9 @@ object JdbcDialectUtils {
       dataSourceType: DataSourceType,
       colName: String
   ): String = {
-    if (dataSourceType == DataSourceType.MYSQL) {
+    if ("*".equals(colName)) {
+      colName
+    } else if (dataSourceType == DataSourceType.MYSQL) {
       s"`$colName`"
     } else {
       s""""$colName""""
