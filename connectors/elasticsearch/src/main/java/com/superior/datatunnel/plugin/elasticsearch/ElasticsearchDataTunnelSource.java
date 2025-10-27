@@ -4,6 +4,7 @@ import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
@@ -24,7 +25,8 @@ public class ElasticsearchDataTunnelSource implements DataTunnelSource {
         SparkSession sparkSession = context.getSparkSession();
         ElasticsearchDataTunnelSourceOption option = (ElasticsearchDataTunnelSourceOption) context.getSourceOption();
 
-        Map<String, String> esCfg = option.getParams();
+        Map<String, String> esCfg = new HashMap<>();
+        esCfg.putAll(context.getSourceOption().getProperties());
         esCfg.put("es.nodes", option.getNodes());
         esCfg.put("es.port", option.getPort().toString());
 

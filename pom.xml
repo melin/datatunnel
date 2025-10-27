@@ -55,7 +55,7 @@
         <hive.version>2.3.10</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
-        <spark-elasticsearch.version>7.17.21</spark-elasticsearch.version>
+        <spark-elasticsearch.version>8.19.6</spark-elasticsearch.version>
         <sql-parser.version>4.0.19</sql-parser.version>
         <cassandra-connector.version>3.5.1</cassandra-connector.version>
         <mongo-connector.version>10.5.0</mongo-connector.version>
