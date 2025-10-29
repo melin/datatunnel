@@ -413,13 +413,17 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
 
-            String minValue = String.valueOf(resultSet.getObject("min_value"));
-            LogUtils.info("table {} min rowid hash value: {}", fullTableName, minValue);
-            sourceOption.setLowerBound(minValue);
+            Object minObj = resultSet.getObject("min_value");
+            if (minObj != null) {
+                LogUtils.info("table {} min rowid hash value: {}", fullTableName, minObj);
+                sourceOption.setLowerBound(minObj.toString());
+            }
 
-            String maxValue = String.valueOf(resultSet.getObject("max_value"));
-            LogUtils.info("table {} max rowid hash value: {}", fullTableName, maxValue);
-            sourceOption.setUpperBound(maxValue);
+            Object maxObj = resultSet.getObject("min_value");
+            if (maxObj != null) {
+                LogUtils.info("table {} max rowid hash value: {}", fullTableName, maxObj);
+                sourceOption.setUpperBound(maxObj.toString());
+            }
 
             int numPartitions = (int) Math.ceil((double) count / partitionRecordCount);
             if (numPartitions == 0) {
