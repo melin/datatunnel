@@ -110,20 +110,22 @@ public class RedshiftDataTunnelSink implements DataTunnelSink {
         if (sinkColumns.length == 1 && sinkColumns[0].equals("*")) {
             Connection connection = RedshiftUtils.getConnector(jdbcUrl, option.getUsername(), option.getPassword());
             sinkColumns = RedshiftUtils.queryTableColumnNames(connection, oldDbtable);
-            String[] sourceColumns = dataset.schema().fieldNames();
-            if (sinkColumns.length != sourceColumns.length) {
-                // 可能用户通过preActions 创建sink 表，这个时候还没有sink 表，避免任务报错。
-                LOGGER.warn(
-                        "source({}) 和 sink 字段数量不一致, sinkColumns: {}",
-                        sourceColumns.length,
-                        sinkColumns.length,
-                        sinkColumns);
-                includeColumnList = true;
+            if (sinkColumns != null) {
+                String[] sourceColumns = dataset.schema().fieldNames();
+                if (sinkColumns.length != sourceColumns.length) {
+                    // 可能用户通过preActions 创建sink 表，这个时候还没有sink 表，避免任务报错。
+                    LOGGER.warn(
+                            "source({}) 和 sink 字段数量不一致, sinkColumns: {}",
+                            sourceColumns.length,
+                            sinkColumns.length,
+                            sinkColumns);
+                    includeColumnList = true;
 
-                if (sinkColumns.length > sourceColumns.length) {
-                    dataset = dataset.selectExpr(sourceColumns);
-                } else {
-                    dataset = dataset.selectExpr(sinkColumns);
+                    if (sinkColumns.length > sourceColumns.length) {
+                        dataset = dataset.selectExpr(sourceColumns);
+                    } else {
+                        dataset = dataset.selectExpr(sinkColumns);
+                    }
                 }
             }
         } else {

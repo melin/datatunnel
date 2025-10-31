@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSetMetaData;
 import java.util.Properties;
 import org.apache.spark.sql.execution.datasources.jdbc.DriverRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
@@ -15,6 +17,8 @@ import software.amazon.awssdk.services.sts.model.AssumeRoleResponse;
 import software.amazon.awssdk.services.sts.model.Credentials;
 
 public class RedshiftUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RedshiftUtils.class);
 
     public static Credentials queryCredentials(
             String accessKeyId, String secretAccessKey, String region, String iamRole) {
@@ -43,6 +47,7 @@ public class RedshiftUtils {
             DriverRegistry.register("com.amazon.redshift.jdbc42.Driver");
             return DriverManager.getConnection(url, driverProperties);
         } catch (Exception e) {
+            LOG.error("redshift queryTableColumnNames failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -62,7 +67,9 @@ public class RedshiftUtils {
             }
             return columns;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // 可能写入是表是 preaction 创建的临时表，此时表还不存在
+            LOG.error("query columns failed: " + e.getMessage());
+            return null;
         }
     }
 }
