@@ -123,7 +123,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-hive-connector-2.1-cdh-6.3</artifactId>
+            <artifactId>paimon-hive-connector-2.3</artifactId>
             <version>${paimon.version}</version>
         </dependency>
         <dependency>
