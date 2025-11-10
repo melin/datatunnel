@@ -45,7 +45,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
     private static final String META_TABLE_NAME_FIELD = "dt_meta_table";
 
-    private static final String ORALCE_ROWID_ALIAS = "rowid_hash";
+    private static final String ORALCE_ROWID_ALIAS = JdbcDialectUtils.quoteIdentifier(ORACLE, "rowid_hash");
 
     public void validateOptions(DataTunnelContext context) {
         DataSourceType dsType = context.getSourceOption().getDataSourceType();
