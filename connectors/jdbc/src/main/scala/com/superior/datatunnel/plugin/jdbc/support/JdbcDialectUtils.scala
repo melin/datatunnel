@@ -113,7 +113,9 @@ object JdbcDialectUtils {
     } else if (dataSourceType == DataSourceType.MYSQL) {
       s"`$colName`"
     } else {
-      s""""$colName""""
+      // By ANSI standard, quotes are escaped with another quotes.
+      val escapedColName = colName.replace("\"", "\"\"")
+      s""""$escapedColName""""
     }
   }
 }
