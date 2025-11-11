@@ -74,11 +74,11 @@
             </exclusions>
         </dependency>
 
-        <!--<dependency>
+        <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-clickhouse</artifactId>
             <version>${project.version}</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-ftp</artifactId>
@@ -97,6 +97,11 @@
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-redis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-mongodb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--

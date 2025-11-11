@@ -26,7 +26,7 @@
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>0.7.1</version>
+            <version>0.9.4</version>
             <classifier>all</classifier>
             <exclusions>
                 <exclusion>
