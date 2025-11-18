@@ -9,3 +9,4 @@ greenplum=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 hashdata=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 dameng=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
 oceanbase=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
+kingbasees=com.superior.datatunnel.plugin.jdbc.JdbcDataTunnelSink
