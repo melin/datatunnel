@@ -19,6 +19,7 @@ public enum DataSourceType {
     SNOWFLAKE,
     DORIS,
     STARROCKS,
+    KINGBASEES,
 
     HIVE,
     HUDI,
@@ -53,7 +54,8 @@ public enum DataSourceType {
                 || dsType == GAUSSDWS
                 || dsType == GREENPLUM
                 || dsType == HANA
-                || dsType == DAMENG) {
+                || dsType == DAMENG
+                || dsType == KINGBASEES) {
             return true;
         } else {
             return false;

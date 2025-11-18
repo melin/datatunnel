@@ -1,9 +1,9 @@
-package com.superior.datatunnel.examples.starrocks
+package com.superior.datatunnel.examples.jdbc
 
 import com.superior.datatunnel.core.DataTunnelExtensions
 import org.apache.spark.sql.SparkSession
 
-object Starrocks2LogDemo {
+object Kingbase2LogDemo {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -18,14 +18,13 @@ object Starrocks2LogDemo {
             .getOrCreate()
 
         val sql = """
-            DATATUNNEL SOURCE('starrocks') OPTIONS (
-              username = 'root',
-              password = 'root',
-              feEnpoints = '172.18.1.111:31030',
-              jdbcUrl = 'jdbc:mysql://172.18.1.111:32030/sn_test',
-              schemaName = "sn_test",
-              tableName = "StarRocks_Paimon_spark_StarRocks",
-              columns = ['id','age','salary','height','weight','score','name','email','address','is_active','create_time','update_time']
+            DATATUNNEL SOURCE('kingbasees') OPTIONS (
+                username = 'system',
+                password = '12345678Ab!' ,
+                jdbcUrl = 'jdbc:kingbase8://172.88.0.48:54321/sn_test',
+                schemaName = 'public',
+                tableName = 'kingbase_ALL_kingbase',
+                columns = ["*"]
             ) 
             SINK("log")
         """.trimIndent()
