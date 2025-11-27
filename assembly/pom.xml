@@ -49,6 +49,11 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-oceanbase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>
