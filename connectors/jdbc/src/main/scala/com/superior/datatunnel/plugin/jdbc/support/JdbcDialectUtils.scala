@@ -24,6 +24,7 @@ object JdbcDialectUtils {
       dataSourceType == DataSourceType.POSTGRESQL
       || dataSourceType == DataSourceType.GREENPLUM
       || dataSourceType == DataSourceType.HASHDATA
+      || dataSourceType == DataSourceType.KINGBASEES
     ) {
       new PostgreSqlDatabaseDialect(options, jdbcDialect, dataSourceType)
     } else {
