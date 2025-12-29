@@ -27,6 +27,10 @@ public class DorisDataTunnelSource implements DataTunnelSource {
                 .option("password", sourceOption.getPassword())
                 .option("doris.table.identifier", fullTableId);
 
+        if (StringUtils.isNotBlank(sourceOption.getCondition())) {
+            reader.option("doris.filter.query", sourceOption.getCondition());
+        }
+
         String[] columns = sourceOption.getColumns();
         if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
             reader.option("doris.read.fields", StringUtils.join(columns, ","));

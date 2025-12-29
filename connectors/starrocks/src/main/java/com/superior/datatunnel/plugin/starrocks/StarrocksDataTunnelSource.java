@@ -5,6 +5,8 @@ import com.superior.datatunnel.api.DataTunnelException;
 import com.superior.datatunnel.api.DataTunnelSource;
 import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import java.io.IOException;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.DataFrameReader;
@@ -52,16 +54,16 @@ public class StarrocksDataTunnelSource implements DataTunnelSource {
                 .option("starrocks.user", sourceOption.getUsername())
                 .option("starrocks.password", sourceOption.getPassword());
 
-        Dataset<Row> dataset = reader.load();
-        try {
-            String tdlName = "tdl_datatunnel_" + System.currentTimeMillis();
-            dataset.createTempView(tdlName);
-            String columns = StringUtils.join(sourceOption.getColumns(), ", ");
-            String sql = "select " + columns + " from " + tdlName;
-            return context.getSparkSession().sql(sql);
-        } catch (AnalysisException e) {
-            throw new DataTunnelException(e.message(), e);
+        if (StringUtils.isNotBlank(sourceOption.getCondition())) {
+            reader.option("starrocks.filter.query", sourceOption.getCondition());
         }
+
+        String[] columns = sourceOption.getColumns();
+        if (!(ArrayUtils.isEmpty(columns) || (columns.length == 1 && "*".equals(columns[0])))) {
+            reader.option("starrocks.columns", StringUtils.join(columns, ","));
+        }
+
+        return reader.load();
     }
 
     @Override

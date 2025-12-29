@@ -35,4 +35,7 @@ public class StarrocksDataTunnelSourceOption extends BaseSourceOption {
     @OptionDesc("FE 的 HTTP 地址，支持输入多个FE地址，使用逗号分隔")
     @NotBlank
     private String feEnpoints;
+
+    @OptionDesc("数据过滤条件")
+    private String condition;
 }
