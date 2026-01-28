@@ -141,6 +141,8 @@ public class CommonUtils {
         } else {
             if (sourceColumns.length == 1 && "*".equals(sourceColumns[0]) && "*".equals(sinkColumns[0])) {
                 sql = "select * from " + tdlName;
+            } else if (sourceColumns.length == 1 && !"*".equals(sourceColumns[0]) && "*".equals(sinkColumns[0])) {
+                sql = "select " + sourceColumns[0] + " from " + tdlName;
             } else {
                 String[] projections = new String[sinkColumns.length];
                 for (int index = 0; index < sinkColumns.length; index++) {
