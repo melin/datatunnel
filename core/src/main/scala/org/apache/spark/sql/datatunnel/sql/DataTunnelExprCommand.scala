@@ -49,6 +49,10 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       sourceConnector.getOptionClass,
       errorMsg
     )
+    if (!sourceOption.getProperties.isEmpty) {
+      logInfo(s"source: $sourceName, properties: " + JsonUtils.toJSONString(sourceOption.getProperties))
+    }
+
     sourceOption.setDataSourceType(sourceType)
     if (ctx.ctes() != null) {
       val cteSql = StringUtils.substring(
@@ -63,6 +67,9 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     val sinkOption: DataTunnelSinkOption =
       CommonUtils.toJavaBean(sinkOpts, sinkConnector.getOptionClass, errorMsg)
     sinkOption.setDataSourceType(sinkType)
+    if (!sinkOption.getProperties.isEmpty) {
+      logInfo(s"sink: $sinkName, properties: " + JsonUtils.toJSONString(sinkOption.getProperties))
+    }
 
     // 校验 Option
     val sourceViolations = CommonUtils.VALIDATOR.validate(sourceOption)
