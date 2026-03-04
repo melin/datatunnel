@@ -1,6 +1,6 @@
 package org.apache.spark.sql.datatunnel.sql
 
-import com.gitee.melin.bee.util.JsonUtils
+import com.gitee.melin.bee.util.{JsonUtils, PasswordUtils}
 import com.superior.datatunnel.api._
 import com.superior.datatunnel.api.model.{DataTunnelSinkOption, DataTunnelSourceOption}
 import com.superior.datatunnel.common.util.{CommonUtils, DatatunnelUtils}
@@ -50,7 +50,9 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       errorMsg
     )
     if (!sourceOption.getProperties.isEmpty) {
-      logInfo(s"source: $sourceName, properties: " + JsonUtils.toJSONString(sourceOption.getProperties))
+      val properties = JsonUtils.toJSONString(sourceOption.getProperties)
+      val maskSql = PasswordUtils.mask(properties)
+      logInfo(s"source: $sourceName, properties: " + maskSql)
     }
 
     sourceOption.setDataSourceType(sourceType)
@@ -68,7 +70,9 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       CommonUtils.toJavaBean(sinkOpts, sinkConnector.getOptionClass, errorMsg)
     sinkOption.setDataSourceType(sinkType)
     if (!sinkOption.getProperties.isEmpty) {
-      logInfo(s"sink: $sinkName, properties: " + JsonUtils.toJSONString(sinkOption.getProperties))
+      val properties = JsonUtils.toJSONString(sinkOption.getProperties)
+      val maskSql = PasswordUtils.mask(properties)
+      logInfo(s"sink: $sinkName, properties: " + maskSql)
     }
 
     // 校验 Option
