@@ -82,6 +82,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     sourceOption.getDatabaseName(),
                     sourceOption.getSchemaName());
         }
+        LOG.info("jdbc url: {}", jdbcUrl);
 
         JDBCOptions options = buildJDBCOptions(jdbcUrl, "table", sourceOption);
         Connection connection = buildConnection(jdbcUrl, options);

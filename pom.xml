@@ -60,7 +60,7 @@
         <cassandra-connector.version>3.5.1</cassandra-connector.version>
         <mongo-connector.version>10.5.0</mongo-connector.version>
 
-        <scala-maven-plugin.version>4.9.5</scala-maven-plugin.version>
+        <scala-maven-plugin.version>4.9.10</scala-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -329,7 +329,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
+                <version>3.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
