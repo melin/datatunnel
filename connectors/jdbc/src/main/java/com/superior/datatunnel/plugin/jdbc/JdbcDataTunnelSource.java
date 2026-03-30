@@ -182,6 +182,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                         .option("upperBound", sourceOption.getUpperBound());
             }
 
+            if (StringUtils.isNotBlank(sourceOption.getCustomSchema())) {
+                reader.option("customSchema", sourceOption.getCustomSchema());
+            }
+
             Dataset<Row> result = reader.load();
 
             if (i == 0) {
