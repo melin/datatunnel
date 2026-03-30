@@ -334,6 +334,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 }
             }
 
+            LOG.info("stat table with sql: {}", sql);
             StopWatch stopWatch = StopWatch.createStarted();
             stmt = conn.prepareStatement(sql);
             ResultSet resultSet = stmt.executeQuery();
@@ -408,6 +409,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 }
             }
 
+            LOG.info("stat table with sql: {}", sql);
             StopWatch stopWatch = StopWatch.createStarted();
             stmt = conn.prepareStatement(sql);
             ResultSet resultSet = stmt.executeQuery();
