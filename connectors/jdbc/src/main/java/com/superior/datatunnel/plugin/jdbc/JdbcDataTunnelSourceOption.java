@@ -55,7 +55,8 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
 
     private boolean pushDownLimit = true;
 
-    @OptionDesc("The custom schema to use for reading data from JDBC connectors. For example, \"id DECIMAL(38, 0), name STRING\"")
+    @OptionDesc(
+            "The custom schema to use for reading data from JDBC connectors. For example, \"id DECIMAL(38, 0), name STRING\"")
     private String customSchema;
 
     public Integer getPartitionRecordCount() {
