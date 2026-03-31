@@ -81,6 +81,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                     sourceOption.getPort(),
                     sourceOption.getDatabaseName(),
                     sourceOption.getSchemaName());
+        } else {
+            jdbcUrl = JdbcUtils.addUrlParams(jdbcUrl);
         }
         LOG.info("jdbc url: {}", jdbcUrl);
 
@@ -346,7 +348,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             if (StringUtils.isBlank(partitionColumn)) {
                 LogUtils.warn(
-                        "ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency\n",
+                        "ExecTimes: {}, table {} record count: {}, set partitionColumn & numPartitions to improve running efficiency",
                         execTimes,
                         fullTableName,
                         count);

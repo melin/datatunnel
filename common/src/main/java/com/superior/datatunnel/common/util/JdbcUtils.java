@@ -17,6 +17,38 @@ public class JdbcUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcUtils.class);
 
+    public static String addUrlParams(String url) {
+        if (!url.contains("useCursorFetch")) {
+            if (url.contains("?")) {
+                url += "&useCursorFetch=true";
+            } else {
+                url += "?useCursorFetch=true";
+            }
+        }
+
+        if (!url.contains("defaultFetchSize")) {
+            url += "&defaultFetchSize=10000";
+        }
+
+        if (!url.contains("tinyInt1isBit")) {
+            url += "&tinyInt1isBit=false";
+        }
+
+        if (!url.contains("autoReconnect")) {
+            url += "&autoReconnect=true";
+        }
+
+        if (!url.contains("useUnicode")) {
+            url += "&useUnicode=true";
+        }
+
+        if (!url.contains("characterEncoding")) {
+            url += "&characterEncoding=UTF-8";
+        }
+
+        return url;
+    }
+
     public static String buildJdbcUrl(
             DataSourceType dsType, String host, int port, String databaseName, String schemaName) {
 
@@ -30,7 +62,9 @@ public class JdbcUtils {
 
             url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
             url = url
-                    + "?autoReconnect=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
+                    + "?useCursorFetch=true&defaultFetchSize=10000&tinyInt1isBit=false&autoReconnect=true"
+                    + "&useUnicode=true&characterEncoding=UTF-8&useServerPrepStmts=false"
+                    + "&rewriteBatchedStatements=true&allowLoadLocalInfile=true";
         } else if (DB2 == dsType) {
             url = "jdbc:db2://" + host + ":" + port;
             if (StringUtils.isNotBlank(databaseName)) {
