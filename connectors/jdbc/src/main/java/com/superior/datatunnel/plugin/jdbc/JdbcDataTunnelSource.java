@@ -284,7 +284,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             // 如果用户指定分区参数，不需要再统计，大表统计比较耗时
             if (StringUtils.isNotBlank(partitionColumn)
                     && StringUtils.isNotBlank(lowerBound)
-                    && StringUtils.isNotBlank(upperBound)) {
+                    && StringUtils.isNotBlank(upperBound)
+                    && numPartitions != null) {
 
                 return;
             }
@@ -349,6 +350,14 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                         execTimes,
                         fullTableName,
                         count);
+
+                // 超过 100万条记录，强烈建议设置 partitionColumn 和 numPartitions 参数，否则可能会导致性能问题
+                if (count > 1000000) {
+                    throw new DataTunnelException(
+                            "table {} record count: {}, it's recommended to set partitionColumn & numPartitions to improve running efficiency\n",
+                            fullTableName,
+                            count);
+                }
             } else {
                 LogUtils.info("ExecTimes: {}, table {} record count: {}", execTimes, fullTableName, count);
             }
