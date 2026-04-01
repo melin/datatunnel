@@ -1,5 +1,6 @@
 package com.superior.datatunnel.plugin.jdbc;
 
+import static com.superior.datatunnel.api.DataSourceType.MYSQL;
 import static com.superior.datatunnel.api.DataSourceType.ORACLE;
 import static java.sql.Types.*;
 
@@ -18,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +161,10 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             String password = sourceOption.getPassword();
             if (StringUtils.isBlank(password)) {
                 LogUtils.warn("password is blank");
+            }
+
+            if (dataSourceType == MYSQL) {
+                checkDerivedMergeStatus(connection);
             }
 
             DataFrameReader reader = context.getSparkSession()
@@ -466,5 +472,51 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
     @Override
     public Class<? extends DataTunnelSourceOption> getOptionClass() {
         return JdbcDataTunnelSourceOption.class;
+    }
+
+    /**
+     * 在 Spark 复杂查询的特定场景下，MySQL 优化器主动放弃了合并。导致 MySQL 优化器“罢工”。
+     */
+    public void checkDerivedMergeStatus(Connection conn) {
+        String query = "SELECT @@optimizer_switch;";
+
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                String optimizerSwitch = rs.getString(1);
+                LOG.info("query optimizer_switch finished: {}", optimizerSwitch);
+
+                // 解析字符串，判断 derived_merge 的状态
+                boolean isDerivedMergeOn = isFeatureEnabled(optimizerSwitch, "derived_merge");
+
+                if (isDerivedMergeOn) {
+                    LogUtils.info("当前 MySQL Server 已开启 derived_merge (ON)。");
+                } else {
+                    LogUtils.warn("当前 MySQL Server 未开启 derived_merge (OFF), 可能会导致 Spark 复杂查询性能问题，建议开启 derived_merge (ON)。");
+                }
+            }
+
+        } catch (Exception e) {
+            LOG.error("query optimizer_switch error: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 解析 optimizer_switch 字符串，提取指定特性的状态
+     */
+    private boolean isFeatureEnabled(String switchString, String featureName) {
+        if (switchString == null || switchString.isEmpty()) {
+            return false;
+        }
+
+        // 按逗号分割所有开关
+        String[] switches = switchString.split(",");
+        for (String sw : switches) {
+            // 寻找类似 "derived_merge=on" 的配置项
+            if (sw.trim().equalsIgnoreCase(featureName + "=on")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
