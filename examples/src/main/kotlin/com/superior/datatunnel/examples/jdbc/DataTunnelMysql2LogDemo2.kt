@@ -21,11 +21,11 @@ object DataTunnelMysql2LogDemo2 {
             DATATUNNEL SOURCE("mysql") OPTIONS (
               username = "root",
               password = "Root2024!@",
-              host = '172.18.6.181',
-              port = 3306,
+              jdbcUrl = 'jdbc:mysql://172.18.6.181:3306/demos',
               schemaName = 'demos',
               tableName = 'paimon_orders',
-              'properties.tinyInt1isBit' = 'true'
+              condition="id=2",
+              columns = ['id', 'name', 'bool_test', 'flag']
             ) 
             SINK("log") 
         """.trimIndent()
