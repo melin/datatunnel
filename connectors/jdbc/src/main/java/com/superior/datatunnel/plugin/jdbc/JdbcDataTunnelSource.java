@@ -481,7 +481,7 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         String query = "SELECT @@optimizer_switch;";
 
         try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+                ResultSet rs = stmt.executeQuery(query)) {
             if (rs.next()) {
                 String optimizerSwitch = rs.getString(1);
                 LOG.info("query optimizer_switch finished: {}", optimizerSwitch);
@@ -492,7 +492,8 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
                 if (isDerivedMergeOn) {
                     LogUtils.info("当前 MySQL Server 已开启 derived_merge (ON)。");
                 } else {
-                    LogUtils.warn("当前 MySQL Server 未开启 derived_merge (OFF), 可能会导致 Spark 复杂查询性能问题，建议开启 derived_merge (ON)。");
+                    LogUtils.warn(
+                            "当前 MySQL Server 未开启 derived_merge (OFF), 可能会导致 Spark 复杂查询性能问题，建议开启 derived_merge (ON)。");
                 }
             }
 
