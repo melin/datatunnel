@@ -51,6 +51,7 @@
                 <exclude>org.jetbrains:*:jar</exclude>
                 <exclude>redis.clients:*:jar</exclude>
                 <exclude>com.github.luben:zstd-jni:jar</exclude>
+                <exclude>*:bcprov-jdk18on:jar</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
