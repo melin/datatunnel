@@ -3,6 +3,7 @@ package com.superior.datatunnel.plugin.jdbc.support
 import com.gitee.melin.bee.util.JdbcUtils
 import com.google.common.collect.Lists
 import com.superior.datatunnel.api.{DataSourceType, DataTunnelException}
+import com.superior.datatunnel.common.util.CommonUtils
 import com.superior.datatunnel.plugin.jdbc.support.dialect._
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.JdbcDialect
@@ -48,14 +49,17 @@ object JdbcDialectUtils {
       conn: Connection
   ): Array[String] = {
     val metaData = conn.getMetaData
+    val db = CommonUtils.cleanQuote(schemaName)
+    val table = CommonUtils.cleanQuote(tableName)
+
     val rs =
       if (
         dataSourceType == DataSourceType.MYSQL ||
         dataSourceType == DataSourceType.ORACLE
       ) {
-        metaData.getPrimaryKeys(schemaName, null, tableName)
+        metaData.getPrimaryKeys(db, null, table)
       } else {
-        metaData.getPrimaryKeys(null, schemaName, tableName)
+        metaData.getPrimaryKeys(null, db, table)
       }
     val keys: java.util.List[String] = Lists.newArrayList();
     try {
@@ -76,12 +80,14 @@ object JdbcDialectUtils {
       tableName: String,
       conn: Connection
   ): java.util.List[Column] = {
-
     val metaData = conn.getMetaData
+    val db = CommonUtils.cleanQuote(schemaName)
+    val table = CommonUtils.cleanQuote(tableName)
+
     val rs = if (dataSourceType == DataSourceType.MYSQL) {
-      metaData.getColumns(schemaName, null, tableName, null)
+      metaData.getColumns(db, null, table, null)
     } else {
-      metaData.getColumns(null, schemaName, tableName, null)
+      metaData.getColumns(null, db, table, null)
     }
     val columns: java.util.List[Column] = Lists.newArrayList();
     try {
