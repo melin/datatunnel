@@ -17,6 +17,8 @@ import org.apache.spark.sql.AnalysisException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -123,14 +125,127 @@ public class CommonUtils {
     public static String genOutputSql(
             Dataset<Row> dataset, String[] sourceColumns, String[] sinkColumns, DataSourceType dataSourceType)
             throws AnalysisException {
+        return buildDataTunnelOutputSql(dataset, sourceColumns, sinkColumns, dataSourceType, null);
+    }
+
+    /**
+     * 在 genOutputSql 基础上，按已存在目标表 {@code db.table} 的 schema 对列做 CAST，避免 STRING 与 BIGINT 等不兼容写入。
+     * 读表失败时退化为 {@link #genOutputSql}。
+     */
+    @NotNull
+    public static String genOutputSqlWithTargetCast(
+            SparkSession spark,
+            Dataset<Row> dataset,
+            String[] sourceColumns,
+            String[] sinkColumns,
+            DataSourceType dataSourceType,
+            String targetDatabase,
+            String targetTableName)
+            throws AnalysisException {
+
+        StructType targetSchema = null;
+        if (spark != null && StringUtils.isNotBlank(targetTableName)) {
+            targetSchema = resolveTableSchemaOrNull(spark, targetDatabase, targetTableName);
+        }
+        return buildDataTunnelOutputSql(dataset, sourceColumns, sinkColumns, dataSourceType, targetSchema);
+    }
+
+    private static StructType resolveTableSchemaOrNull(SparkSession spark, String database, String table) {
+        String db = StringUtils.isNotBlank(database) ? database : spark.catalog().currentDatabase();
+        String fqn = db + "." + table;
+        try {
+            return spark.table(fqn).schema();
+        } catch (Exception e) {
+            LOG.warn(
+                    "autoCastToTargetTable: cannot read schema for {}, skip cast: {}",
+                    fqn,
+                    e.toString());
+            return null;
+        }
+    }
+
+    private static StructField findStructFieldIgnoreCase(StructType schema, String name) {
+        if (schema == null || StringUtils.isBlank(name)) {
+            return null;
+        }
+        String cleaned = cleanQuote(name.trim());
+        for (StructField f : schema.fields()) {
+            if (f.name().equalsIgnoreCase(cleaned)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    private static String quoteSqlIdent(String name) {
+        String n = cleanQuote(name.trim());
+        return "`" + n.replace("`", "``") + "`";
+    }
+
+    /**
+     * @param sourceToken 源列名或表达式片段（与 genOutputSql 一致）
+     * @param sinkToken sink 列名（含别名目标）
+     */
+    private static String projectionWithOptionalCast(
+            StructType dfSchema,
+            StructType targetSchema,
+            String sourceToken,
+            String sinkToken) {
+
+        if (targetSchema == null) {
+            if (sourceToken.equals(sinkToken)) {
+                return sourceToken;
+            }
+            return sourceToken + " as " + sinkToken;
+        }
+
+        String srcId = cleanQuote(sourceToken.trim());
+        String sinkId = cleanQuote(sinkToken.trim());
+        String srcRef = quoteSqlIdent(srcId);
+
+        StructField srcField = findStructFieldIgnoreCase(dfSchema, srcId);
+        StructField tgtField = findStructFieldIgnoreCase(targetSchema, sinkId);
+        if (tgtField == null || srcField == null) {
+            if (sourceToken.equals(sinkToken)) {
+                return sourceToken;
+            }
+            return sourceToken + " as " + sinkToken;
+        }
+        if (srcField.dataType().sameType(tgtField.dataType())) {
+            if (sourceToken.equals(sinkToken)) {
+                return sourceToken;
+            }
+            return sourceToken + " as " + sinkToken;
+        }
+        String castExpr = "cast(" + srcRef + " as " + tgtField.dataType().sql() + ")";
+        return castExpr + " as " + quoteSqlIdent(sinkId);
+    }
+
+    private static String buildDataTunnelOutputSql(
+            Dataset<Row> dataset,
+            String[] sourceColumns,
+            String[] sinkColumns,
+            DataSourceType dataSourceType,
+            StructType targetTableSchema)
+            throws AnalysisException {
 
         String tdlName = "tdl_datatunnel_" + dataSourceType.name().toLowerCase() + "_" + System.currentTimeMillis();
         dataset.createTempView(tdlName);
+        StructType dfSchema = dataset.schema();
 
         String sql;
         if (sourceColumns.length != sinkColumns.length) {
             if ((sourceColumns.length == 1 && "*".equals(sourceColumns[0])) && sinkColumns.length > 1) {
-                sql = "select " + StringUtils.join(sinkColumns, ",") + " from " + tdlName;
+                if (targetTableSchema == null) {
+                    sql = "select " + StringUtils.join(sinkColumns, ",") + " from " + tdlName;
+                } else {
+                    String[] projections = new String[sinkColumns.length];
+                    for (int i = 0; i < sinkColumns.length; i++) {
+                        projections[i] =
+                                projectionWithOptionalCast(dfSchema, targetTableSchema, sinkColumns[i], sinkColumns[i]);
+                    }
+                    sql = "select " + StringUtils.join(projections, ",") + " from " + tdlName;
+                }
             } else if ((sinkColumns.length == 1 && "*".equals(sinkColumns[0])) && sourceColumns.length > 1) {
                 sql = "select * from " + tdlName;
             } else {
@@ -146,11 +261,8 @@ public class CommonUtils {
             } else {
                 String[] projections = new String[sinkColumns.length];
                 for (int index = 0; index < sinkColumns.length; index++) {
-                    if (sourceColumns[index].equals(sinkColumns[index])) {
-                        projections[index] = sourceColumns[index];
-                    } else {
-                        projections[index] = sourceColumns[index] + " as " + sinkColumns[index];
-                    }
+                    projections[index] = projectionWithOptionalCast(
+                            dfSchema, targetTableSchema, sourceColumns[index], sinkColumns[index]);
                 }
                 sql = "select " + StringUtils.join(projections, ",") + " from " + tdlName;
             }

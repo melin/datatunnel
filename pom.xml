@@ -331,8 +331,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <!-- 不用 release：maxcompute 等模块依赖 sun.misc，release 会屏蔽该包 -->
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -351,6 +352,7 @@
                         <arg>-deprecation</arg>
                         <arg>-feature</arg>
                         <arg>-explaintypes</arg>
+                        <arg>-target:jvm-1.8</arg>
                     </args>
                 </configuration>
                 <executions>

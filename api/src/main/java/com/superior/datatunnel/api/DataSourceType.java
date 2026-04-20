@@ -44,7 +44,9 @@ public enum DataSourceType {
     MINIO,
     HDFS,
     REDIS,
-    ELASTICSEARCH;
+    ELASTICSEARCH,
+    /** REST/HTTP API (SOURCE name: http) */
+    HTTP;
 
     public static boolean isJdbcDataSource(DataSourceType dsType) {
         if (dsType == MYSQL

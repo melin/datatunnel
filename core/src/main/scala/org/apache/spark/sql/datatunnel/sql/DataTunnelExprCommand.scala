@@ -11,6 +11,7 @@ import io.github.melin.jobserver.spark.api.LogUtils
 import io.github.melin.superior.parser.spark.antlr4.SparkSqlParser.DatatunnelExprContext
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.reflect.FieldUtils
+import com.superior.datatunnel.api.DataSourceType.{HIVE, HTTP}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.execution.command.LeafRunnableCommand
 import org.apache.spark.sql.{Row, SparkSession}
@@ -126,12 +127,27 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
     var df = sourceConnector.read(context)
 
     if (StringUtils.isBlank(transfromSql)) {
-      val sql = CommonUtils.genOutputSql(
-        df,
-        sourceOption.getColumns,
-        sinkOption.getColumns,
-        sinkOption.getDataSourceType
-      )
+      val sql =
+        if (sinkType == HIVE && sourceType == HTTP && !httpToHiveAutoCastExplicitlyDisabled(sinkOption)) {
+          val db = hiveSinkDatabaseName(sinkOption, sparkSession)
+          val tbl = FieldUtils.readField(sinkOption, "tableName", true).asInstanceOf[String]
+          CommonUtils.genOutputSqlWithTargetCast(
+            sparkSession,
+            df,
+            sourceOption.getColumns,
+            sinkOption.getColumns,
+            sinkOption.getDataSourceType,
+            db,
+            tbl
+          )
+        } else {
+          CommonUtils.genOutputSql(
+            df,
+            sourceOption.getColumns,
+            sinkOption.getColumns,
+            sinkOption.getDataSourceType
+          )
+        }
       logInfo("temp output sql: " + sql)
       df = context.getSparkSession.sql(sql)
     }
@@ -180,6 +196,29 @@ case class DataTunnelExprCommand(sqlText: String, ctx: DatatunnelExprContext) ex
       })
 
     logInfo("execution metrics:" + JsonUtils.toJSONString(metrics))
+  }
+
+  /** SOURCE 为 http 且 SINK 为 hive 时默认做目标表类型 CAST；仅在 SINK 显式写 autoCastToTargetTable = false 时关闭。 */
+  private def httpToHiveAutoCastExplicitlyDisabled(sinkOpt: DataTunnelSinkOption): Boolean = {
+    try {
+      java.lang.Boolean.FALSE == FieldUtils.readField(sinkOpt, "autoCastToTargetTable", true)
+    } catch {
+      case _: Throwable => false
+    }
+  }
+
+  private def hiveSinkDatabaseName(sinkOpt: DataTunnelSinkOption, spark: SparkSession): String = {
+    try {
+      val db = Option(FieldUtils.readField(sinkOpt, "databaseName", true).asInstanceOf[String]).getOrElse("")
+      if (StringUtils.isNotBlank(db)) {
+        db
+      } else {
+        val sc = Option(FieldUtils.readField(sinkOpt, "schemaName", true).asInstanceOf[String]).getOrElse("")
+        if (StringUtils.isNotBlank(sc)) sc else spark.catalog.currentDatabase
+      }
+    } catch {
+      case _: Throwable => spark.catalog.currentDatabase
+    }
   }
 
   def validateOptions(

@@ -33,7 +33,6 @@
             <groupId>com.aliyun</groupId>
             <artifactId>dingtalk</artifactId>
             <version>2.2.53</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

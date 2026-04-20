@@ -112,6 +112,11 @@
         </dependency>
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
+            <artifactId>datatunnel-connector-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-snowflake</artifactId>
             <version>${project.version}</version>
         </dependency>
