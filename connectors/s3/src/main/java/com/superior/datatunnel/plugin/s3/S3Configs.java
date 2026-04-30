@@ -20,4 +20,13 @@ public abstract class S3Configs {
     public static final String OSS_ENDPOINT = "fs.oss.endpoint";
 
     public static final String OSS_S3A_CLIENT_IMPL = "fs.oss.impl";
+
+    // obs
+    public static final String OBS_ACCESS_KEY = "fs.obs.access.key";
+
+    public static final String OBS_SECRET_KEY = "fs.obs.secret.key";
+
+    public static final String OBS_ENDPOINT = "fs.obs.endpoint";
+
+    public static final String OBS_S3A_CLIENT_IMPL = "fs.obs.impl";
 }

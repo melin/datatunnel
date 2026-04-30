@@ -44,7 +44,7 @@
 
         <!-- iceberg 1.7开始需要 jdk 11 -->
         <iceberg.version>1.10.1</iceberg.version>
-        <paimon.version>1.3.1</paimon.version>
+        <paimon.version>1.4.1</paimon.version>
         <hudi.version>1.1.1</hudi.version>
         <delta.version>3.3.2</delta.version>
         <kyuubi.version>1.11.1</kyuubi.version>
@@ -404,6 +404,11 @@
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+
+        <repository>
+            <id>huaweicloud</id>
+            <url>https://repo.huaweicloud.com/repository/maven/huaweicloudsdk/</url>
         </repository>
 
         <repository>

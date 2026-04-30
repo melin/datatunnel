@@ -43,6 +43,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.huaweicloud</groupId>
+            <artifactId>hadoop-huaweicloud</artifactId>
+            <version>3.1.1-hw-46</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-glue</artifactId>
             <version>${awssdk.v1.version}</version>

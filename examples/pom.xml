@@ -118,7 +118,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-spark-3.5</artifactId>
+            <artifactId>paimon-spark-3.5_2.12</artifactId>
             <version>${paimon.version}</version>
         </dependency>
         <dependency>
