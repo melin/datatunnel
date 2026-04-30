@@ -38,6 +38,7 @@ public enum DataSourceType {
     SFTP,
     FTP,
     S3,
+    OBS,
     OSS,
     COS,
     MINIO,

@@ -20,7 +20,7 @@ public class S3CommonOption extends BaseCommonOption implements DataTunnelSource
 
     private String secretKey;
 
-    private String fsClientImpl = "org.apache.hadoop.fs.s3a.S3AFileSystem";
+    private String fsClientImpl;
 
     private boolean sslEnabled = false;
 

@@ -94,6 +94,8 @@ public class S3DataTunnelSink implements DataTunnelSink {
             }
             if (StringUtils.isNotBlank(sinkOption.getFsClientImpl())) {
                 hadoopConf.set(S3Configs.AWS_S3A_CLIENT_IMPL, sinkOption.getFsClientImpl());
+            } else {
+                hadoopConf.set(S3Configs.OSS_S3A_CLIENT_IMPL, "org.apache.hadoop.fs.s3a.S3AFileSystem");
             }
         } else if (sinkType == DataSourceType.OSS) {
             if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
@@ -110,6 +112,25 @@ public class S3DataTunnelSink implements DataTunnelSink {
             } else {
                 hadoopConf.set(S3Configs.OSS_S3A_CLIENT_IMPL, "org.apache.hadoop.fs.aliyun.oss.AliyunOSSFileSystem");
             }
+
+            hadoopConf.set("fs.AbstractFileSystem.oss.impl", "org.apache.hadoop.fs.aliyun.oss.OSS");
+        } else if (sinkType == DataSourceType.OBS) {
+            if (StringUtils.isNotBlank(sinkOption.getAccessKey())) {
+                hadoopConf.set(S3Configs.OBS_ACCESS_KEY, sinkOption.getAccessKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getSecretKey())) {
+                hadoopConf.set(S3Configs.OBS_SECRET_KEY, sinkOption.getSecretKey());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getEndpoint())) {
+                hadoopConf.set(S3Configs.OBS_ENDPOINT, sinkOption.getEndpoint());
+            }
+            if (StringUtils.isNotBlank(sinkOption.getFsClientImpl())) {
+                hadoopConf.set(S3Configs.OBS_S3A_CLIENT_IMPL, sinkOption.getFsClientImpl());
+            } else {
+                hadoopConf.set(S3Configs.OBS_S3A_CLIENT_IMPL, "org.apache.hadoop.fs.obs.OBSFileSystem");
+            }
+
+            hadoopConf.set("fs.AbstractFileSystem.obs.impl", "org.apache.hadoop.fs.obs.OBS");
         } else {
             throw new IllegalArgumentException(this.getClass().getSimpleName() + " not support type: " + sinkType);
         }
