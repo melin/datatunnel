@@ -372,12 +372,12 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
 
             // 如果没有设置partitionColumn，获取表主键，如果只有一个主键且为数字类型，自动设置为 partitionColumn 值。
             if (StringUtils.isNotBlank(partitionColumn)) {
-                if (StringUtils.isBlank(lowerBound)) {
+                if (StringUtils.isBlank(lowerBound) && resultSet.getObject("min_value") != null) {
                     String minValue = String.valueOf(resultSet.getObject("min_value"));
                     LogUtils.info("table {} min value: {}", fullTableName, minValue);
                     sourceOption.setLowerBound(minValue);
                 }
-                if (StringUtils.isBlank(upperBound)) {
+                if (StringUtils.isBlank(upperBound) && resultSet.getObject("max_value") != null) {
                     String maxValue = String.valueOf(resultSet.getObject("max_value"));
                     LogUtils.info("table {} max value: {}", fullTableName, maxValue);
                     sourceOption.setUpperBound(maxValue);
