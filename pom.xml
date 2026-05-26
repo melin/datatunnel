@@ -33,7 +33,7 @@
         <spark.version>3.5.8</spark.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j2.version>2.24.3</log4j2.version>
-        <bee.version>1.9.23</bee.version>
+        <bee.version>1.9.24</bee.version>
         <jackson.version>2.15.3</jackson.version>
         <kafka.version>3.4.1</kafka.version>
         <jedis.version>3.10.0</jedis.version>
@@ -50,7 +50,7 @@
         <kyuubi.version>1.11.1</kyuubi.version>
 
         <awssdk.v1.version>1.12.783</awssdk.v1.version>
-        <awssdk.v2.version>2.35.2</awssdk.v2.version>
+        <awssdk.v2.version>2.42.20</awssdk.v2.version>
         <hadoop.version>3.3.4</hadoop.version>
         <hive.version>2.3.10</hive.version>
 
