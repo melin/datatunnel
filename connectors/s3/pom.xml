@@ -17,6 +17,14 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <!-- https://github.com/nightscape/spark-excel
+        <dependency>
+            <groupId>dev.mauch</groupId>
+            <artifactId>spark-excel_2.12</artifactId>
+            <version>3.5.6_0.34.1-prerelease0</version>
+        </dependency>
+        -->
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>

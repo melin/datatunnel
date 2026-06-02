@@ -44,7 +44,7 @@ public class S3DataTunnelSource implements DataTunnelSource {
 
         String format = sourceOption.getFormat().name().toLowerCase();
         if (FileFormat.EXCEL == sourceOption.getFormat()) {
-            format = "com.crealytics.spark.excel";
+            format = "dev.mauch.spark.excel";
         }
         DataFrameReader reader = sparkSession.read().format(format);
 
