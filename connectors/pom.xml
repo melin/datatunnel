@@ -32,6 +32,7 @@
         <module>hbase</module>
         <module>mongodb</module>
         <module>oceanbase</module>
+        <module>http</module>
     </modules>
 
     <dependencies>
