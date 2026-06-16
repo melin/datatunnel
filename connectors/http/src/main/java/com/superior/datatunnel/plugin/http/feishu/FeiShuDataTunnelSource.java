@@ -3,12 +3,11 @@ package com.superior.datatunnel.plugin.http.feishu;
 import com.lark.oapi.Client;
 import com.lark.oapi.service.sheets.v3.model.GetSpreadsheetSheetReq;
 import com.superior.datatunnel.api.*;
+import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.superior.datatunnel.api.model.DataTunnelSourceOption;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -73,7 +72,8 @@ public class FeiShuDataTunnelSource implements DataTunnelSource {
      * 辅助方法：通过飞书 SDK 获取表格数据
      */
     private Object[][] fetchFeishuSheetData(FeiShuDataTunnelSourceOption sourceOption) {
-        Client client = Client.newBuilder(sourceOption.getAppId(), sourceOption.getAppSecret()).build();
+        Client client = Client.newBuilder(sourceOption.getAppId(), sourceOption.getAppSecret())
+                .build();
 
         GetSpreadsheetSheetReq sheetReq = GetSpreadsheetSheetReq.newBuilder()
                 .spreadsheetToken(sourceOption.getSpreadsheetToken())
