@@ -51,18 +51,16 @@ public class HttpDataTunnelSource implements DataTunnelSource {
             throw new DataTunnelException("HTTP source requires url");
         }
 
-        String method = StringUtils.defaultIfBlank(option.getMethod(), "GET").trim().toUpperCase();
+        String method =
+                StringUtils.defaultIfBlank(option.getMethod(), "GET").trim().toUpperCase();
         if (!"GET".equals(method) && !"POST".equals(method)) {
             throw new DataTunnelException("HTTP source only supports GET and POST, got: " + method);
         }
 
         String norm = normalizeReqParamType(option.getReqParamType());
         boolean postJsonBody = "POST".equals(method) && ("body".equals(norm) || "json".equals(norm));
-        boolean postFormBody =
-                "POST".equals(method)
-                        && ("form-data".equals(norm)
-                                || "formdata".equals(norm)
-                                || "x-www-form-urlencoded".equals(norm));
+        boolean postFormBody = "POST".equals(method)
+                && ("form-data".equals(norm) || "formdata".equals(norm) || "x-www-form-urlencoded".equals(norm));
 
         try {
             List<String> lines;
@@ -73,15 +71,14 @@ public class HttpDataTunnelSource implements DataTunnelSource {
                 if (postJsonBody) {
                     bodyJson = mergeStaticParamsJson(option.getStaticParams());
                 }
-                byte[] raw = executeHttp(option, method, postJsonBody, postFormBody, bodyJson, option.getStaticParams());
+                byte[] raw =
+                        executeHttp(option, method, postJsonBody, postFormBody, bodyJson, option.getStaticParams());
                 lines = extractJsonLines(raw, option);
             }
             if (lines.isEmpty()) {
-                return context.getSparkSession()
-                        .createDataFrame(new ArrayList<Row>(), new StructType());
+                return context.getSparkSession().createDataFrame(new ArrayList<Row>(), new StructType());
             }
-            Dataset<String> jsonLines =
-                    context.getSparkSession().createDataset(lines, Encoders.STRING());
+            Dataset<String> jsonLines = context.getSparkSession().createDataset(lines, Encoders.STRING());
             Dataset<Row> ds = context.getSparkSession().read().json(jsonLines);
             String[] cols = option.getColumns();
             if (cols != null && !(cols.length == 1 && "*".equals(cols[0]))) {
@@ -187,7 +184,8 @@ public class HttpDataTunnelSource implements DataTunnelSource {
                 .setConnectTimeout(30_000)
                 .setSocketTimeout(120_000)
                 .build();
-        try (CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(cfg).build()) {
+        try (CloseableHttpClient client =
+                HttpClients.custom().setDefaultRequestConfig(cfg).build()) {
             HttpUriRequest req;
             if ("POST".equals(method)) {
                 HttpPost post = new HttpPost(option.getUrl());
@@ -261,8 +259,7 @@ public class HttpDataTunnelSource implements DataTunnelSource {
         if ("basic".equals(auth)) {
             String u = StringUtils.defaultString(option.getUsername());
             String p = StringUtils.defaultString(option.getPassword());
-            String token = java.util.Base64.getEncoder()
-                    .encodeToString((u + ":" + p).getBytes(StandardCharsets.UTF_8));
+            String token = java.util.Base64.getEncoder().encodeToString((u + ":" + p).getBytes(StandardCharsets.UTF_8));
             req.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + token);
         } else if ("token".equals(auth) && StringUtils.isNotBlank(option.getToken())) {
             req.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + option.getToken());

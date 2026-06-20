@@ -151,15 +151,13 @@ public class CommonUtils {
     }
 
     private static StructType resolveTableSchemaOrNull(SparkSession spark, String database, String table) {
-        String db = StringUtils.isNotBlank(database) ? database : spark.catalog().currentDatabase();
+        String db =
+                StringUtils.isNotBlank(database) ? database : spark.catalog().currentDatabase();
         String fqn = db + "." + table;
         try {
             return spark.table(fqn).schema();
         } catch (Exception e) {
-            LOG.warn(
-                    "autoCastToTargetTable: cannot read schema for {}, skip cast: {}",
-                    fqn,
-                    e.toString());
+            LOG.warn("autoCastToTargetTable: cannot read schema for {}, skip cast: {}", fqn, e.toString());
             return null;
         }
     }
@@ -187,10 +185,7 @@ public class CommonUtils {
      * @param sinkToken sink 列名（含别名目标）
      */
     private static String projectionWithOptionalCast(
-            StructType dfSchema,
-            StructType targetSchema,
-            String sourceToken,
-            String sinkToken) {
+            StructType dfSchema, StructType targetSchema, String sourceToken, String sinkToken) {
 
         if (targetSchema == null) {
             if (sourceToken.equals(sinkToken)) {

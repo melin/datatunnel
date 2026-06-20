@@ -43,9 +43,8 @@ public class HiveDataTunnelSinkOption extends BaseSinkOption {
     @OptionDesc("主要控制输出文件数量。具体参考：https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html")
     private Integer rebalance;
 
-    @OptionDesc(
-            "仅当 SOURCE 为 http 且 SINK 为 hive 时有效：未配置时默认开启，按已存在目标表列类型自动 CAST（如 JSON STRING→BIGINT）。"
-                    + "显式设为 false 可关闭。其它 SOURCE 忽略此字段。读不到表元数据时退化为不 CAST。")
+    @OptionDesc("仅当 SOURCE 为 http 且 SINK 为 hive 时有效：未配置时默认开启，按已存在目标表列类型自动 CAST（如 JSON STRING→BIGINT）。"
+            + "显式设为 false 可关闭。其它 SOURCE 忽略此字段。读不到表元数据时退化为不 CAST。")
     private Boolean autoCastToTargetTable;
 
     public String getFullTableName() {
