@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>org.opensearch.client</groupId>
-            <artifactId>opensearch-spark-35_2.12</artifactId>
+            <artifactId>opensearch-spark-40_2.13</artifactId>
             <version>${spark-opensearch.version}</version>
             <exclusions>
                 <exclusion>
