@@ -54,6 +54,7 @@
 
         <spark-redis.version>3.1.0</spark-redis.version>
         <spark-elasticsearch.version>8.19.16</spark-elasticsearch.version>
+        <spark-opensearch.version>2.0.0</spark-opensearch.version>
         <sql-parser.version>4.2.0-SNAPSHOT</sql-parser.version>
         <cassandra-connector.version>3.5.1</cassandra-connector.version>
         <mongo-connector.version>11.1.0</mongo-connector.version>

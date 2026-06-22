@@ -16,7 +16,6 @@
         <module>log</module>
         <module>clickhouse</module>
         <module>hdfs</module>
-        <!-- <module>elasticsearch</module> -->
         <module>hive</module>
         <module>jdbc</module>
         <module>kafka</module>
@@ -32,6 +31,8 @@
         <module>hbase</module>
         <module>mongodb</module>
         <!-- <module>oceanbase</module> -->
+        <!-- <module>elasticsearch</module> -->
+        <module>opensearch</module>
         <module>http</module>
     </modules>
 
