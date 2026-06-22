@@ -77,10 +77,8 @@ class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface) ex
         val position = Origin(e.line, e.startPosition)
         throw new ParseException(
           Option(command),
-          e.message,
-          position,
-          position,
-          e.errorClass,
+          e.origin,
+          e.errorClass.getOrElse(null),
           e.messageParameters
         )
     }
@@ -120,6 +118,10 @@ class DataTunnelSqlParser(spark: SparkSession, val delegate: ParserInterface) ex
 
   override def parseQuery(sqlText: String): LogicalPlan = {
     delegate.parseQuery(sqlText)
+  }
+
+  override def parseRoutineParam(sqlText: String): StructType = parse(sqlText) { parser =>
+    delegate.parseRoutineParam(sqlText)
   }
 }
 
@@ -175,7 +177,7 @@ class DtunnelAstBuilder(val sqlText: String) extends SparkSqlParserBaseVisitor[A
   private def withCTE(ctx: CtesContext): Seq[(String, String)] = {
     val ctes = ctx.namedQuery.asScala.map { nCtx =>
       visitNamedQuery(nCtx)
-    }
+    }.toSeq
     // Check for duplicate names.
     val duplicates = ctes.groupBy(_._1).filter(_._2.size > 1).keys
     if (duplicates.nonEmpty) {

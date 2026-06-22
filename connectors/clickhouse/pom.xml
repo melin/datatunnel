@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel-connectors</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>datatunnel-connector-clickhouse</artifactId>
@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>com.clickhouse.spark</groupId>
-            <artifactId>clickhouse-spark-runtime-3.5_2.12</artifactId>
+            <artifactId>clickhouse-spark-runtime-4.0_2.13</artifactId>
             <version>0.10.0</version>
         </dependency>
     </dependencies>

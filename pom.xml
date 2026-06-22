@@ -5,7 +5,7 @@
 
     <groupId>com.superior.datatunnel</groupId>
     <artifactId>datatunnel</artifactId>
-    <version>3.5.0</version>
+    <version>4.2.0</version>
     <packaging>pom</packaging>
 
     <name>Datatunnel : Parent</name>
@@ -22,43 +22,41 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spotless.version>2.46.1</spotless.version>
+        <spotless.version>3.7.0</spotless.version>
         <libScope>compile</libScope>
 
-        <scala.version>2.12.18</scala.version>
-        <scala.bin.version>2.12</scala.bin.version>
-        <spark.version>3.5.8</spark.version>
+        <scala.version>2.13.18</scala.version>
+        <scala.bin.version>2.13</scala.bin.version>
+        <spark.version>4.2.0-preview5</spark.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j2.version>2.24.3</log4j2.version>
-        <bee.version>1.9.24</bee.version>
-        <jackson.version>2.15.3</jackson.version>
-        <kafka.version>3.4.1</kafka.version>
+        <bee.version>2.0.0-SNAPSHOT</bee.version>
+        <jackson.version>2.21.2</jackson.version>
+        <kafka.version>3.9.2</kafka.version>
         <jedis.version>3.10.0</jedis.version>
-        <antlr4.version>4.9.3</antlr4.version>
-        <zip4j.version>2.11.5</zip4j.version>
+        <antlr4.version>4.13.1</antlr4.version>
+        <zip4j.version>2.11.6</zip4j.version>
         <lombok.version>1.18.46</lombok.version>
-        <kotlin.version>2.3.20</kotlin.version>
+        <kotlin.version>2.4.0</kotlin.version>
 
-        <!-- iceberg 1.7开始需要 jdk 11 -->
-        <iceberg.version>1.10.1</iceberg.version>
+        <iceberg.version>1.11.0</iceberg.version>
         <paimon.version>1.4.1</paimon.version>
-        <hudi.version>1.1.1</hudi.version>
-        <delta.version>3.3.2</delta.version>
+        <hudi.version>1.2.0</hudi.version>
+        <delta.version>4.3.0</delta.version>
         <kyuubi.version>1.11.1</kyuubi.version>
 
-        <awssdk.v1.version>1.12.783</awssdk.v1.version>
-        <awssdk.v2.version>2.42.20</awssdk.v2.version>
-        <hadoop.version>3.3.4</hadoop.version>
+        <awssdk.v2.version>2.46.6</awssdk.v2.version>
+        <hadoop.version>3.5.0</hadoop.version>
         <hive.version>2.3.10</hive.version>
 
         <spark-redis.version>3.1.0</spark-redis.version>
-        <spark-elasticsearch.version>8.19.13</spark-elasticsearch.version>
-        <sql-parser.version>4.0.21</sql-parser.version>
+        <spark-elasticsearch.version>8.19.16</spark-elasticsearch.version>
+        <sql-parser.version>4.2.0-SNAPSHOT</sql-parser.version>
         <cassandra-connector.version>3.5.1</cassandra-connector.version>
-        <mongo-connector.version>10.6.1</mongo-connector.version>
+        <mongo-connector.version>11.1.0</mongo-connector.version>
 
         <scala-maven-plugin.version>4.9.10</scala-maven-plugin.version>
     </properties>
@@ -82,30 +80,6 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-aws</artifactId>
-                <version>${hadoop.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.hadoop</groupId>
-                        <artifactId>hadoop-common</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.amazonaws</groupId>
-                        <artifactId>aws-java-sdk-bundle</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
@@ -460,13 +434,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <hadoop.version>3.3.4</hadoop.version>
+                <hadoop.version>3.5.0</hadoop.version>
                 <hive.version>2.3.10</hive.version>
             </properties>
-        </profile>
-
-        <profile>
-            <id>cdh6</id>
         </profile>
 
     </profiles>

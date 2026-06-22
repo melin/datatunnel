@@ -296,7 +296,7 @@ object CopyUtils extends Logging {
     } else {
       val c1 = mc1
       val c2 = mc2
-      val same = mc1.flatMap(c1 => mc2.map(c1 ==)).getOrElse(true)
+      val same = mc1.flatMap(c1 => mc2.map(_ == c1)).getOrElse(true)
       if (same) {
         logDebug(
           s"CRC [$c1] of file [${f1.uri}] was the same as CRC [$c2] of file [${f2.uri}]. Files are identical."

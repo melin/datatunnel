@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel-connectors</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>datatunnel-connector-snowflake</artifactId>
@@ -19,8 +19,8 @@
 
         <dependency>
             <groupId>net.snowflake</groupId>
-            <artifactId>spark-snowflake_2.12</artifactId>
-            <version>3.1.9</version>
+            <artifactId>spark-snowflake_2.13</artifactId>
+            <version>3.2.0-spark_3.5</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
-            <version>4.2.0</version>
+            <version>4.3.1</version>
         </dependency>
 
     </dependencies>

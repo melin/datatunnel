@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.s3;
 
-import com.amazonaws.SDKGlobalConfiguration;
 import com.superior.datatunnel.api.*;
 import com.superior.datatunnel.api.model.DataTunnelSinkOption;
 import com.superior.datatunnel.common.enums.FileFormat;
@@ -28,11 +27,6 @@ public class S3DataTunnelSink implements DataTunnelSink {
             if (StringUtils.isBlank(sinkOption.getRegion()) && StringUtils.isBlank(sinkOption.getEndpoint())) {
                 throw new DataTunnelException("region 和 endpoint 不能同时为空");
             }
-        }
-
-        if (context.getSinkType() == DataSourceType.S3) {
-            System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-            System.setProperty(SDKGlobalConfiguration.DEFAULT_METRICS_SYSTEM_PROPERTY, "false");
         }
 
         SparkSession sparkSession = context.getSparkSession();

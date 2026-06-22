@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel-connectors</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>datatunnel-connector-s3</artifactId>
@@ -20,8 +20,8 @@
         <!-- https://github.com/nightscape/spark-excel
         <dependency>
             <groupId>dev.mauch</groupId>
-            <artifactId>spark-excel_2.12</artifactId>
-            <version>3.5.6_0.34.1-prerelease0</version>
+            <artifactId>spark-excel_2.13</artifactId>
+            <version>4.1.1_0.34.1-prerelease0</version>
         </dependency>
         -->
 
@@ -45,15 +45,33 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aws</artifactId>
+            <version>${hadoop.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>bundle</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${awssdk.v2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb</artifactId>
+            <version>${awssdk.v2.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.huaweicloud.obs</groupId>
+            <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-huaweicloud</artifactId>
-            <version>3.1.1-hw-54.8</version>
+            <version>${hadoop.version}</version>
         </dependency>
 
         <dependency>
@@ -70,47 +88,6 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-glue</artifactId>
-            <version>${awssdk.v1.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
-            <version>${awssdk.v1.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-cbor</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
-            <version>${awssdk.v1.version}</version>
-            <scope>${libScope}</scope>
         </dependency>
     </dependencies>
 </project>

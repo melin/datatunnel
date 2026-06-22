@@ -17,6 +17,8 @@
 
 package org.apache.spark.sql.jdbc
 
+import org.apache.spark.SparkThrowable
+import org.apache.spark.internal.LogKeys.COLUMN_NAME
 import org.apache.spark.sql.AnalysisException
 import org.apache.spark.sql.catalyst.SQLConfHelper
 import org.apache.spark.sql.catalyst.analysis.{
@@ -31,16 +33,17 @@ import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.execution.datasources.v2.TableSampleInfo
 import org.apache.spark.sql.types._
 
-import java.sql.{Connection, SQLException, Timestamp, Types}
+import java.sql.{Connection, Date, ResultSetMetaData, SQLException, Timestamp, Types}
 import java.time.{LocalDateTime, ZoneOffset}
 import java.util
 import java.util.Locale
+import scala.util.Using
 import scala.util.control.NonFatal
 
-object KingbaseDialect extends JdbcDialect with SQLConfHelper {
+case class KingbaseDialect() extends JdbcDialect with SQLConfHelper with NoLegacyJDBCError {
 
   override def canHandle(url: String): Boolean =
-    url.toLowerCase(Locale.ROOT).startsWith("jdbc:kingbase8")
+    url.toLowerCase(Locale.ROOT).startsWith("jdbc:postgresql")
 
   // See https://www.postgresql.org/docs/8.4/functions-aggregate.html
   private val supportedAggregateFunctions = Set(
@@ -61,52 +64,85 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
     "REGR_SLOPE",
     "REGR_SXY"
   )
-  private val supportedFunctions = supportedAggregateFunctions
+  private val supportedStringFunctions = Set("RPAD", "LPAD")
+  private val supportedFunctions = supportedAggregateFunctions ++ supportedStringFunctions
 
   override def isSupportedFunction(funcName: String): Boolean =
     supportedFunctions.contains(funcName)
 
-  override def getCatalystType(sqlType: Int, typeName: String, size: Int, md: MetadataBuilder): Option[DataType] = {
-    if (sqlType == Types.REAL) {
-      Some(FloatType)
-    } else if (sqlType == Types.SMALLINT) {
-      Some(ShortType)
-    } else if (sqlType == Types.BIT && typeName == "bit" && size != 1) {
-      Some(BinaryType)
-    } else if (sqlType == Types.DOUBLE && typeName == "money") {
-      // money type seems to be broken but one workaround is to handle it as string.
-      // See SPARK-34333 and https://github.com/pgjdbc/pgjdbc/issues/100
-      Some(StringType)
-    } else if (sqlType == Types.OTHER) {
-      Some(StringType)
-    } else if ("text".equalsIgnoreCase(typeName)) {
-      Some(StringType) // sqlType is  Types.VARCHAR
-    } else if (sqlType == Types.ARRAY) {
-      val scale = md.build.getLong("scale").toInt
-      // postgres array type names start with underscore
-      toCatalystType(typeName.drop(1), size, scale).map(ArrayType(_))
-    } else None
+  override def isObjectNotFoundException(e: SQLException): Boolean = {
+    e.getSQLState == "42P01" ||
+    e.getSQLState == "3F000" ||
+    e.getSQLState == "42704"
   }
 
-  private def toCatalystType(typeName: String, precision: Int, scale: Int): Option[DataType] = typeName match {
-    case "bool"            => Some(BooleanType)
-    case "bit"             => Some(BinaryType)
-    case "int2"            => Some(ShortType)
-    case "int4"            => Some(IntegerType)
-    case "int8" | "oid"    => Some(LongType)
-    case "float4"          => Some(FloatType)
-    case "float8"          => Some(DoubleType)
-    case "varchar"         => Some(VarcharType(precision))
-    case "char" | "bpchar" => Some(CharType(precision))
+  override def getCatalystType(sqlType: Int, typeName: String, size: Int, md: MetadataBuilder): Option[DataType] = {
+    sqlType match {
+      case Types.REAL                                  => Some(FloatType)
+      case Types.SMALLINT                              => Some(ShortType)
+      case Types.BIT if typeName == "bit" && size != 1 => Some(BinaryType)
+      case Types.DOUBLE if typeName == "money"         =>
+        // money type seems to be broken but one workaround is to handle it as string.
+        // See SPARK-34333 and https://github.com/pgjdbc/pgjdbc/issues/100
+        Some(StringType)
+      case Types.TIMESTAMP
+          if "timestamptz".equalsIgnoreCase(typeName) &&
+            !conf.legacyPostgresDatetimeMappingEnabled =>
+        // timestamptz represents timestamp with time zone, currently it maps to Types.TIMESTAMP.
+        // We need to change to Types.TIMESTAMP_WITH_TIMEZONE if the upstream changes.
+        Some(TimestampType)
+      case Types.TIME if "timetz".equalsIgnoreCase(typeName) =>
+        // timetz represents time with time zone, currently it maps to Types.TIME.
+        // We need to change to Types.TIME_WITH_TIMEZONE if the upstream changes.
+        Some(TimestampType)
+      case Types.CHAR if "bpchar".equalsIgnoreCase(typeName) && size == Int.MaxValue =>
+        // bpchar with unspecified length same as text in postgres with blank-trimmed
+        Some(StringType)
+      case Types.OTHER if "void".equalsIgnoreCase(typeName) => Some(NullType)
+      case Types.OTHER                                      => Some(StringType)
+      case _ if "text".equalsIgnoreCase(typeName)           => Some(StringType) // sqlType is Types.VARCHAR
+      case Types.ARRAY                                      =>
+        // postgres array type names start with underscore
+        val elementType = toCatalystType(typeName.drop(1), size, md)
+        elementType.map { et =>
+          val metadata = md.build()
+          val dim = if (metadata.contains("arrayDimension")) {
+            metadata.getLong("arrayDimension").toInt
+          } else {
+            1
+          }
+          (0 until dim).foldLeft(et)((acc, _) => ArrayType(acc))
+        }
+      case _ => None
+    }
+  }
+
+  private def toCatalystType(typeName: String, precision: Int, md: MetadataBuilder): Option[DataType] = typeName match {
+    case "bool"                  => Some(BooleanType)
+    case "bit" if precision == 1 => Some(BooleanType)
+    case "bit" =>
+      md.putBoolean("pg_bit_array_type", value = true)
+      Some(BinaryType)
+    case "int2"                                => Some(ShortType)
+    case "int4"                                => Some(IntegerType)
+    case "int8" | "oid"                        => Some(LongType)
+    case "float4"                              => Some(FloatType)
+    case "float8"                              => Some(DoubleType)
+    case "varchar"                             => Some(VarcharType(precision))
+    case "bpchar" if precision == Int.MaxValue => Some(StringType)
+    case "char" | "bpchar"                     => Some(CharType(precision))
     case "text" | "cidr" | "inet" | "json" | "jsonb" | "uuid" | "xml" | "tsvector" | "tsquery" | "macaddr" |
         "macaddr8" | "txid_snapshot" | "point" | "line" | "lseg" | "box" | "path" | "polygon" | "circle" | "pg_lsn" |
         "varbit" | "interval" | "pg_snapshot" =>
       Some(StringType)
-    case "bytea"                                         => Some(BinaryType)
-    case "timestamp" | "timestamptz" | "time" | "timetz" => Some(TimestampType)
-    case "date"                                          => Some(DateType)
-    case "numeric" | "decimal" if precision > 0          => Some(DecimalType.bounded(precision, scale))
-    case "numeric" | "decimal"                           =>
+    case "bytea"                  => Some(BinaryType)
+    case "timestamptz" | "timetz" => Some(TimestampType)
+    case "timestamp" | "time"     => Some(getTimestampType(md.build()))
+    case "date"                   => Some(DateType)
+    case "numeric" | "decimal" if precision > 0 =>
+      val scale = md.build().getLong("scale").toInt
+      Some(DecimalType.bounded(precision, scale))
+    case "numeric" | "decimal" =>
       // SPARK-26538: handle numeric without explicit precision and scale.
       Some(DecimalType.SYSTEM_DEFAULT)
     case "money" =>
@@ -134,8 +170,10 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
     case FloatType            => Some(JdbcType("FLOAT4", Types.FLOAT))
     case DoubleType           => Some(JdbcType("FLOAT8", Types.DOUBLE))
     case ShortType | ByteType => Some(JdbcType("SMALLINT", Types.SMALLINT))
-    case t: DecimalType       => Some(JdbcType(s"NUMERIC(${t.precision},${t.scale})", java.sql.Types.NUMERIC))
-    case ArrayType(et, _) if et.isInstanceOf[AtomicType] =>
+    case TimestampType if !conf.legacyPostgresDatetimeMappingEnabled =>
+      Some(JdbcType("TIMESTAMP WITH TIME ZONE", Types.TIMESTAMP))
+    case t: DecimalType => Some(JdbcType(s"NUMERIC(${t.precision},${t.scale})", java.sql.Types.NUMERIC))
+    case ArrayType(et, _) if et.isInstanceOf[AtomicType] || et.isInstanceOf[ArrayType] =>
       getJDBCType(et)
         .map(_.databaseTypeDefinition)
         .orElse(JdbcUtils.getCommonJDBCType(et).map(_.databaseTypeDefinition))
@@ -158,15 +196,33 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
     * @return
     *   The SQL query to use for truncating a table
     */
-  override def getTruncateQuery(table: String, cascade: Option[Boolean] = isCascadingTruncateTable): String = {
+  override def getTruncateQuery(table: String, cascade: Option[Boolean] = isCascadingTruncateTable()): String = {
     cascade match {
       case Some(true) => s"TRUNCATE TABLE ONLY $table CASCADE"
       case _          => s"TRUNCATE TABLE ONLY $table"
     }
   }
 
-  override def beforeFetch(connection: Connection, properties: Map[String, String]): Unit = {
-    super.beforeFetch(connection, properties)
+  // PostgreSQL JDBC driver fetches all rows into memory by default (fetchSize=0),
+  // which can cause executor OOM. Override to use 1000 as a sensible default when
+  // the user does not explicitly set the fetchSize option.
+  private val POSTGRES_DEFAULT_FETCH_SIZE = 1000
+
+  override def getFetchSize(options: JDBCOptions): Int = {
+    options.parameters.get(JDBCOptions.JDBC_BATCH_FETCH_SIZE) match {
+      case Some(v) => v.toInt
+      case None =>
+        logInfo(
+          s"No fetchSize option set for PostgreSQL JDBC read. " +
+            s"Defaulting to $POSTGRES_DEFAULT_FETCH_SIZE to avoid loading all rows into memory. " +
+            s"Set the 'fetchsize' option explicitly to override this behavior."
+        )
+        POSTGRES_DEFAULT_FETCH_SIZE
+    }
+  }
+
+  override def beforeFetch(connection: Connection, options: JDBCOptions): Unit = {
+    super.beforeFetch(connection, options)
 
     // According to the postgres jdbc documentation we need to be in autocommit=false if we actually
     // want to have fetchsize be non 0 (all the rows).  This allows us to not have to cache all the
@@ -174,7 +230,7 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
     //
     // See: https://jdbc.postgresql.org/documentation/head/query.html#query-with-cursor
     //
-    if (properties.getOrElse(JDBCOptions.JDBC_BATCH_FETCH_SIZE, "0").toInt > 0) {
+    if (getFetchSize(options) > 0) {
       connection.setAutoCommit(false)
     }
   }
@@ -211,6 +267,11 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
       s" $indexType (${columnList.mkString(", ")}) $indexProperties"
   }
 
+  // See https://www.postgresql.org/docs/current/errcodes-appendix.html
+  override def isSyntaxErrorBestEffort(exception: SQLException): Boolean = {
+    Option(exception.getSQLState).exists(_.startsWith("42"))
+  }
+
   // SHOW INDEX syntax
   // https://www.postgresql.org/docs/14/view-pg-indexes.html
   override def indexExists(
@@ -230,43 +291,78 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
     s"DROP INDEX ${quoteIdentifier(indexName)}"
   }
 
-  override def classifyException(message: String, e: Throwable): AnalysisException = {
+  // Message pattern defined by postgres specification
+  private final val pgAlreadyExistsRegex = """(?:.*)relation "(.*)" already exists""".r
+
+  override def classifyException(
+      e: Throwable,
+      condition: String,
+      messageParameters: Map[String, String],
+      description: String,
+      isRuntime: Boolean
+  ): Throwable with SparkThrowable = {
     e match {
       case sqlException: SQLException =>
         sqlException.getSQLState match {
           // https://www.postgresql.org/docs/14/errcodes-appendix.html
           case "42P07" =>
-            // Message patterns defined at caller sides of spark
-            val indexRegex = "(?s)Failed to create index (.*) in (.*)".r
-            val renameRegex = "(?s)Failed table renaming from (.*) to (.*)".r
-            // Message pattern defined by postgres specification
-            val pgRegex = """(?:.*)relation "(.*)" already exists""".r
-
-            message match {
-              case indexRegex(index, table) =>
-                throw new IndexAlreadyExistsException(indexName = index, tableName = table, cause = Some(e))
-              case renameRegex(_, newTable) =>
-                throw QueryCompilationErrors.tableAlreadyExistsError(newTable)
-              case _ if pgRegex.findFirstMatchIn(sqlException.getMessage).nonEmpty =>
-                val tableName = pgRegex.findFirstMatchIn(sqlException.getMessage).get.group(1)
-                throw QueryCompilationErrors.tableAlreadyExistsError(tableName)
-              case _ => super.classifyException(message, e)
+            if (condition == "FAILED_JDBC.CREATE_INDEX") {
+              throw new IndexAlreadyExistsException(
+                indexName = messageParameters("indexName"),
+                tableName = messageParameters("tableName"),
+                cause = Some(e)
+              )
+            } else if (condition == "FAILED_JDBC.RENAME_TABLE") {
+              val newTable = messageParameters("newName")
+              throw QueryCompilationErrors.tableAlreadyExistsError(newTable)
+            } else {
+              val tblRegexp = pgAlreadyExistsRegex.findFirstMatchIn(sqlException.getMessage)
+              if (tblRegexp.nonEmpty) {
+                throw QueryCompilationErrors.tableAlreadyExistsError(tblRegexp.get.group(1))
+              } else {
+                super.classifyException(e, condition, messageParameters, description, isRuntime)
+              }
             }
-          case "42704" =>
-            // The message is: Failed to drop index indexName in tableName
-            val regex = "(?s)Failed to drop index (.*) in (.*)".r
-            val indexName = regex.findFirstMatchIn(message).get.group(1)
-            val tableName = regex.findFirstMatchIn(message).get.group(2)
+          case "42704" if condition == "FAILED_JDBC.DROP_INDEX" =>
+            val indexName = messageParameters("indexName")
+            val tableName = messageParameters("tableName")
             throw new NoSuchIndexException(indexName, tableName, cause = Some(e))
-          case "2BP01" => throw NonEmptyNamespaceException(message, cause = Some(e))
-          case _       => super.classifyException(message, e)
+          case "2BP01" =>
+            throw NonEmptyNamespaceException(
+              namespace = messageParameters.get("namespace").toArray,
+              details = sqlException.getMessage,
+              cause = Some(e)
+            )
+          case _ =>
+            super.classifyException(e, condition, messageParameters, description, isRuntime)
         }
       case unsupported: UnsupportedOperationException => throw unsupported
-      case _                                          => super.classifyException(message, e)
+      case _ => super.classifyException(e, condition, messageParameters, description, isRuntime)
     }
   }
 
   class PostgresSQLBuilder extends JDBCSQLBuilder {
+    override def visitExtract(field: String, source: String): String = {
+      // SECOND, MINUTE, HOUR, DAY, MONTH, QUARTER, YEAR are identical on postgres and spark for
+      // both datetime and interval types.
+      // DAY_OF_WEEK  is DOW, day of week is full compatible with postgres,
+      //              but in V2ExpressionBuilder they converted DAY_OF_WEEK to DAY_OF_WEEK_ISO,
+      //              so we need to push down ISODOW
+      //              (ISO and standard day of weeks differs in starting day,
+      //              Sunday is 0 on standard DOW extraction, while in ISO it's 7)
+      // DAY_OF_YEAR  have same semantic, but different name (On postgres, it is DOY)
+      // WEEK         is a little bit specific function, but both spark and postgres uses ISO week
+      // YEAR_OF_WEEK is ISO year actually. First few days of a calendar year can belong to the
+      //              past year by ISO standard of week counting.
+      val postgresField = field match {
+        case "DAY_OF_WEEK"  => "ISODOW"
+        case "DAY_OF_YEAR"  => "DOY"
+        case "YEAR_OF_WEEK" => "ISOYEAR"
+        case _              => field
+      }
+      super.visitExtract(postgresField, source)
+    }
+
     override def visitBinaryArithmetic(name: String, l: String, r: String): String = {
       l + " " + name.replace('^', '#') + " " + r
     }
@@ -283,11 +379,19 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
     }
   }
 
+  override def compileValue(value: Any): Any = value match {
+    case binaryValue: Array[Byte] =>
+      binaryValue.map("%02X".format(_)).mkString("'\\x", "", "'::bytea")
+    case other => super.compileValue(other)
+  }
+
   override def supportsLimit: Boolean = true
 
   override def supportsOffset: Boolean = true
 
   override def supportsTableSample: Boolean = true
+
+  override def supportsJoin: Boolean = true
 
   override def getTableSample(sample: TableSampleInfo): String = {
     // hard-coded to BERNOULLI for now because Spark doesn't have a way to specify sample
@@ -311,28 +415,61 @@ object KingbaseDialect extends JdbcDialect with SQLConfHelper {
   override def convertJavaTimestampToTimestamp(t: Timestamp): Timestamp = {
     // Variable names come from PostgreSQL "constant field docs":
     // https://jdbc.postgresql.org/documentation/publicapi/index.html?constant-values.html
-    val POSTGRESQL_DATE_NEGATIVE_INFINITY = -9223372036832400000L
-    val POSTGRESQL_DATE_NEGATIVE_SMALLER_INFINITY = -185543533774800000L
-    val POSTGRESQL_DATE_POSITIVE_INFINITY = 9223372036825200000L
-    val POSTGRESQL_DATE_DATE_POSITIVE_SMALLER_INFINITY = 185543533774800000L
+    t.getTime match {
+      case 9223372036825200000L =>
+        new Timestamp(
+          LocalDateTime
+            .of(9999, 12, 31, 23, 59, 59, 999999999)
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli
+        )
+      case -9223372036832400000L =>
+        new Timestamp(LocalDateTime.of(1, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli)
+      case _ => t
+    }
+  }
 
-    val minTimeStamp = LocalDateTime.of(1, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli
-    val maxTimestamp =
-      LocalDateTime.of(9999, 12, 31, 23, 59, 59, 999999999).toInstant(ZoneOffset.UTC).toEpochMilli
+  override def convertJavaDateToDate(d: Date): Date = {
+    d.getTime match {
+      case 9223372036825200000L =>
+        new Date(LocalDateTime.of(9999, 12, 31, 0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli)
+      case -9223372036832400000L =>
+        new Date(LocalDateTime.of(1, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli)
+      case _ => d
+    }
+  }
 
-    val time = t.getTime
-    if (
-      time == POSTGRESQL_DATE_POSITIVE_INFINITY ||
-      time == POSTGRESQL_DATE_DATE_POSITIVE_SMALLER_INFINITY
-    ) {
-      new Timestamp(maxTimestamp)
-    } else if (
-      time == POSTGRESQL_DATE_NEGATIVE_INFINITY ||
-      time == POSTGRESQL_DATE_NEGATIVE_SMALLER_INFINITY
-    ) {
-      new Timestamp(minTimeStamp)
-    } else {
-      t
+  override def updateExtraColumnMeta(
+      conn: Connection,
+      rsmd: ResultSetMetaData,
+      columnIdx: Int,
+      metadata: MetadataBuilder
+  ): Unit = {
+    rsmd.getColumnType(columnIdx) match {
+      case Types.ARRAY =>
+        val tableName = rsmd.getTableName(columnIdx)
+        val columnName = rsmd.getColumnName(columnIdx)
+        val query =
+          s"""
+             |SELECT pg_attribute.attndims
+             |FROM pg_attribute
+             |  JOIN pg_class ON pg_attribute.attrelid = pg_class.oid
+             |  JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
+             |WHERE pg_class.relname = '$tableName' and pg_attribute.attname = '$columnName'
+             |""".stripMargin
+        try {
+          Using.resource(conn.createStatement()) { stmt =>
+            Using.resource(stmt.executeQuery(query)) { rs =>
+              // Metadata can return 0 for CTAS tables. For such tables, we are always reading
+              // them as 1D array
+              if (rs.next()) metadata.putLong("arrayDimension", Math.max(1L, rs.getLong(1)))
+            }
+          }
+        } catch {
+          case e: SQLException =>
+            logWarning(log"Failed to get array dimension for column ${MDC(COLUMN_NAME, columnName)}", e)
+        }
+      case _ =>
     }
   }
 }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel-connectors</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>datatunnel-connector-kafka</artifactId>
@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>org.apache.hudi</groupId>
-            <artifactId>hudi-spark3.5.x_2.12</artifactId>
+            <artifactId>hudi-spark4.1.x_2.13</artifactId>
             <version>${hudi.version}</version>
             <scope>provided</scope>
             <exclusions>
@@ -32,7 +32,7 @@
 
         <dependency>
             <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-spark-runtime-3.5_2.12</artifactId>
+            <artifactId>iceberg-spark-runtime-4.1_2.13</artifactId>
             <version>${iceberg.version}</version>
             <scope>provided</scope>
         </dependency>

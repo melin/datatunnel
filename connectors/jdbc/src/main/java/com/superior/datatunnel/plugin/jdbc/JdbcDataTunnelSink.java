@@ -22,7 +22,8 @@ import org.apache.spark.sql.jdbc.JdbcDialects;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
+import scala.collection.immutable.Map$;
+import scala.jdk.javaapi.CollectionConverters;
 
 /**
  * @author melin 2021/7/27 11:06 上午
@@ -173,12 +174,8 @@ public class JdbcDataTunnelSink implements DataTunnelSink {
         try {
             Map<String, String> params = sinkOption.getParams();
             params.put("user", sinkOption.getUsername());
-            JDBCOptions options = new JDBCOptions(
-                    url,
-                    dbtable,
-                    JavaConverters.mapAsScalaMapConverter(params)
-                            .asScala()
-                            .toMap(scala.Predef$.MODULE$.<scala.Tuple2<String, String>>conforms()));
+            JDBCOptions options =
+                    new JDBCOptions(url, dbtable, Map$.MODULE$.from(CollectionConverters.asScala(params)));
 
             JdbcDialect dialect = JdbcDialects.get(url);
             return dialect.createConnectionFactory(options).apply(-1);

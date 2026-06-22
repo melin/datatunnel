@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel-connectors</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>datatunnel-connector-elasticsearch</artifactId>
@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-spark-30_2.12</artifactId>
+            <artifactId>elasticsearch-spark-30_2.13</artifactId>
             <version>${spark-elasticsearch.version}</version>
             <exclusions>
                 <exclusion>

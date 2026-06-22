@@ -1,6 +1,5 @@
 package com.superior.datatunnel.plugin.s3;
 
-import com.amazonaws.SDKGlobalConfiguration;
 import com.superior.datatunnel.api.DataSourceType;
 import com.superior.datatunnel.api.DataTunnelContext;
 import com.superior.datatunnel.api.DataTunnelException;
@@ -30,9 +29,6 @@ public class S3DataTunnelSource implements DataTunnelSource {
                 throw new DataTunnelException("region 和 endpoint 不能同时为空");
             }
         }
-
-        System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-        System.setProperty(SDKGlobalConfiguration.DEFAULT_METRICS_SYSTEM_PROPERTY, "false");
 
         SparkSession sparkSession = context.getSparkSession();
         Configuration hadoopConf = sparkSession.sparkContext().hadoopConfiguration();

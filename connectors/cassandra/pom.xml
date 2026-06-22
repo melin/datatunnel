@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel-connectors</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>datatunnel-connector-cassandra</artifactId>
@@ -25,9 +25,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.datastax.oss</groupId>
+            <groupId>org.apache.cassandra</groupId>
             <artifactId>java-driver-core-shaded</artifactId>
-            <version>4.17.0</version>
+            <version>4.19.3</version>
         </dependency>
 
         <dependency>

@@ -18,7 +18,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +118,6 @@ public class CommonUtils {
         return beanInstance;
     }
 
-    @NotNull
     public static String genOutputSql(
             Dataset<Row> dataset, String[] sourceColumns, String[] sinkColumns, DataSourceType dataSourceType)
             throws AnalysisException {

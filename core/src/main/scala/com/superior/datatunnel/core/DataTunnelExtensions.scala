@@ -8,10 +8,9 @@ import org.apache.spark.sql.SparkSessionExtensions
 
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentMap
-import scala.collection.JavaConverters._
-import scala.tools.nsc.interpreter.InputStream
+import scala.jdk.CollectionConverters._
 
-class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Logging {
+class DataTunnelExtensions extends (SparkSessionExtensions => Unit) with Logging {
   override def apply(extensions: SparkSessionExtensions): Unit = {
     extensions.injectParser { (session, parser) =>
       session.sparkContext.addSparkListener(new SparkListener() {
@@ -50,12 +49,12 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
 
           var msg = ""
           if (inputRecords > 0 && lastInputRecords != inputRecords && "ResultTask".equals(taskEnd.taskType)) {
-            msg = s"datatunnel read records: ${inputRecords}"
+            msg = s"datatunnel read records: $inputRecords"
             lastInputRecords = inputRecords
             logInfo(msg)
           }
           if (outputRecords > 0 && lastOutputRecords != outputRecords && "ResultTask".equals(taskEnd.taskType)) {
-            msg = s"datatunnel write records: ${outputRecords}"
+            msg = s"datatunnel write records: $outputRecords"
             lastOutputRecords = outputRecords
             logInfo(msg)
           }
@@ -68,7 +67,7 @@ class DataTunnelExtensions() extends (SparkSessionExtensions => Unit) with Loggi
   }
 
   private def printGitInfo(): Unit = {
-    var inputStream: InputStream = null
+    var inputStream: java.io.InputStream = null
     try {
       inputStream = classOf[DataTunnelExtensions].getResourceAsStream("/git.datatunnel.properties")
       val text = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name)

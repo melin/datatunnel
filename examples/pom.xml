@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.superior.datatunnel</groupId>
         <artifactId>datatunnel</artifactId>
-        <version>3.5.0</version>
+        <version>4.2.0</version>
     </parent>
 
     <artifactId>examples</artifactId>
@@ -13,9 +13,15 @@
 
     <dependencies>
         <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.19.0</version>
+            <version>3.20.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -84,7 +90,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
+            <version>2.21</version>
         </dependency>
 
         <dependency>
@@ -108,17 +114,17 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>4.0.3</version>
+            <version>6.1.0</version>
         </dependency>
 
         <dependency>
             <groupId>io.delta</groupId>
-            <artifactId>delta-spark_2.12</artifactId>
+            <artifactId>delta-spark_2.13</artifactId>
             <version>${delta.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.paimon</groupId>
-            <artifactId>paimon-spark-3.5_2.12</artifactId>
+            <artifactId>paimon-spark-4.0_2.13</artifactId>
             <version>${paimon.version}</version>
         </dependency>
         <dependency>
@@ -128,7 +134,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-spark-runtime-3.5_2.12</artifactId>
+            <artifactId>iceberg-spark-runtime-4.1_2.13</artifactId>
             <version>${iceberg.version}</version>
         </dependency>
 
@@ -138,11 +144,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-maxcompute</artifactId>
             <version>${project.version}</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
@@ -162,11 +170,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-elasticsearch</artifactId>
             <version>${project.version}</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
@@ -192,11 +202,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-redis</artifactId>
             <version>${project.version}</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.superior.datatunnel</groupId>

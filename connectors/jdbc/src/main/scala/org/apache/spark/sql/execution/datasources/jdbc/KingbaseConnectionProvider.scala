@@ -17,7 +17,6 @@
 
 package org.apache.spark.sql.execution.datasources.jdbc
 
-import com.gitee.melin.bee.core.jdbc.dialect.impl.KingbaseESJdbcDialect
 import org.apache.spark.sql.execution.datasources.jdbc.connection.SecureConnectionProvider
 import org.apache.spark.sql.jdbc.{JdbcDialects, KingbaseDialect}
 
@@ -29,7 +28,7 @@ private[jdbc] class KingbaseConnectionProvider extends SecureConnectionProvider 
 
   override val name: String = "kingbase"
 
-  JdbcDialects.registerDialect(KingbaseDialect)
+  JdbcDialects.registerDialect(KingbaseDialect())
 
   override def appEntry(driver: Driver, options: JDBCOptions): String = {
     val parseURL = driver.getClass.getMethod("parseURL", classOf[String], classOf[Properties])

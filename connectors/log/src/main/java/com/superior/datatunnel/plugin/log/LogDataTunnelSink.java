@@ -53,7 +53,8 @@ public class LogDataTunnelSink implements DataTunnelSink {
         }
         // 支持 superior 平台显示log 结果 end
 
-        String data = dataset.showString(numRows, truncate, vertical);
+        org.apache.spark.sql.classic.Dataset cDataSet = (org.apache.spark.sql.classic.Dataset) dataset;
+        String data = cDataSet.showString(numRows, truncate, vertical);
         LogUtils.stdout(data);
         LOG.info("log sink result:\n" + data);
     }

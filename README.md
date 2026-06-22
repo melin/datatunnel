@@ -1,4 +1,4 @@
-## 基于spark 的数据集成平台
+## 基于spark 的数据集成平台 (基于 Spark 4.2 版本)
 
 DataTunnel 是一个基于spark引擎的超高性能的分布式数据集成软件，支持海量数据的同步。基于spark extensions 扩展的DSL语法，结合的Spark SQL，更加便捷融入数仓 ETLT 过程中，简单易用。
 
