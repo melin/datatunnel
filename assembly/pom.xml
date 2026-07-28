@@ -88,6 +88,7 @@
             <artifactId>datatunnel-connector-ftp</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-starrocks</artifactId>
@@ -98,7 +99,6 @@
             <artifactId>datatunnel-connector-doris</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--
         <dependency>
             <groupId>com.superior.datatunnel</groupId>
             <artifactId>datatunnel-connector-redis</artifactId>
