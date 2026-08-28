@@ -190,7 +190,8 @@ object CopyUtils extends Logging {
           definition.destination,
           removeExisting = false,
           ignoreErrors = options.isIgnoreErrors,
-          taskAttemptID
+          taskAttemptID,
+          options
         )
       case Failure(e) if options.isIgnoreErrors =>
         logError(
@@ -220,7 +221,8 @@ object CopyUtils extends Logging {
           definition.destination,
           removeExisting = true,
           ignoreErrors = options.isIgnoreErrors,
-          taskAttemptID
+          taskAttemptID,
+          options
         )
       case Success(d) if options.isUpdate =>
         Try {
@@ -266,7 +268,8 @@ object CopyUtils extends Logging {
               definition.destination,
               removeExisting = true,
               ignoreErrors = options.isIgnoreErrors,
-              taskAttemptID
+              taskAttemptID,
+              options
             )
         }
       case Success(_) =>
@@ -315,6 +318,113 @@ object CopyUtils extends Logging {
 
   /** Internal copy function Only pass in true for removeExisting if the file actually exists
     */
+
+  // Global bandwidth limiter shared across all copy operations in this JVM (executor).
+  // Improved token-bucket implementation with low-latency waiting using LockSupport.parkNanos
+  private object BandwidthLimiter {
+    private val rate = new java.util.concurrent.atomic.AtomicLong(0L) // bytes per second, 0 = unlimited
+
+    // token bucket state (protected by `this` monitor)
+    private var tokens: Double = 0.0
+    private var lastRefillNanos: Long = System.nanoTime()
+
+    // capacity as seconds worth of bytes; use 1 second burst by default for smoothness
+    private val burstSeconds: Double = 1.0
+
+    def setRate(bytesPerSec: Long): Unit = synchronized {
+      val normalized = if (bytesPerSec < 0) 0L else bytesPerSec
+      rate.set(normalized)
+      // ensure tokens do not exceed new capacity
+      val capacity = normalized.toDouble * burstSeconds
+      if (tokens > capacity) tokens = capacity
+      // update last refill to avoid large elapsed interval on next refill
+      lastRefillNanos = System.nanoTime()
+    }
+
+    def getRate(): Long = rate.get()
+
+    private def refillLocked(now: Long): Unit = {
+      val r = rate.get()
+      if (r <= 0L) {
+        tokens = 0.0
+        lastRefillNanos = now
+        return
+      }
+      val elapsed = now - lastRefillNanos
+      if (elapsed <= 0) return
+      val added = (elapsed.toDouble * r) / 1e9
+      val capacity = r.toDouble * burstSeconds
+      tokens = math.min(tokens + added, capacity)
+      lastRefillNanos = now
+    }
+
+    /** Acquire permission to transfer `bytes` bytes. Blocks until tokens are available. */
+    def acquire(bytes: Int): Unit = {
+      val r = rate.get()
+      if (r <= 0L) return // unlimited
+
+      var remaining = bytes.toDouble
+      while (remaining > 0.0) {
+        var nanosToWait: Long = 0L
+        val acquired = synchronized {
+          val now = System.nanoTime()
+          refillLocked(now)
+          if (tokens >= remaining) {
+            tokens -= remaining
+            remaining = 0.0
+            true
+          } else {
+            val need = remaining - tokens
+            // consume what we have
+            remaining = need
+            tokens = 0.0
+            // compute time to refill `need` bytes at rate r (in nanoseconds)
+            val wait = math.ceil((need / r) * 1e9).toLong
+            nanosToWait = if (wait < 0) 0L else wait
+            false
+          }
+        }
+
+        if (acquired) return
+
+        if (nanosToWait > 0) {
+          // park the thread precisely for required nanos; this yields lower-latency than Thread.sleep
+          try {
+            java.util.concurrent.locks.LockSupport.parkNanos(nanosToWait)
+          } catch {
+            case _: Throwable => // ignore, loop will re-check
+          }
+        } else {
+          // if nanosToWait is 0 (very small), yield briefly to avoid busy-loop
+          Thread.`yield`()
+        }
+      }
+    }
+  }
+
+  /** Expose global bandwidth control for driver→executor broadcast and tests */
+  def setGlobalBandwidth(bytesPerSec: Long): Unit = BandwidthLimiter.setRate(bytesPerSec)
+
+  def getGlobalBandwidth(): Long = BandwidthLimiter.getRate()
+
+  /** Copy bytes from input to output while using the global BandwidthLimiter. A rate <= 0 means no limit. */
+  private def copyBytesThrottled(
+      in: FSDataInputStream,
+      out: FSDataOutputStream,
+      bufferSize: Int,
+      rateLimitBytesPerSec: Long
+  ): Unit = {
+    // rely on global limiter being set externally (driver broadcast). Do not override here.
+
+    val buffer = new Array[Byte](bufferSize)
+    var bytesRead = -1
+    while ({ bytesRead = in.read(buffer); bytesRead > 0 }) {
+      out.write(buffer, 0, bytesRead)
+      // Acquire tokens for bytes just written — blocks if global usage exceeds rate
+      BandwidthLimiter.acquire(bytesRead)
+    }
+  }
+
   def performCopy(
       sourceFS: FileSystem,
       sourceFile: SerializableFileStatus,
@@ -322,7 +432,8 @@ object CopyUtils extends Logging {
       dest: URI,
       removeExisting: Boolean,
       ignoreErrors: Boolean,
-      taskAttemptID: Long
+      taskAttemptID: Long,
+      options: DistCpOption
   ): FileCopyResult = {
 
     val destPath = new Path(dest)
@@ -342,11 +453,9 @@ object CopyUtils extends Logging {
             s"Destination folder [${tempPath.getParent}] does not exist"
           )
         out = Some(destFS.create(tempPath, false))
-        IOUtils.copyBytes(
-          in.get,
-          out.get,
-          sourceFS.getConf.getInt("io.file.buffer.size", 4096)
-        )
+        val bufferSize = sourceFS.getConf.getInt("io.file.buffer.size", 4096)
+        val rateLimit: Long = if (options == null) 0L else options.getBandwidthLimitBytesPerSec.longValue()
+        copyBytesThrottled(in.get, out.get, bufferSize, rateLimit)
 
       } catch {
         case e: Throwable => throw e

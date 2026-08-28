@@ -22,6 +22,9 @@ public class DistCpOption implements Serializable {
 
     private Long maxBytesPerTask = 1073741824L;
 
+    // Bandwidth limit in bytes per second for network transfer. 0 means unlimited.
+    private Long bandwidthLimitBytesPerSec = 0L;
+
     private int numListstatusThreads = 10;
 
     private boolean consistentPathBehaviour = false;
@@ -122,6 +125,14 @@ public class DistCpOption implements Serializable {
 
     public void setMaxBytesPerTask(Long maxBytesPerTask) {
         this.maxBytesPerTask = maxBytesPerTask;
+    }
+
+    public Long getBandwidthLimitBytesPerSec() {
+        return bandwidthLimitBytesPerSec;
+    }
+
+    public void setBandwidthLimitBytesPerSec(Long bandwidthLimitBytesPerSec) {
+        this.bandwidthLimitBytesPerSec = bandwidthLimitBytesPerSec;
     }
 
     public String[] getIncludes() {

@@ -101,12 +101,21 @@ object HdfsDistCpAction extends Logging {
     val serConfig = new ConfigSerDeser(
       sourceRDD.sparkContext.hadoopConfiguration
     )
+
+    // Broadcast the global bandwidth limit from driver to executors so each executor's
+    // BandwidthLimiter is initialized with the same value.
+    val bwValue = if (options == null) 0L else options.getBandwidthLimitBytesPerSec.longValue()
+    val bwBroadcast = sourceRDD.sparkContext.broadcast(java.lang.Long.valueOf(bwValue))
+
     batchAndPartitionFiles(
       sourceRDD,
       options.getMaxFilesPerTask,
       options.getMaxBytesPerTask
     )
       .mapPartitions { iterator =>
+        // set global bandwidth limiter on each executor JVM from the broadcast
+        CopyUtils.setGlobalBandwidth(bwBroadcast.value)
+
         val hadoopConfiguration = serConfig.get()
         val attemptID = TaskContext.get().taskAttemptId()
 
