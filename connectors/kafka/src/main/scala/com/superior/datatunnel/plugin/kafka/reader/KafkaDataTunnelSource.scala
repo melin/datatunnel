@@ -8,14 +8,7 @@ import com.superior.datatunnel.plugin.kafka.{
   KafkaDataTunnelSinkOption,
   KafkaDataTunnelSourceOption
 }
-import com.superior.datatunnel.plugin.kafka.util.{
-  DeltaUtils,
-  DorisUtils,
-  HudiUtils,
-  IcebergUtils,
-  PaimonUtils,
-  StarrocksUtils
-}
+import com.superior.datatunnel.plugin.kafka.util.{DeltaUtils, DorisUtils, IcebergUtils, PaimonUtils, StarrocksUtils}
 import com.superior.datatunnel.plugin.starrocks.StarrocksDataTunnelSinkOption
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.common.serialization.StringSerializer
@@ -40,9 +33,7 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     }
 
     val sinkType = context.getSinkOption.getDataSourceType
-    if (DataSourceType.HUDI == sinkType) {
-      writeHudi(context, sourceOption, tmpTable)
-    } else if (DataSourceType.PAIMON == sinkType) {
+    if (DataSourceType.PAIMON == sinkType) {
       writePaimon(context, sourceOption, tmpTable)
     } else if (DataSourceType.DELTA == sinkType) {
       writeDelta(context, sourceOption, tmpTable)
@@ -106,37 +97,6 @@ class KafkaDataTunnelSource extends DataTunnelSource with Logging {
     }
 
     writer.start().awaitTermination()
-  }
-
-  private def writeHudi(
-      context: DataTunnelContext,
-      sourceOption: KafkaDataTunnelSourceOption,
-      tmpTable: String
-  ): Unit = {
-    val sparkSession = context.getSparkSession
-    val sinkOption =
-      context.getSinkOption.asInstanceOf[DatalakeDatatunnelSinkOption]
-    val databaseName = sinkOption.getDatabaseName
-    val tableName = sinkOption.getTableName
-    val identifier = TableIdentifier(tableName, Some(databaseName))
-    val checkpointLocation = sourceOption.getCheckpointLocation
-    val triggerProcessingTime = sourceOption.getTriggerProcessingTime
-    if (StringUtils.isBlank(checkpointLocation)) {
-      throw new IllegalArgumentException("checkpointLocation 不能为空")
-    }
-
-    if (!HudiUtils.isHudiTable(identifier)) {
-      throw new DataTunnelException(s"${identifier} 不是 hudi 表")
-    }
-    val querySql = buildQuerySql(context, sourceOption, tmpTable)
-    HudiUtils.writeStreamSelectAdapter(
-      sparkSession,
-      identifier,
-      checkpointLocation,
-      triggerProcessingTime,
-      sinkOption,
-      querySql
-    )
   }
 
   private def writePaimon(
