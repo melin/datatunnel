@@ -64,6 +64,11 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
         JdbcDataTunnelSourceOption sourceOption = (JdbcDataTunnelSourceOption) context.getSourceOption();
         DataSourceType dataSourceType = sourceOption.getDataSourceType();
 
+        String query = sourceOption.getQuery();
+        if (StringUtils.isNotBlank(query)) {
+            return readQuery(context, sourceOption);
+        }
+
         String schemaName = sourceOption.getSchemaName();
         if (StringUtils.isBlank(schemaName)) {
             schemaName = sourceOption.getDatabaseName();
@@ -209,6 +214,53 @@ public class JdbcDataTunnelSource implements DataTunnelSource {
             dataset = dataset.drop(ORALCE_ROWID_ALIAS);
         }
         return dataset;
+    }
+
+    private Dataset<Row> readQuery(DataTunnelContext context, JdbcDataTunnelSourceOption sourceOption) {
+        DataSourceType dataSourceType = sourceOption.getDataSourceType();
+        String jdbcUrl = sourceOption.getJdbcUrl();
+        if (StringUtils.isBlank(jdbcUrl)) {
+            if (dataSourceType == ORACLE) {
+                throw new DataTunnelException("orcale 数据源请指定 jdbcUrl");
+            }
+
+            jdbcUrl = JdbcUtils.buildJdbcUrl(
+                    dataSourceType,
+                    sourceOption.getHost(),
+                    sourceOption.getPort(),
+                    sourceOption.getDatabaseName(),
+                    sourceOption.getSchemaName());
+        } else {
+            jdbcUrl = JdbcUtils.addUrlParams(jdbcUrl);
+        }
+        LOG.info("jdbc url: {}", jdbcUrl);
+
+        int fetchsize = sourceOption.getFetchsize();
+        int queryTimeout = sourceOption.getQueryTimeout();
+        String username = sourceOption.getUsername();
+        String password = sourceOption.getPassword();
+        if (StringUtils.isBlank(password)) {
+            LogUtils.warn("password is blank");
+        }
+
+        DataFrameReader reader = context.getSparkSession()
+                .read()
+                .format("jdbc")
+                .options(sourceOption.getProperties())
+                .option("url", jdbcUrl)
+                .option("query", sourceOption.getQuery())
+                .option("fetchsize", fetchsize)
+                .option("queryTimeout", queryTimeout)
+                .option("user", username)
+                .option("password", password)
+                .option("pushDownPredicate", sourceOption.isPushDownPredicate())
+                .option("pushDownAggregate", sourceOption.isPushDownAggregate())
+                .option("pushDownLimit", sourceOption.isPushDownLimit());
+
+        if (StringUtils.isNotBlank(sourceOption.getCustomSchema())) {
+            reader.option("customSchema", sourceOption.getCustomSchema());
+        }
+        return reader.load();
     }
 
     private List<String> getSchemaNames(String schemaName, com.gitee.melin.bee.core.jdbc.dialect.JdbcDialect dialect) {
