@@ -15,8 +15,9 @@ public class JdbcDataTunnelSourceOption extends BaseSourceOption {
     private String schemaName;
 
     @OptionDesc("支持多个tableName，逗号分隔。支持正则表达式")
-    @NotBlank(message = "tableName can not blank")
     private String tableName;
+
+    private String query;
 
     @NotBlank(message = "username can not blank")
     private String username;
