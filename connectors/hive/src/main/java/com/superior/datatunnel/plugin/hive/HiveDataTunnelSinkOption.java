@@ -12,6 +12,8 @@ import lombok.Data;
 @Data
 public class HiveDataTunnelSinkOption extends BaseSinkOption {
 
+    private String catalogName;
+
     private String databaseName;
 
     @OptionDesc("等同 databaseName, databaseName 和 schemaName 只需设置一个")

@@ -25,6 +25,8 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.catalyst.util.CharVarcharUtils;
+import org.apache.spark.sql.connector.catalog.Identifier;
+import org.apache.spark.sql.connector.catalog.TableCatalog;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +47,21 @@ public class HiveDataTunnelSink implements DataTunnelSink {
         }
     }
 
+    private String getCatalogName(DataTunnelContext context, HiveDataTunnelSinkOption sinkOption) {
+        String catalogName = sinkOption.getCatalogName();
+        if (StringUtils.isBlank(catalogName)) {
+            catalogName = context.getSparkSession().conf().get("spark.sql.defaultCatalog", "spark_catalog");
+        }
+        return catalogName;
+    }
+
     @Override
     public void sink(Dataset<Row> dataset, DataTunnelContext context) throws IOException {
         HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
         validate(sinkOption);
 
         try {
+            String catalogName = getCatalogName(context, sinkOption);
             String databaseName = sinkOption.getDatabaseName();
             if (StringUtils.isBlank(databaseName)) {
                 databaseName = sinkOption.getSchemaName();
@@ -64,7 +75,8 @@ public class HiveDataTunnelSink implements DataTunnelSink {
             String partitionSpec = sinkOption.getPartitionSpec();
             WriteMode writeMode = sinkOption.getWriteMode();
 
-            boolean isPartition = HiveUtils.checkPartition(context.getSparkSession(), databaseName, tableName);
+            boolean isPartition =
+                    HiveUtils.checkPartition(context.getSparkSession(), catalogName, databaseName, tableName);
             if (isPartition) {
                 if (StringUtils.isBlank(partitionSpec)) {
                     throw new DataTunnelException(
@@ -140,9 +152,10 @@ public class HiveDataTunnelSink implements DataTunnelSink {
     @Override
     public void createTable(Dataset<Row> dataset, DataTunnelContext context) {
         HiveDataTunnelSinkOption sinkOption = (HiveDataTunnelSinkOption) context.getSinkOption();
-        boolean tableExists = context.getSparkSession()
-                .catalog()
-                .tableExists(sinkOption.getDatabaseName(), sinkOption.getTableName());
+
+        TableCatalog catalog = HiveUtils.getSessionCatalog(context.getSparkSession(), getCatalogName(context, sinkOption));
+        Identifier identifier = Identifier.of(new String[] {sinkOption.getDatabaseName()}, sinkOption.getTableName());
+        boolean tableExists = catalog.tableExists(identifier);
         if (tableExists) {
             return;
         }
