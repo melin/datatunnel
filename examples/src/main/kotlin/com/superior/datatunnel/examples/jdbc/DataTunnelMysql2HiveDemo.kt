@@ -30,11 +30,11 @@ object DataTunnelMysql2HiveDemo {
         val sql = """
             DATATUNNEL SOURCE("mysql") OPTIONS (
               username = "root",
-              password = "root2023",
-              host = '172.18.5.44',
+              password = "xxx",
+              host = '172.18.6.181',
               port = 3306,
               databaseName = 'demos',
-              tableName = 'orders',
+              tableName = 'paimon_orders',
               columns = ["*"]
             ) 
             SINK("hive") OPTIONS (
